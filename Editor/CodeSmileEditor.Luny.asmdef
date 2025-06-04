@@ -1,0 +1,19 @@
+{
+    "name": "CodeSmileEditor.Luny",
+    "rootNamespace": "CodeSmileEditor.Luny",
+    "references": [
+        "GUID:a3eac051004cc4c6b92cb1b018e08311",
+        "GUID:95bf0f4ce987e425c931e9c97d80271d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
