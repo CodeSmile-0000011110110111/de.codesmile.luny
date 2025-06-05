@@ -87,7 +87,6 @@ namespace CodeSmileEditor.Luny
 			{
 				var editorRegistry = LunyEditorAssetRegistry.instance;
 				FindAndRegisterAllLuaAssets(editorRegistry.LuaAssets, typeof(LunyEditorLuaAsset));
-				editorRegistry.Save();
 			}
 		}
 

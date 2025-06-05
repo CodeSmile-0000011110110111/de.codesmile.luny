@@ -22,10 +22,5 @@ namespace CodeSmileEditor.Luny
 
 			return index >= 0 ? (LunyEditorLuaAsset)m_LuaAssets.Assets[index] : null;
 		}
-
-		internal void Save()
-		{
-			Save(true);
-		}
 	}
 }
