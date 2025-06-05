@@ -18,7 +18,7 @@ namespace CodeSmile.Luny
 	/// Contains settings for a Lua context and instantiates an instance of Lua.
 	/// </summary>
 	[CreateAssetMenu(fileName = "New LuaContext", menuName = "Luny/LuaContext", order = 100)]
-	public partial class LuaContext : ScriptableObject, ILuaContext
+	public sealed class LuaContext : ScriptableObject, ILuaContext
 	{
 		[SerializeField] bool m_IsDefaultContext = false;
 		[SerializeField] bool m_IsEditorContext = false;

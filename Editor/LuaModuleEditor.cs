@@ -1,4 +1,23 @@
-﻿/*
+﻿// Copyright (C) 2021-2025 Steffen Itterheim
+// Refer to included LICENSE file for terms and conditions.
+
+using Lua;
+using UnityEditor;
+using UnityEngine.UIElements;
+
+namespace CodeSmileEditor.Luny
+{
+	[CustomEditor(typeof(LuaModule))]
+	internal class LuaModuleEditor : Editor
+	{
+		public override VisualElement CreateInspectorGUI()
+		{
+
+			return base.CreateInspectorGUI();
+		}
+	}
+}
+/*
 // Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 

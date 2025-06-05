@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
-	public static class CreateLunyAssetsMenu
+	internal static class CreateLunyAssetsMenu
 	{
 		private static readonly String s_EmptyLuaScript = "-- 'script' can be renamed, but it must be a table\n" +
 		                                                  "-- the three dots (...) represent variable arguments passed in (reserved for future use)\n" +

@@ -10,36 +10,44 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
-	internal sealed class LunyAssetRegistryUpdater : ScriptableSingleton<LunyAssetRegistryUpdater>
+	internal sealed class LunyAssetRegistryMaintainer : ScriptableSingleton<LunyAssetRegistryMaintainer>
 	{
 		// delayCall prevents "Asset import worker (4)" warning spam when selecting the registry asset
 		// this is likely due to modifying the AssetDatabase 'too early' (ie same issue as with static ctor)
 		[InitializeOnLoadMethod] private static void OnLoad() => EditorApplication.delayCall += () => InitRegistry();
+
+		// Ensure we're not starting playmode without a registry (in case user deleted registry and clicked play)
 		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRegistry();
+
+		private static LunyAssetRegistry s_Registry;
 
 		private static void InitRegistry()
 		{
 			if (LunyAssetRegistry.Singleton == null)
-				LunyAssetRegistry.Singleton = FindOrCreateRegistry();
+				LunyAssetRegistry.Singleton = s_Registry = FindOrCreateRegistry();
 
 			RegisterAllLunyAssets();
 		}
 
 		private static LunyAssetRegistry FindOrCreateRegistry()
 		{
+			if (s_Registry != null)
+				return s_Registry;
+
 			var registryGuids = AssetDatabase.FindAssets($"t:{nameof(LunyAssetRegistry)}");
 
 			// we got multiple => delete all and create new one
 			if (registryGuids.Length > 1)
 			{
 				TryDeleteAllRegistries(registryGuids);
-				registryGuids = new String[0];
+				return CreateRegistry();
 			}
 
 			// we found none => create it
 			if (registryGuids.Length == 0)
 				return CreateRegistry();
 
+			// get the one that exists
 			var assetPath = AssetDatabase.GUIDToAssetPath(registryGuids[0]);
 			return AssetDatabase.LoadAssetAtPath<LunyAssetRegistry>(assetPath);
 		}

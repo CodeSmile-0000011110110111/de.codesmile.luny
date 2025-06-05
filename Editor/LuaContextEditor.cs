@@ -1,3 +1,42 @@
+﻿// Copyright (C) 2021-2025 Steffen Itterheim
+// Refer to included LICENSE file for terms and conditions.
+
+using CodeSmile.Luny;
+using System;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace CodeSmileEditor.Luny
+{
+	[CustomEditor(typeof(LuaContext))]
+	[CanEditMultipleObjects]
+	internal sealed class LuaContextEditor : Editor
+	{
+		private void Awake()
+		{
+			Debug.Log($"LuaContextEditor.Awake {target} : {target?.GetInstanceID()}");
+		}
+		private void OnEnable()
+		{
+			Debug.Log($"LuaContextEditor.OnEnable {target} : {target?.GetInstanceID()}");
+		}
+		private void OnDisable()
+		{
+			Debug.Log($"LuaContextEditor.OnDisable {target} : {target?.GetInstanceID()}");
+		}
+		private void OnDestroy()
+		{
+			Debug.Log($"LuaContextEditor.OnDestroy {target} : {target?.GetInstanceID()}");
+		}
+
+		// public override VisualElement CreateInspectorGUI()
+		// {
+		//
+		// 	return base.CreateInspectorGUI();
+		// }
+	}
+}
 /*
 // Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
