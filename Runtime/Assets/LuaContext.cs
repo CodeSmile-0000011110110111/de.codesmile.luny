@@ -18,6 +18,7 @@ namespace CodeSmile.Luny
 	/// Contains settings for a Lua context and instantiates an instance of Lua.
 	/// </summary>
 	[CreateAssetMenu(fileName = "New LuaContext", menuName = "Luny/LuaContext", order = 100)]
+	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaContextIcon.png")]
 	public sealed class LuaContext : ScriptableObject, ILuaContext
 	{
 		[SerializeField] bool m_IsDefaultContext = false;
@@ -26,7 +27,7 @@ namespace CodeSmile.Luny
 		/// <summary>
 		/// Directories where functions like dofile('') will search for files.
 		/// </summary>
-		[SerializeField] protected String[] m_SearchPaths =
+		[SerializeField] private String[] m_SearchPaths =
 		{
 			"%PersistentDataPath%",
 			"%StreamingAssets%",

@@ -3,18 +3,14 @@
 
 using Lua;
 using UnityEditor;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
 	[CustomEditor(typeof(LuaModule))]
-	internal class LuaModuleEditor : Editor
+	[CanEditMultipleObjects]
+	internal sealed class LuaModuleEditor : Editor
 	{
-		public override VisualElement CreateInspectorGUI()
-		{
-
-			return base.CreateInspectorGUI();
-		}
 	}
 }
 /*
