@@ -1,12 +1,10 @@
-﻿/*
-// Copyright (C) 2021-2025 Steffen Itterheim
+﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Utility;
 using Lua;
-using Lua.CodeAnalysis.Compilation;
-using Lua.Runtime;
+using Lua.Platforms;
 using Lua.Standard;
-using Lua.Unity;
 using System;
 using System.IO;
 using System.Text;
@@ -61,13 +59,11 @@ namespace CodeSmile.Luny
 		String LoadFile(String relativePath);
 
 		String DumpEnvironment();
-		String DumpTable(String name, LuaValue table);
 	}
 
 	internal interface ILunyLuaInternal
 	{
 		void Dispose();
-		void LoadApiCompatibility();
 	}
 
 	public sealed class LunyLua : ILunyLua, ILunyLuaInternal
@@ -77,11 +73,11 @@ namespace CodeSmile.Luny
 
 		public LuaState State => m_LuaState;
 
-		public static Closure CompileClosure(LuaState luaState, String script, String chunkName)
-		{
-			var chunk = LuaCompiler.Default.Compile(script, chunkName);
-			return new Closure(luaState, chunk);
-		}
+		// public static Closure CompileClosure(LuaState luaState, String script, String chunkName)
+		// {
+		// 	var chunk = LuaCompiler.Default.Compile(script, chunkName);
+		// 	return new Closure(luaState, chunk);
+		// }
 
 		private static String GetLogString(LuaFunctionExecutionContext context)
 		{
@@ -96,56 +92,13 @@ namespace CodeSmile.Luny
 			return sb.ToString();
 		}
 
-		public LunyLua(ILunySearchPaths searchPaths)
+		public LunyLua(LunyLuaContext luaContext)
 		{
-			LunyLogger.LogHeap(GetType(), GetHashCode(), null, "ctor");
-
-			m_SearchPaths = searchPaths;
-			m_LuaState = LuaState.Create();
-			InitLuaEnvironment();
+			m_SearchPaths = new LunySearchPaths(luaContext.ScriptSearchPaths);
+			InitLuaEnvironment(luaContext);
 		}
 
-		public String DumpEnvironment() => DumpTable("Luny environment", m_LuaState.Environment);
-
-		public String DumpTable(String name, LuaValue value)
-		{
-			var sb = new StringBuilder($"{name} = ");
-			if (value.Type != LuaValueType.Table)
-			{
-				if (value.Type == LuaValueType.UserData)
-					sb.Append($"({value.Read<ILuaUserData>()})");
-				else
-					sb.Append($"({value.ToString()})");
-				return sb.ToString();
-			}
-
-			sb.Append("{{\n");
-
-			var table = value.Read<LuaTable>();
-			var arrayLength = table.ArrayLength;
-			for (var i = 0; i < arrayLength; i++)
-				sb.AppendLine($"\t[{i}] = {table[i]}");
-
-			var hashCount = table.HashMapCount;
-			if (hashCount > 0)
-			{
-				var nextKey = LuaValue.Nil;
-				for (var i = 0; i < hashCount; i++)
-				{
-					table.TryGetNext(nextKey, out var kvp);
-					nextKey = kvp.Key;
-					if (kvp.Value.Type == LuaValueType.Table)
-					{
-						var t = kvp.Value.Read<LuaTable>();
-						sb.AppendLine($"\t[\"{kvp.Key}\"] = {kvp.Value}  [{t.ArrayLength}]  {{{t.HashMapCount}}}");
-					}
-					else
-						sb.AppendLine($"\t[\"{kvp.Key}\"] = {kvp.Value}");
-				}
-			}
-			sb.AppendLine("}");
-			return sb.ToString();
-		}
+		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
 
 		public LuaValue[] DoString(String script, String chunkName)
 		{
@@ -184,16 +137,7 @@ namespace CodeSmile.Luny
 			if (path == null)
 				throw new FileNotFoundException(relativePath);
 
-			return LunyFile.TryReadAllText(path);
-		}
-
-		public void LoadApiCompatibility()
-		{
-			var alternativeApi = Resources.Load<LuaAsset>(ApiCompatibilityScriptPath);
-			if (alternativeApi == null)
-				throw new FileNotFoundException(ApiCompatibilityScriptPath + ".lua");
-
-			DoString(alternativeApi.Text, ApiCompatibilityScriptPath);
+			return FileUtility.TryReadAllText(path);
 		}
 
 		public void Dispose()
@@ -203,93 +147,103 @@ namespace CodeSmile.Luny
 			m_SearchPaths = null;
 		}
 
-		~LunyLua() => LunyLogger.LogHeap(GetType(), GetHashCode(), null, "finalizer");
-
-		private void InitLuaEnvironment()
+		private void InitLuaEnvironment(LunyLuaContext luaContext)
 		{
-			m_LuaState.OpenBasicLibrary();
-			m_LuaState.OpenBitwiseLibrary();
-			m_LuaState.OpenCoroutineLibrary();
-			m_LuaState.OpenDebugLibrary();
-			m_LuaState.OpenMathLibrary();
-			m_LuaState.OpenStringLibrary();
-			m_LuaState.OpenTableLibrary();
-			m_LuaState.OpenModuleLibrary();
-			//m_LuaState.OpenOperatingSystemLibrary(); // NOTE: os.time et al will fail in IL2CPP builds
+			m_LuaState = LuaState.Create(new LunyLuaPlatform(luaContext.IsSandbox));
 
-#if UNITY_EDITOR
-			m_LuaState.OpenIOLibrary();
-#endif
+			if ((luaContext.Libraries & LuaLibraryFlags.Basic) != 0)
+				m_LuaState.OpenBasicLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Bitwise) != 0)
+				m_LuaState.OpenBitwiseLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Coroutine) != 0)
+				m_LuaState.OpenCoroutineLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Debug) != 0)
+				m_LuaState.OpenDebugLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.IO) != 0)
+				m_LuaState.OpenIOLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Math) != 0)
+				m_LuaState.OpenMathLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Module) != 0)
+				m_LuaState.OpenModuleLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.OS) != 0)
+				m_LuaState.OpenOperatingSystemLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.String) != 0)
+				m_LuaState.OpenStringLibrary();
+			if ((luaContext.Libraries & LuaLibraryFlags.Table) != 0)
+				m_LuaState.OpenTableLibrary();
 
-			RemovePotentiallyHarmfulMethods();
-			RegisterFunctionOverrides();
+			if (luaContext.IsSandbox)
+				RemovePotentiallyHarmfulFunctions();
 
-			OverrideLogging();
+			OverrideDoFileAndLoadFile();
+			OverridePrintAndLog();
 		}
 
-		private void RemovePotentiallyHarmfulMethods()
+		private void RemovePotentiallyHarmfulFunctions()
 		{
 			var env = m_LuaState.Environment;
-			env.SetNil("dofile");
-			env.SetNil("load");
-			env.SetNil("loadfile");
-			env.SetNil("pcall");
-			env.SetNil("xpcall");
+			env.SetNil("load"); // disallow compiling and executing arbitrary strings
+
+			// FIXME: reconsider IO due to introduction of virtual filesystem
+			env.SetNil("io"); // disallow entire IO library ('read' files could lead to privacy violations)
+			m_LuaState.LoadedModules["io"] = LuaValue.Nil;
 
 			if (env["os"].TryRead(out LuaTable os))
 			{
-				os.SetNil("execute");
-				os.SetNil("exit");
-				os.SetNil("remove");
-				os.SetNil("rename");
-				os.SetNil("tmpname");
+				os.SetNil("execute"); // don't allow runnning arbitrary processes (currently unsupported anyway)
+				os.SetNil("exit"); // don't allow to force quit the application
+				os.SetNil("remove"); // don't allow file deletion
+				os.SetNil("rename"); // don't allow file rename
+				os.SetNil("setlocale"); // don't allow changing locale (currently unsupported anyway)
 			}
 		}
 
-		private void RegisterFunctionOverrides()
+		private void OverrideDoFileAndLoadFile()
 		{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			m_LuaState.Environment.SetFunction("dofile", new LuaFunction("dofile", async (context, buffer, ct) =>
-			{
-				var relativePath = context.GetArgument<String>(0);
-				var script = LoadFile(relativePath);
-				var closure = CompileClosure(context.State, script, relativePath);
-				return await closure!.InvokeAsync(context, buffer, ct);
-			}));
+			// TODO: use virtual filesystem?
 
-			m_LuaState.Environment.SetFunction("loadfile", new LuaFunction("loadfile", async (context, buffer, ct) =>
-			{
-				try
-				{
-					var relativePath = context.GetArgument<String>(0);
-					var script = LoadFile(relativePath);
-					buffer.Span[0] = CompileClosure(context.State, script, relativePath);
-					return 1;
-				}
-				catch (Exception ex)
-				{
-					buffer.Span[0] = LuaValue.Nil;
-					buffer.Span[1] = ex.Message;
-					return 2;
-				}
-			}));
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+// #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+// 			m_LuaState.Environment.SetFunction("dofile", new LuaFunction("dofile", async (context, buffer, ct) =>
+// 			{
+// 				var relativePath = context.GetArgument<String>(0);
+// 				var script = LoadFile(relativePath);
+// 				var closure = CompileClosure(context.State, script, relativePath);
+// 				return await closure!.InvokeAsync(context, buffer, ct);
+// 			}));
+//
+// 			m_LuaState.Environment.SetFunction("loadfile", new LuaFunction("loadfile", async (context, buffer, ct) =>
+// 			{
+// 				try
+// 				{
+// 					var relativePath = context.GetArgument<String>(0);
+// 					var script = LoadFile(relativePath);
+// 					buffer.Span[0] = CompileClosure(context.State, script, relativePath);
+// 					return 1;
+// 				}
+// 				catch (Exception ex)
+// 				{
+// 					buffer.Span[0] = LuaValue.Nil;
+// 					buffer.Span[1] = ex.Message;
+// 					return 2;
+// 				}
+// 			}));
+// #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		}
 
-		private void OverrideLogging()
+		private void OverridePrintAndLog()
 		{
-			var logTable = new LuaTable(0, 3);
-			logTable["info"] = new LuaFunction("info", (context, buffer, ct) =>
+			var logTable = new LuaTable(0, 4);
+			logTable["info"] = new LuaFunction("info", (context, ct) =>
 			{
 				LunyLogger.LogInfo(GetLogString(context));
 				return new ValueTask<Int32>(0);
 			});
-			logTable["warning"] = new LuaFunction("warning", (context, buffer, ct) =>
+			logTable["warning"] = new LuaFunction("warning", (context, ct) =>
 			{
 				LunyLogger.LogWarn(GetLogString(context));
 				return new ValueTask<Int32>(0);
 			});
-			logTable["error"] = new LuaFunction("error", (context, buffer, ct) =>
+			logTable["error"] = new LuaFunction("error", (context, ct) =>
 			{
 				LunyLogger.LogError(GetLogString(context));
 				return new ValueTask<Int32>(0);
@@ -305,4 +259,3 @@ namespace CodeSmile.Luny
 		}
 	}
 }
-*/

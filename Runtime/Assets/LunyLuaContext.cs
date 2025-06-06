@@ -4,7 +4,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CodeSmile.Luny
 {
@@ -20,6 +19,10 @@ namespace CodeSmile.Luny
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaContextIcon.png")]
 	public sealed class LunyLuaContext : ScriptableObject, ILuaContext
 	{
+		[Tooltip("When enabled, access to potentially harmful OS and IO libraries is restricted or disallowed. " +
+		         "Contexts that run user scripts (eg modding) should enable this!")]
+		[SerializeField] bool m_IsSandbox = false;
+
 		/// <summary>
 		/// Directories where functions like dofile('') will search for files.
 		/// </summary>
@@ -30,10 +33,16 @@ namespace CodeSmile.Luny
 			"Assets",
 		};
 
+		[SerializeField] private LuaLibraryFlags m_Libraries = (LuaLibraryFlags)(-1); // default: Everything
+
 		/// <summary>
 		/// Which modules (C# bindings) will be available in this Lua state.
 		/// </summary>
 		[SerializeField] private LunyLuaModule[] m_Modules = new LunyLuaModule[0];
+
+		public Boolean IsSandbox => m_IsSandbox;
+		public String[] ScriptSearchPaths => m_ScriptSearchPaths;
+		public LuaLibraryFlags Libraries => m_Libraries;
 
 		// private ILunyLua m_Lua;
 		//

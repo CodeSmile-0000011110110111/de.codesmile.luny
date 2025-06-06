@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement class="project-settings-titlebar" style="flex-grow: 1;">
+        <ui:Label text="Luny Settings" name="Title" class="project-settings-title-bar__label" style="font-size: 20px; -unity-font-style: bold;" />
+    </ui:VisualElement>
+    <ui:GroupBox>
+        <uie:PropertyField binding-path="m_DefaultEditorContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_DefaultRuntimeContext" class="unity-base-field__aligned" />
+    </ui:GroupBox>
+</ui:UXML>

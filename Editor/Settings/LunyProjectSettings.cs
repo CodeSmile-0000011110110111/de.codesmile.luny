@@ -20,7 +20,11 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 	private static SerializedObject GetSerializedSettings() => new(instance);
 	private void Awake() => AssignDefaultContextsIfNull();
 
-	private void Save() => Save(true);
+	private void Save()
+	{
+		AssignDefaultContextsIfNull();
+		Save(true);
+	}
 
 	private void AssignDefaultContextsIfNull()
 	{
@@ -71,26 +75,11 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 
 		public static void ActivateHandler(String searchContext, VisualElement rootElement)
 		{
-			var settings = GetSerializedSettings();
-
-			var title = new Label { text = "Luny Settings" };
-			title.AddToClassList("title");
-			rootElement.Add(title);
-
-			var note = new Label { text = "(settings look horrible, will be fixed eventually)" };
-			rootElement.Add(note);
-
-			var group = new GroupBox();
-			rootElement.Add(group);
-
-			var properties = new VisualElement { style = { flexDirection = FlexDirection.Column } };
-			properties.AddToClassList("property-list");
-			group.Add(properties);
-
-			properties.Add(new PropertyField(settings.FindProperty(nameof(m_DefaultEditorContext))));
-			properties.Add(new PropertyField(settings.FindProperty(nameof(m_DefaultRuntimeContext))));
-
-			rootElement.Bind(settings);
+			var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/de.codesmile.luny/Editor/Settings/LunyProjectSettings.uxml");
+			//var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/main_styles.uss");
+			var ui = uxml.Instantiate();
+			rootElement.Add(ui);
+			rootElement.Bind(GetSerializedSettings());
 		}
 
 		public static void DeactivateHandler() => instance.Save();

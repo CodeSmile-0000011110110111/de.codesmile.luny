@@ -79,17 +79,16 @@ namespace CodeSmileEditor.Luny
 		private static void CreateLuaScript() =>
 			ProjectWindowUtil.CreateAssetWithContent("NewLuaScript.lua", @"print(""Hello, Lua!"")");
 
-		// TODO: ...
-		// [MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
-		// private static void CreateLunyGameObject(MenuCommand menuCommand)
-		// {
-		// 	var luny = CodeSmile.Luny.Luny.CreateGameObject();
-		// 	var go = luny.gameObject;
-		// 	GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
-		// 	Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
-		// 	Selection.activeObject = go;
-		// }
-		//
+		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
+		private static void CreateLunyGameObject(MenuCommand menuCommand)
+		{
+			var luny = new GameObject(nameof(Luny), typeof(CodeSmile.Luny.Luny));
+			var go = luny.gameObject;
+			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
+			Selection.activeObject = go;
+		}
+
 		// [MenuItem("GameObject/Luny/" + nameof(LunyScript), false, priority = 11)]
 		// private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
 		// {
