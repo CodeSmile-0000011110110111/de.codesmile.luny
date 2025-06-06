@@ -3,7 +3,6 @@
 
 using CodeSmile.Utility;
 using Lua;
-using Lua.Platforms;
 using Lua.Standard;
 using System;
 using System.IO;
@@ -177,6 +176,9 @@ namespace CodeSmile.Luny
 
 			OverrideDoFileAndLoadFile();
 			OverridePrintAndLog();
+
+			foreach (var module in luaContext.Modules)
+				module.Load(m_LuaState);
 		}
 
 		private void RemovePotentiallyHarmfulFunctions()

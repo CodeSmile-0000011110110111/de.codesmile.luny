@@ -8,5 +8,9 @@ namespace CodeSmile.Luny
 	public class LunyScript : MonoBehaviour
 	{
 		public LunyLuaAsset Script;
+		public static GameObject CreateGameObject()
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }

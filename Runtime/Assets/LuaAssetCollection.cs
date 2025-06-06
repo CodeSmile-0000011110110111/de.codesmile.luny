@@ -10,7 +10,7 @@ using UnityEngine;
 namespace CodeSmile.Luny
 {
 	[Serializable]
-	internal sealed class LuaAssetCollection
+	public sealed class LuaAssetCollection
 	{
 		[SerializeField] [ReadOnlyField] private List<LunyLuaAssetBase> m_LuaAssets = new();
 		[SerializeField] [ReadOnlyField] private List<String> m_LuaAssetNames = new();

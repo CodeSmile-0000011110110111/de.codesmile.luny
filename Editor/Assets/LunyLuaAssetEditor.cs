@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CodeSmileEditor.Luny
 {
 	[CustomEditor(typeof(LunyLuaAsset))]
-	public sealed class LunyLuaAssetEditor : UnityEditor.Editor
+	public sealed class LunyLuaAssetEditor : Editor
 	{
 		private SerializedProperty m_TextProperty;
 

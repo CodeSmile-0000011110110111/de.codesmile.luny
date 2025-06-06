@@ -18,16 +18,16 @@ namespace CodeSmile.Luny
 
 		[Header("Fully automated and required Asset (read-only)")]
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_LuaAssets = new();
-		internal LuaAssetCollection LuaAssets => m_LuaAssets;
 
-		// [SerializeField] [ReadOnlyField] private LuaContext m_DefaultContext;
-		// [SerializeField] [ReadOnlyField] private List<LuaContext> m_LuaContexts = new();
-		// public LuaContext DefaultContext => m_DefaultContext;
-		// public LuaContext GetContext(String contextName) => m_LuaContexts.Find(context => context.name == contextName);
+		[SerializeField] [ReadOnlyField] private LunyLuaContext m_DefaultContext;
+		public LuaAssetCollection LuaAssets => m_LuaAssets;
+
+		public LunyLuaContext DefaultContext { get => m_DefaultContext; set => m_DefaultContext = value; }
 
 		public static LunyRuntimeAssetRegistry Singleton { get => s_Singleton; internal set => s_Singleton = value; }
 
 		private void Awake() => s_Singleton = this;
+		private void OnDestroy() => s_Singleton = null;
 
 		public LunyLuaAsset GetScript(String scriptNameOrPath)
 		{
@@ -41,8 +41,11 @@ namespace CodeSmile.Luny
 		public void Save()
 		{
 #if UNITY_EDITOR
-			EditorUtility.SetDirty(this);
-			AssetDatabase.SaveAssetIfDirty(this);
+			if (s_Singleton != null)
+			{
+				EditorUtility.SetDirty(s_Singleton);
+				AssetDatabase.SaveAssetIfDirty(s_Singleton);
+			}
 #endif
 		}
 	}

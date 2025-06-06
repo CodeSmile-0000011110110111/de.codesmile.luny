@@ -4,6 +4,7 @@
 using CodeSmile.Luny;
 using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,14 +14,72 @@ namespace CodeSmileEditor.Luny
 	{
 		private static LunyRuntimeAssetRegistry s_RuntimeRegistry;
 
+		//[SerializeField] [ReadOnlyField] private String m_ModuleBindingsUnityVersion;
+		// private void Awake()
+		// {
+		// 	// Note: Awake runs when the asset is created OR when the project loads
+		// 	if (m_ModuleBindingsUnityVersion != Application.unityVersion)
+		// 		RegenerateAllModules();
+		// }
+		//
+		// private void RegenerateAllModules() => Debug.LogWarning("TODO: RegenerateAllModules");
+		// Debug.Log("Unity version has changed. Regenerating all LuaModule bindings ...");
+		// var moduleGuids = AssetDatabase.FindAssets($"t:{nameof(LuaModule)}");
+		//
+		// // use a temporary Lua context with no modules loaded
+		// var luaContext = CreateInstance<LuaContext>();
+		// var lua = luaContext.CreateLuaInstance(false);
+		//
+		// foreach (var moduleGuid in moduleGuids)
+		// {
+		// 	var path = AssetDatabase.GUIDToAssetPath(moduleGuid);
+		// 	var module = AssetDatabase.LoadAssetAtPath<LuaModule>(path);
+		// 	if (module != null)
+		// 		module.GenerateBindings(lua);
+		// }
+		//
+		// m_ModuleBindingsUnityVersion = Application.unityVersion;
+		// EditorUtility.SetDirty(this);
+		// AssetDatabase.SaveAssetIfDirty(this);
+
+		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext)
+		{
+			var settings = LunyProjectSettings.instance;
+			editorContext = settings.DefaultEditorContext;
+			runtimeContext = settings.DefaultRuntimeContext;
+			if (editorContext != null && runtimeContext != null)
+				return;
+
+			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
+			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
+
+			// in case package was localized or modified try finding defaults in /Assets
+			if (contextGuids.Length == 0)
+				contextGuids = AssetDatabase.FindAssets(filter);
+
+			foreach (var contextGuid in contextGuids)
+			{
+				var contextPath = AssetDatabase.GUIDToAssetPath(contextGuid);
+				var context = AssetDatabase.LoadAssetAtPath<LunyLuaContext>(contextPath);
+				if (context != null)
+				{
+					var labels = AssetDatabase.GetLabels(context);
+					if (editorContext == null && labels.Contains(LunyAssetLabel.EditorLuaContext))
+						settings.DefaultEditorContext = editorContext = context;
+					if (runtimeContext == null && labels.Contains(LunyAssetLabel.RuntimeLuaContext))
+						settings.DefaultRuntimeContext = runtimeContext = context;
+				}
+			}
+		}
+
 		// delayCall prevents "Asset import worker (4)" warning spam when selecting the registry asset
 		// this is likely due to modifying the AssetDatabase 'too early' (ie same issue as with static ctor)
-		[InitializeOnLoadMethod] private static void OnLoad() => EditorApplication.delayCall += () => InitRegistry();
+		[InitializeOnLoadMethod] private static void OnLoad() => EditorApplication.delayCall += () => InitRegistries();
 
 		// Ensure we're not starting playmode without a registry (in case user deleted registry and clicked play)
-		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRegistry();
+		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRegistries();
 
-		private static void InitRegistry()
+		internal static void InitRegistries()
 		{
 			if (LunyRuntimeAssetRegistry.Singleton == null)
 				LunyRuntimeAssetRegistry.Singleton = s_RuntimeRegistry = FindOrCreateRuntimeRegistry();
@@ -78,15 +137,19 @@ namespace CodeSmileEditor.Luny
 
 		private static void RegisterAllLunyAssets()
 		{
-			Debug.LogWarning("TODO: scan for contexts");
-			{
-				var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
-				FindAndRegisterAllLuaAssets(runtimeRegistry.LuaAssets, typeof(LunyLuaAsset));
-				runtimeRegistry.Save();
-			}
+			GetOrFindDefaultLuaContexts(out var editorContext, out var runtimeContext);
+
 			{
 				var editorRegistry = LunyEditorAssetRegistry.instance;
+				editorRegistry.DefaultContext = editorContext;
 				FindAndRegisterAllLuaAssets(editorRegistry.LuaAssets, typeof(LunyEditorLuaAsset));
+				editorRegistry.Save();
+			}
+			{
+				var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
+				runtimeRegistry.DefaultContext = runtimeContext;
+				FindAndRegisterAllLuaAssets(runtimeRegistry.LuaAssets, typeof(LunyLuaAsset));
+				runtimeRegistry.Save();
 			}
 		}
 
@@ -119,7 +182,7 @@ namespace CodeSmileEditor.Luny
 						{
 							var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 							if (runtimeRegistry == null)
-								InitRegistry();
+								InitRegistries();
 							else
 							{
 								runtimeRegistry.LuaAssets.Add(runtimeLuaAsset, luaAsset.name, assetPath);
@@ -127,9 +190,7 @@ namespace CodeSmileEditor.Luny
 							}
 						}
 						else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
-						{
 							LunyEditorAssetRegistry.instance.LuaAssets.Add(editorLuaAsset, luaAsset.name, assetPath);
-						}
 					};
 				}
 			}
@@ -143,7 +204,7 @@ namespace CodeSmileEditor.Luny
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
-							EditorApplication.delayCall += InitRegistry; // delay to ensure asset is already deleted
+							EditorApplication.delayCall += InitRegistries; // delay to ensure asset is already deleted
 						else
 							runtimeRegistry.LuaAssets.Remove(runtimeLuaAsset, luaAsset.name, assetPath);
 					}
@@ -164,7 +225,7 @@ namespace CodeSmileEditor.Luny
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
-							EditorApplication.delayCall += InitRegistry; // delay to ensure asset was already moved
+							EditorApplication.delayCall += InitRegistries; // delay to ensure asset was already moved
 						else
 						{
 							runtimeRegistry.LuaAssets.Remove(runtimeLuaAsset, luaAsset.name, sourcePath);
@@ -183,71 +244,5 @@ namespace CodeSmileEditor.Luny
 
 			private static Boolean IsLuaAsset(String assetPath) => Path.GetExtension(assetPath) == ".lua";
 		}
-
-
-		//[SerializeField] [ReadOnlyField] private String m_ModuleBindingsUnityVersion;
-		// private void Awake()
-		// {
-		// 	// Note: Awake runs when the asset is created OR when the project loads
-		// 	if (m_ModuleBindingsUnityVersion != Application.unityVersion)
-		// 		RegenerateAllModules();
-		// }
-		//
-		// private void RegenerateAllModules() => Debug.LogWarning("TODO: RegenerateAllModules");
-		// Debug.Log("Unity version has changed. Regenerating all LuaModule bindings ...");
-		// var moduleGuids = AssetDatabase.FindAssets($"t:{nameof(LuaModule)}");
-		//
-		// // use a temporary Lua context with no modules loaded
-		// var luaContext = CreateInstance<LuaContext>();
-		// var lua = luaContext.CreateLuaInstance(false);
-		//
-		// foreach (var moduleGuid in moduleGuids)
-		// {
-		// 	var path = AssetDatabase.GUIDToAssetPath(moduleGuid);
-		// 	var module = AssetDatabase.LoadAssetAtPath<LuaModule>(path);
-		// 	if (module != null)
-		// 		module.GenerateBindings(lua);
-		// }
-		//
-		// m_ModuleBindingsUnityVersion = Application.unityVersion;
-		// EditorUtility.SetDirty(this);
-		// AssetDatabase.SaveAssetIfDirty(this);
-		/*
-		private void ScanForLuaContexts()
-		{
-			m_LuaContexts.Clear();
-			m_DefaultContext = null;
-			m_DefaultEditorContext = null;
-
-			var luaContextGuids = AssetDatabase.FindAssets($"t:{nameof(LuaContext)}");
-			var luaContextCount = luaContextGuids.Length;
-			for (var i = 0; i < luaContextCount; i++)
-			{
-				var path = AssetDatabase.GUIDToAssetPath(luaContextGuids[i]);
-				var luaContext = AssetDatabase.LoadAssetAtPath<LuaContext>(path);
-				if (luaContext != null)
-				{
-					m_LuaContexts.Add(luaContext);
-
-					if (luaContext.IsDefaultContext)
-					{
-						if (luaContext.IsEditorContext)
-						{
-							Debug.Assert(DefaultEditorContext == null, $"duplicate default editor LuaContext: {luaContext}");
-							m_DefaultEditorContext = luaContext;
-						}
-						else
-						{
-							Debug.Assert(DefaultContext == null, $"duplicate default runtime LuaContext: {luaContext}");
-							m_DefaultContext = luaContext;
-						}
-					}
-				}
-			}
-
-			Debug.Assert(DefaultContext != null, "Missing default runtime LuaContext!");
-			Debug.Assert(DefaultEditorContext != null, "Missing default editor LuaContext!");
-		}
-		*/
 	}
 }

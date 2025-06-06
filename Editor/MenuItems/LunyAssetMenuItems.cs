@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Luny;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -89,14 +90,14 @@ namespace CodeSmileEditor.Luny
 			Selection.activeObject = go;
 		}
 
-		// [MenuItem("GameObject/Luny/" + nameof(LunyScript), false, priority = 11)]
-		// private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
-		// {
-		// 	var go = LunyScript.CreateGameObject();
-		// 	GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
-		// 	Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
-		// 	Selection.activeObject = go;
-		// }
+		[MenuItem("GameObject/Luny/" + nameof(LunyScript), false, priority = 11)]
+		private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
+		{
+			var go = LunyScript.CreateGameObject();
+			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
+			Selection.activeObject = go;
+		}
 
 		private static void CreateMatchingCSharpLunyScript(String luaScriptPath)
 		{

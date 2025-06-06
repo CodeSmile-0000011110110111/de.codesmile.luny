@@ -8,11 +8,15 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
-	//[FilePath("ProjectSettings/" + nameof(LunyEditorAssetRegistry) + ".asset", FilePathAttribute.Location.ProjectFolder)]
+	[FilePath("ProjectSettings/LunyEditorAssetRegistry.asset", FilePathAttribute.Location.ProjectFolder)]
 	public sealed class LunyEditorAssetRegistry : ScriptableSingleton<LunyEditorAssetRegistry>
 	{
 		[SerializeField] private LuaAssetCollection m_LuaAssets = new();
-		internal LuaAssetCollection LuaAssets => m_LuaAssets;
+		[SerializeField] private LunyLuaContext m_DefaultContext;
+		public LuaAssetCollection LuaAssets => m_LuaAssets;
+		public LunyLuaContext DefaultContext { get => m_DefaultContext; set => m_DefaultContext = value; }
+
+		public static LunyEditorAssetRegistry Singleton => instance; // alias for consistency
 
 		public LunyEditorLuaAsset GetScript(String scriptNameOrPath)
 		{
@@ -22,5 +26,7 @@ namespace CodeSmileEditor.Luny
 
 			return index >= 0 ? (LunyEditorLuaAsset)m_LuaAssets.Assets[index] : null;
 		}
+
+		public void Save() => Save(true);
 	}
 }

@@ -2,9 +2,9 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using CodeSmileEditor.Luny;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -15,47 +15,54 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 {
 	[SerializeField] private LunyLuaContext m_DefaultEditorContext;
 	[SerializeField] private LunyLuaContext m_DefaultRuntimeContext;
-	public LunyLuaContext DefaultEditorContext => m_DefaultEditorContext;
-	public LunyLuaContext DefaultRuntimeContext => m_DefaultRuntimeContext;
+	public LunyLuaContext DefaultEditorContext
+	{
+		get => m_DefaultEditorContext;
+		internal set
+		{
+			m_DefaultEditorContext = value;
+			Save(true);
+		}
+	}
+	public LunyLuaContext DefaultRuntimeContext
+	{
+		get => m_DefaultRuntimeContext;
+		internal set
+		{
+			m_DefaultRuntimeContext = value;
+			Save(true);
+		}
+	}
 	private static SerializedObject GetSerializedSettings() => new(instance);
-	private void Awake() => AssignDefaultContextsIfNull();
+	private void OnEnable() => AssignDefaultContextsIfNull();
 
 	private void Save()
 	{
-		AssignDefaultContextsIfNull();
+		LunyEditorAssetRegistry.Singleton.DefaultContext = m_DefaultEditorContext;
+		LunyEditorAssetRegistry.Singleton.Save();
+		LunyRuntimeAssetRegistry.Singleton.DefaultContext = m_DefaultRuntimeContext;
+		LunyRuntimeAssetRegistry.Singleton.Save();
 		Save(true);
 	}
 
 	private void AssignDefaultContextsIfNull()
 	{
-		var shouldFindDefaults = DefaultRuntimeContext == null || DefaultEditorContext == null;
-		if (shouldFindDefaults)
-		{
-			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
-			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
+		if (LunyRuntimeAssetRegistry.Singleton == null)
+			LunyAssetRegistryManager.InitRegistries();
 
-			// in case package was localized or modified try finding defaults in /Assets
-			if (contextGuids.Length == 0)
-				contextGuids = AssetDatabase.FindAssets(filter);
-
-			foreach (var contextGuid in contextGuids)
-			{
-				var contextPath = AssetDatabase.GUIDToAssetPath(contextGuid);
-				var context = AssetDatabase.LoadAssetAtPath<LunyLuaContext>(contextPath);
-				if (context != null)
-				{
-					var labels = AssetDatabase.GetLabels(context);
-					if (DefaultEditorContext == null && labels.Contains(LunyAssetLabel.EditorLuaContext))
-						m_DefaultEditorContext = context;
-					if (DefaultRuntimeContext == null && labels.Contains(LunyAssetLabel.RuntimeLuaContext))
-						m_DefaultRuntimeContext = context;
-				}
-			}
-		}
+		var shouldSave = m_DefaultEditorContext == null || m_DefaultRuntimeContext == null;
+		if (m_DefaultEditorContext == null)
+			m_DefaultEditorContext = LunyEditorAssetRegistry.Singleton.DefaultContext;
+		if (m_DefaultRuntimeContext == null)
+			m_DefaultRuntimeContext = LunyRuntimeAssetRegistry.Singleton.DefaultContext;
+		if (shouldSave)
+			Save(true);
 	}
 
 	private sealed class LunyProjectSettingsProvider : SettingsProvider
 	{
+		private const String UxmlPath = "Packages/de.codesmile.luny/Editor/Settings/LunyProjectSettings.uxml";
+
 		[SettingsProvider]
 		public static SettingsProvider Create() => new LunyProjectSettingsProvider("Project/Luny", SettingsScope.Project)
 		{
@@ -66,8 +73,7 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 				"Luny",
 				"Lua",
 				"Context",
-				nameof(DefaultEditorContext),
-				nameof(DefaultRuntimeContext),
+				"LuaContext",
 			}),
 			activateHandler = ActivateHandler,
 			deactivateHandler = DeactivateHandler,
@@ -75,7 +81,7 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 
 		public static void ActivateHandler(String searchContext, VisualElement rootElement)
 		{
-			var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/de.codesmile.luny/Editor/Settings/LunyProjectSettings.uxml");
+			var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
 			//var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/main_styles.uss");
 			var ui = uxml.Instantiate();
 			rootElement.Add(ui);

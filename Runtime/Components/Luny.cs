@@ -32,27 +32,22 @@ namespace CodeSmile.Luny
 	{
 		public event Action OnDestroyLuny;
 
-		//public static readonly LuaValue[] NoArgs = new LuaValue[0];
 		private static ILuny s_Singleton;
 
-		// [Tooltip("These script assets will be run in order from top to bottom before any LunyScript component script runs." +
-		//          "Used to set up global Lua values and functions. MonoBehaviour functions will NOT be called on these scripts," +
-		//          "and the scripts are not expected to return anything.")]
-		// [SerializeField] private LuaAsset[] m_StartupScripts;
+		[Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
+		         "Intended for setting up global Lua environment variables and functions.")]
+		[SerializeField] private LunyLuaAsset[] m_StartupScripts = new LunyLuaAsset[0];
 
-		// private ILunyLua m_Lua;
-		// private luny m_Api;
+		private ILunyLua m_Lua;
 		// private ILunyFileWatcher m_FileWatcher;
-		// private LunySearchPaths m_SearchPaths;
-		// public LunySearchPaths SearchPaths => m_SearchPaths;
 		//
 		// public ILunyLua MainLua => m_LuaContexts.Length > 0 ? m_LuaContexts[0].Lua : null;
 		// public LuaContext[] LuaContexts => m_LuaContexts;
 
 		public static ILuny Singleton => s_Singleton;
-		// public ILunyLua Lua => m_Lua;
-		// public luny luny => m_Api;
+		public ILunyLua Lua => m_Lua;
 
+		// Not strictly necessary since singleton is null'ed in OnDestroy
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void ResetStaticFields() => s_Singleton = null;
 
@@ -66,20 +61,16 @@ namespace CodeSmile.Luny
 
 			s_Singleton = this;
 
-			// m_SearchPaths = new LunySearchPaths(new[] { Application.streamingAssetsPath });
-			// m_Lua = new LunyLua(m_SearchPaths);
-			// m_Api = new LunyApi(m_Lua);
+			//m_Lua = new LunyLua(LunyLuaContext);
 
 			RegisterLunyScriptComponents();
-			await DofileStartupScripts();
+			await RunStartupScripts();
 		}
 
 		private void OnDestroy()
 		{
 			OnDestroyLuny?.Invoke();
 
-			// (m_Api as ILunyApiInternal).Dispose();
-			// m_Api = null;
 			// (m_Lua as ILunyLuaInternal).Dispose();
 			// m_Lua = null;
 
@@ -108,14 +99,15 @@ namespace CodeSmile.Luny
 		//
 		// if (m_LogLunyScriptTypes)
 		// 	LunyLogger.LogInfo(sb.ToString());
-		private async ValueTask DofileStartupScripts() => throw new NotImplementedException();
-		// if (m_StartupScripts == null)
-		// 	return;
-		//
-		// foreach (var startupScript in m_StartupScripts)
-		// {
-		// 	if (startupScript != null)
-		// 		await m_Lua.DoStringAsync(startupScript.Text, startupScript.name);
-		// }
+		private async ValueTask RunStartupScripts()
+		{
+			throw new NotImplementedException();
+
+			// foreach (var startupScript in m_StartupScripts)
+			// {
+			// 	if (startupScript != null)
+			// 		await m_Lua.DoStringAsync(startupScript.Text, startupScript.name);
+			// }
+		}
 	}
 }
