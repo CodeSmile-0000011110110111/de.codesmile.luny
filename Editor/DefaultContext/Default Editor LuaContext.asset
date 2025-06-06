@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
+  m_Name: Default Editor LuaContext
+  m_EditorClassIdentifier: 
+  m_IsDefaultContext: 1
+  m_IsEditorContext: 1
+  m_ScriptSearchPaths:
+  - Assets
+  m_Modules:
+  - {fileID: 11400000, guid: 6a7a967bbd8eb0648ac4d924d3fbd69c, type: 2}

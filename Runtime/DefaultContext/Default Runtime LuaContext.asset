@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
+  m_Name: Default Runtime LuaContext
+  m_EditorClassIdentifier: 
+  m_IsDefaultContext: 1
+  m_IsEditorContext: 0
+  m_ScriptSearchPaths:
+  - '%PersistentDataPath%'
+  - '%StreamingAssets%'
+  - Assets
+  m_Modules:
+  - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
