@@ -4,6 +4,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CodeSmile.Luny
 {
@@ -27,7 +28,7 @@ namespace CodeSmile.Luny
 		/// <summary>
 		/// Directories where functions like dofile('') will search for files.
 		/// </summary>
-		[SerializeField] private String[] m_SearchPaths =
+		[SerializeField] private String[] m_ScriptSearchPaths =
 		{
 			"%PersistentDataPath%",
 			"%StreamingAssets%",
