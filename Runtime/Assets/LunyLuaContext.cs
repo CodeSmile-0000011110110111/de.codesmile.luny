@@ -11,8 +11,6 @@ namespace CodeSmile.Luny
 	public interface ILuaContext
 	{
 		//ILunyLua Lua { get; }
-		bool IsDefaultContext { get; }
-		bool IsEditorContext { get; }
 	}
 
 	/// <summary>
@@ -20,11 +18,8 @@ namespace CodeSmile.Luny
 	/// </summary>
 	[CreateAssetMenu(fileName = "New LuaContext", menuName = "Luny/LuaContext", order = 100)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaContextIcon.png")]
-	public sealed class LuaContext : ScriptableObject, ILuaContext
+	public sealed class LunyLuaContext : ScriptableObject, ILuaContext
 	{
-		[SerializeField] bool m_IsDefaultContext = false;
-		[SerializeField] bool m_IsEditorContext = false;
-
 		/// <summary>
 		/// Directories where functions like dofile('') will search for files.
 		/// </summary>
@@ -38,13 +33,11 @@ namespace CodeSmile.Luny
 		/// <summary>
 		/// Which modules (C# bindings) will be available in this Lua state.
 		/// </summary>
-		[SerializeField] private LuaModule[] m_Modules = new LuaModule[0];
+		[SerializeField] private LunyLuaModule[] m_Modules = new LunyLuaModule[0];
 
 		// private ILunyLua m_Lua;
 		//
 		// public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaInstance();
-		public Boolean IsDefaultContext => m_IsDefaultContext;
-		public Boolean IsEditorContext => m_IsEditorContext;
 
 		// internal ILunyLua CreateLuaInstance(Boolean loadModules = true)
 		// {

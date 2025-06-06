@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: 0523cdfce0433f446ba5a8b5757551e5
+labels:
+- DefaultLuaContext
+- EditorLuaContext
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 11400000

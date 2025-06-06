@@ -1,81 +1,54 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Luny;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-internal sealed class LunyProjectSettings : ScriptableObject
+[FilePath("ProjectSettings/LunySettings.asset", FilePathAttribute.Location.ProjectFolder)]
+internal sealed partial class LunyProjectSettings : ScriptableSingleton<LunyProjectSettings>
 {
-	private const String SettingsPath = "ProjectSettings/LunySettings.asset";
-	private static LunyProjectSettings s_Instance;
+	[SerializeField] private LunyLuaContext m_DefaultEditorContext;
+	[SerializeField] private LunyLuaContext m_DefaultRuntimeContext;
+	public LunyLuaContext DefaultEditorContext => m_DefaultEditorContext;
+	public LunyLuaContext DefaultRuntimeContext => m_DefaultRuntimeContext;
+	private static SerializedObject GetSerializedSettings() => new(instance);
 
-	[SerializeField] private Int32 m_Version = 1;
-	[SerializeField] private Int32 m_Number = 42;
-	[SerializeField] private String m_SomeString = "end of universe";
-
-	public Int32 Version { get => m_Version; set => m_Version = value; }
-	public Int32 Number { get => m_Number; set => m_Number = value; }
-	public String SomeString { get => m_SomeString; set => m_SomeString = value; }
-
-	public static LunyProjectSettings Instance => s_Instance != null ? s_Instance : s_Instance = Load();
-	private static SerializedObject GetSerializedSettings() => new(Instance);
-
-	private static LunyProjectSettings Load()
+	private void Save()
 	{
-		var loadedObjects = InternalEditorUtility.LoadSerializedFileAndForget(SettingsPath);
-		if (loadedObjects == null || loadedObjects.Length == 0 || loadedObjects[0] is not LunyProjectSettings instance)
-			instance = CreateInstance<LunyProjectSettings>();
-
-		return instance;
+		Save(true);
 	}
 
-	private static void Save()
-	{
-		if (s_Instance != null)
-			InternalEditorUtility.SaveToSerializedFileAndForget(new[] { s_Instance }, SettingsPath, true);
-	}
+	private void Awake() => AssignDefaultContextsIfNull();
 
-	private sealed class LunyProjectSettingsProvider : SettingsProvider
+	private void AssignDefaultContextsIfNull()
 	{
-		[SettingsProvider]
-		public static SettingsProvider Create() => new LunyProjectSettingsProvider("Project/Luny", SettingsScope.Project)
+		var shouldFindDefaults = DefaultRuntimeContext == null || DefaultEditorContext == null;
+		if (shouldFindDefaults)
 		{
-			label = "Luny",
-			keywords = new HashSet<String>(new[]
+			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
+			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
+
+			// in case package was localized or modified try finding defaults in /Assets
+			if (contextGuids.Length == 0)
+				contextGuids = AssetDatabase.FindAssets(filter);
+
+			foreach (var contextGuid in contextGuids)
 			{
-				nameof(Number),
-				nameof(SomeString),
-			}),
-			activateHandler = ActivateHandler,
-			deactivateHandler = DeactivateHandler,
-		};
-
-		public static void ActivateHandler(String searchContext, VisualElement rootElement)
-		{
-			var settings = GetSerializedSettings();
-
-			var title = new Label { text = "Luny Settings" };
-			title.AddToClassList("title");
-			rootElement.Add(title);
-
-			var properties = new VisualElement { style = { flexDirection = FlexDirection.Column } };
-			properties.AddToClassList("property-list");
-			rootElement.Add(properties);
-
-			properties.Add(new PropertyField(settings.FindProperty(nameof(m_SomeString))));
-			properties.Add(new PropertyField(settings.FindProperty(nameof(m_Number))));
-
-			rootElement.Bind(settings);
+				var contextPath = AssetDatabase.GUIDToAssetPath(contextGuid);
+				var context = AssetDatabase.LoadAssetAtPath<LunyLuaContext>(contextPath);
+				if (context != null)
+				{
+					var labels = AssetDatabase.GetLabels(context);
+					if (DefaultEditorContext == null && labels.Contains(LunyAssetLabel.EditorLuaContext))
+						m_DefaultEditorContext = context;
+					if (DefaultRuntimeContext == null && labels.Contains(LunyAssetLabel.RuntimeLuaContext))
+						m_DefaultRuntimeContext = context;
+				}
+			}
 		}
-
-		public static void DeactivateHandler() => Save();
-
-		public LunyProjectSettingsProvider(String path, SettingsScope scopes, IEnumerable<String> keywords = null)
-			: base(path, scopes, keywords) {}
 	}
 }

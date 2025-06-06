@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
-	[CustomEditor(typeof(LuaContext))]
+	[CustomEditor(typeof(LunyLuaContext))]
 	[CanEditMultipleObjects]
-	internal sealed class LuaContextEditor : Editor
+	internal sealed class LunyLuaContextEditor : Editor
 	{
 	}
 }

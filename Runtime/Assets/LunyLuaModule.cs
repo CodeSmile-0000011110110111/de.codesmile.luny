@@ -16,7 +16,7 @@ namespace CodeSmile.Luny
 
 	[CreateAssetMenu(fileName = "New LuaModule", menuName = "Luny/LuaModule", order = 101)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaModuleIcon.png")]
-	public class LuaModule : ScriptableObject, ILuaModule
+	public class LunyLuaModule : ScriptableObject, ILuaModule
 	{
 		[SerializeField] [ReadOnlyField] private String m_ModuleName = "";
 		[SerializeField] private String m_Namespace = "System";
