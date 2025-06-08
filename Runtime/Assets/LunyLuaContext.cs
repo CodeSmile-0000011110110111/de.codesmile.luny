@@ -42,9 +42,7 @@ namespace CodeSmile.Luny
 
 		public Boolean IsSandbox => m_IsSandbox;
 		public String[] ScriptSearchPaths => m_ScriptSearchPaths;
-		public LuaLibraryFlags Libraries => m_IsSandbox
-			? m_Libraries & ~(LuaLibraryFlags.Debug | LuaLibraryFlags.IO | LuaLibraryFlags.OS)
-			: m_Libraries;
+		public LuaLibraryFlags Libraries => m_Libraries;
 
 		/// <summary>
 		/// Which modules (C# bindings) will be available in this Lua state.
