@@ -34,34 +34,30 @@ namespace CodeSmile.Luny
 
 		private static ILuny s_Singleton;
 
-		[Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
-		         "Intended for setting up global Lua environment variables and functions.")]
-		[SerializeField] private LunyLuaAsset[] m_StartupScripts = new LunyLuaAsset[0];
+		// TODO: refactor to load all scripts with given label automatically ie "ModdingStartupScript"
+		// [Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
+		//          "Intended for setting up global Lua environment variables and functions.")]
+		// [SerializeField] private LunyLuaAsset[] m_StartupScripts = new LunyLuaAsset[0];
 
-		private ILunyLua m_Lua;
-		// private ILunyFileWatcher m_FileWatcher;
-		//
-		// public ILunyLua MainLua => m_LuaContexts.Length > 0 ? m_LuaContexts[0].Lua : null;
-		// public LuaContext[] LuaContexts => m_LuaContexts;
+		private ILunyLua m_RuntimeLua;
+		private ILunyLua m_ModdingLua;
 
 		public static ILuny Singleton => s_Singleton;
-		public ILunyLua Lua => m_Lua;
-
-		// Not strictly necessary since singleton is null'ed in OnDestroy
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-		private static void ResetStaticFields() => s_Singleton = null;
+		public ILunyLua RuntimeLua => m_RuntimeLua;
+		public ILunyLua ModdingLua => m_ModdingLua;
 
 		private async void Awake()
 		{
 			if (s_Singleton != null)
 			{
 				throw new LunyException($"Duplicate Luny component on '{gameObject.name}' ({gameObject.GetInstanceID()}) in " +
-				                        $"scene {gameObject.scene.name}. Type 't:Luny' in Hierarchy search field to find them.");
+				                        $"scene {gameObject.scene.name}. Enter 't:Luny' in Hierarchy search to find them.");
 			}
 
 			s_Singleton = this;
 
-			m_Lua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.DefaultContext);
+			m_RuntimeLua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.DefaultContext);
+			m_ModdingLua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.ModdingContext);
 
 			RegisterLunyScriptComponents();
 			await RunStartupScripts();

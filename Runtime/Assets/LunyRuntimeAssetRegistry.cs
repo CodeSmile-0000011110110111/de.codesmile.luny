@@ -16,14 +16,16 @@ namespace CodeSmile.Luny
 	{
 		private static LunyRuntimeAssetRegistry s_Singleton;
 
-		[Header("Fully automated and required Asset (read-only)")]
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_LuaAssets = new();
+		[Header("Fully automated, required Asset (read-only)")]
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
 
-		[SerializeField] [ReadOnlyField] private LunyLuaContext m_DefaultContext;
+		[SerializeField] [ReadOnlyField] private LunyLuaContext m_RuntimeContext;
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
-		public LuaAssetCollection LuaAssets => m_LuaAssets;
+		public LuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
+		public LuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;
 
-		public LunyLuaContext DefaultContext { get => m_DefaultContext; set => m_DefaultContext = value; }
+		public LunyLuaContext DefaultContext { get => m_RuntimeContext; set => m_RuntimeContext = value; }
 		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
 
 		public static LunyRuntimeAssetRegistry Singleton { get => s_Singleton; internal set => s_Singleton = value; }
@@ -31,13 +33,13 @@ namespace CodeSmile.Luny
 		private void Awake() => s_Singleton = this;
 		private void OnDestroy() => s_Singleton = null;
 
-		public LunyLuaAsset GetScript(String scriptNameOrPath)
+		public LunyRuntimeLuaAsset GetScript(String scriptNameOrPath)
 		{
-			var index = LuaAssets.Names.IndexOf(scriptNameOrPath);
+			var index = RuntimeLuaAssets.Names.IndexOf(scriptNameOrPath);
 			if (index < 0)
-				index = LuaAssets.Paths.IndexOf(scriptNameOrPath);
+				index = RuntimeLuaAssets.Paths.IndexOf(scriptNameOrPath);
 
-			return index >= 0 ? (LunyLuaAsset)LuaAssets.Assets[index] : null;
+			return index >= 0 ? (LunyRuntimeLuaAsset)RuntimeLuaAssets.Assets[index] : null;
 		}
 
 		public void Save()

@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using CodeSmileEditor.Core;
 using System;
 using System.IO;
 using System.Linq;
@@ -10,11 +11,12 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
-	internal sealed class LunyAssetRegistryManager : ScriptableSingleton<LunyAssetRegistryManager>
+	internal sealed class LunyAssetManager : ScriptableSingleton<LunyAssetManager>
 	{
 		private static LunyRuntimeAssetRegistry s_RuntimeRegistry;
 
-		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext, out LunyLuaContext moddingContext)
+		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext,
+			out LunyLuaContext moddingContext)
 		{
 			var settings = LunyProjectSettings.instance;
 			editorContext = settings.DefaultEditorContext;
@@ -26,7 +28,7 @@ namespace CodeSmileEditor.Luny
 			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
 			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
 
-			// in case package was localized or modified try finding defaults in /Assets
+			// fallback, in case package was localized or modified try finding defaults in /Assets
 			if (contextGuids.Length == 0)
 				contextGuids = AssetDatabase.FindAssets(filter);
 
@@ -45,6 +47,32 @@ namespace CodeSmileEditor.Luny
 						settings.DefaultModdingContext = moddingContext = context;
 				}
 			}
+
+			settings.Save();
+		}
+
+		internal static void InitRegistries()
+		{
+			if (LunyRuntimeAssetRegistry.Singleton == null)
+				LunyRuntimeAssetRegistry.Singleton = s_RuntimeRegistry = FindOrCreateRuntimeRegistry();
+
+			RegisterAllLunyAssets();
+			TryCreateScriptRootFolders(LunyProjectSettings.instance.LunyScriptsRootFolder);
+		}
+
+		internal static void TryCreateScriptRootFolders(DefaultAsset scriptsRootFolder)
+		{
+			if (scriptsRootFolder == null)
+				return;
+
+			var scriptsRootPath = AssetDatabase.GetAssetPath(scriptsRootFolder);
+			if (string.IsNullOrEmpty(scriptsRootPath) == false)
+			{
+				EditorIO.TryCreateDirectory(scriptsRootPath);
+				EditorIO.TryCreateDirectory(scriptsRootPath + "/Editor");
+				EditorIO.TryCreateDirectory(scriptsRootPath + "/Runtime");
+				EditorIO.TryCreateDirectory(scriptsRootPath + "/Modding");
+			}
 		}
 
 		// delayCall prevents "Asset import worker (4)" warning spam when selecting the registry asset
@@ -53,14 +81,6 @@ namespace CodeSmileEditor.Luny
 
 		// Ensure we're not starting playmode without a registry (in case user deleted registry and clicked play)
 		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRegistries();
-
-		internal static void InitRegistries()
-		{
-			if (LunyRuntimeAssetRegistry.Singleton == null)
-				LunyRuntimeAssetRegistry.Singleton = s_RuntimeRegistry = FindOrCreateRuntimeRegistry();
-
-			RegisterAllLunyAssets();
-		}
 
 		private static LunyRuntimeAssetRegistry FindOrCreateRuntimeRegistry()
 		{
@@ -124,7 +144,8 @@ namespace CodeSmileEditor.Luny
 				var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 				runtimeRegistry.DefaultContext = runtimeContext;
 				runtimeRegistry.ModdingContext = moddingContext;
-				FindAndRegisterAllLuaAssets(runtimeRegistry.LuaAssets, typeof(LunyLuaAsset));
+				FindAndRegisterAllLuaAssets(runtimeRegistry.RuntimeLuaAssets, typeof(LunyRuntimeLuaAsset));
+				FindAndRegisterAllLuaAssets(runtimeRegistry.ModdingLuaAssets, typeof(LunyModdingLuaAsset));
 				runtimeRegistry.Save();
 			}
 		}
@@ -154,14 +175,14 @@ namespace CodeSmileEditor.Luny
 					EditorApplication.delayCall += () =>
 					{
 						var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(assetPath);
-						if (luaAsset is LunyLuaAsset runtimeLuaAsset)
+						if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
 						{
 							var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 							if (runtimeRegistry == null)
 								InitRegistries();
 							else
 							{
-								runtimeRegistry.LuaAssets.Add(runtimeLuaAsset, luaAsset.name, assetPath);
+								runtimeRegistry.RuntimeLuaAssets.Add(runtimeLuaAsset, luaAsset.name, assetPath);
 								runtimeRegistry.Save();
 							}
 						}
@@ -176,13 +197,13 @@ namespace CodeSmileEditor.Luny
 				if (IsLuaAsset(assetPath))
 				{
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(assetPath);
-					if (luaAsset is LunyLuaAsset runtimeLuaAsset)
+					if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
 							EditorApplication.delayCall += InitRegistries; // delay to ensure asset is already deleted
 						else
-							runtimeRegistry.LuaAssets.Remove(runtimeLuaAsset, luaAsset.name, assetPath);
+							runtimeRegistry.RuntimeLuaAssets.Remove(runtimeLuaAsset, luaAsset.name, assetPath);
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 						LunyEditorAssetRegistry.instance.LuaAssets.Remove(editorLuaAsset, luaAsset.name, assetPath);
@@ -197,15 +218,15 @@ namespace CodeSmileEditor.Luny
 					// asset instance still has the old name so use the name from path instead
 					var newName = Path.GetFileNameWithoutExtension(destinationPath);
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(sourcePath);
-					if (luaAsset is LunyLuaAsset runtimeLuaAsset)
+					if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
 							EditorApplication.delayCall += InitRegistries; // delay to ensure asset was already moved
 						else
 						{
-							runtimeRegistry.LuaAssets.Remove(runtimeLuaAsset, luaAsset.name, sourcePath);
-							runtimeRegistry.LuaAssets.Add(runtimeLuaAsset, newName, destinationPath);
+							runtimeRegistry.RuntimeLuaAssets.Remove(runtimeLuaAsset, luaAsset.name, sourcePath);
+							runtimeRegistry.RuntimeLuaAssets.Add(runtimeLuaAsset, newName, destinationPath);
 						}
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
