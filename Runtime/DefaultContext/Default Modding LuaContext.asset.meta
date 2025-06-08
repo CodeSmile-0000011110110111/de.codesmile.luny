@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 768214e4f8aefd941a550c8bfa6bc717
+labels:
+- DefaultLuaContext
+- ModdingLuaContext
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -4,6 +4,7 @@
 using Lua.IO;
 using Lua.Platforms;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -17,11 +18,11 @@ namespace CodeSmile.Luny
 		public ILuaOsEnvironment OsEnvironment { get; }
 		public ILuaStandardIO StandardIO { get; }
 
-		public LunyLuaPlatform(Boolean isSandbox)
+		public LunyLuaPlatform(LunyLuaContext luaContext)
 		{
-			FileSystem = new LunyLuaFileSystem(isSandbox);
-			OsEnvironment = new LunyLuaOsEnvironment(isSandbox);
-			StandardIO = new LunyLuaStandardIO(isSandbox);
+			FileSystem = new LunyLuaFileSystem(luaContext);
+			OsEnvironment = new LunyLuaOsEnvironment(luaContext);
+			StandardIO = new LunyLuaStandardIO(luaContext);
 		}
 	}
 
@@ -32,9 +33,10 @@ namespace CodeSmile.Luny
 
 		public String DirectorySeparator => "/";
 
-		public LunyLuaFileSystem(Boolean isSandbox) => m_IsSandbox = isSandbox;
+		public LunyLuaFileSystem(LunyLuaContext luaContext) => m_IsSandbox = luaContext.IsSandbox;
 
-		public Boolean IsReadable(String path) => m_DefaultFileSystem.IsReadable(path);
+		public Boolean IsReadable(String path) => m_IsSandbox ? !Path.IsPathRooted(path) : m_DefaultFileSystem.IsReadable(path);
+
 		public ILuaStream Open(String path, LuaFileMode mode) => m_DefaultFileSystem.Open(path, mode);
 		ILuaStream ILuaFileSystem.OpenTempFileStream() => m_DefaultFileSystem.OpenTempFileStream();
 
@@ -62,7 +64,7 @@ namespace CodeSmile.Luny
 		private readonly Boolean m_IsSandbox;
 		private readonly ILuaOsEnvironment m_DefaultOsEnv = new SystemOsEnvironment();
 
-		public LunyLuaOsEnvironment(Boolean isSandbox) => m_IsSandbox = isSandbox;
+		public LunyLuaOsEnvironment(LunyLuaContext luaContext) => m_IsSandbox = luaContext.IsSandbox;
 
 		public String GetEnvironmentVariable(String name) => !m_IsSandbox ? m_DefaultOsEnv.GetEnvironmentVariable(name) : "";
 
@@ -90,6 +92,6 @@ namespace CodeSmile.Luny
 		public ILuaStream Output => throw new NotImplementedException("ILuaStream.Output");
 		public ILuaStream Error => throw new NotImplementedException("ILuaStream.Error");
 
-		public LunyLuaStandardIO(Boolean isSandbox) => m_IsSandbox = isSandbox;
+		public LunyLuaStandardIO(LunyLuaContext luaContext) => m_IsSandbox = luaContext.IsSandbox;
 	}
 }

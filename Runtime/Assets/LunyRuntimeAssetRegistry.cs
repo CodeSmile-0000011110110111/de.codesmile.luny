@@ -20,9 +20,11 @@ namespace CodeSmile.Luny
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_LuaAssets = new();
 
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_DefaultContext;
+		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
 		public LuaAssetCollection LuaAssets => m_LuaAssets;
 
 		public LunyLuaContext DefaultContext { get => m_DefaultContext; set => m_DefaultContext = value; }
+		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
 
 		public static LunyRuntimeAssetRegistry Singleton { get => s_Singleton; internal set => s_Singleton = value; }
 

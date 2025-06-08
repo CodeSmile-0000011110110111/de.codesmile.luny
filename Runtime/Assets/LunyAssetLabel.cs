@@ -8,5 +8,6 @@ namespace CodeSmile.Luny
 		public const string DefaultLuaContext = "DefaultLuaContext";
 		public const string EditorLuaContext = "EditorLuaContext";
 		public const string RuntimeLuaContext = "RuntimeLuaContext";
+		public const string ModdingLuaContext = "ModdingLuaContext";
 	}
 }

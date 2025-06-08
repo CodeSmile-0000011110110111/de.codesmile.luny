@@ -14,40 +14,13 @@ namespace CodeSmileEditor.Luny
 	{
 		private static LunyRuntimeAssetRegistry s_RuntimeRegistry;
 
-		//[SerializeField] [ReadOnlyField] private String m_ModuleBindingsUnityVersion;
-		// private void Awake()
-		// {
-		// 	// Note: Awake runs when the asset is created OR when the project loads
-		// 	if (m_ModuleBindingsUnityVersion != Application.unityVersion)
-		// 		RegenerateAllModules();
-		// }
-		//
-		// private void RegenerateAllModules() => Debug.LogWarning("TODO: RegenerateAllModules");
-		// Debug.Log("Unity version has changed. Regenerating all LuaModule bindings ...");
-		// var moduleGuids = AssetDatabase.FindAssets($"t:{nameof(LuaModule)}");
-		//
-		// // use a temporary Lua context with no modules loaded
-		// var luaContext = CreateInstance<LuaContext>();
-		// var lua = luaContext.CreateLuaInstance(false);
-		//
-		// foreach (var moduleGuid in moduleGuids)
-		// {
-		// 	var path = AssetDatabase.GUIDToAssetPath(moduleGuid);
-		// 	var module = AssetDatabase.LoadAssetAtPath<LuaModule>(path);
-		// 	if (module != null)
-		// 		module.GenerateBindings(lua);
-		// }
-		//
-		// m_ModuleBindingsUnityVersion = Application.unityVersion;
-		// EditorUtility.SetDirty(this);
-		// AssetDatabase.SaveAssetIfDirty(this);
-
-		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext)
+		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext, out LunyLuaContext moddingContext)
 		{
 			var settings = LunyProjectSettings.instance;
 			editorContext = settings.DefaultEditorContext;
 			runtimeContext = settings.DefaultRuntimeContext;
-			if (editorContext != null && runtimeContext != null)
+			moddingContext = settings.DefaultModdingContext;
+			if (editorContext != null && runtimeContext != null && moddingContext != null)
 				return;
 
 			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
@@ -68,6 +41,8 @@ namespace CodeSmileEditor.Luny
 						settings.DefaultEditorContext = editorContext = context;
 					if (runtimeContext == null && labels.Contains(LunyAssetLabel.RuntimeLuaContext))
 						settings.DefaultRuntimeContext = runtimeContext = context;
+					if (moddingContext == null && labels.Contains(LunyAssetLabel.ModdingLuaContext))
+						settings.DefaultModdingContext = moddingContext = context;
 				}
 			}
 		}
@@ -137,7 +112,7 @@ namespace CodeSmileEditor.Luny
 
 		private static void RegisterAllLunyAssets()
 		{
-			GetOrFindDefaultLuaContexts(out var editorContext, out var runtimeContext);
+			GetOrFindDefaultLuaContexts(out var editorContext, out var runtimeContext, out var moddingContext);
 
 			{
 				var editorRegistry = LunyEditorAssetRegistry.instance;
@@ -148,6 +123,7 @@ namespace CodeSmileEditor.Luny
 			{
 				var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 				runtimeRegistry.DefaultContext = runtimeContext;
+				runtimeRegistry.ModdingContext = moddingContext;
 				FindAndRegisterAllLuaAssets(runtimeRegistry.LuaAssets, typeof(LunyLuaAsset));
 				runtimeRegistry.Save();
 			}

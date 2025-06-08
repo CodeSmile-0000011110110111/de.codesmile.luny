@@ -15,6 +15,8 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 {
 	[SerializeField] private LunyLuaContext m_DefaultEditorContext;
 	[SerializeField] private LunyLuaContext m_DefaultRuntimeContext;
+	[SerializeField] private LunyLuaContext m_DefaultModdingContext;
+
 	public LunyLuaContext DefaultEditorContext
 	{
 		get => m_DefaultEditorContext;
@@ -33,15 +35,27 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 			Save(true);
 		}
 	}
+	public LunyLuaContext DefaultModdingContext
+	{
+		get => m_DefaultModdingContext;
+		internal set
+		{
+			m_DefaultModdingContext = value;
+			Save(true);
+		}
+	}
 	private static SerializedObject GetSerializedSettings() => new(instance);
 	private void OnEnable() => AssignDefaultContextsIfNull();
 
 	private void Save()
 	{
+
 		LunyEditorAssetRegistry.Singleton.DefaultContext = m_DefaultEditorContext;
 		LunyEditorAssetRegistry.Singleton.Save();
 		LunyRuntimeAssetRegistry.Singleton.DefaultContext = m_DefaultRuntimeContext;
+		LunyRuntimeAssetRegistry.Singleton.ModdingContext = m_DefaultModdingContext;
 		LunyRuntimeAssetRegistry.Singleton.Save();
+
 		Save(true);
 	}
 
@@ -50,11 +64,14 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 		if (LunyRuntimeAssetRegistry.Singleton == null)
 			LunyAssetRegistryManager.InitRegistries();
 
-		var shouldSave = m_DefaultEditorContext == null || m_DefaultRuntimeContext == null;
+		var shouldSave = m_DefaultEditorContext == null || m_DefaultRuntimeContext == null || m_DefaultModdingContext == null;
 		if (m_DefaultEditorContext == null)
 			m_DefaultEditorContext = LunyEditorAssetRegistry.Singleton.DefaultContext;
 		if (m_DefaultRuntimeContext == null)
 			m_DefaultRuntimeContext = LunyRuntimeAssetRegistry.Singleton.DefaultContext;
+		if (m_DefaultModdingContext == null)
+			m_DefaultModdingContext = LunyRuntimeAssetRegistry.Singleton.ModdingContext;
+
 		if (shouldSave)
 			Save(true);
 	}
@@ -74,6 +91,8 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 				"Lua",
 				"Context",
 				"LuaContext",
+				"Mod",
+				"Modding",
 			}),
 			activateHandler = ActivateHandler,
 			deactivateHandler = DeactivateHandler,

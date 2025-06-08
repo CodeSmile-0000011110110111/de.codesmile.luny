@@ -6,6 +6,7 @@ using Lua;
 using Lua.Standard;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -93,82 +94,34 @@ namespace CodeSmile.Luny
 
 		public LunyLua(LunyLuaContext luaContext)
 		{
-			m_SearchPaths = new LunySearchPaths(luaContext.ScriptSearchPaths);
 			InitLuaEnvironment(luaContext);
-		}
-
-		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
-
-		public LuaValue[] DoString(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
-		}
-
-		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return await m_LuaState.DoStringAsync(script, chunkName);
-		}
-
-		public LuaValue[] DoFile(String relativePath)
-		{
-			var script = LoadFile(relativePath);
-			return DoString(script, relativePath);
-		}
-
-		public async ValueTask<LuaValue[]> DoFileAsync(String relativePath)
-		{
-			var script = LoadFile(relativePath);
-			return await DoStringAsync(script, relativePath);
-		}
-
-		/// <summary>
-		/// Loads a (script) text file taking search paths into account.
-		/// </summary>
-		/// <param name="relativePath"></param>
-		/// <returns></returns>
-		/// <exception cref="FileNotFoundException">If the file was not found in search paths.</exception>
-		/// <exception cref="Exception">Logs and rethrows any exception from File.ReadAllTextAsync.</exception>
-		public String LoadFile(String relativePath)
-		{
-			var path = m_SearchPaths.GetFullPathToFile(relativePath);
-			if (path == null)
-				throw new FileNotFoundException(relativePath);
-
-			return FileUtility.TryReadAllText(path);
-		}
-
-		public void Dispose()
-		{
-			m_LuaState.Environment.Clear();
-			m_LuaState = null;
-			m_SearchPaths = null;
 		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext)
 		{
-			m_LuaState = LuaState.Create(new LunyLuaPlatform(luaContext.IsSandbox));
+			m_SearchPaths = new LunySearchPaths(luaContext);
+			m_LuaState = LuaState.Create(new LunyLuaPlatform(luaContext));
 
-			if ((luaContext.Libraries & LuaLibraryFlags.Basic) != 0)
+			var libraries = luaContext.Libraries;
+			if ((libraries & LuaLibraryFlags.Basic) != 0)
 				m_LuaState.OpenBasicLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Bitwise) != 0)
+			if ((libraries & LuaLibraryFlags.Bitwise) != 0)
 				m_LuaState.OpenBitwiseLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Coroutine) != 0)
+			if ((libraries & LuaLibraryFlags.Coroutine) != 0)
 				m_LuaState.OpenCoroutineLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Debug) != 0)
+			if ((libraries & LuaLibraryFlags.Debug) != 0)
 				m_LuaState.OpenDebugLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.IO) != 0)
+			if ((libraries & LuaLibraryFlags.IO) != 0)
 				m_LuaState.OpenIOLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Math) != 0)
+			if ((libraries & LuaLibraryFlags.Math) != 0)
 				m_LuaState.OpenMathLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Module) != 0)
+			if ((libraries & LuaLibraryFlags.Module) != 0)
 				m_LuaState.OpenModuleLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.OS) != 0)
+			if ((libraries & LuaLibraryFlags.OS) != 0)
 				m_LuaState.OpenOperatingSystemLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.String) != 0)
+			if ((libraries & LuaLibraryFlags.String) != 0)
 				m_LuaState.OpenStringLibrary();
-			if ((luaContext.Libraries & LuaLibraryFlags.Table) != 0)
+			if ((libraries & LuaLibraryFlags.Table) != 0)
 				m_LuaState.OpenTableLibrary();
 
 			if (luaContext.IsSandbox)
@@ -185,19 +138,6 @@ namespace CodeSmile.Luny
 		{
 			var env = m_LuaState.Environment;
 			env.SetNil("load"); // disallow compiling and executing arbitrary strings
-
-			// FIXME: reconsider IO due to introduction of virtual filesystem
-			env.SetNil("io"); // disallow entire IO library ('read' files could lead to privacy violations)
-			m_LuaState.LoadedModules["io"] = LuaValue.Nil;
-
-			if (env["os"].TryRead(out LuaTable os))
-			{
-				os.SetNil("execute"); // don't allow runnning arbitrary processes (currently unsupported anyway)
-				os.SetNil("exit"); // don't allow to force quit the application
-				os.SetNil("remove"); // don't allow file deletion
-				os.SetNil("rename"); // don't allow file rename
-				os.SetNil("setlocale"); // don't allow changing locale (currently unsupported anyway)
-			}
 		}
 
 		private void OverrideDoFileAndLoadFile()
@@ -258,6 +198,56 @@ namespace CodeSmile.Luny
 			env["print"] = logTable["info"];
 			env["warn"] = logTable["warning"];
 			env["error"] = logTable["error"];
+		}
+
+
+		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
+
+		public LuaValue[] DoString(String script, String chunkName)
+		{
+			Debug.Assert(m_LuaState != null);
+			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
+		}
+
+		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
+		{
+			Debug.Assert(m_LuaState != null);
+			return await m_LuaState.DoStringAsync(script, chunkName);
+		}
+
+		public LuaValue[] DoFile(String relativePath)
+		{
+			var script = LoadFile(relativePath);
+			return DoString(script, relativePath);
+		}
+
+		public async ValueTask<LuaValue[]> DoFileAsync(String relativePath)
+		{
+			var script = LoadFile(relativePath);
+			return await DoStringAsync(script, relativePath);
+		}
+
+		/// <summary>
+		/// Loads a (script) text file taking search paths into account.
+		/// </summary>
+		/// <param name="relativePath"></param>
+		/// <returns></returns>
+		/// <exception cref="FileNotFoundException">If the file was not found in search paths.</exception>
+		/// <exception cref="Exception">Logs and rethrows any exception from File.ReadAllTextAsync.</exception>
+		public String LoadFile(String relativePath)
+		{
+			var path = m_SearchPaths.GetFullPathToFile(relativePath);
+			if (path == null)
+				throw new FileNotFoundException(relativePath);
+
+			return FileUtility.TryReadAllText(path);
+		}
+
+		public void Dispose()
+		{
+			m_LuaState.Environment.Clear();
+			m_LuaState = null;
+			m_SearchPaths = null;
 		}
 	}
 }

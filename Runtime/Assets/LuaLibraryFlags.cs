@@ -7,10 +7,10 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	[Flags] public enum LuaLibraryFlags
+	[Flags]
+	public enum LuaLibraryFlags
 	{
 		// bit spacing is to maintain alphabetic sort order if libraries get added in the future
-		None = 0,
 		Basic = 1 << 2,
 		Bitwise = 1 << 5,
 		Coroutine = 1 << 8,

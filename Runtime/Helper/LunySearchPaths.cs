@@ -6,6 +6,7 @@ using CodeSmile.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ namespace CodeSmile.Luny
 
 	public sealed class LunySearchPaths : ILunySearchPaths
 	{
+		private const String PersistentPlaceholder = "%persistentdatapath%";
+		private const String StreamingPlaceholder = "%streamingassetspath%";
 		private List<String> m_Paths;
 		public List<String> Paths => m_Paths;
 
@@ -39,20 +42,44 @@ namespace CodeSmile.Luny
 #endif
 		}
 
-		public LunySearchPaths(String[] searchPaths)
+
+		public LunySearchPaths(LunyLuaContext luaContext)
 		{
-			m_Paths = new List<String>(searchPaths);
+			m_Paths = new List<String>(luaContext.ScriptSearchPaths);
 			var pathCount = m_Paths.Count;
-			for (var i = pathCount - 1; i >= 0; --i)
+			for (var i = 0; i < pathCount; ++i)
 			{
 				if (String.IsNullOrWhiteSpace(m_Paths[i]))
-					throw new ArgumentException($"{nameof(m_Paths)}[{i}] is null or empty");
+				{
+					Debug.LogWarning($"{nameof(m_Paths)}[{i}] is null or empty, ignoring");
+					continue;
+				}
 
-				// avoid creating an empty StreamingAssets folder - the user ought to create it manually
-				if (m_Paths[i] != Application.streamingAssetsPath)
+				if (luaContext.IsRuntimeContext() && Path.IsPathRooted(m_Paths[i]))
+					throw new LunyException($"Rooted paths cannot be runtime search paths: {m_Paths[i]}");
+
+				// paths must not start nor end with slash
+				m_Paths[i] = m_Paths[i].ToForwardSlashes().Trim('/');
+
+				var isPersistentPath = false;
+				var lowerPath = m_Paths[i].ToLower();
+				if (lowerPath.StartsWith(PersistentPlaceholder))
+				{
+					isPersistentPath = true;
+					m_Paths[i] = Application.persistentDataPath + m_Paths[i]
+						.Substring(PersistentPlaceholder.Length, m_Paths[i].Length - PersistentPlaceholder.Length);
+				}
+				else if (lowerPath.StartsWith(StreamingPlaceholder))
+				{
+					m_Paths[i] = Application.streamingAssetsPath + m_Paths[i]
+						.Substring(StreamingPlaceholder.Length, m_Paths[i].Length - StreamingPlaceholder.Length);
+				}
+
+				Debug.Log(m_Paths[i]);
+
+				// pre-create user path directory
+				if (isPersistentPath)
 					PathUtility.TryCreateDirectory(m_Paths[i]);
-
-				//LunyLog.Info($"Luny search path[{i}]: '{m_SearchPaths[i]}'");
 			}
 		}
 

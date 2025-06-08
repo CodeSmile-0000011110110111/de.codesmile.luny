@@ -10,14 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
-  m_Name: Default Runtime LuaContext
+  m_Name: Default Modding LuaContext
   m_EditorClassIdentifier: 
-  m_IsEditorContext: 0
   m_IsSandbox: 1
   m_ScriptSearchPaths:
-  - '%PersistentDataPath%'
-  - '%StreamingAssetsPath%'
-  - Assets
-  m_Libraries: -1
-  m_Modules:
-  - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
+  - '%PersistentDataPath%/Mods'
+  m_Libraries: 603979780
+  m_Modules: []

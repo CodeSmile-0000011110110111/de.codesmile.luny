@@ -61,7 +61,7 @@ namespace CodeSmile.Luny
 
 			s_Singleton = this;
 
-			//m_Lua = new LunyLua(LunyLuaContext);
+			m_Lua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.DefaultContext);
 
 			RegisterLunyScriptComponents();
 			await RunStartupScripts();
@@ -77,31 +77,34 @@ namespace CodeSmile.Luny
 			s_Singleton = null;
 		}
 
-		private void RegisterLunyScriptComponents() => throw new NotImplementedException();
+		private void RegisterLunyScriptComponents()
+		{
+			Debug.LogWarning("TODO: RegisterLunyScriptComponents");
+			// var lunyScriptTypes = AppDomain.CurrentDomain.GetAssemblies()
+			// 	.SelectMany(assembly => assembly.GetTypes())
+			// 	.Where(type => type.IsSubclassOf(typeof(LunyScript)));
+			//
+			// var sb = new StringBuilder();
+			// var env = m_Lua.State.Environment;
+			// foreach (var lunyScriptType in lunyScriptTypes)
+			// {
+			// 	var factory = new LunyScriptFactory(lunyScriptType, m_LunyScriptTypesAreLowercase);
+			// 	env.SetLunyComponentApi(lunyScriptType, factory);
+			//
+			// 	if (m_LogLunyScriptTypes)
+			// 	{
+			// 		sb.Append(sb.Length == 0 ? "Registered LunyScript components:\n" : "\n");
+			// 		sb.Append(factory.ApiName);
+			// 	}
+			// }
+			//
+			// if (m_LogLunyScriptTypes)
+			// 	LunyLogger.LogInfo(sb.ToString());
+		}
 
-		// var lunyScriptTypes = AppDomain.CurrentDomain.GetAssemblies()
-		// 	.SelectMany(assembly => assembly.GetTypes())
-		// 	.Where(type => type.IsSubclassOf(typeof(LunyScript)));
-		//
-		// var sb = new StringBuilder();
-		// var env = m_Lua.State.Environment;
-		// foreach (var lunyScriptType in lunyScriptTypes)
-		// {
-		// 	var factory = new LunyScriptFactory(lunyScriptType, m_LunyScriptTypesAreLowercase);
-		// 	env.SetLunyComponentApi(lunyScriptType, factory);
-		//
-		// 	if (m_LogLunyScriptTypes)
-		// 	{
-		// 		sb.Append(sb.Length == 0 ? "Registered LunyScript components:\n" : "\n");
-		// 		sb.Append(factory.ApiName);
-		// 	}
-		// }
-		//
-		// if (m_LogLunyScriptTypes)
-		// 	LunyLogger.LogInfo(sb.ToString());
 		private async ValueTask RunStartupScripts()
 		{
-			throw new NotImplementedException();
+			Debug.LogWarning("TODO: RunStartupScripts");
 
 			// foreach (var startupScript in m_StartupScripts)
 			// {

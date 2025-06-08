@@ -3,7 +3,8 @@
         <ui:Label text="Luny Settings" name="Title" class="project-settings-title-bar__label" style="font-size: 20px; -unity-font-style: bold;" />
     </ui:VisualElement>
     <ui:GroupBox>
-        <uie:PropertyField binding-path="m_DefaultEditorContext" class="unity-base-field__aligned" />
-        <uie:PropertyField binding-path="m_DefaultRuntimeContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_DefaultEditorContext" name="DefaultEditorContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_DefaultRuntimeContext" name="DefaultRuntimeContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_DefaultModdingContext" name="DefaultModdingContext" class="unity-base-field__aligned" />
     </ui:GroupBox>
 </ui:UXML>
