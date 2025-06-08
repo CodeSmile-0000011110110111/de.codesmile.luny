@@ -2,11 +2,10 @@
     <ui:VisualElement class="project-settings-titlebar" style="flex-grow: 1;">
         <ui:Label text="Luny Settings" name="Title" class="project-settings-title-bar__label" style="font-size: 20px; -unity-font-style: bold;" />
     </ui:VisualElement>
-    <uie:PropertyField binding-path="m_LunyScriptsRootPath" />
-    <uie:PropertyField binding-path="m_LunyScriptsRootFolder" />
+    <uie:PropertyField binding-path="m_GlobalLunyScriptsFolder" name="GlobalLunyScriptsFolder" />
     <ui:GroupBox>
-        <uie:PropertyField binding-path="m_DefaultEditorContext" name="DefaultEditorContext" class="unity-base-field__aligned" />
-        <uie:PropertyField binding-path="m_DefaultRuntimeContext" name="DefaultRuntimeContext" class="unity-base-field__aligned" />
-        <uie:PropertyField binding-path="m_DefaultModdingContext" name="DefaultModdingContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_EditorContext" name="EditorContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_RuntimeContext" name="RuntimeContext" class="unity-base-field__aligned" />
+        <uie:PropertyField binding-path="m_ModdingContext" name="ModdingContext" class="unity-base-field__aligned" />
     </ui:GroupBox>
 </ui:UXML>

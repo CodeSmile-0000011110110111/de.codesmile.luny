@@ -8,6 +8,7 @@ namespace CodeSmile.Luny
 	public class LunyScript : MonoBehaviour
 	{
 		public LunyRuntimeLuaAsset Script;
+		public bool UseModdingContext;
 		public static GameObject CreateGameObject()
 		{
 			throw new System.NotImplementedException();

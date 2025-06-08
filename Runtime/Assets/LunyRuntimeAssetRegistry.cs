@@ -16,7 +16,7 @@ namespace CodeSmile.Luny
 	{
 		private static LunyRuntimeAssetRegistry s_Singleton;
 
-		[Header("Fully automated, required Asset (read-only)")]
+		[Header("Fully automated registry (read-only)")]
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
 

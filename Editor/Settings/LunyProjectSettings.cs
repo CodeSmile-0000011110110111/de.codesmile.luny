@@ -14,71 +14,78 @@ using UnityEngine.UIElements;
 [FilePath("ProjectSettings/LunySettings.asset", FilePathAttribute.Location.ProjectFolder)]
 internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSettings>
 {
-	const string DefaultScriptsRootFolder = "Assets/LunyScripts";
+	private const String DefaultScriptsRootFolder = "Assets/Scripts/Luny";
 
-	[Header("Global Scripts")]
-	[SerializeField] private DefaultAsset m_LunyScriptsRootFolder;
+	[Header("Lua Scripts")]
+	[SerializeField] private DefaultAsset m_GlobalLunyScriptsFolder;
 
 	[Header("Lua Contexts")]
-	[SerializeField] private LunyLuaContext m_DefaultEditorContext;
-	[SerializeField] private LunyLuaContext m_DefaultRuntimeContext;
-	[SerializeField] private LunyLuaContext m_DefaultModdingContext;
+	[SerializeField] private LunyLuaContext m_EditorContext;
+	[SerializeField] private LunyLuaContext m_RuntimeContext;
+	[SerializeField] private LunyLuaContext m_ModdingContext;
 
-	public DefaultAsset LunyScriptsRootFolder => m_LunyScriptsRootFolder;
-	public LunyLuaContext DefaultEditorContext
+	public DefaultAsset GlobalLunyScriptsFolder => m_GlobalLunyScriptsFolder;
+	public LunyLuaContext EditorContext
 	{
-		get => m_DefaultEditorContext;
-		internal set => m_DefaultEditorContext = value;
+		get => m_EditorContext;
+		internal set => m_EditorContext = value;
 	}
-	public LunyLuaContext DefaultRuntimeContext
+	public LunyLuaContext RuntimeContext
 	{
-		get => m_DefaultRuntimeContext;
-		internal set => m_DefaultRuntimeContext = value;
+		get => m_RuntimeContext;
+		internal set => m_RuntimeContext = value;
 	}
-	public LunyLuaContext DefaultModdingContext
+	public LunyLuaContext ModdingContext
 	{
-		get => m_DefaultModdingContext;
-		internal set => m_DefaultModdingContext = value;
+		get => m_ModdingContext;
+		internal set => m_ModdingContext = value;
 	}
 	private static SerializedObject GetSerializedSettings() => new(instance);
-	private void OnEnable()
+
+	private void OnEnable() => TryAssignDefaultsOfNullValues();
+
+	private void Reset()
 	{
-		Debug.LogWarning("Settings OnEnable");
-		TryAssignDefaults();
+		m_GlobalLunyScriptsFolder = null;
+		m_EditorContext = m_RuntimeContext = m_ModdingContext = null;
+		TryAssignDefaultsOfNullValues();
 	}
 
 	internal void Save()
 	{
-		LunyEditorAssetRegistry.Singleton.DefaultContext = m_DefaultEditorContext;
+		TryAssignDefaultsOfNullValues();
+
+		LunyEditorAssetRegistry.Singleton.LuaContext = m_EditorContext;
 		LunyEditorAssetRegistry.Singleton.Save();
-		LunyRuntimeAssetRegistry.Singleton.DefaultContext = m_DefaultRuntimeContext;
-		LunyRuntimeAssetRegistry.Singleton.ModdingContext = m_DefaultModdingContext;
+		LunyRuntimeAssetRegistry.Singleton.DefaultContext = m_RuntimeContext;
+		LunyRuntimeAssetRegistry.Singleton.ModdingContext = m_ModdingContext;
 		LunyRuntimeAssetRegistry.Singleton.Save();
-		LunyAssetManager.TryCreateScriptRootFolders(m_LunyScriptsRootFolder);
+		LunyAssetManager.TryCreateScriptRootFolders(m_GlobalLunyScriptsFolder);
 
 		Save(true);
 	}
 
-	private void TryAssignDefaults()
+	private void TryAssignDefaultsOfNullValues()
 	{
 		if (LunyRuntimeAssetRegistry.Singleton == null)
 			LunyAssetManager.InitRegistries();
 
-		var shouldSave = m_DefaultEditorContext == null || m_DefaultRuntimeContext == null || m_DefaultModdingContext == null;
-		if (m_DefaultEditorContext == null)
-			m_DefaultEditorContext = LunyEditorAssetRegistry.Singleton.DefaultContext;
-		if (m_DefaultRuntimeContext == null)
-			m_DefaultRuntimeContext = LunyRuntimeAssetRegistry.Singleton.DefaultContext;
-		if (m_DefaultModdingContext == null)
-			m_DefaultModdingContext = LunyRuntimeAssetRegistry.Singleton.ModdingContext;
+		var shouldSave = m_EditorContext == null || m_RuntimeContext == null || m_ModdingContext == null;
+		if (m_EditorContext == null)
+			m_EditorContext = LunyEditorAssetRegistry.Singleton.LuaContext;
+		if (m_RuntimeContext == null)
+			m_RuntimeContext = LunyRuntimeAssetRegistry.Singleton.DefaultContext;
+		if (m_ModdingContext == null)
+			m_ModdingContext = LunyRuntimeAssetRegistry.Singleton.ModdingContext;
 
-		if (LunyScriptsRootFolder == null)
+		if (GlobalLunyScriptsFolder == null)
 		{
 			shouldSave = true;
 			EditorIO.TryCreateDirectory(DefaultScriptsRootFolder);
 			var folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(DefaultScriptsRootFolder);
-			m_LunyScriptsRootFolder = folderAsset;
-			LunyAssetManager.TryCreateScriptRootFolders(m_LunyScriptsRootFolder);
+			Debug.Log($"created: {folderAsset} {folderAsset?.name}");
+			m_GlobalLunyScriptsFolder = folderAsset;
+			LunyAssetManager.TryCreateScriptRootFolders(m_GlobalLunyScriptsFolder);
 		}
 
 		if (shouldSave)
@@ -104,7 +111,7 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 				"Modding",
 			}),
 			activateHandler = ActivateHandler,
-			deactivateHandler = DeactivateHandler, 
+			deactivateHandler = DeactivateHandler,
 		};
 
 		public static void ActivateHandler(String searchContext, VisualElement rootElement)

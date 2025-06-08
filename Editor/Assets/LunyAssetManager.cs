@@ -19,9 +19,9 @@ namespace CodeSmileEditor.Luny
 			out LunyLuaContext moddingContext)
 		{
 			var settings = LunyProjectSettings.instance;
-			editorContext = settings.DefaultEditorContext;
-			runtimeContext = settings.DefaultRuntimeContext;
-			moddingContext = settings.DefaultModdingContext;
+			editorContext = settings.EditorContext;
+			runtimeContext = settings.RuntimeContext;
+			moddingContext = settings.ModdingContext;
 			if (editorContext != null && runtimeContext != null && moddingContext != null)
 				return;
 
@@ -40,11 +40,11 @@ namespace CodeSmileEditor.Luny
 				{
 					var labels = AssetDatabase.GetLabels(context);
 					if (editorContext == null && labels.Contains(LunyAssetLabel.EditorLuaContext))
-						settings.DefaultEditorContext = editorContext = context;
+						settings.EditorContext = editorContext = context;
 					if (runtimeContext == null && labels.Contains(LunyAssetLabel.RuntimeLuaContext))
-						settings.DefaultRuntimeContext = runtimeContext = context;
+						settings.RuntimeContext = runtimeContext = context;
 					if (moddingContext == null && labels.Contains(LunyAssetLabel.ModdingLuaContext))
-						settings.DefaultModdingContext = moddingContext = context;
+						settings.ModdingContext = moddingContext = context;
 				}
 			}
 
@@ -57,7 +57,7 @@ namespace CodeSmileEditor.Luny
 				LunyRuntimeAssetRegistry.Singleton = s_RuntimeRegistry = FindOrCreateRuntimeRegistry();
 
 			RegisterAllLunyAssets();
-			TryCreateScriptRootFolders(LunyProjectSettings.instance.LunyScriptsRootFolder);
+			TryCreateScriptRootFolders(LunyProjectSettings.instance.GlobalLunyScriptsFolder);
 		}
 
 		internal static void TryCreateScriptRootFolders(DefaultAsset scriptsRootFolder)
@@ -68,7 +68,6 @@ namespace CodeSmileEditor.Luny
 			var scriptsRootPath = AssetDatabase.GetAssetPath(scriptsRootFolder);
 			if (string.IsNullOrEmpty(scriptsRootPath) == false)
 			{
-				EditorIO.TryCreateDirectory(scriptsRootPath);
 				EditorIO.TryCreateDirectory(scriptsRootPath + "/Editor");
 				EditorIO.TryCreateDirectory(scriptsRootPath + "/Runtime");
 				EditorIO.TryCreateDirectory(scriptsRootPath + "/Modding");
@@ -136,8 +135,8 @@ namespace CodeSmileEditor.Luny
 
 			{
 				var editorRegistry = LunyEditorAssetRegistry.instance;
-				editorRegistry.DefaultContext = editorContext;
-				FindAndRegisterAllLuaAssets(editorRegistry.LuaAssets, typeof(LunyEditorLuaAsset));
+				editorRegistry.LuaContext = editorContext;
+				FindAndRegisterAllLuaAssets(editorRegistry.EditorLuaAssets, typeof(LunyEditorLuaAsset));
 				editorRegistry.Save();
 			}
 			{
@@ -187,7 +186,7 @@ namespace CodeSmileEditor.Luny
 							}
 						}
 						else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
-							LunyEditorAssetRegistry.instance.LuaAssets.Add(editorLuaAsset, luaAsset.name, assetPath);
+							LunyEditorAssetRegistry.instance.EditorLuaAssets.Add(editorLuaAsset, luaAsset.name, assetPath);
 					};
 				}
 			}
@@ -206,7 +205,7 @@ namespace CodeSmileEditor.Luny
 							runtimeRegistry.RuntimeLuaAssets.Remove(runtimeLuaAsset, luaAsset.name, assetPath);
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
-						LunyEditorAssetRegistry.instance.LuaAssets.Remove(editorLuaAsset, luaAsset.name, assetPath);
+						LunyEditorAssetRegistry.instance.EditorLuaAssets.Remove(editorLuaAsset, luaAsset.name, assetPath);
 				}
 				return AssetDeleteResult.DidNotDelete;
 			}
@@ -232,8 +231,8 @@ namespace CodeSmileEditor.Luny
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
 						var editorRegistry = LunyEditorAssetRegistry.instance;
-						editorRegistry.LuaAssets.Remove(editorLuaAsset, luaAsset.name, sourcePath);
-						editorRegistry.LuaAssets.Add(editorLuaAsset, newName, destinationPath);
+						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset, luaAsset.name, sourcePath);
+						editorRegistry.EditorLuaAssets.Add(editorLuaAsset, newName, destinationPath);
 					}
 				}
 				return AssetMoveResult.DidNotMove;

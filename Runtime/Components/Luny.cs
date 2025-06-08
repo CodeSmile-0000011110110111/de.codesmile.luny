@@ -39,6 +39,7 @@ namespace CodeSmile.Luny
 		//          "Intended for setting up global Lua environment variables and functions.")]
 		// [SerializeField] private LunyLuaAsset[] m_StartupScripts = new LunyLuaAsset[0];
 
+		// TODO: consider splitting into LunyRuntimeState and LunyModdingState
 		private ILunyLua m_RuntimeLua;
 		private ILunyLua m_ModdingLua;
 
@@ -56,8 +57,9 @@ namespace CodeSmile.Luny
 
 			s_Singleton = this;
 
-			m_RuntimeLua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.DefaultContext);
-			m_ModdingLua = new LunyLua(LunyRuntimeAssetRegistry.Singleton.ModdingContext);
+			var registry = LunyRuntimeAssetRegistry.Singleton;
+			m_RuntimeLua = new LunyLua(registry.DefaultContext);
+			m_ModdingLua = new LunyLua(registry.ModdingContext);
 
 			RegisterLunyScriptComponents();
 			await RunStartupScripts();
