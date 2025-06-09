@@ -58,7 +58,7 @@ namespace CodeSmile.Luny
 			s_Singleton = this;
 
 			var registry = LunyRuntimeAssetRegistry.Singleton;
-			m_RuntimeLua = new LunyLua(registry.DefaultContext);
+			m_RuntimeLua = new LunyLua(registry.RuntimeContext);
 			m_ModdingLua = new LunyLua(registry.ModdingContext);
 
 			RegisterLunyScriptComponents();

@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Luny;
 using Lua;
 using System;
 using UnityEditor;
@@ -15,17 +16,16 @@ namespace CodeSmileEditor.Luny
 		[SerializeField] private Int32 disabledCount;
 		// TODO: consider having a serialized, persistent LuaTable that survives domain reload
 		// TODO: how to interact with this editor? not needed? eg could use settings, context, etc
-		// TODO: rename to LunyEditorState?
 
-		// TODO: script state that survives session reload (project close and re-open)
+		// TODO: script state that survives session reload => project close and re-open
 		private LuaTable m_PersistentState;
-		// TODO: script state that survives domain reload
+		// TODO: script state that survives domain reload but not project close
 		private LuaTable m_SessionState;
 
 		[InitializeOnLoadMethod]
-		private static LunyEditor OnLoad() => instance; // to auto-create the singleton
+		private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
-		// Runs when project is loaded AND the FilePath file does not exist
+		// Runs when project is loaded AND the FilePath asset does not exist
 		private void Reset()
 		{
 			m_PersistentState = new LuaTable();
@@ -44,6 +44,8 @@ namespace CodeSmileEditor.Luny
 		{
 			enabledCount++;
 			Debug.Log($"LunyEditor OnEnable {enabledCount}, disabledCount: {disabledCount}");
+
+			var settings = LunyProjectSettings.instance.EditorStartupScripts;
 		}
 
 		// Runs before every domain reload
@@ -54,8 +56,7 @@ namespace CodeSmileEditor.Luny
 			Debug.Log($"LunyEditor OnDisable {disabledCount}");
 		}
 
-		private void OnDestroy() =>
-			// Note: OnDestroy is never called!
-			Debug.Assert(false, "LunyEditor OnDestroy should not run");
+		// Note: OnDestroy is never called, not even on project close (according to editor.log)!
+		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this should NEVER throw!");
 	}
 }

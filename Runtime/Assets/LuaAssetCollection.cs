@@ -20,14 +20,26 @@ namespace CodeSmile.Luny
 		public List<String> Names => m_LuaAssetNames;
 		public List<String> Paths => m_LuaAssetPaths;
 
-		internal void Add(LunyLuaAssetBase luaAsset, string assetName, String assetPath)
+		public LuaAssetCollection(IEnumerable<LunyLuaAssetBase> luaAssets = null)
+		{
+			if (luaAssets != null)
+			{
+				foreach (var luaAsset in luaAssets)
+				{
+					if (luaAsset != null)
+						Add(luaAsset, luaAsset.name, AssetDatabase.GetAssetPath(luaAsset));
+				}
+			}
+		}
+
+		internal void Add(LunyLuaAssetBase luaAsset, String assetName, String assetPath)
 		{
 			m_LuaAssets.Add(luaAsset);
 			m_LuaAssetNames.Add(assetName);
 			m_LuaAssetPaths.Add(assetPath);
 		}
 
-		internal void Remove(LunyLuaAssetBase luaAsset, string assetName, String assetPath)
+		internal void Remove(LunyLuaAssetBase luaAsset, String assetName, String assetPath)
 		{
 			m_LuaAssets.Remove(luaAsset);
 			m_LuaAssetNames.Remove(assetName);

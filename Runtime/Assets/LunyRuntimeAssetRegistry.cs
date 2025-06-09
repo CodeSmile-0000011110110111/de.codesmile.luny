@@ -17,16 +17,29 @@ namespace CodeSmile.Luny
 		private static LunyRuntimeAssetRegistry s_Singleton;
 
 		[Header("Fully automated registry (read-only)")]
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
-
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_RuntimeContext;
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
+
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeStartupLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingStartupLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
+
+		public LunyLuaContext RuntimeContext { get => m_RuntimeContext; set => m_RuntimeContext = value; }
+		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
+
+		public LuaAssetCollection RuntimeStartupLuaAssets
+		{
+			get => m_RuntimeStartupLuaAssets;
+			internal set => m_RuntimeStartupLuaAssets = value;
+		}
+		public LuaAssetCollection ModdingStartupLuaAssets
+		{
+			get => m_ModdingStartupLuaAssets;
+			internal set => m_ModdingStartupLuaAssets = value;
+		}
 		public LuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
 		public LuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;
-
-		public LunyLuaContext DefaultContext { get => m_RuntimeContext; set => m_RuntimeContext = value; }
-		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
 
 		public static LunyRuntimeAssetRegistry Singleton { get => s_Singleton; internal set => s_Singleton = value; }
 
