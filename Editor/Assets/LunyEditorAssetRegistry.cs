@@ -11,10 +11,23 @@ namespace CodeSmileEditor.Luny
 	[FilePath("ProjectSettings/LunyEditorAssetRegistry.asset", FilePathAttribute.Location.ProjectFolder)]
 	public sealed class LunyEditorAssetRegistry : ScriptableSingleton<LunyEditorAssetRegistry>
 	{
+		public event Action<LunyLuaContext> OnEditorContextChanged;
+
 		[SerializeField] private LuaAssetCollection m_EditorLuaAssets = new();
 		[SerializeField] private LunyLuaContext m_EditorContext;
 		public LuaAssetCollection EditorLuaAssets => m_EditorLuaAssets;
-		public LunyLuaContext LuaContext { get => m_EditorContext; set => m_EditorContext = value; }
+		public LunyLuaContext EditorContext
+		{
+			get => m_EditorContext;
+			set
+			{
+				if (m_EditorContext != value)
+				{
+					m_EditorContext = value;
+					OnEditorContextChanged?.Invoke(m_EditorContext);
+				}
+			}
+		}
 
 		public static LunyEditorAssetRegistry Singleton => instance; // alias for consistency
 

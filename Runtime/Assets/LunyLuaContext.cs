@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Utility;
 using System;
 using System.Linq;
 using UnityEditor;
@@ -49,13 +48,18 @@ namespace CodeSmile.Luny
 		/// </summary>
 		public LunyLuaModule[] Modules => m_Modules;
 
-		public Boolean IsRuntimeContext()
-		{
+		public Boolean IsEditorContext =>
 #if UNITY_EDITOR
-			return AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
+			AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
 #else
-			return true;
+			false;
 #endif
-		}
+
+		public Boolean IsRuntimeContext =>
+#if UNITY_EDITOR
+			AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
+#else
+			true;
+#endif
 	}
 }

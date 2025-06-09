@@ -66,7 +66,7 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 		RemoveDuplicateEntries(ref m_ModdingStartupScripts);
 
 		var editorAssetRegistry = LunyEditorAssetRegistry.Singleton;
-		editorAssetRegistry.LuaContext = m_EditorContext;
+		editorAssetRegistry.EditorContext = m_EditorContext;
 		editorAssetRegistry.Save();
 
 		var runtimeAssetRegistry = LunyRuntimeAssetRegistry.Singleton;
@@ -99,7 +99,7 @@ internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSetti
 
 		var shouldSave = m_EditorContext == null || m_RuntimeContext == null || m_ModdingContext == null;
 		if (m_EditorContext == null)
-			m_EditorContext = LunyEditorAssetRegistry.Singleton.LuaContext;
+			m_EditorContext = LunyEditorAssetRegistry.Singleton.EditorContext;
 		if (m_RuntimeContext == null)
 			m_RuntimeContext = LunyRuntimeAssetRegistry.Singleton.RuntimeContext;
 		if (m_ModdingContext == null)

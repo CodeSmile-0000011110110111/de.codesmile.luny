@@ -55,7 +55,7 @@ namespace CodeSmile.Luny
 					continue;
 				}
 
-				if (luaContext.IsRuntimeContext() && Path.IsPathRooted(m_Paths[i]))
+				if (luaContext.IsRuntimeContext && Path.IsPathRooted(m_Paths[i]))
 					throw new LunyException($"Rooted paths cannot be runtime search paths: {m_Paths[i]}");
 
 				// paths must not start nor end with slash
@@ -74,8 +74,6 @@ namespace CodeSmile.Luny
 					m_Paths[i] = Application.streamingAssetsPath + m_Paths[i]
 						.Substring(StreamingPlaceholder.Length, m_Paths[i].Length - StreamingPlaceholder.Length);
 				}
-
-				Debug.Log(m_Paths[i]);
 
 				// pre-create user path directory
 				if (isPersistentPath)

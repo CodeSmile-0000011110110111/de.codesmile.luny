@@ -46,13 +46,13 @@ namespace CodeSmile.Luny
 		private void Awake() => s_Singleton = this;
 		private void OnDestroy() => s_Singleton = null;
 
-		public LunyRuntimeLuaAsset GetScript(String scriptNameOrPath)
+		public LunyRuntimeLuaAsset GetRuntimeScript(String scriptNameOrPath)
 		{
-			var index = RuntimeLuaAssets.Names.IndexOf(scriptNameOrPath);
+			var index = m_RuntimeLuaAssets.Paths.IndexOf(scriptNameOrPath);
 			if (index < 0)
-				index = RuntimeLuaAssets.Paths.IndexOf(scriptNameOrPath);
+				index = m_RuntimeLuaAssets.Names.IndexOf(scriptNameOrPath);
 
-			return index >= 0 ? (LunyRuntimeLuaAsset)RuntimeLuaAssets.Assets[index] : null;
+			return index >= 0 ? (LunyRuntimeLuaAsset)m_RuntimeLuaAssets.Assets[index] : null;
 		}
 
 		public void Save()
@@ -60,8 +60,12 @@ namespace CodeSmile.Luny
 #if UNITY_EDITOR
 			if (s_Singleton != null)
 			{
-				EditorUtility.SetDirty(s_Singleton);
-				AssetDatabase.SaveAssetIfDirty(s_Singleton);
+				// delay to avoid "worker: import error code (4)" when called from ctor/InitOnLoad
+				EditorApplication.delayCall += () =>
+				{
+					EditorUtility.SetDirty(s_Singleton);
+					AssetDatabase.SaveAssetIfDirty(s_Singleton);
+				};
 			}
 #endif
 		}

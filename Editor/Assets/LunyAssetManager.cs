@@ -25,6 +25,8 @@ namespace CodeSmileEditor.Luny
 			if (editorContext != null && runtimeContext != null && moddingContext != null)
 				return;
 
+			Debug.Log("GetOrFindDefaultLuaContexts");
+
 			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
 			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
 
@@ -120,7 +122,7 @@ namespace CodeSmileEditor.Luny
 
 			{
 				var editorRegistry = LunyEditorAssetRegistry.instance;
-				editorRegistry.LuaContext = editorContext;
+				editorRegistry.EditorContext = editorContext;
 				FindAndRegisterAllLuaAssets(editorRegistry.EditorLuaAssets, typeof(LunyEditorLuaAsset));
 				editorRegistry.Save();
 			}
@@ -136,7 +138,7 @@ namespace CodeSmileEditor.Luny
 
 		private static void FindAndRegisterAllLuaAssets(LuaAssetCollection luaAssets, Type assetType)
 		{
-			luaAssets.Clear();
+			luaAssets.ClearMissingAssets();
 
 			var luaAssetGuids = AssetDatabase.FindAssets($"t:{assetType.Name}");
 			var luaAssetCount = luaAssetGuids.Length;
@@ -201,9 +203,9 @@ namespace CodeSmileEditor.Luny
 						else
 						{
 							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset, luaAsset.name, assetPath);
+							luaAssets.Remove(luaAsset);
 							luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset, luaAsset.name, assetPath);
+							luaAssets.Remove(luaAsset);
 							runtimeRegistry.Save();
 
 							if (isRuntimeLuaAsset)
@@ -215,7 +217,7 @@ namespace CodeSmileEditor.Luny
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
 						var editorRegistry = LunyEditorAssetRegistry.instance;
-						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset, luaAsset.name, assetPath);
+						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
 						editorRegistry.Save();
 
 						settings.EditorStartupScripts.Remove(editorLuaAsset);
@@ -241,10 +243,10 @@ namespace CodeSmileEditor.Luny
 						else
 						{
 							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset, luaAsset.name, sourcePath);
+							luaAssets.Remove(luaAsset);
 							luaAssets.Add(luaAsset, newName, destinationPath);
 							luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset, luaAsset.name, sourcePath);
+							luaAssets.Remove(luaAsset);
 							luaAssets.Add(luaAsset, newName, destinationPath);
 							runtimeRegistry.Save();
 						}
@@ -252,7 +254,7 @@ namespace CodeSmileEditor.Luny
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
 						var editorRegistry = LunyEditorAssetRegistry.instance;
-						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset, luaAsset.name, sourcePath);
+						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
 						editorRegistry.EditorLuaAssets.Add(editorLuaAsset, newName, destinationPath);
 						editorRegistry.Save();
 					}
