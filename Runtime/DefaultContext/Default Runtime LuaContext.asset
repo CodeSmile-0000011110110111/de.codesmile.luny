@@ -16,6 +16,7 @@ MonoBehaviour:
   m_ScriptSearchPaths:
   - '%PersistentDataPath%'
   - '%StreamingAssetsPath%'
+  - Assets/Scripts/Luny/Runtime
   - Assets
   m_Libraries: 605161764
   m_Modules:

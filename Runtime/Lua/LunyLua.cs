@@ -3,10 +3,10 @@
 
 using CodeSmile.Utility;
 using Lua;
+using Lua.Platforms;
 using Lua.Standard;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -39,24 +39,24 @@ namespace CodeSmile.Luny
 		/// <param name="script"></param>
 		/// <param name="chunkName"></param>
 		/// <returns>Array containing 0-n return values.</returns>
-		LuaValue[] DoString(String script, String chunkName);
+		//LuaValue[] DoString(String script, String chunkName);
 
 		/// <summary>
 		///     Reads the file, then calls DoStringAsync with the file's contents.
 		/// </summary>
 		/// <param name="relativePath"></param>
 		/// <returns>Array containing 0-n return values.</returns>
-		LuaValue[] DoFile(String relativePath);
+		//LuaValue[] DoFile(String relativePath);
 
-		ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName);
-		ValueTask<LuaValue[]> DoFileAsync(String relativePath);
+		//ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName);
+		//ValueTask<LuaValue[]> DoFileAsync(String relativePath);
 
 		/// <summary>
 		/// Loads the file's contents and returns the text.
 		/// </summary>
 		/// <param name="relativePath">Path relative to one of the specified search paths.</param>
 		/// <returns>Contents of the file</returns>
-		String LoadFile(String relativePath);
+		//String LoadFile(String relativePath);
 
 		String DumpEnvironment();
 	}
@@ -68,7 +68,7 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLua : ILunyLua, ILunyLuaInternal
 	{
-		private ILunySearchPaths m_SearchPaths;
+		//private ILunySearchPaths m_SearchPaths;
 		private LuaState m_LuaState;
 
 		public LuaState State => m_LuaState;
@@ -92,15 +92,66 @@ namespace CodeSmile.Luny
 			return sb.ToString();
 		}
 
-		public LunyLua(LunyLuaContext luaContext)
+		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook) =>
+			InitLuaEnvironment(luaContext, fileSystemHook);
+
+		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
+
+		public LuaValue[] DoString(String script, String chunkName)
 		{
-			InitLuaEnvironment(luaContext);
+			Debug.Assert(m_LuaState != null);
+			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
 		}
 
-		private void InitLuaEnvironment(LunyLuaContext luaContext)
+		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
 		{
-			m_SearchPaths = new LunySearchPaths(luaContext);
-			m_LuaState = LuaState.Create(new LunyLuaPlatform(luaContext));
+			Debug.Assert(m_LuaState != null);
+			return await m_LuaState.DoStringAsync(script, chunkName);
+		}
+
+		// public LuaValue[] DoFile(String relativePath)
+		// {
+		// 	var script = LoadFile(relativePath);
+		// 	return DoString(script, relativePath);
+		// }
+		//
+		// public async ValueTask<LuaValue[]> DoFileAsync(String relativePath)
+		// {
+		// 	var script = LoadFile(relativePath);
+		// 	return await DoStringAsync(script, relativePath);
+		// }
+
+		/// <summary>
+		/// Loads a (script) text file taking search paths into account.
+		/// </summary>
+		/// <param name="relativePath"></param>
+		/// <returns></returns>
+		/// <exception cref="FileNotFoundException">If the file was not found in search paths.</exception>
+		/// <exception cref="Exception">Logs and rethrows any exception from File.ReadAllTextAsync.</exception>
+		// public String LoadFile(String relativePath)
+		// {
+		// 	var path = m_SearchPaths.GetFullPathToFile(relativePath);
+		// 	if (path == null)
+		// 		throw new FileNotFoundException(relativePath);
+		//
+		// 	return FileUtility.TryReadAllText(path);
+		// }
+
+		public void Dispose()
+		{
+			m_LuaState.Environment.Clear();
+			m_LuaState = null;
+			// m_SearchPaths = null;
+		}
+
+		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
+		{
+			// m_SearchPaths = new LunySearchPaths(luaContext);
+
+			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
+			var osEnv = new LunyLuaOsEnvironment(luaContext);
+			var standardIO = new LunyLuaStandardIO(luaContext);
+			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO));
 
 			var libraries = luaContext.Libraries;
 			if ((libraries & LuaLibraryFlags.Basic) != 0)
@@ -198,56 +249,6 @@ namespace CodeSmile.Luny
 			env["print"] = logTable["info"];
 			env["warn"] = logTable["warning"];
 			env["error"] = logTable["error"];
-		}
-
-
-		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
-
-		public LuaValue[] DoString(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
-		}
-
-		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return await m_LuaState.DoStringAsync(script, chunkName);
-		}
-
-		public LuaValue[] DoFile(String relativePath)
-		{
-			var script = LoadFile(relativePath);
-			return DoString(script, relativePath);
-		}
-
-		public async ValueTask<LuaValue[]> DoFileAsync(String relativePath)
-		{
-			var script = LoadFile(relativePath);
-			return await DoStringAsync(script, relativePath);
-		}
-
-		/// <summary>
-		/// Loads a (script) text file taking search paths into account.
-		/// </summary>
-		/// <param name="relativePath"></param>
-		/// <returns></returns>
-		/// <exception cref="FileNotFoundException">If the file was not found in search paths.</exception>
-		/// <exception cref="Exception">Logs and rethrows any exception from File.ReadAllTextAsync.</exception>
-		public String LoadFile(String relativePath)
-		{
-			var path = m_SearchPaths.GetFullPathToFile(relativePath);
-			if (path == null)
-				throw new FileNotFoundException(relativePath);
-
-			return FileUtility.TryReadAllText(path);
-		}
-
-		public void Dispose()
-		{
-			m_LuaState.Environment.Clear();
-			m_LuaState = null;
-			m_SearchPaths = null;
 		}
 	}
 }

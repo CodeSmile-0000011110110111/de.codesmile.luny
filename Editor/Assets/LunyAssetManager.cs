@@ -147,7 +147,7 @@ namespace CodeSmileEditor.Luny
 				var assetPath = AssetDatabase.GUIDToAssetPath(luaAssetGuids[i]);
 				var luaAsset = AssetDatabase.LoadAssetAtPath(assetPath, assetType);
 				if (luaAsset != null)
-					luaAssets.Add((LunyLuaAssetBase)luaAsset, luaAsset.name, assetPath);
+					luaAssets.Add((LunyLuaAssetBase)luaAsset, assetPath);
 			}
 		}
 
@@ -173,14 +173,14 @@ namespace CodeSmileEditor.Luny
 							else
 							{
 								var luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-								luaAssets.Add(luaAsset, luaAsset.name, assetPath);
+								luaAssets.Add(luaAsset, assetPath);
 								runtimeRegistry.Save();
 							}
 						}
 						else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 						{
 							var editorRegistry = LunyEditorAssetRegistry.instance;
-							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, luaAsset.name, assetPath);
+							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, assetPath);
 							editorRegistry.Save();
 						}
 					};
@@ -204,6 +204,7 @@ namespace CodeSmileEditor.Luny
 						{
 							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
 							luaAssets.Remove(luaAsset);
+
 							luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
 							luaAssets.Remove(luaAsset);
 							runtimeRegistry.Save();
@@ -231,7 +232,6 @@ namespace CodeSmileEditor.Luny
 				if (AssetUtility.IsLuaScript(sourcePath))
 				{
 					// asset instance still has the old name so use the name from path instead
-					var newName = Path.GetFileNameWithoutExtension(destinationPath);
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(sourcePath);
 					var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 					var isMmoddingLuaAsset = luaAsset is LunyModdingLuaAsset;
@@ -243,19 +243,21 @@ namespace CodeSmileEditor.Luny
 						else
 						{
 							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset);
-							luaAssets.Add(luaAsset, newName, destinationPath);
+							if (luaAssets.Remove(luaAsset))
+								luaAssets.Add(luaAsset, destinationPath);
+
 							luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
-							luaAssets.Remove(luaAsset);
-							luaAssets.Add(luaAsset, newName, destinationPath);
+							if (luaAssets.Remove(luaAsset))
+								luaAssets.Add(luaAsset, destinationPath);
+
 							runtimeRegistry.Save();
 						}
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
 						var editorRegistry = LunyEditorAssetRegistry.instance;
-						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
-						editorRegistry.EditorLuaAssets.Add(editorLuaAsset, newName, destinationPath);
+						if (editorRegistry.EditorLuaAssets.Remove(editorLuaAsset))
+							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, destinationPath);
 						editorRegistry.Save();
 					}
 				}

@@ -46,12 +46,9 @@ namespace CodeSmile.Luny
 		private void Awake() => s_Singleton = this;
 		private void OnDestroy() => s_Singleton = null;
 
-		public LunyRuntimeLuaAsset GetRuntimeScript(String scriptNameOrPath)
+		public LunyRuntimeLuaAsset GetLuaAsset(String assetNameOrPath)
 		{
-			var index = m_RuntimeLuaAssets.Paths.IndexOf(scriptNameOrPath);
-			if (index < 0)
-				index = m_RuntimeLuaAssets.Names.IndexOf(scriptNameOrPath);
-
+			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetNameOrPath);
 			return index >= 0 ? (LunyRuntimeLuaAsset)m_RuntimeLuaAssets.Assets[index] : null;
 		}
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace CodeSmile.Luny.Components
 {
 	public interface ILuny
 	{
@@ -58,8 +58,10 @@ namespace CodeSmile.Luny
 			s_Singleton = this;
 
 			var registry = LunyRuntimeAssetRegistry.Singleton;
-			m_RuntimeLua = new LunyLua(registry.RuntimeContext);
-			m_ModdingLua = new LunyLua(registry.ModdingContext);
+			var runtimeContext = registry.RuntimeContext;
+			var moddingContext = registry.ModdingContext;
+			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext.IsSandbox));
+			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext.IsSandbox));
 
 			RegisterLunyScriptComponents();
 			await RunStartupScripts();
@@ -75,40 +77,56 @@ namespace CodeSmile.Luny
 			s_Singleton = null;
 		}
 
-		private void RegisterLunyScriptComponents()
+		private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");
+
+		// var lunyScriptTypes = AppDomain.CurrentDomain.GetAssemblies()
+		// 	.SelectMany(assembly => assembly.GetTypes())
+		// 	.Where(type => type.IsSubclassOf(typeof(LunyScript)));
+		//
+		// var sb = new StringBuilder();
+		// var env = m_Lua.State.Environment;
+		// foreach (var lunyScriptType in lunyScriptTypes)
+		// {
+		// 	var factory = new LunyScriptFactory(lunyScriptType, m_LunyScriptTypesAreLowercase);
+		// 	env.SetLunyComponentApi(lunyScriptType, factory);
+		//
+		// 	if (m_LogLunyScriptTypes)
+		// 	{
+		// 		sb.Append(sb.Length == 0 ? "Registered LunyScript components:\n" : "\n");
+		// 		sb.Append(factory.ApiName);
+		// 	}
+		// }
+		//
+		// if (m_LogLunyScriptTypes)
+		// 	LunyLogger.LogInfo(sb.ToString());
+		private async ValueTask RunStartupScripts() => Debug.LogWarning("TODO: RunStartupScripts");
+		// foreach (var startupScript in m_StartupScripts)
+		// {
+		// 	if (startupScript != null)
+		// 		await m_Lua.DoStringAsync(startupScript.Text, startupScript.name);
+		// }
+	}
+
+	internal class RuntimeFileSystem : ILunyLuaFileSystem
+	{
+		protected Boolean m_IsSandbox;
+
+		public RuntimeFileSystem(Boolean isSandbox) => m_IsSandbox = isSandbox;
+
+		public Boolean ReadText(String path, out String content)
 		{
-			Debug.LogWarning("TODO: RegisterLunyScriptComponents");
-			// var lunyScriptTypes = AppDomain.CurrentDomain.GetAssemblies()
-			// 	.SelectMany(assembly => assembly.GetTypes())
-			// 	.Where(type => type.IsSubclassOf(typeof(LunyScript)));
-			//
-			// var sb = new StringBuilder();
-			// var env = m_Lua.State.Environment;
-			// foreach (var lunyScriptType in lunyScriptTypes)
-			// {
-			// 	var factory = new LunyScriptFactory(lunyScriptType, m_LunyScriptTypesAreLowercase);
-			// 	env.SetLunyComponentApi(lunyScriptType, factory);
-			//
-			// 	if (m_LogLunyScriptTypes)
-			// 	{
-			// 		sb.Append(sb.Length == 0 ? "Registered LunyScript components:\n" : "\n");
-			// 		sb.Append(factory.ApiName);
-			// 	}
-			// }
-			//
-			// if (m_LogLunyScriptTypes)
-			// 	LunyLogger.LogInfo(sb.ToString());
+			var luaAsset = LunyRuntimeAssetRegistry.Singleton.GetLuaAsset(path);
+			if (luaAsset != null || m_IsSandbox)
+			{
+				content = luaAsset?.text;
+				return true;
+			}
+
+			// use default implementation
+			content = null;
+			return false;
 		}
 
-		private async ValueTask RunStartupScripts()
-		{
-			Debug.LogWarning("TODO: RunStartupScripts");
-
-			// foreach (var startupScript in m_StartupScripts)
-			// {
-			// 	if (startupScript != null)
-			// 		await m_Lua.DoStringAsync(startupScript.Text, startupScript.name);
-			// }
-		}
+		public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
 	}
 }

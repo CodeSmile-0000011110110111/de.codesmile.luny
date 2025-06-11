@@ -16,11 +16,9 @@ namespace CodeSmile.Luny
 		public event Action<LunyLuaAssetBase> OnRemove;
 
 		[SerializeField] [ReadOnlyField] private List<LunyLuaAssetBase> m_LuaAssets = new();
-		[SerializeField] [ReadOnlyField] private List<String> m_LuaAssetNames = new();
 		[SerializeField] [ReadOnlyField] private List<String> m_LuaAssetPaths = new();
 
 		public List<LunyLuaAssetBase> Assets => m_LuaAssets;
-		public List<String> Names => m_LuaAssetNames;
 		public List<String> Paths => m_LuaAssetPaths;
 
 		public LuaAssetCollection(IEnumerable<LunyLuaAssetBase> luaAssets = null)
@@ -30,28 +28,26 @@ namespace CodeSmile.Luny
 				foreach (var luaAsset in luaAssets)
 				{
 					if (luaAsset != null)
-						Add(luaAsset, luaAsset.name, AssetDatabase.GetAssetPath(luaAsset));
+						Add(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
 				}
 			}
 		}
 
-		internal void Add(LunyLuaAssetBase luaAsset, String assetName, String assetPath)
+		internal void Add(LunyLuaAssetBase luaAsset, String assetPath)
 		{
 			Debug.Assert(luaAsset != null);
-			Debug.Assert(String.IsNullOrEmpty(assetName) == false);
 			Debug.Assert(String.IsNullOrEmpty(assetPath) == false);
 
 			if (m_LuaAssets.Contains(luaAsset) == false)
 			{
 				m_LuaAssets.Add(luaAsset);
-				m_LuaAssetNames.Add(assetName);
 				m_LuaAssetPaths.Add(assetPath);
 
 				OnAdd?.Invoke(luaAsset);
 			}
 		}
 
-		internal void Remove(LunyLuaAssetBase luaAsset)
+		internal bool Remove(LunyLuaAssetBase luaAsset)
 		{
 			Debug.Assert(luaAsset != null);
 
@@ -61,9 +57,11 @@ namespace CodeSmile.Luny
 				OnRemove?.Invoke(luaAsset);
 
 				m_LuaAssets.RemoveAt(index);
-				m_LuaAssetNames.RemoveAt(index);
 				m_LuaAssetPaths.RemoveAt(index);
+				return true;
 			}
+
+			return false;
 		}
 
 		internal void ClearMissingAssets()

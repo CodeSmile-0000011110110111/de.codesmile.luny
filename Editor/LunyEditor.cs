@@ -2,8 +2,10 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using CodeSmile.Utility;
 using Lua;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -24,11 +26,11 @@ namespace CodeSmileEditor.Luny
 		private LunyLua m_Lua;
 		private LuaScriptCollection m_RunningScripts;
 
+		private Boolean m_ShouldCallReset;
+		private Boolean m_ShouldCallAwake;
+
 		[InitializeOnLoadMethod]
 		private static LunyEditor OnLoad() => instance; // auto-create the singleton
-
-		private bool m_ShouldCallReset;
-		private bool m_ShouldCallAwake;
 
 		// Runs when project is loaded AND the FilePath asset does not exist
 		private void Reset()
@@ -51,6 +53,8 @@ namespace CodeSmileEditor.Luny
 		// Runs after every domain reload (including project load)
 		private void OnEnable()
 		{
+			EditorApplication.focusChanged += OnFocusChanged;
+
 			var registry = LunyEditorAssetRegistry.Singleton;
 			var settings = LunyProjectSettings.instance;
 
@@ -76,12 +80,20 @@ namespace CodeSmileEditor.Luny
 		// Runs before every domain reload
 		private void OnDisable() => Save(true);
 
+		private void OnFocusChanged(Boolean hasFocus)
+		{
+			Debug.Log($"OnFocusChanged, hasFocus = {hasFocus}");
+			if (hasFocus)
+				CreateSessionState(LunyEditorAssetRegistry.Singleton.EditorContext);
+		}
+
 		private async Task StartScript(LunyLuaAssetBase luaAsset)
 		{
 			var luaScript = new LuaScript(m_Lua, luaAsset);
 			await luaScript.Run();
 			m_RunningScripts.Add(luaScript);
 		}
+
 		private void StopScript(LunyLuaAssetBase luaAsset)
 		{
 			var index = m_RunningScripts.IndexOf(luaAsset);
@@ -95,35 +107,73 @@ namespace CodeSmileEditor.Luny
 
 		private async void CreateSessionState(LunyLuaContext editorContext)
 		{
-			m_Lua = new LunyLua(editorContext);
+			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
 			m_SessionState = new LuaTable();
 			m_RunningScripts = new LuaScriptCollection();
 
 			foreach (var startupLuaAsset in LunyProjectSettings.instance.EditorStartupScripts)
-			{
 				await StartScript(startupLuaAsset);
-			}
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAssetBase luaAsset)
 		{
 			var settings = LunyProjectSettings.instance;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-			{
 				await StartScript(luaAsset);
-			}
 		}
 
 		private void OnRemoveLuaAsset(LunyLuaAssetBase luaAsset)
 		{
 			var settings = LunyProjectSettings.instance;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-			{
 				StopScript(luaAsset);
-			}
 		}
 
 		// Note: OnDestroy is never called, not even on project close according to editor.log
 		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
+
+		private sealed class FileSystem : ILunyLuaFileSystem
+		{
+			private readonly LunySearchPaths m_SearchPaths;
+			private readonly Boolean m_IsSandbox;
+
+			public FileSystem(LunyLuaContext luaContext)
+			{
+				m_SearchPaths = new LunySearchPaths(luaContext);
+				m_IsSandbox = luaContext.IsSandbox;
+			}
+
+			public Boolean ReadText(String path, out String content)
+			{
+				// try read absolute paths directly
+				if (!m_IsSandbox && Path.IsPathRooted(path))
+				{
+					content = FileUtility.TryReadAllText(path, true);
+					return true;
+				}
+
+				// Try read relative paths by looking through search paths
+				var fullOrAssetPath = m_SearchPaths.GetFullPathOrAssetPath(path);
+				if (fullOrAssetPath == null)
+				{
+					content = null;
+					return true;
+				}
+
+				// the asset should be in the registry
+				var luaAsset = LunyEditorAssetRegistry.Singleton.GetLuaAsset(fullOrAssetPath);
+				if (luaAsset != null)
+				{
+					content = luaAsset.text;
+					return true;
+				}
+
+				// try read from file system instead (ie could be relative to project working directory)
+				content = FileUtility.TryReadAllText(fullOrAssetPath, true);
+				return true;
+			}
+
+			public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
+		}
 	}
 }

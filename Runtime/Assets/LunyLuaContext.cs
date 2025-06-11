@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua.IO;
 using System;
 using System.Linq;
 using UnityEditor;
@@ -21,7 +22,7 @@ namespace CodeSmile.Luny
 		[SerializeField] private Boolean m_IsSandbox;
 
 		/// <summary>
-		/// Directories where functions like dofile('') will search for files.
+		/// Directories where functions like dofile() will search for files.
 		/// </summary>
 		[Tooltip("Scripts with relative paths will be searched for in these folders, from top to bottom. Search stops for " +
 		         "the first script found.")]
@@ -48,18 +49,12 @@ namespace CodeSmile.Luny
 		/// </summary>
 		public LunyLuaModule[] Modules => m_Modules;
 
-		public Boolean IsEditorContext =>
 #if UNITY_EDITOR
-			AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
+		public Boolean IsEditorContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
+		public Boolean IsRuntimeContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
 #else
-			false;
-#endif
-
-		public Boolean IsRuntimeContext =>
-#if UNITY_EDITOR
-			AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
-#else
-			true;
+		public Boolean IsEditorContext => false;
+		public Boolean IsRuntimeContext => true;
 #endif
 	}
 }
