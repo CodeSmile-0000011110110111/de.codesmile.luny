@@ -19,8 +19,8 @@ namespace CodeSmile.Luny
 
 		public void Load(LuaState luaState)
 		{
-			if ((m_ModuleLoader != null))
-				Debug.LogWarning( $"Missing loader for LuaModule '{name}'");
+			if (m_ModuleLoader != null)
+				Debug.LogWarning($"Missing loader for LuaModule '{name}'");
 			//Debug.Assert(m_ModuleLoader != null, $"Missing loader for LuaModule '{name}'");
 
 			m_ModuleLoader?.Load(luaState.Environment);

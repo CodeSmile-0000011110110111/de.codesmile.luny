@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Utility;
 using Lua;
 using Lua.Platforms;
 using Lua.Standard;
@@ -57,7 +56,6 @@ namespace CodeSmile.Luny
 		/// <param name="relativePath">Path relative to one of the specified search paths.</param>
 		/// <returns>Contents of the file</returns>
 		//String LoadFile(String relativePath);
-
 		String DumpEnvironment();
 	}
 
@@ -97,18 +95,6 @@ namespace CodeSmile.Luny
 
 		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
 
-		public LuaValue[] DoString(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
-		}
-
-		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return await m_LuaState.DoStringAsync(script, chunkName);
-		}
-
 		// public LuaValue[] DoFile(String relativePath)
 		// {
 		// 	var script = LoadFile(relativePath);
@@ -136,12 +122,23 @@ namespace CodeSmile.Luny
 		//
 		// 	return FileUtility.TryReadAllText(path);
 		// }
-
 		public void Dispose()
 		{
 			m_LuaState.Environment.Clear();
 			m_LuaState = null;
 			// m_SearchPaths = null;
+		}
+
+		public LuaValue[] DoString(String script, String chunkName)
+		{
+			Debug.Assert(m_LuaState != null);
+			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
+		}
+
+		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
+		{
+			Debug.Assert(m_LuaState != null);
+			return await m_LuaState.DoStringAsync(script, chunkName);
 		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)

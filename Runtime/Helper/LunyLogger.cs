@@ -29,7 +29,8 @@ namespace CodeSmile.Luny
 			// if (component is LunyScript lunyScript && lunyScript.Script != null)
 			// 	scriptName = $"{lunyScript.Script.ScriptName}.lua";
 
-			var gameObjectName = component != null ? $"{component.gameObject.name} ({component.gameObject.GetInstanceID()})" : null;
+			var gameObjectName =
+				component != null ? $"{component.gameObject.name} ({component.gameObject.GetInstanceID()})" : null;
 			Debug.LogError($"{scriptName} {message} on {gameObjectName}\n{ex.GetType().Name}: " +
 			               $"{ex.StackTrace}\n{ex.InnerException?.Message}\n{ex.InnerException?.StackTrace}");
 		}

@@ -5,7 +5,6 @@ using Lua;
 using System;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -31,7 +30,11 @@ namespace CodeSmile.Luny
 		public static Double DoubleOrDefault(this LuaValue value) => value.TryRead(out Double result) ? result : default;
 		public static String StringOrDefault(this LuaValue value) => value.TryRead(out String result) ? result : default;
 		public static LuaTable TableOrDefault(this LuaValue value) => value.TryRead(out LuaTable result) ? result : default;
-		public static LuaFunction FunctionOrDefault(this LuaValue value) => value.TryRead(out LuaFunction result) ? result : default;
-		public static ILuaUserData UserDataOrDefault(this LuaValue value) => value.TryRead(out ILuaUserData result) ? result : default;
+
+		public static LuaFunction FunctionOrDefault(this LuaValue value) =>
+			value.TryRead(out LuaFunction result) ? result : default;
+
+		public static ILuaUserData UserDataOrDefault(this LuaValue value) =>
+			value.TryRead(out ILuaUserData result) ? result : default;
 	}
 }

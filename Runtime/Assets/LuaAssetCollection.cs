@@ -47,7 +47,7 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		internal bool Remove(LunyLuaAssetBase luaAsset)
+		internal Boolean Remove(LunyLuaAssetBase luaAsset)
 		{
 			Debug.Assert(luaAsset != null);
 
@@ -66,12 +66,10 @@ namespace CodeSmile.Luny
 
 		internal void ClearMissingAssets()
 		{
-			for (int i = m_LuaAssets.Count - 1; i >= 0; i--)
+			for (var i = m_LuaAssets.Count - 1; i >= 0; i--)
 			{
 				if (m_LuaAssets[i] == null)
-				{
 					m_LuaAssets.RemoveAt(i);
-				}
 			}
 		}
 	}

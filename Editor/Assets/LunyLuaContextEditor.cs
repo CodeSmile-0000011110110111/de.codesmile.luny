@@ -9,9 +9,7 @@ namespace CodeSmileEditor.Luny
 {
 	[CustomEditor(typeof(LunyLuaContext))]
 	[CanEditMultipleObjects]
-	internal sealed class LunyLuaContextEditor : Editor
-	{
-	}
+	internal sealed class LunyLuaContextEditor : Editor {}
 }
 /*
 // Copyright (C) 2021-2025 Steffen Itterheim

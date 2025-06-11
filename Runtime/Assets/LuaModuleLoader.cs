@@ -11,15 +11,13 @@ namespace CodeSmile.Luny
 	[Serializable]
 	public abstract class LuaModuleLoader
 	{
-		public virtual void Load(LuaTable env) {}
-
 		public static LuaTable GetOrCreateNamespaceTable(LuaTable env, String[] namespaceNames)
 		{
-			LuaTable current = env;
+			var current = env;
 			if (namespaceNames != null && namespaceNames.Length > 0)
 			{
 				var namespaceCount = namespaceNames.Length;
-				for (int i = 0; i < namespaceCount; i++)
+				for (var i = 0; i < namespaceCount; i++)
 				{
 					var name = namespaceNames[i];
 					if (current[name].TryRead(out LuaTable next) == false)
@@ -34,5 +32,7 @@ namespace CodeSmile.Luny
 
 			return current;
 		}
+
+		public virtual void Load(LuaTable env) {}
 	}
 }

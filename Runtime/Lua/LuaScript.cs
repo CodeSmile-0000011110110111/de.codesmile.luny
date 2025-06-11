@@ -24,18 +24,18 @@ namespace CodeSmile.Luny
 			m_ScriptTable = new LuaTable();
 		}
 
-		public async ValueTask Run()
-		{
-			var results = await m_Lua.State.DoStringAsync(LuaAsset.text, LuaAsset.name);
-			if (results.Length > 0 && results[0].TryRead<LuaTable>(out var table))
-				m_ScriptTable = table;
-		}
-
 		public void Dispose()
 		{
 			m_Lua = null;
 			m_LuaAsset = null;
 			m_ScriptTable = null;
+		}
+
+		public async ValueTask Run()
+		{
+			var results = await m_Lua.State.DoStringAsync(LuaAsset.text, LuaAsset.name);
+			if (results.Length > 0 && results[0].TryRead<LuaTable>(out var table))
+				m_ScriptTable = table;
 		}
 	}
 }

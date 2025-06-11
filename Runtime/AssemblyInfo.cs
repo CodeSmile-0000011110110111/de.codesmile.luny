@@ -2,5 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System.Runtime.CompilerServices;
+using UnityEditor;
+using UnityEngine;
 
 [assembly: InternalsVisibleTo("CodeSmileEditor.Luny")]
