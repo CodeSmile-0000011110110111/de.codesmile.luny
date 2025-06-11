@@ -82,9 +82,11 @@ namespace CodeSmileEditor.Luny
 
 		private void OnFocusChanged(Boolean hasFocus)
 		{
-			Debug.Log($"OnFocusChanged, hasFocus = {hasFocus}");
 			if (hasFocus)
+			{
+				Debug.LogWarning("For testing only - OnFocusChanged: CreateSession");
 				CreateSessionState(LunyEditorAssetRegistry.Singleton.EditorContext);
+			}
 		}
 
 		private async Task StartScript(LunyLuaAssetBase luaAsset)
@@ -145,20 +147,20 @@ namespace CodeSmileEditor.Luny
 
 			public Boolean ReadText(String path, out String content)
 			{
+				content = String.Empty;
+
 				// try read absolute paths directly
-				if (!m_IsSandbox && Path.IsPathRooted(path))
+				if (Path.IsPathRooted(path))
 				{
-					content = FileUtility.TryReadAllText(path, true);
+					if (!m_IsSandbox)
+						content = FileUtility.TryReadAllText(path, true);
 					return true;
 				}
 
 				// Try read relative paths by looking through search paths
 				var fullOrAssetPath = m_SearchPaths.GetFullPathOrAssetPath(path);
 				if (fullOrAssetPath == null)
-				{
-					content = null;
 					return true;
-				}
 
 				// the asset should be in the registry
 				var luaAsset = LunyEditorAssetRegistry.Singleton.GetLuaAsset(fullOrAssetPath);
@@ -169,7 +171,8 @@ namespace CodeSmileEditor.Luny
 				}
 
 				// try read from file system instead (ie could be relative to project working directory)
-				content = FileUtility.TryReadAllText(fullOrAssetPath, true);
+				if (!m_IsSandbox)
+					content = FileUtility.TryReadAllText(fullOrAssetPath, true);
 				return true;
 			}
 

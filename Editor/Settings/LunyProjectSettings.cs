@@ -72,12 +72,23 @@ namespace CodeSmileEditor.Luny
 
 			var runtimeAssetRegistry = LunyRuntimeAssetRegistry.Singleton;
 			runtimeAssetRegistry.RuntimeContext = m_RuntimeContext;
-			runtimeAssetRegistry.RuntimeStartupLuaAssets = new LuaAssetCollection(m_RuntimeStartupScripts);
+			runtimeAssetRegistry.RuntimeStartupLuaAssets = CreateAssetCollection(m_RuntimeStartupScripts);
 			runtimeAssetRegistry.ModdingContext = m_ModdingContext;
-			runtimeAssetRegistry.ModdingStartupLuaAssets = new LuaAssetCollection(m_ModdingStartupScripts);
+			runtimeAssetRegistry.ModdingStartupLuaAssets = CreateAssetCollection(m_ModdingStartupScripts);
 			runtimeAssetRegistry.Save();
 
 			Save(true);
+		}
+
+		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAssetBase> runtimeStartupScripts)
+		{
+			var assets = new LuaAssetCollection();
+			foreach (var luaAsset in runtimeStartupScripts)
+			{
+				if (luaAsset != null)
+					assets.Add(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
+			}
+			return assets;
 		}
 
 		private void RemoveDuplicateEntries<T>(ref List<T> scripts) where T : LunyLuaAssetBase

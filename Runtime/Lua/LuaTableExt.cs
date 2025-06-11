@@ -3,14 +3,162 @@
 
 using Lua;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
 	public static class LuaTableExt
 	{
+		public static void SetValues(this LuaTable table, IList<LuaValue> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<object> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = LuaValue.FromObject(values[i]);
+		}
+
+		public static void SetValues(this LuaTable table, IList<String> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Boolean> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Byte> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<SByte> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Int16> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<UInt16> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Int32> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<UInt32> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Int64> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<UInt64> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Single> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Double> values)
+		{
+			var count = values.Count;
+			var luaIndex = 1;
+			for (var i = 0; i < count; i++, luaIndex++)
+				table[luaIndex] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<LuaValue> keys, IList<LuaValue> values)
+		{
+			Debug.Assert(keys != null);
+			Debug.Assert(values != null);
+			Debug.Assert(keys.Count == values.Count, "key-value count mismatch");
+
+			var count = keys.Count;
+			for (var i = 0; i < count; i++)
+				table[keys[i]] = values[i];
+		}
+
+		public static void SetValues(this LuaTable table, IList<Object> keys, IList<Object> values)
+		{
+			Debug.Assert(keys != null);
+			Debug.Assert(values != null);
+			Debug.Assert(keys.Count == values.Count, "key-value count mismatch");
+
+			var count = keys.Count;
+			for (var i = 0; i < count; i++)
+				table[LuaValue.FromObject(keys[i])] = LuaValue.FromObject(values[i]);
+		}
+
+		public static void SetValues(this LuaTable table, IEnumerable<KeyValuePair<LuaValue, LuaValue>> keyValuePairs)
+		{
+			foreach (var pair in keyValuePairs)
+				table[pair.Key] = pair.Value;
+		}
+
+		public static void SetValues(this LuaTable table, IEnumerable<KeyValuePair<Object, Object>> keyValuePairs)
+		{
+			foreach (var pair in keyValuePairs)
+				table[LuaValue.FromObject(pair.Key)] = LuaValue.FromObject(pair.Value);
+		}
+
 		public static Boolean IsNil(this LuaTable table, String name) => table.ContainsKey(name) == false;
 
 		public static LuaValue GetValue(this LuaTable table, String name) =>

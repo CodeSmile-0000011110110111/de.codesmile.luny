@@ -18,20 +18,8 @@ namespace CodeSmile.Luny
 		[SerializeField] [ReadOnlyField] private List<LunyLuaAssetBase> m_LuaAssets = new();
 		[SerializeField] [ReadOnlyField] private List<String> m_LuaAssetPaths = new();
 
-		public List<LunyLuaAssetBase> Assets => m_LuaAssets;
-		public List<String> Paths => m_LuaAssetPaths;
-
-		public LuaAssetCollection(IEnumerable<LunyLuaAssetBase> luaAssets = null)
-		{
-			if (luaAssets != null)
-			{
-				foreach (var luaAsset in luaAssets)
-				{
-					if (luaAsset != null)
-						Add(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
-				}
-			}
-		}
+		public IList<LunyLuaAssetBase> Assets => m_LuaAssets.AsReadOnly();
+		public IList<String> Paths => m_LuaAssetPaths.AsReadOnly();
 
 		internal void Add(LunyLuaAssetBase luaAsset, String assetPath)
 		{
@@ -46,6 +34,7 @@ namespace CodeSmile.Luny
 				OnAdd?.Invoke(luaAsset);
 			}
 		}
+
 
 		internal Boolean Remove(LunyLuaAssetBase luaAsset)
 		{

@@ -133,7 +133,7 @@ namespace CodeSmileEditor.Luny
 			settings.Save();
 		}
 
-		public sealed class AssetCreateWatcher : AssetModificationProcessor
+		private sealed class AssetCreateMonitor : AssetModificationProcessor
 		{
 			private static void OnWillCreateAsset(String assetPath)
 			{

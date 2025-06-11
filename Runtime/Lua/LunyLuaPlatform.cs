@@ -30,8 +30,6 @@ namespace CodeSmile.Luny
 
 		public ValueTask<ILuaStream> Open(String path, LuaFileMode mode, CancellationToken cancellationToken)
 		{
-			Debug.Log($"Open: {path}, mode: {mode}");
-
 			if (m_FileSystemHook != null)
 			{
 				var isText = (mode & LuaFileMode.Text) != 0;
