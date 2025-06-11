@@ -11,13 +11,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	internal interface ILunySearchPaths
-	{
-		String GetFullPathOrAssetPath(String relativePath);
-		// String GetRelativePathToFile(String fullPath);
-	}
-
-	internal sealed class LunySearchPaths : ILunySearchPaths
+	internal sealed class LunySearchPaths
 	{
 		private const String PersistentPlaceholder = "%persistentdatapath%";
 		private const String StreamingPlaceholder = "%streamingassetspath%";
@@ -67,10 +61,8 @@ namespace CodeSmile.Luny
 					pathInfo.RootPath = Application.streamingAssetsPath + path
 						.Substring(StreamingPlaceholder.Length, path.Length - StreamingPlaceholder.Length);
 				}
-				else if (path.StartsWith("Assets"))
+				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
 					pathInfo.IsAssetPath = true;
-
-				//pathInfo.RootFullPath = Path.GetFullPath(pathInfo.RootPath).ToForwardSlashes();
 
 				m_Paths.Add(pathInfo);
 			}
@@ -118,7 +110,6 @@ namespace CodeSmile.Luny
 		public struct PathInfo
 		{
 			public String RootPath;
-			//public String RootFullPath;
 			public Boolean IsAssetPath;
 			//public Boolean IsStreamingAssetPath;
 			//public Boolean IsPersistentDataPath;
