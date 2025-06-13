@@ -9,33 +9,29 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public sealed class LuaScript : IDisposable
+	public sealed class LunyLuaScript : IDisposable
 	{
 		private LunyLua m_Lua;
 		private LunyLuaAssetBase m_LuaAsset;
-		private LuaTable m_ScriptTable;
+		private LuaTable m_Arguments;
 		public LunyLuaAssetBase LuaAsset => m_LuaAsset;
-		public LuaTable ScriptTable => m_ScriptTable;
+		public LuaTable Arguments => m_Arguments;
 
-		public LuaScript(LunyLua lua, LunyLuaAssetBase luaAsset)
+		public LunyLuaScript(LunyLua lua, LunyLuaAssetBase luaAsset, LuaTable arguments = null)
 		{
 			m_Lua = lua;
 			m_LuaAsset = luaAsset;
-			m_ScriptTable = new LuaTable();
+			m_Arguments = arguments ?? new LuaTable();
+			m_Arguments["TestEnv"] = "environment variable is set";
 		}
 
 		public void Dispose()
 		{
 			m_Lua = null;
 			m_LuaAsset = null;
-			m_ScriptTable = null;
+			m_Arguments = null;
 		}
 
-		public async ValueTask Run()
-		{
-			var results = await m_Lua.State.DoStringAsync(LuaAsset.text, LuaAsset.name);
-			if (results.Length > 0 && results[0].TryRead<LuaTable>(out var table))
-				m_ScriptTable = table;
-		}
+		public async ValueTask Run() => await m_Lua.State.DoStringAsync(LuaAsset.text, LuaAsset.name, m_Arguments);
 	}
 }
