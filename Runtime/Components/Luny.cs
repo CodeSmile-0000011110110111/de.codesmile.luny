@@ -122,8 +122,6 @@ namespace CodeSmile.Luny.Components
 		{
 			content = String.Empty;
 
-			LunyLogger.LogInfo($"try ReadText: {path}");
-
 			// try read absolute paths directly
 			if (m_IsSandbox && Path.IsPathRooted(path))
 				throw new NotSupportedException($"cannot access rooted paths in sandbox: {path}");

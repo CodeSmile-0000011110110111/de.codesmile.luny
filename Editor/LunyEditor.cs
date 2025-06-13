@@ -155,8 +155,7 @@ namespace CodeSmileEditor.Luny
 				return true;
 			}
 
-			public Boolean ReadBytes(String path, out Byte[] bytes) =>
-				throw new NotImplementedException("ReadBytes");
+			public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
 		}
 	}
 }

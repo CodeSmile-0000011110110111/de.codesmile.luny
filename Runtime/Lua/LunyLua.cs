@@ -3,6 +3,7 @@
 
 using Lua;
 using Lua.Platforms;
+using Lua.Runtime;
 using Lua.Standard;
 using System;
 using System.Collections.Generic;
@@ -27,10 +28,13 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLua : ILunyLua
 	{
+
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 
 		public LuaState State => m_LuaState;
+
+
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -128,22 +132,9 @@ namespace CodeSmile.Luny
 		private void OverridePrintAndLog()
 		{
 			var logTable = new LuaTable(0, 4);
-			logTable["info"] = new LuaFunction("info", (context, ct) =>
-			{
-				LunyLogger.LogInfo(context.ArgumentsToString());
-				return new ValueTask<Int32>(0);
-			});
-			logTable["warning"] = new LuaFunction("warning", (context, ct) =>
-			{
-				LunyLogger.LogWarn(context.ArgumentsToString());
-				return new ValueTask<Int32>(0);
-			});
-			logTable["error"] = new LuaFunction("error", (context, ct) =>
-			{
-				LunyLogger.LogError(context.ArgumentsToString());
-				return new ValueTask<Int32>(0);
-			});
-
+			logTable["info"] = LunyLogger._logInfo;
+			logTable["warning"] = LunyLogger._logWarn;
+			logTable["error"] = LunyLogger._logError;
 			logTable["warn"] = logTable["warning"]; // alias
 
 			var env = m_LuaState.Environment;

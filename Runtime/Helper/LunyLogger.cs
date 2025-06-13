@@ -2,7 +2,9 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
+using Lua.Runtime;
 using System;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,11 +15,27 @@ namespace CodeSmile.Luny
 
 	public static class LunyLogger
 	{
-		public static void LogInfo(String message) => Debug.Log(message);
-		public static void LogWarn(String message) => Debug.LogWarning(message);
-		public static void LogError(String message) => Debug.LogError(message);
+		internal static readonly LuaFunction _logInfo = new("LogInfo", (context, ct) =>
+		{
+			LogInfo(GetLuaMessageAndTraceback(context));
+			return new ValueTask<Int32>(0);
+		});
+		internal static readonly LuaFunction _logWarn = new("LogWarn", (context, ct) =>
+		{
+			LogWarn(GetLuaMessageAndTraceback(context));
+			return new ValueTask<Int32>(0);
+		});
+		internal static readonly LuaFunction _logError = new("LogError", (context, ct) =>
+		{
+			LogError(GetLuaMessageAndTraceback(context));
+			return new ValueTask<Int32>(0);
+		});
 
-		public static void LogException(Exception ex, Component component = null)
+		[HideInCallstack] public static void LogInfo(String message) => Debug.Log(message);
+		[HideInCallstack] public static void LogWarn(String message) => Debug.LogWarning(message);
+		[HideInCallstack] public static void LogError(String message) => Debug.LogError(message);
+
+		[HideInCallstack] public static void LogException(Exception ex, Component component = null)
 		{
 			var scriptName = "";
 			var message = ex.Message;
@@ -26,13 +44,16 @@ namespace CodeSmile.Luny
 			else if (ex is LuaParseException luaParEx)
 				message = luaParEx.Message;
 
-			// if (component is LunyScript lunyScript && lunyScript.Script != null)
-			// 	scriptName = $"{lunyScript.Script.ScriptName}.lua";
-
 			var gameObjectName =
 				component != null ? $"{component.gameObject.name} ({component.gameObject.GetInstanceID()})" : null;
 			Debug.LogError($"{scriptName} {message} on {gameObjectName}\n{ex.GetType().Name}: " +
 			               $"{ex.StackTrace}\n{ex.InnerException?.Message}\n{ex.InnerException?.StackTrace}");
+		}
+
+		private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
+		{
+			var traceback = new Traceback(context.State, context.Thread.GetCallStackFrames());
+			return $"{context.ArgumentsToString()}\n{traceback.ToString(0, true)}";
 		}
 
 		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>
