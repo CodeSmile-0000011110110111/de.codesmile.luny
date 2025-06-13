@@ -58,7 +58,10 @@ namespace CodeSmile.Luny
 			for (var i = m_LuaAssets.Count - 1; i >= 0; i--)
 			{
 				if (m_LuaAssets[i] == null)
+				{
 					m_LuaAssets.RemoveAt(i);
+					m_LuaAssetPaths.RemoveAt(i);
+				}
 			}
 		}
 	}
