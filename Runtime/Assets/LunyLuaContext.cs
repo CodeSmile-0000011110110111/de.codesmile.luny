@@ -39,6 +39,8 @@ namespace CodeSmile.Luny
 		/// </summary>
 		[SerializeField] private LunyLuaModule[] m_Modules = new LunyLuaModule[0];
 
+		[SerializeField] [HideInInspector] private Boolean m_IsModdingContext;
+
 		public Boolean IsSandbox => m_IsSandbox;
 		public String[] ScriptSearchPaths => m_ScriptSearchPaths;
 		public LuaLibraryFlags Libraries => m_Libraries;
@@ -48,12 +50,17 @@ namespace CodeSmile.Luny
 		/// </summary>
 		public LunyLuaModule[] Modules => m_Modules;
 
+		private void OnEnable() => m_IsModdingContext = IsModdingContext;
+
 #if UNITY_EDITOR
 		public Boolean IsEditorContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
 		public Boolean IsRuntimeContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
+		public Boolean IsModdingContext =>
+			m_IsModdingContext = AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.ModdingLuaContext);
 #else
 		public Boolean IsEditorContext => false;
 		public Boolean IsRuntimeContext => true;
+		public Boolean IsModdingContext => m_IsModdingContext;
 #endif
 	}
 }

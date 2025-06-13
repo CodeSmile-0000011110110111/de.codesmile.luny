@@ -31,15 +31,12 @@ namespace CodeSmileEditor.Luny
 
 		public static LunyEditorAssetRegistry Singleton => instance; // alias for consistency
 
-		public LunyEditorLuaAsset GetLuaAsset(String assetNameOrPath)
+		public LunyLuaAsset GetLuaAsset(String assetNameOrPath)
 		{
 			var index = m_EditorLuaAssets.Paths.IndexOf(assetNameOrPath);
-			return index >= 0 ? (LunyEditorLuaAsset)m_EditorLuaAssets.Assets[index] : null;
+			return index >= 0 ? m_EditorLuaAssets.Assets[index] : null;
 		}
 
-		public void Save()
-		{
-			Save(true);
-		}
+		public void Save() => Save(true);
 	}
 }

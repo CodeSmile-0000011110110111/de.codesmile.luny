@@ -14,16 +14,16 @@ namespace CodeSmile.Luny
 {
 	internal sealed class LunyLuaFileSystem : ILuaFileSystem
 	{
-		private readonly Boolean m_IsSandbox;
 		private readonly ILuaFileSystem m_DefaultFileSystem = new FileSystem();
 		private readonly ILunyLuaFileSystem m_FileSystemHook;
+		private readonly Boolean m_IsSandbox;
 
 		public String DirectorySeparator => "/";
 
 		public LunyLuaFileSystem(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
-			m_IsSandbox = luaContext.IsSandbox;
 			m_FileSystemHook = fileSystemHook;
+			m_IsSandbox = luaContext.IsSandbox;
 		}
 
 		public Boolean IsReadable(String path) => m_IsSandbox ? !Path.IsPathRooted(path) : m_DefaultFileSystem.IsReadable(path);

@@ -17,7 +17,7 @@ namespace CodeSmileEditor.Luny
 		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext,
 			out LunyLuaContext moddingContext)
 		{
-			var settings = LunyProjectSettings.instance;
+			var settings = LunyProjectSettings.Singleton;
 			editorContext = settings.EditorContext;
 			runtimeContext = settings.RuntimeContext;
 			moddingContext = settings.ModdingContext;
@@ -77,6 +77,7 @@ namespace CodeSmileEditor.Luny
 			// we got multiple => delete all and create new one
 			if (registryGuids.Length > 1)
 			{
+				LunyRuntimeAssetRegistry.Singleton = null;
 				TryDeleteAllRuntimeRegistries(registryGuids);
 				return CreateRuntimeRegistry();
 			}
@@ -92,7 +93,19 @@ namespace CodeSmileEditor.Luny
 
 		private static LunyRuntimeAssetRegistry CreateRuntimeRegistry()
 		{
+			var settings = LunyProjectSettings.Singleton;
 			var registry = CreateInstance<LunyRuntimeAssetRegistry>();
+			foreach (var startupScript in settings.RuntimeStartupScripts)
+			{
+				if (startupScript != null)
+					registry.RuntimeStartupLuaAssets.Add(startupScript, AssetDatabase.GetAssetPath(startupScript));
+			}
+			foreach (var startupScript in settings.ModdingStartupScripts)
+			{
+				if (startupScript != null)
+					registry.ModdingStartupLuaAssets.Add(startupScript, AssetDatabase.GetAssetPath(startupScript));
+			}
+
 			var path = $"Assets/{nameof(LunyRuntimeAssetRegistry)}.asset";
 			AssetDatabase.CreateAsset(registry, path);
 			return registry;
@@ -100,8 +113,6 @@ namespace CodeSmileEditor.Luny
 
 		private static void TryDeleteAllRuntimeRegistries(String[] registryAssetGuids)
 		{
-			LunyRuntimeAssetRegistry.Singleton = null;
-
 			foreach (var registryGuid in registryAssetGuids)
 			{
 				var path = AssetDatabase.GUIDToAssetPath(registryGuid);
@@ -120,7 +131,7 @@ namespace CodeSmileEditor.Luny
 			GetOrFindDefaultLuaContexts(out var editorContext, out var runtimeContext, out var moddingContext);
 
 			{
-				var editorRegistry = LunyEditorAssetRegistry.instance;
+				var editorRegistry = LunyEditorAssetRegistry.Singleton;
 				editorRegistry.EditorContext = editorContext;
 				FindAndRegisterAllLuaAssets(editorRegistry.EditorLuaAssets, typeof(LunyEditorLuaAsset));
 				editorRegistry.Save();
@@ -178,7 +189,7 @@ namespace CodeSmileEditor.Luny
 						}
 						else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 						{
-							var editorRegistry = LunyEditorAssetRegistry.instance;
+							var editorRegistry = LunyEditorAssetRegistry.Singleton;
 							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, assetPath);
 							editorRegistry.Save();
 						}
@@ -190,7 +201,7 @@ namespace CodeSmileEditor.Luny
 			{
 				if (AssetUtility.IsLuaScript(assetPath))
 				{
-					var settings = LunyProjectSettings.instance;
+					var settings = LunyProjectSettings.Singleton;
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 					var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 					var isMmoddingLuaAsset = luaAsset is LunyModdingLuaAsset;
@@ -216,7 +227,7 @@ namespace CodeSmileEditor.Luny
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
-						var editorRegistry = LunyEditorAssetRegistry.instance;
+						var editorRegistry = LunyEditorAssetRegistry.Singleton;
 						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
 						editorRegistry.Save();
 
@@ -254,7 +265,7 @@ namespace CodeSmileEditor.Luny
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 					{
-						var editorRegistry = LunyEditorAssetRegistry.instance;
+						var editorRegistry = LunyEditorAssetRegistry.Singleton;
 						if (editorRegistry.EditorLuaAssets.Remove(editorLuaAsset))
 							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, destinationPath);
 						editorRegistry.Save();

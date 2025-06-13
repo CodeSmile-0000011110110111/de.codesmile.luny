@@ -46,10 +46,16 @@ namespace CodeSmile.Luny
 		private void Awake() => s_Singleton = this;
 		private void OnDestroy() => s_Singleton = null;
 
-		public LunyRuntimeLuaAsset GetLuaAsset(String assetNameOrPath)
+		public LunyLuaAsset GetRuntimeLuaAsset(String assetNameOrPath)
 		{
 			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetNameOrPath);
-			return index >= 0 ? (LunyRuntimeLuaAsset)m_RuntimeLuaAssets.Assets[index] : null;
+			return index >= 0 ? m_RuntimeLuaAssets.Assets[index] : null;
+		}
+
+		public LunyLuaAsset GetModdingLuaAsset(String assetNameOrPath)
+		{
+			var index = m_ModdingLuaAssets.Paths.IndexOf(assetNameOrPath);
+			return index >= 0 ? m_ModdingLuaAssets.Assets[index] : null;
 		}
 
 		public void Save()

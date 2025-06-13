@@ -3,6 +3,7 @@
 
 using CodeSmile.Utility;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine;
 namespace CodeSmile.Luny
 {
 	[Serializable]
-	public sealed class LuaAssetCollection
+	public sealed class LuaAssetCollection : IEnumerable<LunyLuaAsset>
 	{
 		public event Action<LunyLuaAsset> OnAdd;
 		public event Action<LunyLuaAsset> OnRemove;
@@ -20,6 +21,10 @@ namespace CodeSmile.Luny
 
 		public IList<LunyLuaAsset> Assets => m_LuaAssets.AsReadOnly();
 		public IList<String> Paths => m_LuaAssetPaths.AsReadOnly();
+
+		public IEnumerator<LunyLuaAsset> GetEnumerator() => m_LuaAssets.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 		internal void Add(LunyLuaAsset luaAsset, String assetPath)
 		{
@@ -34,7 +39,6 @@ namespace CodeSmile.Luny
 				OnAdd?.Invoke(luaAsset);
 			}
 		}
-
 
 		internal Boolean Remove(LunyLuaAsset luaAsset)
 		{

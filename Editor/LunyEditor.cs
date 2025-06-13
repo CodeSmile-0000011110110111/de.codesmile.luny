@@ -5,13 +5,19 @@ using CodeSmile.Luny;
 using CodeSmile.Utility;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
+	public interface ILunyEditor
+	{
+		ILunyLua Lua { get; }
+	}
+
 	[FilePath("ProjectSettings/LunyEditorState.asset", FilePathAttribute.Location.ProjectFolder)]
-	public sealed class LunyEditor : ScriptableSingleton<LunyEditor>
+	public sealed class LunyEditor : ScriptableSingleton<LunyEditor>, ILunyEditor
 	{
 		// TODO: consider having a serialized, persistent LuaTable that survives domain reload
 		// TODO: how to interact with this editor? not needed? eg could use settings, context, etc
@@ -22,12 +28,13 @@ namespace CodeSmileEditor.Luny
 		//private LuaTable m_SessionData;
 
 		private LunyLua m_Lua;
-
 		private Boolean m_ShouldCallReset;
 		private Boolean m_ShouldCallAwake;
 
-		[InitializeOnLoadMethod]
-		private static LunyEditor OnLoad() => instance; // auto-create the singleton
+		public ILunyLua Lua => m_Lua;
+		public ILunyEditor Singleton => instance; // for consistency
+
+		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
 		private void Reset() => m_ShouldCallReset = true;
@@ -47,7 +54,7 @@ namespace CodeSmileEditor.Luny
 			EditorApplication.focusChanged += OnFocusChanged;
 
 			var registry = LunyEditorAssetRegistry.Singleton;
-			registry.OnEditorContextChanged += CreateLuaState;
+			registry.OnEditorContextChanged += ResetState;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 
@@ -77,27 +84,30 @@ namespace CodeSmileEditor.Luny
 			{
 				Debug.LogWarning("For testing only - OnFocusChanged: CreateSession");
 				// delay to allow IDE saving of scripts to complete
-				EditorApplication.delayCall += () => CreateLuaState(LunyEditorAssetRegistry.Singleton.EditorContext);
+				EditorApplication.delayCall += () => ResetState();
 			}
 		}
 
-		private async void CreateLuaState(LunyLuaContext editorContext)
+		private async void ResetState(LunyLuaContext luaContext = null) =>
+			await CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
+
+		private async ValueTask CreateLuaState(LunyLuaContext editorContext)
 		{
 			m_Lua?.Dispose();
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
-			await m_Lua.RunScripts(LunyProjectSettings.instance.EditorStartupScripts);
+			await m_Lua.RunScripts(LunyProjectSettings.Singleton.EditorStartupScripts);
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
 		{
-			var settings = LunyProjectSettings.instance;
+			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
 				await m_Lua.RunScript(luaAsset);
 		}
 
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
-			var settings = LunyProjectSettings.instance;
+			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
 				m_Lua.HaltScript(luaAsset);
 		}
@@ -145,7 +155,8 @@ namespace CodeSmileEditor.Luny
 				return true;
 			}
 
-			public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
+			public Boolean ReadBytes(String path, out Byte[] bytes) =>
+				throw new NotImplementedException("ReadBytes");
 		}
 	}
 }

@@ -19,3 +19,4 @@ MonoBehaviour:
   m_Libraries: -1
   m_Modules:
   - {fileID: 11400000, guid: 6a7a967bbd8eb0648ac4d924d3fbd69c, type: 2}
+  m_IsModdingContext: 0

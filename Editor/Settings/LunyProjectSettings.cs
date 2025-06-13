@@ -29,6 +29,8 @@ namespace CodeSmileEditor.Luny
 		[Tooltip("These scripts are executed in the ModdingContext when the Luny component awakes, in top to bottom order.")]
 		[SerializeField] private List<LunyModdingLuaAsset> m_ModdingStartupScripts = new();
 
+		public static LunyProjectSettings Singleton => instance; // for consistency
+
 		public LunyLuaContext EditorContext
 		{
 			get => m_EditorContext;
