@@ -13,16 +13,24 @@ namespace CodeSmile.Luny
 	public sealed class LunyLuaScript : IDisposable
 	{
 		private LunyLua m_Lua;
-		private LunyLuaAssetBase m_LuaAsset;
+		private LunyLuaAsset m_LuaAsset;
 		private LuaTable m_Context;
-		public LunyLuaAssetBase LuaAsset => m_LuaAsset;
+		public LunyLuaAsset LuaAsset => m_LuaAsset;
 		public LuaTable Context => m_Context;
 
-		public LunyLuaScript(LunyLua lua, LunyLuaAssetBase luaAsset, LuaTable arguments = null)
+#if UNITY_EDITOR
+		private static String GetScriptPath(LunyLuaAsset luaAsset) => AssetDatabase.GetAssetPath(luaAsset);
+#else
+		private static String GetScriptPath(LunyLuaAsset luaAsset) => luaAsset.name;
+#endif
+
+		public LunyLuaScript(LunyLua lua, LunyLuaAsset luaAsset, LuaTable arguments = null)
 		{
 			m_Lua = lua;
 			m_LuaAsset = luaAsset;
 			m_Context = arguments ?? new LuaTable();
+			m_Context["scriptName"] = luaAsset.name;
+			m_Context["scriptPath"] = GetScriptPath(luaAsset);
 		}
 
 		public void Dispose()

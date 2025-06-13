@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public abstract class LunyLuaAssetBase : ScriptableObject
+	public abstract class LunyLuaAsset : ScriptableObject
 	{
 		[SerializeField] internal String text;
 		public String Text => text;

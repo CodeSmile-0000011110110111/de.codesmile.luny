@@ -122,7 +122,7 @@ namespace CodeSmileEditor.Luny
 		private static void AddToStartupScripts(String assetPath)
 		{
 			var settings = LunyProjectSettings.instance;
-			var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(assetPath);
+			var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 			if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 				settings.EditorStartupScripts.Add(editorLuaAsset);
 			else if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)

@@ -80,7 +80,7 @@ namespace CodeSmileEditor.Luny
 			Save(true);
 		}
 
-		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAssetBase> runtimeStartupScripts)
+		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAsset> runtimeStartupScripts)
 		{
 			var assets = new LuaAssetCollection();
 			foreach (var luaAsset in runtimeStartupScripts)
@@ -91,7 +91,7 @@ namespace CodeSmileEditor.Luny
 			return assets;
 		}
 
-		private void RemoveDuplicateEntries<T>(ref List<T> scripts) where T : LunyLuaAssetBase
+		private void RemoveDuplicateEntries<T>(ref List<T> scripts) where T : LunyLuaAsset
 		{
 			var uniqueScripts = new List<T>();
 			var hashSet = new HashSet<Int32>();

@@ -146,7 +146,7 @@ namespace CodeSmileEditor.Luny
 				var assetPath = AssetDatabase.GUIDToAssetPath(luaAssetGuids[i]);
 				var luaAsset = AssetDatabase.LoadAssetAtPath(assetPath, assetType);
 				if (luaAsset != null)
-					luaAssets.Add((LunyLuaAssetBase)luaAsset, assetPath);
+					luaAssets.Add((LunyLuaAsset)luaAsset, assetPath);
 			}
 		}
 
@@ -161,7 +161,7 @@ namespace CodeSmileEditor.Luny
 					// delay because asset is not yet created and thus could not be loaded
 					EditorApplication.delayCall += () =>
 					{
-						var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(assetPath);
+						var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 						var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 						var isMmoddingLuaAsset = luaAsset is LunyModdingLuaAsset;
 						if (isRuntimeLuaAsset || isMmoddingLuaAsset)
@@ -191,7 +191,7 @@ namespace CodeSmileEditor.Luny
 				if (AssetUtility.IsLuaScript(assetPath))
 				{
 					var settings = LunyProjectSettings.instance;
-					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(assetPath);
+					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 					var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 					var isMmoddingLuaAsset = luaAsset is LunyModdingLuaAsset;
 					if (isRuntimeLuaAsset || isMmoddingLuaAsset)
@@ -231,7 +231,7 @@ namespace CodeSmileEditor.Luny
 				if (AssetUtility.IsLuaScript(sourcePath))
 				{
 					// asset instance still has the old name so use the name from path instead
-					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAssetBase>(sourcePath);
+					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(sourcePath);
 					var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 					var isMmoddingLuaAsset = luaAsset is LunyModdingLuaAsset;
 					if (isRuntimeLuaAsset || isMmoddingLuaAsset)

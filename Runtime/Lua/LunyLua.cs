@@ -5,8 +5,7 @@ using Lua;
 using Lua.Platforms;
 using Lua.Standard;
 using System;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -20,131 +19,70 @@ namespace CodeSmile.Luny
 	public interface ILunyLua
 	{
 		/// <summary>
-		///     True while we're within a DoStringAsync call. This is important to consider in cases where Lua calls a C# method
-		///     which in turn tries to dofile/dostring - this is not allowed. The solution is to wait until the running state flag
-		///     is false again which may require running a coroutine or repeatedly checking in Update.
-		/// </summary>
-		//Boolean IsLuaStateRunning { get; }
-
-		/// <summary>
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
-
-		/// <summary>
-		///     Parses, compiles and executes a Lua string.
-		/// </summary>
-		/// <remarks>Only one DoStringAsync may run at the same time.</remarks>
-		/// <param name="script"></param>
-		/// <param name="chunkName"></param>
-		/// <returns>Array containing 0-n return values.</returns>
-		//LuaValue[] DoString(String script, String chunkName);
-
-		/// <summary>
-		///     Reads the file, then calls DoStringAsync with the file's contents.
-		/// </summary>
-		/// <param name="relativePath"></param>
-		/// <returns>Array containing 0-n return values.</returns>
-		//LuaValue[] DoFile(String relativePath);
-
-		//ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName);
-		//ValueTask<LuaValue[]> DoFileAsync(String relativePath);
-
-		/// <summary>
-		/// Loads the file's contents and returns the text.
-		/// </summary>
-		/// <param name="relativePath">Path relative to one of the specified search paths.</param>
-		/// <returns>Contents of the file</returns>
-		//String LoadFile(String relativePath);
-		String DumpEnvironment();
-	}
-
-	internal interface ILunyLuaInternal
-	{
 		void Dispose();
 	}
 
-	public sealed class LunyLua : ILunyLua, ILunyLuaInternal
+	public sealed class LunyLua : ILunyLua
 	{
-		//private ILunySearchPaths m_SearchPaths;
+		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 
 		public LuaState State => m_LuaState;
 
-		// public static Closure CompileClosure(LuaState luaState, String script, String chunkName)
-		// {
-		// 	var chunk = LuaCompiler.Default.Compile(script, chunkName);
-		// 	return new Closure(luaState, chunk);
-		// }
-
-		private static String GetLogString(LuaFunctionExecutionContext context)
+		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
-			var sb = new StringBuilder();
-			for (var i = 0; i < context.ArgumentCount; i++)
-			{
-				if (i > 0)
-					sb.Append(", ");
-
-				sb.Append(context.GetArgument(i).ToString());
-			}
-			return sb.ToString();
+			m_Scripts = new LunyLuaScriptCollection();
+			InitLuaEnvironment(luaContext, fileSystemHook);
 		}
 
-		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook) =>
-			InitLuaEnvironment(luaContext, fileSystemHook);
-
-		public String DumpEnvironment() => m_LuaState.Environment.Dump("Luny environment");
-
-		// public LuaValue[] DoFile(String relativePath)
-		// {
-		// 	var script = LoadFile(relativePath);
-		// 	return DoString(script, relativePath);
-		// }
-		//
-		// public async ValueTask<LuaValue[]> DoFileAsync(String relativePath)
-		// {
-		// 	var script = LoadFile(relativePath);
-		// 	return await DoStringAsync(script, relativePath);
-		// }
-
-		/// <summary>
-		/// Loads a (script) text file taking search paths into account.
-		/// </summary>
-		/// <param name="relativePath"></param>
-		/// <returns></returns>
-		/// <exception cref="FileNotFoundException">If the file was not found in search paths.</exception>
-		/// <exception cref="Exception">Logs and rethrows any exception from File.ReadAllTextAsync.</exception>
-		// public String LoadFile(String relativePath)
-		// {
-		// 	var path = m_SearchPaths.GetFullPathToFile(relativePath);
-		// 	if (path == null)
-		// 		throw new FileNotFoundException(relativePath);
-		//
-		// 	return FileUtility.TryReadAllText(path);
-		// }
 		public void Dispose()
 		{
+			HaltAllScripts();
 			m_LuaState.Environment.Clear();
 			m_LuaState = null;
-			// m_SearchPaths = null;
 		}
 
-		// public LuaValue[] DoString(String script, String chunkName)
-		// {
-		// 	Debug.Assert(m_LuaState != null);
-		// 	return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
-		// }
-		//
-		// public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-		// {
-		// 	Debug.Assert(m_LuaState != null);
-		// 	return await m_LuaState.DoStringAsync(script, chunkName);
-		// }
+		public async ValueTask<LunyLuaScript> RunScript(LunyLuaAsset luaAsset)
+		{
+			m_Scripts.TryRemove(luaAsset);
+
+			var luaScript = new LunyLuaScript(this, luaAsset);
+			await luaScript.Run();
+
+			m_Scripts.Add(luaScript);
+			return luaScript;
+		}
+
+		public async ValueTask RunScripts(IEnumerable<LunyLuaAsset> luaAssets)
+		{
+			foreach (var luaAsset in luaAssets)
+				await RunScript(luaAsset);
+		}
+
+		public void HaltScript(LunyLuaAsset luaAsset)
+		{
+			if (m_Scripts != null && m_Scripts.TryRemove(luaAsset, out var luaScript))
+				luaScript.Dispose();
+		}
+
+		public void HaltScripts(IEnumerable<LunyLuaAsset> luaAssets)
+		{
+			foreach (var luaAsset in luaAssets)
+				HaltScript(luaAsset);
+		}
+
+		public void HaltAllScripts()
+		{
+			foreach (var luaScript in m_Scripts)
+				luaScript.Dispose();
+			m_Scripts.Clear();
+		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
-			// m_SearchPaths = new LunySearchPaths(luaContext);
-
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
 			var standardIO = new LunyLuaStandardIO(luaContext);
@@ -175,7 +113,6 @@ namespace CodeSmile.Luny
 			if (luaContext.IsSandbox)
 				RemovePotentiallyHarmfulFunctions();
 
-			//OverrideDoFileAndLoadFile();
 			OverridePrintAndLog();
 
 			foreach (var module in luaContext.Modules)
@@ -188,54 +125,22 @@ namespace CodeSmile.Luny
 			env.SetNil("load"); // disallow compiling and executing arbitrary strings
 		}
 
-		private void OverrideDoFileAndLoadFile()
-		{
-			// TODO: use virtual filesystem?
-
-// #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-// 			m_LuaState.Environment.SetFunction("dofile", new LuaFunction("dofile", async (context, buffer, ct) =>
-// 			{
-// 				var relativePath = context.GetArgument<String>(0);
-// 				var script = LoadFile(relativePath);
-// 				var closure = CompileClosure(context.State, script, relativePath);
-// 				return await closure!.InvokeAsync(context, buffer, ct);
-// 			}));
-//
-// 			m_LuaState.Environment.SetFunction("loadfile", new LuaFunction("loadfile", async (context, buffer, ct) =>
-// 			{
-// 				try
-// 				{
-// 					var relativePath = context.GetArgument<String>(0);
-// 					var script = LoadFile(relativePath);
-// 					buffer.Span[0] = CompileClosure(context.State, script, relativePath);
-// 					return 1;
-// 				}
-// 				catch (Exception ex)
-// 				{
-// 					buffer.Span[0] = LuaValue.Nil;
-// 					buffer.Span[1] = ex.Message;
-// 					return 2;
-// 				}
-// 			}));
-// #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-		}
-
 		private void OverridePrintAndLog()
 		{
 			var logTable = new LuaTable(0, 4);
 			logTable["info"] = new LuaFunction("info", (context, ct) =>
 			{
-				LunyLogger.LogInfo(GetLogString(context));
+				LunyLogger.LogInfo(context.ArgumentsToString());
 				return new ValueTask<Int32>(0);
 			});
 			logTable["warning"] = new LuaFunction("warning", (context, ct) =>
 			{
-				LunyLogger.LogWarn(GetLogString(context));
+				LunyLogger.LogWarn(context.ArgumentsToString());
 				return new ValueTask<Int32>(0);
 			});
 			logTable["error"] = new LuaFunction("error", (context, ct) =>
 			{
-				LunyLogger.LogError(GetLogString(context));
+				LunyLogger.LogError(context.ArgumentsToString());
 				return new ValueTask<Int32>(0);
 			});
 

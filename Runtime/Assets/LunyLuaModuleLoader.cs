@@ -9,7 +9,7 @@ using UnityEngine;
 namespace CodeSmile.Luny
 {
 	[Serializable]
-	public abstract class LuaModuleLoader
+	public abstract class LunyLuaModuleLoader
 	{
 		public static LuaTable GetOrCreateNamespaceTable(LuaTable env, String[] namespaceNames)
 		{

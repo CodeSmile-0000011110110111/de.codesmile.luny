@@ -7,5 +7,5 @@ using UnityEngine;
 namespace CodeSmile.Luny
 {
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyEditorLuaAssetIcon.png")]
-	public sealed class LunyEditorLuaAsset : LunyLuaAssetBase {}
+	public sealed class LunyEditorLuaAsset : LunyLuaAsset {}
 }

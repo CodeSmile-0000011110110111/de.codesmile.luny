@@ -3,10 +3,8 @@
 
 using CodeSmile.Luny;
 using CodeSmile.Utility;
-using Lua;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,12 +17,11 @@ namespace CodeSmileEditor.Luny
 		// TODO: how to interact with this editor? not needed? eg could use settings, context, etc
 
 		// TODO: script state that survives session reload => project close and re-open
-		private LuaTable m_PersistentState;
+		//private LuaTable m_PersistentState;
 		// TODO: script state that survives domain reload but not project close
-		private LuaTable m_SessionState;
+		//private LuaTable m_SessionData;
 
 		private LunyLua m_Lua;
-		private LuaScriptCollection m_RunningScripts;
 
 		private Boolean m_ShouldCallReset;
 		private Boolean m_ShouldCallAwake;
@@ -32,34 +29,29 @@ namespace CodeSmileEditor.Luny
 		[InitializeOnLoadMethod]
 		private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
-		// Runs when project is loaded AND the FilePath asset does not exist
-		private void Reset()
-		{
-			m_ShouldCallReset = true;
-			m_PersistentState = new LuaTable();
-			Debug.Log("LunyEditor Reset");
-		}
+		// Reset runs when project is loaded AND the FilePath asset does not exist
+		private void Reset() => m_ShouldCallReset = true;
 
-		// Runs every time the project is loaded
+		// Awake runs every time the project is loaded
 		private void Awake()
 		{
 			m_ShouldCallAwake = true;
 			var registry = LunyEditorAssetRegistry.Singleton;
 			if (registry.EditorContext != null)
-				CreateSessionState(registry.EditorContext);
+				CreateLuaState(registry.EditorContext);
 		}
 
-		// Runs after every domain reload (including project load)
+		// OnEnable runs after every domain reload (including project load)
 		private void OnEnable()
 		{
 			EditorApplication.focusChanged += OnFocusChanged;
 
 			var registry = LunyEditorAssetRegistry.Singleton;
-			var settings = LunyProjectSettings.instance;
-
-			registry.OnEditorContextChanged += CreateSessionState;
+			registry.OnEditorContextChanged += CreateLuaState;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
+
+			CreateLuaState(registry.EditorContext);
 
 			if (m_ShouldCallReset)
 			{
@@ -71,13 +63,13 @@ namespace CodeSmileEditor.Luny
 			}
 
 			m_ShouldCallReset = m_ShouldCallAwake = false;
-
-			CreateSessionState(registry.EditorContext);
 		}
 
-
-		// Runs before every domain reload
+		// OnDisable runs before every domain reload
 		private void OnDisable() => Save(true);
+
+		// Note: OnDestroy is never called, not even on project close according to editor.log
+		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
 
 		private void OnFocusChanged(Boolean hasFocus)
 		{
@@ -85,71 +77,30 @@ namespace CodeSmileEditor.Luny
 			{
 				Debug.LogWarning("For testing only - OnFocusChanged: CreateSession");
 				// delay to allow IDE saving of scripts to complete
-				EditorApplication.delayCall += () => CreateSessionState(LunyEditorAssetRegistry.Singleton.EditorContext);
+				EditorApplication.delayCall += () => CreateLuaState(LunyEditorAssetRegistry.Singleton.EditorContext);
 			}
 		}
 
-		private async void CreateSessionState(LunyLuaContext editorContext)
+		private async void CreateLuaState(LunyLuaContext editorContext)
 		{
-			StopAllScripts();
-
+			m_Lua?.Dispose();
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
-			m_SessionState = new LuaTable();
-			m_RunningScripts = new LuaScriptCollection();
-
-			foreach (var startupLuaAsset in LunyProjectSettings.instance.EditorStartupScripts)
-				await StartScript(startupLuaAsset);
+			await m_Lua.RunScripts(LunyProjectSettings.instance.EditorStartupScripts);
 		}
 
-		private async Task StartScript(LunyLuaAssetBase luaAsset)
-		{
-			var arguments = new LuaTable();
-			arguments["name"] = luaAsset.name;
-			arguments["path"] = AssetDatabase.GetAssetPath(luaAsset);
-
-			var luaScript = new LunyLuaScript(m_Lua, luaAsset, arguments);
-			m_RunningScripts.Add(luaScript);
-			await luaScript.Run();
-		}
-
-		private void StopAllScripts()
-		{
-			foreach (var startupLuaAsset in LunyProjectSettings.instance.EditorStartupScripts)
-			{
-				StopScript(startupLuaAsset);
-			}
-		}
-
-		private void StopScript(LunyLuaAssetBase luaAsset)
-		{
-			if (luaAsset != null && m_RunningScripts != null)
-			{
-				var index = m_RunningScripts.IndexOf(luaAsset);
-				if (index >= 0)
-				{
-					var script = m_RunningScripts[index];
-					m_RunningScripts.RemoveAt(index);
-					script.Dispose();
-				}
-			}
-		}
-
-		private async void OnAddLuaAsset(LunyLuaAssetBase luaAsset)
+		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.instance;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				await StartScript(luaAsset);
+				await m_Lua.RunScript(luaAsset);
 		}
 
-		private void OnRemoveLuaAsset(LunyLuaAssetBase luaAsset)
+		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.instance;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				StopScript(luaAsset);
+				m_Lua.HaltScript(luaAsset);
 		}
-
-		// Note: OnDestroy is never called, not even on project close according to editor.log
-		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
 
 		private sealed class FileSystem : ILunyLuaFileSystem
 		{

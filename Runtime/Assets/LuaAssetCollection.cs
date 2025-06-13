@@ -12,16 +12,16 @@ namespace CodeSmile.Luny
 	[Serializable]
 	public sealed class LuaAssetCollection
 	{
-		public event Action<LunyLuaAssetBase> OnAdd;
-		public event Action<LunyLuaAssetBase> OnRemove;
+		public event Action<LunyLuaAsset> OnAdd;
+		public event Action<LunyLuaAsset> OnRemove;
 
-		[SerializeField] [ReadOnlyField] private List<LunyLuaAssetBase> m_LuaAssets = new();
+		[SerializeField] [ReadOnlyField] private List<LunyLuaAsset> m_LuaAssets = new();
 		[SerializeField] [ReadOnlyField] private List<String> m_LuaAssetPaths = new();
 
-		public IList<LunyLuaAssetBase> Assets => m_LuaAssets.AsReadOnly();
+		public IList<LunyLuaAsset> Assets => m_LuaAssets.AsReadOnly();
 		public IList<String> Paths => m_LuaAssetPaths.AsReadOnly();
 
-		internal void Add(LunyLuaAssetBase luaAsset, String assetPath)
+		internal void Add(LunyLuaAsset luaAsset, String assetPath)
 		{
 			Debug.Assert(luaAsset != null);
 			Debug.Assert(String.IsNullOrEmpty(assetPath) == false);
@@ -36,7 +36,7 @@ namespace CodeSmile.Luny
 		}
 
 
-		internal Boolean Remove(LunyLuaAssetBase luaAsset)
+		internal Boolean Remove(LunyLuaAsset luaAsset)
 		{
 			Debug.Assert(luaAsset != null);
 

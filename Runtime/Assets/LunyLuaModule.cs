@@ -14,8 +14,8 @@ namespace CodeSmile.Luny
 	{
 		[Header("preliminary ...")]
 		//[SerializeField] [ReadOnlyField] private String m_ModuleName = "";
-		[SerializeField] private String m_Namespace = "System";
-		[SerializeReference] [HideInInspector] private LuaModuleLoader m_ModuleLoader;
+		//[SerializeField] private String m_Namespace = "System";
+		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 
 		public void Load(LuaState luaState)
 		{

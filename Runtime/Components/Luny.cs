@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -64,7 +63,6 @@ namespace CodeSmile.Luny.Components
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext.IsSandbox));
 
 			RegisterLunyScriptComponents();
-			await RunStartupScripts();
 		}
 
 		private void OnDestroy()
@@ -99,12 +97,6 @@ namespace CodeSmile.Luny.Components
 		//
 		// if (m_LogLunyScriptTypes)
 		// 	LunyLogger.LogInfo(sb.ToString());
-		private async ValueTask RunStartupScripts() => Debug.LogWarning("TODO: RunStartupScripts");
-		// foreach (var startupScript in m_StartupScripts)
-		// {
-		// 	if (startupScript != null)
-		// 		await m_Lua.DoStringAsync(startupScript.Text, startupScript.name);
-		// }
 	}
 
 	internal class RuntimeFileSystem : ILunyLuaFileSystem
