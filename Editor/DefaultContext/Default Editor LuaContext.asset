@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
   m_Name: Default Editor LuaContext
   m_EditorClassIdentifier: 
-  m_IsSandbox: 1
+  m_IsSandbox: 0
   m_ScriptSearchPaths:
   - Assets/Scripts/Luny/Editor
   - Assets

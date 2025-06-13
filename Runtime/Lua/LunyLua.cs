@@ -129,17 +129,17 @@ namespace CodeSmile.Luny
 			// m_SearchPaths = null;
 		}
 
-		public LuaValue[] DoString(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
-		}
-
-		public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-		{
-			Debug.Assert(m_LuaState != null);
-			return await m_LuaState.DoStringAsync(script, chunkName);
-		}
+		// public LuaValue[] DoString(String script, String chunkName)
+		// {
+		// 	Debug.Assert(m_LuaState != null);
+		// 	return m_LuaState.DoStringAsync(script, chunkName).Preserve().GetAwaiter().GetResult();
+		// }
+		//
+		// public async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
+		// {
+		// 	Debug.Assert(m_LuaState != null);
+		// 	return await m_LuaState.DoStringAsync(script, chunkName);
+		// }
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -175,7 +175,7 @@ namespace CodeSmile.Luny
 			if (luaContext.IsSandbox)
 				RemovePotentiallyHarmfulFunctions();
 
-			OverrideDoFileAndLoadFile();
+			//OverrideDoFileAndLoadFile();
 			OverridePrintAndLog();
 
 			foreach (var module in luaContext.Modules)

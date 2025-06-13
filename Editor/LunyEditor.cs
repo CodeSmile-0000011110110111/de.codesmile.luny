@@ -44,7 +44,6 @@ namespace CodeSmileEditor.Luny
 		private void Awake()
 		{
 			m_ShouldCallAwake = true;
-			Debug.Log("LunyEditor Awake");
 			var registry = LunyEditorAssetRegistry.Singleton;
 			if (registry.EditorContext != null)
 				CreateSessionState(registry.EditorContext);
@@ -58,7 +57,6 @@ namespace CodeSmileEditor.Luny
 			var registry = LunyEditorAssetRegistry.Singleton;
 			var settings = LunyProjectSettings.instance;
 
-			Debug.Log("LunyEditor OnEnable");
 			registry.OnEditorContextChanged += CreateSessionState;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
@@ -74,8 +72,9 @@ namespace CodeSmileEditor.Luny
 
 			m_ShouldCallReset = m_ShouldCallAwake = false;
 
-			EditorApplication.delayCall += () => CreateSessionState(registry.EditorContext);
+			CreateSessionState(registry.EditorContext);
 		}
+
 
 		// Runs before every domain reload
 		private void OnDisable() => Save(true);
@@ -85,36 +84,54 @@ namespace CodeSmileEditor.Luny
 			if (hasFocus)
 			{
 				Debug.LogWarning("For testing only - OnFocusChanged: CreateSession");
-				CreateSessionState(LunyEditorAssetRegistry.Singleton.EditorContext);
-			}
-		}
-
-		private async Task StartScript(LunyLuaAssetBase luaAsset)
-		{
-			var luaScript = new LuaScript(m_Lua, luaAsset);
-			await luaScript.Run();
-			m_RunningScripts.Add(luaScript);
-		}
-
-		private void StopScript(LunyLuaAssetBase luaAsset)
-		{
-			var index = m_RunningScripts.IndexOf(luaAsset);
-			if (index >= 0)
-			{
-				var script = m_RunningScripts[index];
-				m_RunningScripts.RemoveAt(index);
-				script.Dispose();
+				// delay to allow IDE saving of scripts to complete
+				EditorApplication.delayCall += () => CreateSessionState(LunyEditorAssetRegistry.Singleton.EditorContext);
 			}
 		}
 
 		private async void CreateSessionState(LunyLuaContext editorContext)
 		{
+			StopAllScripts();
+
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
 			m_SessionState = new LuaTable();
 			m_RunningScripts = new LuaScriptCollection();
 
 			foreach (var startupLuaAsset in LunyProjectSettings.instance.EditorStartupScripts)
 				await StartScript(startupLuaAsset);
+		}
+
+		private async Task StartScript(LunyLuaAssetBase luaAsset)
+		{
+			var arguments = new LuaTable();
+			arguments["name"] = luaAsset.name;
+			arguments["path"] = AssetDatabase.GetAssetPath(luaAsset);
+
+			var luaScript = new LunyLuaScript(m_Lua, luaAsset, arguments);
+			m_RunningScripts.Add(luaScript);
+			await luaScript.Run();
+		}
+
+		private void StopAllScripts()
+		{
+			foreach (var startupLuaAsset in LunyProjectSettings.instance.EditorStartupScripts)
+			{
+				StopScript(startupLuaAsset);
+			}
+		}
+
+		private void StopScript(LunyLuaAssetBase luaAsset)
+		{
+			if (luaAsset != null && m_RunningScripts != null)
+			{
+				var index = m_RunningScripts.IndexOf(luaAsset);
+				if (index >= 0)
+				{
+					var script = m_RunningScripts[index];
+					m_RunningScripts.RemoveAt(index);
+					script.Dispose();
+				}
+			}
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAssetBase luaAsset)
@@ -166,6 +183,7 @@ namespace CodeSmileEditor.Luny
 				var luaAsset = LunyEditorAssetRegistry.Singleton.GetLuaAsset(fullOrAssetPath);
 				if (luaAsset != null)
 				{
+					AssetDatabase.ImportAsset(fullOrAssetPath); // pick up any changes to file if Auto-Refresh is disabled
 					content = luaAsset.text;
 					return true;
 				}

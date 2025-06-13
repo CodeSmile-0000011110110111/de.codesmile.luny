@@ -15,7 +15,9 @@ namespace CodeSmileEditor.Luny
 		{
 			var scriptType = GetLuaScriptType(ctx.assetPath);
 			var asset = ScriptableObject.CreateInstance(scriptType);
-			(asset as LunyLuaAssetBase).text = File.ReadAllText(ctx.assetPath);
+			var text = File.ReadAllText(ctx.assetPath);
+			(asset as LunyLuaAssetBase).text = text;
+
 			ctx.AddObjectToAsset("Main", asset);
 			ctx.SetMainObject(asset);
 		}
