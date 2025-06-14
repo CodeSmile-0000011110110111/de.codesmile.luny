@@ -3,6 +3,7 @@
 
 using CodeSmile.Utility;
 using Lua;
+using Lua.Unity;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;

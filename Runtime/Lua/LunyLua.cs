@@ -5,6 +5,7 @@ using Lua;
 using Lua.Platforms;
 using Lua.Runtime;
 using Lua.Standard;
+using Lua.Unity;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

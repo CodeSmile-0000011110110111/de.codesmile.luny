@@ -3,6 +3,7 @@
 
 using Lua;
 using Lua.Runtime;
+using Lua.Unity;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;

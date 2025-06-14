@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Extensions.System;
 using CodeSmile.Luny;
 using CodeSmile.Utility;
 using System;
@@ -82,9 +83,12 @@ namespace CodeSmileEditor.Luny
 		{
 			if (hasFocus)
 			{
-				Debug.LogWarning("For testing only - OnFocusChanged: CreateSession");
 				// delay to allow IDE saving of scripts to complete
-				EditorApplication.delayCall += () => ResetState();
+				EditorApplication.delayCall += () =>
+				{
+					Debug.LogWarning("For testing only - OnFocusChanged: ResetState");
+					ResetState();
+				};
 			}
 		}
 
