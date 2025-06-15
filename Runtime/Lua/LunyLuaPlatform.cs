@@ -88,10 +88,6 @@ namespace CodeSmile.Luny
 		}
 
 		public Double GetTotalProcessorTime() => Time.realtimeSinceStartupAsDouble;
-
-		public DateTime GetCurrentUtcTime() => m_DefaultOsEnv.GetCurrentUtcTime();
-
-		public TimeSpan GetLocalTimeZoneOffset() => m_DefaultOsEnv.GetLocalTimeZoneOffset();
 	}
 
 	public sealed class LunyLuaStandardIO : ILuaStandardIO

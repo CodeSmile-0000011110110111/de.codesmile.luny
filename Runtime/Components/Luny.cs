@@ -4,6 +4,7 @@
 using CodeSmile.Utility;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -77,8 +78,8 @@ namespace CodeSmile.Luny.Components
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext));
 
 			var registry = LunyRuntimeAssetRegistry.Singleton;
-			await m_RuntimeLua.RunScripts(registry.RuntimeStartupLuaAssets);
-			await m_ModdingLua.RunScripts(registry.ModdingStartupLuaAssets);
+			await m_RuntimeLua.RunScripts(registry.RuntimeStartupLuaAssets.ToArray());
+			await m_ModdingLua.RunScripts(registry.ModdingStartupLuaAssets.ToArray());
 		}
 
 		private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");

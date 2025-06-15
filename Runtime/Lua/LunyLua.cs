@@ -3,7 +3,6 @@
 
 using Lua;
 using Lua.Platforms;
-using Lua.Runtime;
 using Lua.Standard;
 using Lua.Unity;
 using System;
@@ -29,13 +28,10 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLua : ILunyLua
 	{
-
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 
 		public LuaState State => m_LuaState;
-
-
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -52,6 +48,9 @@ namespace CodeSmile.Luny
 
 		public async ValueTask<LunyLuaScript> RunScript(LunyLuaAsset luaAsset)
 		{
+			if (luaAsset == null)
+				throw new ArgumentNullException(nameof(luaAsset));
+
 			m_Scripts.TryRemove(luaAsset);
 
 			var luaScript = new LunyLuaScript(this, luaAsset);
@@ -64,7 +63,10 @@ namespace CodeSmile.Luny
 		public async ValueTask RunScripts(IEnumerable<LunyLuaAsset> luaAssets)
 		{
 			foreach (var luaAsset in luaAssets)
-				await RunScript(luaAsset);
+			{
+				if (luaAsset != null)
+					await RunScript(luaAsset);
+			}
 		}
 
 		public void HaltScript(LunyLuaAsset luaAsset)
@@ -91,7 +93,7 @@ namespace CodeSmile.Luny
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
 			var standardIO = new LunyLuaStandardIO(luaContext);
-			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO));
+			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
 
 			var libraries = luaContext.Libraries;
 			if ((libraries & LuaLibraryFlags.Basic) != 0)

@@ -100,10 +100,7 @@ namespace CodeSmileEditor.Luny
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
 
 			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
-			if (startupScripts != null)
-				await m_Lua.RunScripts(startupScripts);
-			else
-				Debug.LogError(nameof(LunyProjectSettings.Singleton.EditorStartupScripts));
+			await m_Lua.RunScripts(startupScripts.ToArray());
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
