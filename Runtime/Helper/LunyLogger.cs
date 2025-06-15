@@ -63,8 +63,13 @@ namespace CodeSmile.Luny
 					if (!File.Exists(path))
 						return;
 
+					// HTML <a ..> tag
 					openTag = $"<a href=\"{relativePath}\" line=\"{line}\">";
 					closeTag = "</a>";
+
+					// Unity 6 <link ..> tag
+					// openTag = $"<color=#40a0ff><link=\"href='{relativePath}' line='{line}'\">";
+					// closeTag = "</link></color>";
 				});
 			return $"{msg}\n";
 		}
