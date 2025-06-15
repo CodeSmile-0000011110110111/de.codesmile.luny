@@ -161,6 +161,9 @@ namespace CodeSmileEditor.Luny
 			}
 
 			public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
+
+			public String TryGetAssetPath(String pathOrChunkName) =>
+				$"@{m_SearchPaths.GetFullPathOrAssetPath(pathOrChunkName[0] == '@' ? pathOrChunkName.Substring(1) : pathOrChunkName)}";
 		}
 	}
 }

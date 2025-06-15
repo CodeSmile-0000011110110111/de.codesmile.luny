@@ -12,11 +12,19 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
+	public interface ILunyLuaFileSystem
+	{
+		Boolean ReadText(String path, out String content);
+		Boolean ReadBytes(String path, out Byte[] bytes);
+		string TryGetAssetPath(string pathOrChunkName);
+	}
+
 	internal sealed class LunyLuaFileSystem : ILuaFileSystem
 	{
 		private readonly ILuaFileSystem m_DefaultFileSystem = new FileSystem();
 		private readonly ILunyLuaFileSystem m_FileSystemHook;
 		private readonly Boolean m_IsSandbox;
+		public ILunyLuaFileSystem Hook => m_FileSystemHook;
 
 		public String DirectorySeparator => "/";
 
@@ -30,11 +38,11 @@ namespace CodeSmile.Luny
 
 		public ValueTask<ILuaStream> Open(String path, LuaFileOpenMode mode, CancellationToken cancellationToken)
 		{
-			if (m_FileSystemHook != null)
+			if (Hook != null)
 			{
 				if (mode == LuaFileOpenMode.Read)
 				{
-					if (m_FileSystemHook.ReadText(path, out var content))
+					if (Hook.ReadText(path, out var content))
 						return new ValueTask<ILuaStream>(content != null ? new StringStream(content) : null);
 				}
 				else
@@ -93,7 +101,6 @@ namespace CodeSmile.Luny
 	public sealed class LunyLuaStandardIO : ILuaStandardIO
 	{
 		private readonly ILuaStandardIO m_DefaultStandardIO;
-		//private Boolean m_IsSandbox;
 
 		// will use custom overrides since Debug.Log is not a stream
 		public ILuaStream Input => m_DefaultStandardIO.Input;
@@ -101,7 +108,6 @@ namespace CodeSmile.Luny
 		public ILuaStream Error => m_DefaultStandardIO.Error;
 
 		public LunyLuaStandardIO(LunyLuaContext luaContext) =>
-			//m_IsSandbox = luaContext.IsSandbox;
 			m_DefaultStandardIO = new ConsoleStandardIO();
 	}
 }

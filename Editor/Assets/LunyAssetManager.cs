@@ -252,6 +252,9 @@ namespace CodeSmileEditor.Luny
 							EditorApplication.delayCall += InitRegistries; // delay to ensure asset is already moved/renamed
 						else
 						{
+							luaAsset.Path = destinationPath;
+							EditorUtility.SetDirty(luaAsset);
+
 							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
 							if (luaAssets.Remove(luaAsset))
 								luaAssets.Add(luaAsset, destinationPath);

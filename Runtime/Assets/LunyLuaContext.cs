@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua;
 using System;
 using System.Linq;
 using UnityEditor;
@@ -39,10 +40,12 @@ namespace CodeSmile.Luny
 		/// </summary>
 		[SerializeField] private LunyLuaModule[] m_Modules = new LunyLuaModule[0];
 
+		[SerializeField] [HideInInspector] private String m_Path;
 		[SerializeField] [HideInInspector] private Boolean m_IsModdingContext;
 
 		public Boolean IsSandbox => m_IsSandbox;
 		public String[] ScriptSearchPaths => m_ScriptSearchPaths;
+		public String Path => m_Path;
 		public LuaLibraryFlags Libraries => m_Libraries;
 
 		/// <summary>
@@ -53,6 +56,18 @@ namespace CodeSmile.Luny
 		private void OnEnable() => m_IsModdingContext = IsModdingContext;
 
 #if UNITY_EDITOR
+		private void OnValidate() => UpdateAssetPath();
+
+		private void UpdateAssetPath()
+		{
+			var path = AssetDatabase.GetAssetPath(this);
+			if (path != m_Path)
+			{
+				m_Path = path;
+				EditorUtility.SetDirty(this);
+			}
+		}
+
 		public Boolean IsEditorContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
 		public Boolean IsRuntimeContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
 		public Boolean IsModdingContext =>
@@ -62,5 +77,16 @@ namespace CodeSmile.Luny
 		public Boolean IsRuntimeContext => true;
 		public Boolean IsModdingContext => m_IsModdingContext;
 #endif
+		public LuaValue CreateContextTable()
+		{
+			var context = new LuaTable(0, 6);
+			context["name"] = name;
+			context["path"] = Path;
+			context["sandbox"] = IsSandbox;
+			context["editor"] = IsEditorContext;
+			context["runtime"] = IsRuntimeContext;
+			context["modding"] = IsModdingContext;
+			return context;
+		}
 	}
 }

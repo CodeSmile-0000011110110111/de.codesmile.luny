@@ -5,6 +5,7 @@ using Lua;
 using Lua.Runtime;
 using Lua.Unity;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -41,7 +42,7 @@ namespace CodeSmile.Luny
 			var scriptName = "";
 			var message = ex.Message;
 			if (ex is LuaRuntimeException luaRunEx)
-				message = $"{message}\n\t{GetTrimmedTraceback(luaRunEx)}\n\n{luaRunEx.InnerException}";
+				message = $"{message}\n\t{luaRunEx}\n\n{luaRunEx.InnerException}";
 			else if (ex is LuaParseException luaParEx)
 				message = luaParEx.Message;
 
@@ -53,8 +54,19 @@ namespace CodeSmile.Luny
 
 		private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
 		{
-			var traceback = new Traceback(context.State, context.Thread.GetCallStackFrames());
-			return $"{context.ArgumentsToString()}\n{traceback.ToString(0)}";
+			var msg = Traceback.CreateTracebackMessage(context.Thread, context.ArgumentsToString(), 1,
+				(String chunkName, Int32 line, out String openTag, out string closeTag) =>
+				{
+					openTag = closeTag = null;
+					var relativePath = chunkName[0] == '@' ? chunkName.Substring(1) : chunkName;
+					var path = Path.GetFullPath(relativePath);
+					if (!File.Exists(path))
+						return;
+
+					openTag = $"<a href=\"{relativePath}\" line=\"{line}\">";
+					closeTag = "</a>";
+				});
+			return $"{msg}\n";
 		}
 
 		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>

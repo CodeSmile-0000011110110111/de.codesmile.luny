@@ -30,6 +30,7 @@ namespace CodeSmile.Luny
 	{
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
+		private LunyLuaContext m_LuaContext;
 
 		public LuaState State => m_LuaState;
 
@@ -44,6 +45,56 @@ namespace CodeSmile.Luny
 			HaltAllScripts();
 			m_LuaState.Environment.Clear();
 			m_LuaState = null;
+		}
+
+		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
+		{
+			m_LuaContext = luaContext;
+
+			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
+			var osEnv = new LunyLuaOsEnvironment(luaContext);
+			var standardIO = new LunyLuaStandardIO(luaContext);
+			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
+			m_LuaState.OnBeforeLoadChunk = OnBeforeLoadChunk;
+			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
+
+			var libraries = luaContext.Libraries;
+			if ((libraries & LuaLibraryFlags.Basic) != 0)
+				m_LuaState.OpenBasicLibrary();
+			if ((libraries & LuaLibraryFlags.Bitwise) != 0)
+				m_LuaState.OpenBitwiseLibrary();
+			if ((libraries & LuaLibraryFlags.Coroutine) != 0)
+				m_LuaState.OpenCoroutineLibrary();
+			if ((libraries & LuaLibraryFlags.Debug) != 0)
+				m_LuaState.OpenDebugLibrary();
+			if ((libraries & LuaLibraryFlags.IO) != 0)
+				m_LuaState.OpenIOLibrary();
+			if ((libraries & LuaLibraryFlags.Math) != 0)
+				m_LuaState.OpenMathLibrary();
+			if ((libraries & LuaLibraryFlags.Module) != 0)
+				m_LuaState.OpenModuleLibrary();
+			if ((libraries & LuaLibraryFlags.OS) != 0)
+				m_LuaState.OpenOperatingSystemLibrary();
+			if ((libraries & LuaLibraryFlags.String) != 0)
+				m_LuaState.OpenStringLibrary();
+			if ((libraries & LuaLibraryFlags.Table) != 0)
+				m_LuaState.OpenTableLibrary();
+
+			if (luaContext.IsSandbox)
+				RemovePotentiallyHarmfulFunctions();
+
+			OverridePrintAndLog();
+
+			foreach (var module in luaContext.Modules)
+				module.Load(m_LuaState);
+		}
+
+		private void OnBeforeLoadChunk(ref String chunkName)
+		{
+			var fileSystem = m_LuaState.Platform.FileSystem as LunyLuaFileSystem;
+			var path = fileSystem.Hook.TryGetAssetPath(chunkName);
+			if (path != null)
+				chunkName = path;
 		}
 
 		public async ValueTask<LunyLuaScript> RunScript(LunyLuaAsset luaAsset)
@@ -86,44 +137,6 @@ namespace CodeSmile.Luny
 			foreach (var luaScript in m_Scripts)
 				luaScript.Dispose();
 			m_Scripts.Clear();
-		}
-
-		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
-		{
-			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
-			var osEnv = new LunyLuaOsEnvironment(luaContext);
-			var standardIO = new LunyLuaStandardIO(luaContext);
-			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
-
-			var libraries = luaContext.Libraries;
-			if ((libraries & LuaLibraryFlags.Basic) != 0)
-				m_LuaState.OpenBasicLibrary();
-			if ((libraries & LuaLibraryFlags.Bitwise) != 0)
-				m_LuaState.OpenBitwiseLibrary();
-			if ((libraries & LuaLibraryFlags.Coroutine) != 0)
-				m_LuaState.OpenCoroutineLibrary();
-			if ((libraries & LuaLibraryFlags.Debug) != 0)
-				m_LuaState.OpenDebugLibrary();
-			if ((libraries & LuaLibraryFlags.IO) != 0)
-				m_LuaState.OpenIOLibrary();
-			if ((libraries & LuaLibraryFlags.Math) != 0)
-				m_LuaState.OpenMathLibrary();
-			if ((libraries & LuaLibraryFlags.Module) != 0)
-				m_LuaState.OpenModuleLibrary();
-			if ((libraries & LuaLibraryFlags.OS) != 0)
-				m_LuaState.OpenOperatingSystemLibrary();
-			if ((libraries & LuaLibraryFlags.String) != 0)
-				m_LuaState.OpenStringLibrary();
-			if ((libraries & LuaLibraryFlags.Table) != 0)
-				m_LuaState.OpenTableLibrary();
-
-			if (luaContext.IsSandbox)
-				RemovePotentiallyHarmfulFunctions();
-
-			OverridePrintAndLog();
-
-			foreach (var module in luaContext.Modules)
-				module.Load(m_LuaState);
 		}
 
 		private void RemovePotentiallyHarmfulFunctions()

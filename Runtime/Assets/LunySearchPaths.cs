@@ -72,6 +72,9 @@ namespace CodeSmile.Luny
 		{
 			ThrowIfPathIsNull(relativePath);
 
+			if (relativePath.StartsWith("Assets/"))
+				return relativePath;
+
 			var pathCount = m_Paths.Count;
 			for (var i = 0; i < pathCount; ++i)
 			{

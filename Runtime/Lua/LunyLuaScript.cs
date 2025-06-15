@@ -29,7 +29,7 @@ namespace CodeSmile.Luny
 		{
 			m_Lua = lua;
 			m_LuaAsset = luaAsset;
-			m_Context = arguments ?? new LuaTable();
+			m_Context = arguments ?? new LuaTable(0, 2);
 			m_Context["scriptName"] = luaAsset.name;
 			m_Context["scriptPath"] = GetScriptPath(luaAsset);
 		}
