@@ -54,7 +54,7 @@ namespace CodeSmile.Luny
 		private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
 		{
 			var traceback = new Traceback(context.State, context.Thread.GetCallStackFrames());
-			return $"{context.ArgumentsToString()}\n{traceback.ToString(0, true)}";
+			return $"{context.ArgumentsToString()}\n{traceback.ToString(0)}";
 		}
 
 		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>

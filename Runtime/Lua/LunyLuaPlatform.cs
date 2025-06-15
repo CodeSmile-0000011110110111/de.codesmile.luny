@@ -28,20 +28,20 @@ namespace CodeSmile.Luny
 
 		public Boolean IsReadable(String path) => m_IsSandbox ? !Path.IsPathRooted(path) : m_DefaultFileSystem.IsReadable(path);
 
-		public ValueTask<ILuaStream> Open(String path, LuaFileMode mode, CancellationToken cancellationToken)
+		public ValueTask<ILuaStream> Open(String path, LuaFileOpenMode mode, CancellationToken cancellationToken)
 		{
 			if (m_FileSystemHook != null)
 			{
-				var isText = (mode & LuaFileMode.Text) != 0;
-				if (isText)
+				if (mode == LuaFileOpenMode.Read)
 				{
 					if (m_FileSystemHook.ReadText(path, out var content))
 						return new ValueTask<ILuaStream>(content != null ? new StringStream(content) : null);
 				}
 				else
 				{
-					if (m_FileSystemHook.ReadBytes(path, out var bytes))
-						return new ValueTask<ILuaStream>(bytes != null ? new ByteMemoryStream(bytes) : null);
+					throw new NotImplementedException("file writes");
+					// if (m_FileSystemHook.ReadBytes(path, out var bytes))
+					// 	return new ValueTask<ILuaStream>(bytes != null ? new ByteMemoryStream(bytes) : null);
 				}
 			}
 
