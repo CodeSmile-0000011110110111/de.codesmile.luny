@@ -4,12 +4,16 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CodeSmile.Luny
 {
 	public abstract class LunyLuaAsset : ScriptableObject
 	{
-		[SerializeField] internal String text;
-		public String Text => text;
+		[SerializeField] private String m_Path;
+		[SerializeField] private String m_Text;
+
+		public String Path { get => m_Path; internal set => m_Path = value; }
+		public String Text { get => m_Text; internal set => m_Text = value; }
 	}
 }

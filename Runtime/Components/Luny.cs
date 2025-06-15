@@ -141,7 +141,7 @@ namespace CodeSmile.Luny.Components
 			{
 				RuntimeAssetUtility.Import(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
 
-				content = luaAsset.text;
+				content = luaAsset.Text;
 				return true;
 			}
 

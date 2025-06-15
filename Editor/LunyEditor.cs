@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Extensions.System;
 using CodeSmile.Luny;
 using CodeSmile.Utility;
 using System;
@@ -99,7 +98,12 @@ namespace CodeSmileEditor.Luny
 		{
 			m_Lua?.Dispose();
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
-			await m_Lua.RunScripts(LunyProjectSettings.Singleton.EditorStartupScripts);
+
+			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
+			if (startupScripts != null)
+				await m_Lua.RunScripts(startupScripts);
+			else
+				Debug.LogError(nameof(LunyProjectSettings.Singleton.EditorStartupScripts));
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
@@ -149,7 +153,7 @@ namespace CodeSmileEditor.Luny
 				if (luaAsset != null)
 				{
 					AssetDatabase.ImportAsset(fullOrAssetPath); // pick up any changes to file if Auto-Refresh is disabled
-					content = luaAsset.text;
+					content = luaAsset.Text;
 					return true;
 				}
 

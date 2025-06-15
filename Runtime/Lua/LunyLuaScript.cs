@@ -46,7 +46,7 @@ namespace CodeSmile.Luny
 			// in editor, pick up any changes to file if Auto-Refresh is disabled
 			RuntimeAssetUtility.Import(m_LuaAsset);
 
-			await m_Lua.State.DoStringAsync(m_LuaAsset.text, m_LuaAsset.name, m_Context);
+			await m_Lua.State.DoStringAsync(m_LuaAsset.Text, m_LuaAsset.Path, m_Context);
 		}
 	}
 }
