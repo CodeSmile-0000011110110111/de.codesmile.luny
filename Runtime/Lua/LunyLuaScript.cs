@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Utility;
 using Lua;
 using Lua.Unity;
 using System;
@@ -13,40 +12,35 @@ namespace CodeSmile.Luny
 {
 	public sealed class LunyLuaScript : IDisposable
 	{
+		private readonly LunyLuaAsset m_LuaAsset;
 		private LunyLua m_Lua;
-		private LunyLuaAsset m_LuaAsset;
-		private LuaTable m_Context;
-		public LunyLuaAsset LuaAsset => m_LuaAsset;
-		public LuaTable Context => m_Context;
+		private LuaTable m_ScriptContext;
 
-#if UNITY_EDITOR
-		private static String GetScriptPath(LunyLuaAsset luaAsset) => AssetDatabase.GetAssetPath(luaAsset);
-#else
-		private static String GetScriptPath(LunyLuaAsset luaAsset) => luaAsset.name;
-#endif
+		public LunyLuaAsset LuaAsset => m_LuaAsset;
+		public LuaTable ScriptContext => m_ScriptContext;
 
 		public LunyLuaScript(LunyLua lua, LunyLuaAsset luaAsset, LuaTable arguments = null)
 		{
 			m_Lua = lua;
 			m_LuaAsset = luaAsset;
-			m_Context = arguments ?? new LuaTable(0, 2);
-			m_Context["scriptName"] = luaAsset.name;
-			m_Context["scriptPath"] = GetScriptPath(luaAsset);
+
+			m_ScriptContext = arguments ?? new LuaTable(0, 2);
+			m_ScriptContext["scriptName"] = luaAsset.name;
+			m_ScriptContext["scriptPath"] = luaAsset.Path;
 		}
 
 		public void Dispose()
 		{
 			m_Lua = null;
-			m_LuaAsset = null;
-			m_Context = null;
+			m_ScriptContext = null;
 		}
 
-		public async ValueTask Run()
+		internal void OnScriptChanged()
 		{
-			// in editor, pick up any changes to file if Auto-Refresh is disabled
-			RuntimeAssetUtility.Import(m_LuaAsset);
-
-			await m_Lua.State.DoStringAsync(m_LuaAsset.Text, m_LuaAsset.Path, m_Context);
+			DoScriptAsync();
 		}
+
+		internal async ValueTask DoScriptAsync() =>
+			await m_Lua.State.DoStringAsync(LuaAsset.Text, LuaAsset.Path, m_ScriptContext);
 	}
 }

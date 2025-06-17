@@ -54,9 +54,10 @@ namespace CodeSmileEditor.Luny
 			EditorApplication.focusChanged += OnFocusChanged;
 
 			var registry = LunyEditorAssetRegistry.Singleton;
-			registry.OnEditorContextChanged += ResetState;
+			registry.OnEditorContextChanged += OnLuaContextChanged;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
+			EditorApplication.update += OnEditorUpdate;
 
 			CreateLuaState(registry.EditorContext);
 
@@ -73,7 +74,16 @@ namespace CodeSmileEditor.Luny
 		}
 
 		// OnDisable runs before every domain reload
-		private void OnDisable() => Save(true);
+		private void OnDisable()
+		{
+			Save(true);
+			DestroyLuaState();
+		}
+
+		private void OnEditorUpdate() => m_Lua?.Update();
+
+		private async void OnLuaContextChanged(LunyLuaContext luaContext) =>
+			await CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
 
 		// Note: OnDestroy is never called, not even on project close according to editor.log
 		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
@@ -83,24 +93,27 @@ namespace CodeSmileEditor.Luny
 			if (hasFocus)
 			{
 				// delay to allow IDE saving of scripts to complete
-				EditorApplication.delayCall += () =>
-				{
-					Debug.LogWarning("For testing only - OnFocusChanged: ResetState");
-					ResetState();
-				};
+				// EditorApplication.delayCall += () =>
+				// {
+				// 	Debug.LogWarning("For testing only - OnFocusChanged: ResetState");
+				// 	CreateLuaState(LunyEditorAssetRegistry.Singleton.EditorContext);
+				// };
 			}
 		}
 
-		private async void ResetState(LunyLuaContext luaContext = null) =>
-			await CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
-
 		private async ValueTask CreateLuaState(LunyLuaContext editorContext)
 		{
-			m_Lua?.Dispose();
+			DestroyLuaState();
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
 
 			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
 			await m_Lua.RunScripts(startupScripts.ToArray());
+		}
+
+		private void DestroyLuaState()
+		{
+			m_Lua?.Dispose();
+			m_Lua = null;
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
@@ -124,7 +137,7 @@ namespace CodeSmileEditor.Luny
 
 			public FileSystem(LunyLuaContext luaContext)
 			{
-				m_SearchPaths = new LunySearchPaths(luaContext);
+				m_SearchPaths = luaContext.SearchPaths;
 				m_IsSandbox = luaContext.IsSandbox;
 			}
 
@@ -141,7 +154,7 @@ namespace CodeSmileEditor.Luny
 				}
 
 				// Try read relative paths by looking through search paths
-				var fullOrAssetPath = m_SearchPaths.GetFullPathOrAssetPath(path);
+				var fullOrAssetPath = m_SearchPaths.GetFullPath(path);
 				if (fullOrAssetPath == null)
 					return true;
 
@@ -163,7 +176,7 @@ namespace CodeSmileEditor.Luny
 			public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
 
 			public String TryGetAssetPath(String pathOrChunkName) =>
-				$"@{m_SearchPaths.GetFullPathOrAssetPath(pathOrChunkName[0] == '@' ? pathOrChunkName.Substring(1) : pathOrChunkName)}";
+				$"@{m_SearchPaths.GetFullPath(pathOrChunkName[0] == '@' ? pathOrChunkName.Substring(1) : pathOrChunkName)}";
 		}
 	}
 }

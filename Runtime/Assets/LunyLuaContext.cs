@@ -43,8 +43,10 @@ namespace CodeSmile.Luny
 		[SerializeField] [HideInInspector] private String m_Path;
 		[SerializeField] [HideInInspector] private Boolean m_IsModdingContext;
 
+		private LunySearchPaths m_SearchPaths;
+
 		public Boolean IsSandbox => m_IsSandbox;
-		public String[] ScriptSearchPaths => m_ScriptSearchPaths;
+		public LunySearchPaths SearchPaths => m_SearchPaths ??= new LunySearchPaths(this, m_ScriptSearchPaths);
 		public String Path => m_Path;
 		public LuaLibraryFlags Libraries => m_Libraries;
 

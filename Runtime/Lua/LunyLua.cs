@@ -31,6 +31,7 @@ namespace CodeSmile.Luny
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaContext m_LuaContext;
+		LunyLuaFileWatcher m_FileWatcher;
 
 		public LuaState State => m_LuaState;
 
@@ -43,6 +44,8 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			HaltAllScripts();
+			m_FileWatcher?.Dispose();
+			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
 			m_LuaState = null;
 		}
@@ -50,6 +53,7 @@ namespace CodeSmile.Luny
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
 			m_LuaContext = luaContext;
+			m_FileWatcher = new LunyLuaFileWatcher(luaContext);
 
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
@@ -102,28 +106,38 @@ namespace CodeSmile.Luny
 			if (luaAsset == null)
 				throw new ArgumentNullException(nameof(luaAsset));
 
-			m_Scripts.TryRemove(luaAsset);
+			HaltScript(luaAsset);
 
 			var luaScript = new LunyLuaScript(this, luaAsset);
-			await luaScript.Run();
+			await luaScript.DoScriptAsync();
 
 			m_Scripts.Add(luaScript);
+			m_FileWatcher.WatchScript(luaScript);
 			return luaScript;
 		}
 
-		public async ValueTask RunScripts(IEnumerable<LunyLuaAsset> luaAssets)
+		public async ValueTask<IEnumerable<LunyLuaScript>> RunScripts(IEnumerable<LunyLuaAsset> luaAssets)
 		{
+			var scripts = new List<LunyLuaScript>();
 			foreach (var luaAsset in luaAssets)
 			{
 				if (luaAsset != null)
-					await RunScript(luaAsset);
+				{
+					var script = await RunScript(luaAsset);
+					scripts.Add(script);
+				}
 			}
+
+			return scripts;
 		}
 
 		public void HaltScript(LunyLuaAsset luaAsset)
 		{
 			if (m_Scripts != null && m_Scripts.TryRemove(luaAsset, out var luaScript))
+			{
+				m_FileWatcher.UnwatchScript(luaScript);
 				luaScript.Dispose();
+			}
 		}
 
 		public void HaltScripts(IEnumerable<LunyLuaAsset> luaAssets)
@@ -158,6 +172,11 @@ namespace CodeSmile.Luny
 			env["print"] = logTable["info"];
 			env["warn"] = logTable["warning"];
 			env["error"] = logTable["error"];
+		}
+
+		public void Update()
+		{
+			m_FileWatcher.Update();
 		}
 	}
 }

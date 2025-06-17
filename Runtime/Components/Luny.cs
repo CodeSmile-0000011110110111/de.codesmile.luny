@@ -114,7 +114,7 @@ namespace CodeSmile.Luny.Components
 
 		public RuntimeFileSystem(LunyLuaContext luaContext)
 		{
-			m_SearchPaths = new LunySearchPaths(luaContext);
+			m_SearchPaths = luaContext.SearchPaths;
 			m_IsSandbox = luaContext.IsSandbox;
 			m_IsModdingContext = luaContext.IsModdingContext;
 		}
@@ -128,7 +128,7 @@ namespace CodeSmile.Luny.Components
 				throw new NotSupportedException($"cannot access rooted paths in sandbox: {path}");
 
 			// Try read relative paths by looking through search paths
-			var fullOrAssetPath = m_SearchPaths.GetFullPathOrAssetPath(path);
+			var fullOrAssetPath = m_SearchPaths.GetFullPath(path);
 			if (fullOrAssetPath == null)
 				return true;
 
@@ -140,7 +140,7 @@ namespace CodeSmile.Luny.Components
 
 			if (luaAsset != null)
 			{
-				RuntimeAssetUtility.Import(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
+				EditorAssetUtility.Import(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
 
 				content = luaAsset.Text;
 				return true;
@@ -157,6 +157,6 @@ namespace CodeSmile.Luny.Components
 		public Boolean ReadBytes(String path, out Byte[] bytes) => throw new NotImplementedException("ReadBytes");
 
 		public String TryGetAssetPath(String pathOrChunkName) =>
-			$"@{m_SearchPaths.GetFullPathOrAssetPath(pathOrChunkName[0] == '@' ? pathOrChunkName.Substring(1) : pathOrChunkName)}";
+			$"@{m_SearchPaths.GetFullPath(pathOrChunkName[0] == '@' ? pathOrChunkName.Substring(1) : pathOrChunkName)}";
 	}
 }

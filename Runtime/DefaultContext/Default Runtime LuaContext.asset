@@ -21,4 +21,5 @@ MonoBehaviour:
   m_Libraries: 605161764
   m_Modules:
   - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
+  m_Path: Packages/de.codesmile.luny/Runtime/DefaultContext/Default Runtime LuaContext.asset
   m_IsModdingContext: 0

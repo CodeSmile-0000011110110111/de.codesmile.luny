@@ -11,11 +11,12 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	internal sealed class LunySearchPaths
+	public sealed class LunySearchPaths
 	{
 		private const String PersistentPlaceholder = "%persistentdatapath%";
 		private const String StreamingPlaceholder = "%streamingassetspath%";
-		private readonly List<PathInfo> m_Paths;
+		private readonly List<SearchPathInfo> m_Paths;
+		public List<SearchPathInfo> Paths => m_Paths;
 
 		private static void ThrowIfPathIsNull(String relativePath)
 		{
@@ -25,11 +26,10 @@ namespace CodeSmile.Luny
 #endif
 		}
 
-		public LunySearchPaths(LunyLuaContext luaContext)
+		public LunySearchPaths(LunyLuaContext luaContext, string[] searchPaths)
 		{
-			var searchPaths = luaContext.ScriptSearchPaths;
 			var pathCount = searchPaths.Length;
-			m_Paths = new List<PathInfo>(pathCount);
+			m_Paths = new List<SearchPathInfo>(pathCount);
 
 			for (var i = 0; i < pathCount; ++i)
 			{
@@ -44,31 +44,34 @@ namespace CodeSmile.Luny
 
 				// paths must not start nor end with slash
 				var path = searchPaths[i].ToForwardSlashes().Trim('/');
-				var pathInfo = new PathInfo { RootPath = path };
+				var pathInfo = new SearchPathInfo {};
 
 				var lowerPath = path.ToLower();
 				if (lowerPath.StartsWith(PersistentPlaceholder))
 				{
-					//pathInfo.IsPersistentDataPath = true;
-					pathInfo.RootPath = Application.persistentDataPath + path
+					pathInfo.IsPersistentDataPath = true;
+					pathInfo.FullPath = Application.persistentDataPath + path
 						.Substring(PersistentPlaceholder.Length, path.Length - PersistentPlaceholder.Length);
 					// pre-create user path directories
-					PathUtility.TryCreateDirectory(pathInfo.RootPath);
+					PathUtility.TryCreateDirectory(pathInfo.FullPath);
 				}
 				else if (lowerPath.StartsWith(StreamingPlaceholder))
 				{
-					//pathInfo.IsStreamingAssetPath = true;
-					pathInfo.RootPath = Application.streamingAssetsPath + path
+					pathInfo.IsStreamingAssetPath = true;
+					 pathInfo.FullPath = Application.streamingAssetsPath + path
 						.Substring(StreamingPlaceholder.Length, path.Length - StreamingPlaceholder.Length);
 				}
 				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
+				{
 					pathInfo.IsAssetPath = true;
+					pathInfo.AssetPath = path;
+				}
 
-				m_Paths.Add(pathInfo);
+				Paths.Add(pathInfo);
 			}
 		}
 
-		public String GetFullPathOrAssetPath(String relativePath)
+		public String GetFullPath(String relativePath)
 		{
 			ThrowIfPathIsNull(relativePath);
 
@@ -78,7 +81,8 @@ namespace CodeSmile.Luny
 			var pathCount = m_Paths.Count;
 			for (var i = 0; i < pathCount; ++i)
 			{
-				var joinedPaths = Path.Join(m_Paths[i].RootPath, relativePath);
+				var searchPath = m_Paths[i].IsAssetPath ? m_Paths[i].AssetPath : m_Paths[i].FullPath;
+				var joinedPaths = Path.Join(searchPath, relativePath);
 				if (m_Paths[i].IsAssetPath)
 					return joinedPaths.ToForwardSlashes();
 
@@ -110,12 +114,13 @@ namespace CodeSmile.Luny
 		// 	return null;
 		// }
 
-		public struct PathInfo
+		public struct SearchPathInfo
 		{
-			public String RootPath;
+			public string AssetPath;
+			public string FullPath;
 			public Boolean IsAssetPath;
-			//public Boolean IsStreamingAssetPath;
-			//public Boolean IsPersistentDataPath;
+			public Boolean IsStreamingAssetPath;
+			public Boolean IsPersistentDataPath;
 		}
 	}
 }
