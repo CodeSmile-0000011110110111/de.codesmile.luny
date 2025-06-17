@@ -12,7 +12,7 @@ namespace CodeSmileEditor.Luny
 
 		public override void OnInspectorGUI()
 		{
-			if (m_PathProperty==null)
+			if (m_PathProperty == null)
 				m_PathProperty = serializedObject.FindProperty("m_Path");
 			if (m_TextProperty == null)
 				m_TextProperty = serializedObject.FindProperty("m_Text");

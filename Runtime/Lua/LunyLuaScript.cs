@@ -35,10 +35,7 @@ namespace CodeSmile.Luny
 			m_ScriptContext = null;
 		}
 
-		internal async Task OnScriptChanged()
-		{
-			await DoScriptAsync();
-		}
+		internal async Task OnScriptChanged() => await DoScriptAsync();
 
 		internal async ValueTask DoScriptAsync() =>
 			await m_Lua.State.DoStringAsync(LuaAsset.Text, LuaAsset.Path, m_ScriptContext);

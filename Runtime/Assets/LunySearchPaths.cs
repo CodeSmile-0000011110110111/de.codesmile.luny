@@ -24,7 +24,7 @@ namespace CodeSmile.Luny
 #endif
 		}
 
-		public LunySearchPaths(LunyLuaContext luaContext, string[] searchPaths)
+		public LunySearchPaths(LunyLuaContext luaContext, String[] searchPaths)
 		{
 			var pathCount = searchPaths.Length;
 			m_Paths = new List<SearchPathInfo>(pathCount);
@@ -42,7 +42,7 @@ namespace CodeSmile.Luny
 
 				// paths must not start nor end with slash
 				var path = searchPaths[i].ToForwardSlashes().Trim('/');
-				var pathInfo = new SearchPathInfo {};
+				var pathInfo = new SearchPathInfo();
 
 				var lowerPath = path.ToLower();
 				if (lowerPath.StartsWith(PersistentPlaceholder))
@@ -56,7 +56,7 @@ namespace CodeSmile.Luny
 				else if (lowerPath.StartsWith(StreamingPlaceholder))
 				{
 					pathInfo.IsStreamingAssetPath = true;
-					 pathInfo.FullPath = Application.streamingAssetsPath + path
+					pathInfo.FullPath = Application.streamingAssetsPath + path
 						.Substring(StreamingPlaceholder.Length, path.Length - StreamingPlaceholder.Length);
 				}
 				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
@@ -114,8 +114,8 @@ namespace CodeSmile.Luny
 
 		public struct SearchPathInfo
 		{
-			public string AssetPath;
-			public string FullPath;
+			public String AssetPath;
+			public String FullPath;
 			public Boolean IsAssetPath;
 			public Boolean IsStreamingAssetPath;
 			public Boolean IsPersistentDataPath;

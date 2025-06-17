@@ -16,7 +16,7 @@ namespace CodeSmile.Luny
 	{
 		Boolean ReadText(String path, out String content);
 		Boolean ReadBytes(String path, out Byte[] bytes);
-		string TryGetAssetPath(string pathOrChunkName);
+		String TryGetAssetPath(String pathOrChunkName);
 	}
 
 	internal sealed class LunyLuaFileSystem : ILuaFileSystem
@@ -107,7 +107,6 @@ namespace CodeSmile.Luny
 		public ILuaStream Output => m_DefaultStandardIO.Output;
 		public ILuaStream Error => m_DefaultStandardIO.Error;
 
-		public LunyLuaStandardIO(LunyLuaContext luaContext) =>
-			m_DefaultStandardIO = new ConsoleStandardIO();
+		public LunyLuaStandardIO(LunyLuaContext luaContext) => m_DefaultStandardIO = new ConsoleStandardIO();
 	}
 }

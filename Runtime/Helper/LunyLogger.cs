@@ -55,7 +55,7 @@ namespace CodeSmile.Luny
 		private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
 		{
 			var msg = Traceback.CreateTracebackMessage(context.Thread, context.ArgumentsToString(), 1,
-				(String chunkName, Int32 line, out String openTag, out string closeTag) =>
+				(String chunkName, Int32 line, out String openTag, out String closeTag) =>
 				{
 					openTag = closeTag = null;
 					var relativePath = chunkName[0] == '@' ? chunkName.Substring(1) : chunkName;

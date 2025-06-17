@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
-using System;
 using UnityEditor;
 using UnityEngine;
 
