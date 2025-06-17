@@ -35,9 +35,9 @@ namespace CodeSmile.Luny
 			m_ScriptContext = null;
 		}
 
-		internal void OnScriptChanged()
+		internal async Task OnScriptChanged()
 		{
-			DoScriptAsync();
+			await DoScriptAsync();
 		}
 
 		internal async ValueTask DoScriptAsync() =>

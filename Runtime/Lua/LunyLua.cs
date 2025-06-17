@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaContext m_LuaContext;
-		LunyLuaFileWatcher m_FileWatcher;
+		private LunyLuaFileWatcher m_FileWatcher;
 
 		public LuaState State => m_LuaState;
 
@@ -174,9 +174,6 @@ namespace CodeSmile.Luny
 			env["error"] = logTable["error"];
 		}
 
-		public void Update()
-		{
-			m_FileWatcher.Update();
-		}
+		public async Task Update() => await m_FileWatcher.Update();
 	}
 }

@@ -6,6 +6,7 @@ using CodeSmile.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -47,12 +48,15 @@ namespace CodeSmile.Luny
 
 		private void CreateFileSystemWatcher(String fullPath)
 		{
-			var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
-			fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-			fileWatcher.Changed += OnFileChanged;
-			fileWatcher.IncludeSubdirectories = true;
-			fileWatcher.EnableRaisingEvents = true;
-			m_Watchers[fullPath] = fileWatcher;
+			if (Directory.Exists(fullPath))
+			{
+				var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
+				fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+				fileWatcher.Changed += OnFileChanged;
+				fileWatcher.IncludeSubdirectories = true;
+				fileWatcher.EnableRaisingEvents = true;
+				m_Watchers[fullPath] = fileWatcher;
+			}
 		}
 
 		public void WatchScript(LunyLuaScript script)
@@ -94,13 +98,13 @@ namespace CodeSmile.Luny
 				m_ChangedScripts.Add(script); // add to queue for processing on main thread
 		}
 
-		public void Update()
+		public async Task Update()
 		{
 			if (m_ChangedScripts.Count > 0)
-				NotifyChangedScripts();
+				await NotifyChangedScripts();
 		}
 
-		private void NotifyChangedScripts()
+		private async Task NotifyChangedScripts()
 		{
 			foreach (var changedScript in m_ChangedScripts)
 			{
@@ -108,7 +112,7 @@ namespace CodeSmile.Luny
 				{
 					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
 					EditorAssetUtility.Import(changedScript.LuaAsset);
-					changedScript.OnScriptChanged();
+					await changedScript.OnScriptChanged();
 				}
 			}
 

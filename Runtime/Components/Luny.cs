@@ -27,6 +27,7 @@ namespace CodeSmile.Luny.Components
 	public sealed class Luny : MonoBehaviour, ILuny
 	{
 		private static Luny s_Singleton;
+		internal event Action OnDestroyLuny;
 
 		// TODO: refactor to load all scripts with given label automatically ie "ModdingStartupScript"
 		// [Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
@@ -68,7 +69,11 @@ namespace CodeSmile.Luny.Components
 			s_Singleton = null;
 		}
 
-		internal event Action OnDestroyLuny;
+		private async Task Update()
+		{
+			await m_RuntimeLua?.Update();
+			await m_ModdingLua?.Update();
+		}
 
 		private async ValueTask CreateLuaStates(LunyLuaContext runtimeContext, LunyLuaContext moddingContext)
 		{
