@@ -1,8 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile;
 using CodeSmile.Luny;
-using CodeSmile.Utility;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -40,16 +40,16 @@ namespace CodeSmileEditor.Luny
 		private void Reset() => m_ShouldCallReset = true;
 
 		// Awake runs every time the project is loaded
-		private void Awake()
+		private async Task Awake()
 		{
 			m_ShouldCallAwake = true;
 			var registry = LunyEditorAssetRegistry.Singleton;
 			if (registry.EditorContext != null)
-				CreateLuaState(registry.EditorContext);
+				await CreateLuaState(registry.EditorContext);
 		}
 
 		// OnEnable runs after every domain reload (including project load)
-		private void OnEnable()
+		private async Task OnEnable()
 		{
 			EditorApplication.focusChanged += OnFocusChanged;
 
@@ -59,7 +59,7 @@ namespace CodeSmileEditor.Luny
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
 
-			CreateLuaState(registry.EditorContext);
+			await CreateLuaState(registry.EditorContext);
 
 			if (m_ShouldCallReset)
 			{
