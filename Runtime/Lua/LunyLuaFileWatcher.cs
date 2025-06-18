@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -17,6 +16,7 @@ namespace CodeSmile.Luny
 		private Dictionary<String, FileSystemWatcher> m_Watchers = new();
 		private Dictionary<String, LunyLuaScript> m_WatchedScripts = new();
 		private List<LunyLuaScript> m_ChangedScripts = new();
+		internal List<LunyLuaScript> ChangedScripts => m_ChangedScripts;
 
 		public LunyLuaFileWatcher(LunyLuaContext luaContext)
 		{
@@ -95,29 +95,6 @@ namespace CodeSmile.Luny
 			fullPath = fullPath.ToForwardSlashes();
 			if (m_WatchedScripts.TryGetValue(fullPath, out var script) && script != null)
 				m_ChangedScripts.Add(script); // add to queue for processing on main thread
-		}
-
-		public async Task Update()
-		{
-			if (m_ChangedScripts.Count > 0)
-				await NotifyChangedScripts();
-		}
-
-		private async Task NotifyChangedScripts()
-		{
-			foreach (var changedScript in m_ChangedScripts)
-			{
-				if (changedScript != null)
-				{
-					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-					if (changedScript is LunyLuaAssetScript assetScript)
-						EditorAssetUtility.Import(assetScript.LuaAsset);
-
-					await changedScript.OnScriptChanged();
-				}
-			}
-
-			m_ChangedScripts.Clear();
 		}
 	}
 }

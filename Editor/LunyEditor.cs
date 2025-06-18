@@ -3,7 +3,6 @@
 
 using CodeSmile;
 using CodeSmile.Luny;
-using Lua;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -55,15 +54,23 @@ namespace CodeSmileEditor.Luny
 			EditorApplication.update += OnEditorUpdate;
 
 			if (registry.EditorContext != null)
-				await CreateLuaState(registry.EditorContext);
+			{
+				CreateLuaState(registry.EditorContext);
 
-			if (m_ShouldCallReset)
-			{
-				// TODO
-			}
-			if (m_ShouldCallAwake)
-			{
-				// TODO
+				var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
+				var scripts = LunyLuaAssetScript.Create(startupScripts);
+				await m_Lua.AddAndRunScripts(scripts);
+
+				foreach (var script in scripts)
+				{
+					var lifecycleEvents = script.EventHandler<UnityObjectLifecycleEvent>();
+					if (m_ShouldCallReset)
+						lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.Reset);
+					if (m_ShouldCallAwake)
+						lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.Awake);
+
+					lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.OnEnable);
+				}
 			}
 
 			m_ShouldCallReset = m_ShouldCallAwake = false;
@@ -76,35 +83,24 @@ namespace CodeSmileEditor.Luny
 			DestroyLuaState();
 		}
 
-		private void OnEditorUpdate() => m_Lua?.Update();
+		private async void OnEditorUpdate()
+		{
+			if (m_Lua != null)
+				await m_Lua.Update();
+		}
 
-		private async void OnLuaContextChanged(LunyLuaContext luaContext) =>
-			await CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
+		private void OnLuaContextChanged(LunyLuaContext luaContext) =>
+			CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
 
 		// Note: OnDestroy is never called, not even on project close according to editor.log
 		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
 
-		private void OnFocusChanged(Boolean hasFocus)
-		{
-			if (hasFocus)
-			{
-				// delay to allow IDE saving of scripts to complete
-				// EditorApplication.delayCall += () =>
-				// {
-				// 	Debug.LogWarning("For testing only - OnFocusChanged: ResetState");
-				// 	CreateLuaState(LunyEditorAssetRegistry.Singleton.EditorContext);
-				// };
-			}
-		}
+		private void OnFocusChanged(Boolean hasFocus) {}
 
-		private async ValueTask CreateLuaState(LunyLuaContext editorContext)
+		private void CreateLuaState(LunyLuaContext editorContext)
 		{
 			DestroyLuaState();
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
-
-			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
-			var scripts = LunyLuaAssetScript.Create(m_Lua, startupScripts);
-			await m_Lua.AddAndRunScripts(scripts);
 		}
 
 		private void DestroyLuaState()
@@ -117,7 +113,7 @@ namespace CodeSmileEditor.Luny
 		{
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				await m_Lua.AddAndRunScript(new LunyLuaAssetScript(m_Lua, luaAsset));
+				await m_Lua.AddAndRunScript(new LunyLuaAssetScript(luaAsset));
 		}
 
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)

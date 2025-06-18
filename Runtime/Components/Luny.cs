@@ -74,8 +74,10 @@ namespace CodeSmile.Luny.Components
 
 		private async Task Update()
 		{
-			await m_RuntimeLua?.Update();
-			await m_ModdingLua?.Update();
+			if (m_RuntimeLua != null)
+				await m_RuntimeLua.Update();
+			if (m_ModdingLua != null)
+				await m_ModdingLua.Update();
 		}
 
 		internal event Action OnDestroyLuny;
@@ -87,22 +89,22 @@ namespace CodeSmile.Luny.Components
 			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
-			var runtimeStartupScripts = LunyLuaAssetScript.Create(m_RuntimeLua, m_AssetRegistry.RuntimeStartupLuaAssets);
+			var runtimeStartupScripts = LunyLuaAssetScript.Create(m_AssetRegistry.RuntimeStartupLuaAssets);
 			await m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
-			var moddingStartupScripts = LunyLuaAssetScript.Create(m_ModdingLua, m_AssetRegistry.ModdingStartupLuaAssets);
+			var moddingStartupScripts = LunyLuaAssetScript.Create(m_AssetRegistry.ModdingStartupLuaAssets);
 			await m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
 
 			{
 				var ctx = new LuaTable();
 				ctx["streamingAssetsScript"] = true;
-				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(m_ModdingLua,
-					Application.streamingAssetsPath + "/StreamingLua.lua", ctx));
+				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(Application.streamingAssetsPath + "/StreamingLua.lua",
+					ctx));
 			}
 			{
 				var ctx = new LuaTable();
 				ctx["persistentDataScript"] = true;
-				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(m_ModdingLua,
-					Application.persistentDataPath + "/PersistentLua.lua", ctx));
+				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(Application.persistentDataPath + "/PersistentLua.lua",
+					ctx));
 			}
 		}
 

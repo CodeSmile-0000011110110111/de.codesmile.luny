@@ -30,10 +30,10 @@ namespace CodeSmile.Luny
 	{
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
-		private LunyLuaContext m_LuaContext;
 		private LunyLuaFileWatcher m_FileWatcher;
 
 		public LuaState State => m_LuaState;
+		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -52,7 +52,6 @@ namespace CodeSmile.Luny
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
-			m_LuaContext = luaContext;
 			m_FileWatcher = new LunyLuaFileWatcher(luaContext);
 
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
@@ -107,10 +106,10 @@ namespace CodeSmile.Luny
 				throw new ArgumentNullException(nameof(script));
 
 			RemoveScript(script);
-			await script.DoScriptAsync();
-
 			m_Scripts.Add(script);
 			m_FileWatcher.WatchScript(script);
+
+			await script.DoScriptAsync(m_LuaState);
 		}
 
 		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
@@ -184,6 +183,29 @@ namespace CodeSmile.Luny
 			env["error"] = logTable["error"];
 		}
 
-		public async Task Update() => await m_FileWatcher.Update();
+		public async ValueTask Update()
+		{
+			var changedScripts = m_FileWatcher.ChangedScripts;
+			if (changedScripts.Count > 0)
+			{
+				await LoadAndRunChangedScripts(changedScripts);
+				changedScripts.Clear();
+			}
+		}
+
+		private async ValueTask LoadAndRunChangedScripts(IList<LunyLuaScript> changedScripts)
+		{
+			foreach (var changedScript in changedScripts)
+			{
+				if (changedScript != null)
+				{
+					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
+					if (changedScript is LunyLuaAssetScript assetScript)
+						EditorAssetUtility.Import(assetScript.LuaAsset);
+
+					await changedScript.OnScriptChanged(m_LuaState);
+				}
+			}
+		}
 	}
 }

@@ -14,33 +14,43 @@ namespace CodeSmile.Luny
 {
 	public abstract class LunyLuaScript : IDisposable
 	{
-		private LunyLua m_Lua;
 		private LuaTable m_ScriptContext;
+		private LunyEventHandlerCollection m_EventHandlers = new();
 
-		protected LunyLua Lua => m_Lua;
 		public abstract String FullPath { get; }
 		public LuaTable ScriptContext => m_ScriptContext;
 
-		public LunyLuaScript(LunyLua lua, LuaTable context = null)
-		{
-			m_Lua = lua;
-			m_ScriptContext = context ?? new LuaTable(0, 3);
-		}
+		public LunyLuaScript(LuaTable context = null) => m_ScriptContext = context ?? new LuaTable(0, 3);
 
-		public void Dispose()
-		{
-			m_Lua = null;
-			m_ScriptContext = null;
-		}
+		public void Dispose() => m_ScriptContext = null;
 
-		internal abstract Task OnScriptChanged();
-		internal abstract ValueTask DoScriptAsync();
+		internal abstract Task OnScriptChanged(LuaState luaState);
+		internal abstract ValueTask DoScriptAsync(LuaState luaState);
+
+		protected void OnScriptLoaded()
+		{
+			// re-bind event functions
+			foreach (var eventHandler in m_EventHandlers)
+				eventHandler.BindEventCallbacks(m_ScriptContext);
+		}
 
 		protected void SetScriptContext(String name, String path)
 		{
 			ScriptContext["scriptType"] = GetType().Name;
 			ScriptContext["scriptName"] = name;
 			ScriptContext["scriptPath"] = path;
+		}
+
+		public LunyEventHandler<T> EventHandler<T>() where T : Enum
+		{
+			var handler = m_EventHandlers.TryGet<T>();
+			if (handler == null)
+			{
+				handler = new LunyEventHandler<T>(ScriptContext);
+				m_EventHandlers.Add(handler);
+			}
+
+			return handler;
 		}
 	}
 
@@ -52,7 +62,7 @@ namespace CodeSmile.Luny
 
 		public override String FullPath => m_LuaAsset.FullPath;
 
-		public static IEnumerable<LunyLuaAssetScript> Create(LunyLua lua, IEnumerable<LunyLuaAsset> luaAssets)
+		public static IEnumerable<LunyLuaAssetScript> Create(IEnumerable<LunyLuaAsset> luaAssets)
 		{
 			var scripts = new List<LunyLuaAssetScript>();
 			if (luaAssets != null)
@@ -60,33 +70,36 @@ namespace CodeSmile.Luny
 				foreach (var luaAsset in luaAssets)
 				{
 					if (luaAsset != null)
-						scripts.Add(new LunyLuaAssetScript(lua, luaAsset));
+						scripts.Add(new LunyLuaAssetScript(luaAsset));
 				}
 			}
 			return scripts;
 		}
 
-		public LunyLuaAssetScript(LunyLua lua, LunyLuaAsset luaAsset, LuaTable context = null)
-			: base(lua, context)
+		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable context = null)
+			: base(context)
 		{
 			m_LuaAsset = luaAsset;
 			SetScriptContext(luaAsset.name, luaAsset.Path);
 		}
 
-		internal override async Task OnScriptChanged() => await DoScriptAsync();
+		internal override async Task OnScriptChanged(LuaState luaState) => await DoScriptAsync(luaState);
 
-		internal override async ValueTask DoScriptAsync() =>
-			await Lua.State.DoStringAsync(LuaAsset.Text, LuaAsset.Path, ScriptContext);
+		internal override async ValueTask DoScriptAsync(LuaState luaState)
+		{
+			await luaState.DoStringAsync(LuaAsset.Text, LuaAsset.Path, ScriptContext);
+			OnScriptLoaded();
+		}
 	}
 
 	public sealed class LunyLuaFileScript : LunyLuaScript
 	{
 		private readonly String m_FullPath;
-		string m_ScriptPath;
+		private readonly String m_ScriptPath;
 
 		public override String FullPath => m_FullPath;
 
-		public static IEnumerable<LunyLuaFileScript> Create(LunyLua lua, IEnumerable<String> paths)
+		public static IEnumerable<LunyLuaFileScript> Create(IEnumerable<String> paths)
 		{
 			var scripts = new List<LunyLuaFileScript>();
 			if (paths != null)
@@ -94,22 +107,26 @@ namespace CodeSmile.Luny
 				foreach (var path in paths)
 				{
 					if (String.IsNullOrEmpty(path) == false)
-						scripts.Add(new LunyLuaFileScript(lua, path));
+						scripts.Add(new LunyLuaFileScript(path));
 				}
 			}
 			return scripts;
 		}
 
-		public LunyLuaFileScript(LunyLua lua, String filePath, LuaTable context = null)
-			: base(lua, context)
+		public LunyLuaFileScript(String filePath, LuaTable context = null)
+			: base(context)
 		{
 			m_FullPath = Path.GetFullPath(filePath).ToForwardSlashes();
 			m_ScriptPath = File.Exists(filePath) ? filePath : m_FullPath;
 			SetScriptContext(Path.GetFileNameWithoutExtension(m_ScriptPath), m_ScriptPath);
 		}
 
-		internal override async Task OnScriptChanged() => await DoScriptAsync();
+		internal override async Task OnScriptChanged(LuaState luaState) => await DoScriptAsync(luaState);
 
-		internal override async ValueTask DoScriptAsync() => await Lua.State.DoFileAsync(m_ScriptPath, ScriptContext);
+		internal override async ValueTask DoScriptAsync(LuaState luaState)
+		{
+			await luaState.DoFileAsync(m_ScriptPath, ScriptContext);
+			OnScriptLoaded();
+		}
 	}
 }

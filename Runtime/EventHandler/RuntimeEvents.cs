@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public enum MonoBehaviourLifecycleMessage
+	public enum UnityObjectLifecycleEvent
 	{
 		Awake,
 		FixedUpdate,
@@ -14,10 +14,23 @@ namespace CodeSmile.Luny
 		OnDestroy,
 		OnDisable,
 		OnEnable,
-		OnTransformChildrenChanged,
-		OnTransformParentChanged,
+		Reset,
 		Start,
 		Update,
+	}
+
+	public enum MonoBehaviourEditorEvent
+	{
+		OnDrawGizmos,
+		OnDrawGizmosSelected,
+		OnGUI,
+		OnValidate,
+	}
+
+	public enum MonoBehaviourTransformMessage
+	{
+		OnTransformChildrenChanged,
+		OnTransformParentChanged,
 	}
 
 	public enum MonoBehaviourApplicationMessage
@@ -67,15 +80,6 @@ namespace CodeSmile.Luny
 		OnTriggerExit2D,
 		OnTriggerStay,
 		OnTriggerStay2D,
-	}
-
-	public enum MonoBehaviourEditorMessage
-	{
-		OnDrawGizmos,
-		OnDrawGizmosSelected,
-		OnGUI,
-		OnValidate,
-		Reset,
 	}
 
 	public enum MonoBehaviourInputMessage

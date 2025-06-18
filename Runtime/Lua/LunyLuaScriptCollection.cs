@@ -13,6 +13,7 @@ namespace CodeSmile.Luny
 	{
 		private readonly List<LunyLuaScript> m_Scripts = new();
 
+		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
 		public Int32 Count => m_Scripts.Count;
 		public Boolean IsReadOnly => false;
 
