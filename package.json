@@ -2,9 +2,9 @@
   "name": "de.codesmile.luny",
   "displayName": "CodeSmile Luny",
   "description": "Lua in Unity for everything!",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "6000.0",
-  "unityRelease": "25f1",
+  "unityRelease": "45f1",
   "author": {
     "name": "Steffen Itterheim aka 'CodeSmile' (Unity MVP, Self-Employed)",
     "email": "steffen@steffenitterheim.de",
