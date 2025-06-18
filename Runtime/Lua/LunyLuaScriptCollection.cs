@@ -34,34 +34,5 @@ namespace CodeSmile.Luny
 
 		public void Insert(Int32 index, LunyLuaScript luaScript) => m_Scripts.Insert(index, luaScript);
 		public void RemoveAt(Int32 index) => m_Scripts.RemoveAt(index);
-
-		public Boolean TryRemove(LunyLuaAsset luaAsset) => TryRemove(luaAsset, out var _);
-
-		public Boolean TryRemove(LunyLuaAsset luaAsset, out LunyLuaScript luaScript)
-		{
-			luaScript = null;
-			if (luaAsset != null)
-			{
-				var index = IndexOf(luaAsset);
-				if (index >= 0)
-				{
-					luaScript = m_Scripts[index];
-					RemoveAt(index);
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public Int32 IndexOf(LunyLuaAsset luaAsset)
-		{
-			for (var i = 0; i < m_Scripts.Count; i++)
-			{
-				if (luaAsset == m_Scripts[i].LuaAsset)
-					return i;
-			}
-			return -1;
-		}
 	}
 }

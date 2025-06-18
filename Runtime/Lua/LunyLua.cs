@@ -43,7 +43,7 @@ namespace CodeSmile.Luny
 
 		public void Dispose()
 		{
-			HaltAllScripts();
+			ClearScripts();
 			m_FileWatcher?.Dispose();
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
@@ -101,55 +101,65 @@ namespace CodeSmile.Luny
 				chunkName = path;
 		}
 
-		public async ValueTask<LunyLuaScript> RunScript(LunyLuaAsset luaAsset)
+		public async ValueTask AddAndRunScript(LunyLuaScript script)
 		{
-			if (luaAsset == null)
-				throw new ArgumentNullException(nameof(luaAsset));
+			if (script == null)
+				throw new ArgumentNullException(nameof(script));
 
-			HaltScript(luaAsset);
+			RemoveScript(script);
+			await script.DoScriptAsync();
 
-			var luaScript = new LunyLuaScript(this, luaAsset);
-			await luaScript.DoScriptAsync();
-
-			m_Scripts.Add(luaScript);
-			m_FileWatcher.WatchScript(luaScript);
-			return luaScript;
+			m_Scripts.Add(script);
+			m_FileWatcher.WatchScript(script);
 		}
 
-		public async ValueTask<IEnumerable<LunyLuaScript>> RunScripts(IEnumerable<LunyLuaAsset> luaAssets)
+		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
 		{
-			var scripts = new List<LunyLuaScript>();
-			foreach (var luaAsset in luaAssets)
+			foreach (var script in scripts)
 			{
-				if (luaAsset != null)
+				if (script != null)
+					await AddAndRunScript(script);
+			}
+		}
+
+		public void RemoveScript(LunyLuaAsset luaAsset)
+		{
+			if (luaAsset != null)
+			{
+				for (var i = m_Scripts.Count - 1; i >= 0; i--)
 				{
-					var script = await RunScript(luaAsset);
-					scripts.Add(script);
+					var script = m_Scripts[i];
+					if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
+					{
+						m_Scripts.RemoveAt(i);
+						m_FileWatcher.UnwatchScript(script);
+						script.Dispose();
+						break;
+					}
 				}
 			}
-
-			return scripts;
 		}
 
-		public void HaltScript(LunyLuaAsset luaAsset)
+		public void RemoveScript(LunyLuaScript script)
 		{
-			if (m_Scripts != null && m_Scripts.TryRemove(luaAsset, out var luaScript))
+			if (m_Scripts != null && m_Scripts.Remove(script))
 			{
-				m_FileWatcher.UnwatchScript(luaScript);
-				luaScript.Dispose();
+				m_FileWatcher.UnwatchScript(script);
+				script.Dispose();
 			}
 		}
 
-		public void HaltScripts(IEnumerable<LunyLuaAsset> luaAssets)
+		public void RemoveScripts(IEnumerable<LunyLuaScript> scripts)
 		{
-			foreach (var luaAsset in luaAssets)
-				HaltScript(luaAsset);
+			foreach (var script in scripts)
+				RemoveScript(script);
 		}
 
-		public void HaltAllScripts()
+		public void ClearScripts()
 		{
 			foreach (var luaScript in m_Scripts)
 				luaScript.Dispose();
+
 			m_Scripts.Clear();
 		}
 

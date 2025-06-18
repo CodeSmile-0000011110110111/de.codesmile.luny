@@ -3,6 +3,7 @@
 
 using CodeSmile;
 using CodeSmile.Luny;
+using Lua;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -40,13 +41,7 @@ namespace CodeSmileEditor.Luny
 		private void Reset() => m_ShouldCallReset = true;
 
 		// Awake runs every time the project is loaded
-		private async Task Awake()
-		{
-			m_ShouldCallAwake = true;
-			var registry = LunyEditorAssetRegistry.Singleton;
-			if (registry.EditorContext != null)
-				await CreateLuaState(registry.EditorContext);
-		}
+		private void Awake() => m_ShouldCallAwake = true;
 
 		// OnEnable runs after every domain reload (including project load)
 		private async Task OnEnable()
@@ -59,7 +54,8 @@ namespace CodeSmileEditor.Luny
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
 
-			await CreateLuaState(registry.EditorContext);
+			if (registry.EditorContext != null)
+				await CreateLuaState(registry.EditorContext);
 
 			if (m_ShouldCallReset)
 			{
@@ -107,7 +103,8 @@ namespace CodeSmileEditor.Luny
 			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
 
 			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
-			await m_Lua.RunScripts(startupScripts.ToArray());
+			var scripts = LunyLuaAssetScript.Create(m_Lua, startupScripts);
+			await m_Lua.AddAndRunScripts(scripts);
 		}
 
 		private void DestroyLuaState()
@@ -120,14 +117,14 @@ namespace CodeSmileEditor.Luny
 		{
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				await m_Lua.RunScript(luaAsset);
+				await m_Lua.AddAndRunScript(new LunyLuaAssetScript(m_Lua, luaAsset));
 		}
 
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				m_Lua.HaltScript(luaAsset);
+				m_Lua.RemoveScript(luaAsset);
 		}
 
 		private sealed class FileSystem : ILunyLuaFileSystem

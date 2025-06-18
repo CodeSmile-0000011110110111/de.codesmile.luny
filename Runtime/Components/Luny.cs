@@ -1,9 +1,9 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -26,6 +26,7 @@ namespace CodeSmile.Luny.Components
 	public sealed class Luny : MonoBehaviour, ILuny
 	{
 		private static Luny s_Singleton;
+		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
 		// TODO: refactor to load all scripts with given label automatically ie "ModdingStartupScript"
 		// [Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
@@ -40,8 +41,13 @@ namespace CodeSmile.Luny.Components
 		public ILunyLua RuntimeLua => m_RuntimeLua;
 		public ILunyLua ModdingLua => m_ModdingLua;
 
+		private void OnValidate() => m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton; // ensure it is assigned for builds
+
 		private async void Awake()
 		{
+			if (m_AssetRegistry == null)
+				throw new LunyException("Missing reference to asset registry.");
+
 			if (s_Singleton != null)
 			{
 				throw new LunyException($"Duplicate Luny component on '{gameObject.name}' ({gameObject.GetInstanceID()}) in " +
@@ -50,8 +56,7 @@ namespace CodeSmile.Luny.Components
 
 			s_Singleton = this;
 
-			var registry = LunyRuntimeAssetRegistry.Singleton;
-			await CreateLuaStates(registry.RuntimeContext, registry.ModdingContext);
+			await CreateLuaStates(m_AssetRegistry.RuntimeContext, m_AssetRegistry.ModdingContext);
 
 			RegisterLunyScriptComponents();
 		}
@@ -79,12 +84,26 @@ namespace CodeSmile.Luny.Components
 		{
 			m_RuntimeLua?.Dispose();
 			m_ModdingLua?.Dispose();
-			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext));
-			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext));
+			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));
+			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
-			var registry = LunyRuntimeAssetRegistry.Singleton;
-			await m_RuntimeLua.RunScripts(registry.RuntimeStartupLuaAssets.ToArray());
-			await m_ModdingLua.RunScripts(registry.ModdingStartupLuaAssets.ToArray());
+			var runtimeStartupScripts = LunyLuaAssetScript.Create(m_RuntimeLua, m_AssetRegistry.RuntimeStartupLuaAssets);
+			await m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
+			var moddingStartupScripts = LunyLuaAssetScript.Create(m_ModdingLua, m_AssetRegistry.ModdingStartupLuaAssets);
+			await m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
+
+			{
+				var ctx = new LuaTable();
+				ctx["streamingAssetsScript"] = true;
+				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(m_ModdingLua,
+					Application.streamingAssetsPath + "/StreamingLua.lua", ctx));
+			}
+			{
+				var ctx = new LuaTable();
+				ctx["persistentDataScript"] = true;
+				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(m_ModdingLua,
+					Application.persistentDataPath + "/PersistentLua.lua", ctx));
+			}
 		}
 
 		private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");
@@ -116,12 +135,14 @@ namespace CodeSmile.Luny.Components
 		private readonly LunySearchPaths m_SearchPaths;
 		private readonly Boolean m_IsSandbox;
 		private readonly Boolean m_IsModdingContext;
+		private readonly LunyRuntimeAssetRegistry m_AssetRegistry;
 
-		public RuntimeFileSystem(LunyLuaContext luaContext)
+		public RuntimeFileSystem(LunyLuaContext luaContext, LunyRuntimeAssetRegistry assetRegistry)
 		{
 			m_SearchPaths = luaContext.SearchPaths;
 			m_IsSandbox = luaContext.IsSandbox;
 			m_IsModdingContext = luaContext.IsModdingContext;
+			m_AssetRegistry = assetRegistry;
 		}
 
 		public Boolean ReadText(String path, out String content)
@@ -129,8 +150,18 @@ namespace CodeSmile.Luny.Components
 			content = String.Empty;
 
 			// try read absolute paths directly
-			if (m_IsSandbox && Path.IsPathRooted(path))
-				throw new NotSupportedException($"cannot access rooted paths in sandbox: {path}");
+			if (Path.IsPathRooted(path))
+			{
+				// do allow access to StreamingAssets and PersistentData folders
+				if (path.StartsWith(Application.streamingAssetsPath) || path.StartsWith(Application.persistentDataPath))
+				{
+					content = FileUtility.TryReadAllText(path);
+					return true;
+				}
+
+				if (m_IsSandbox)
+					throw new NotSupportedException($"cannot access rooted paths in sandbox: {path}");
+			}
 
 			// Try read relative paths by looking through search paths
 			var fullOrAssetPath = m_SearchPaths.GetFullPath(path);
@@ -138,10 +169,9 @@ namespace CodeSmile.Luny.Components
 				return true;
 
 			// the asset should be in the registry
-			var registry = LunyRuntimeAssetRegistry.Singleton;
 			var luaAsset = m_IsModdingContext
-				? registry.GetModdingLuaAsset(fullOrAssetPath)
-				: registry.GetRuntimeLuaAsset(fullOrAssetPath);
+				? m_AssetRegistry.GetModdingLuaAsset(fullOrAssetPath)
+				: m_AssetRegistry.GetRuntimeLuaAsset(fullOrAssetPath);
 
 			if (luaAsset != null)
 			{
@@ -152,9 +182,6 @@ namespace CodeSmile.Luny.Components
 			}
 
 			// try read from file system instead (ie could be relative to project working directory)
-			if (m_IsSandbox)
-				throw new NotSupportedException($"cannot access arbitrary paths in sandbox: {path}");
-
 			content = FileUtility.TryReadAllText(fullOrAssetPath, true);
 			return true;
 		}

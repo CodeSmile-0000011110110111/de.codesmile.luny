@@ -48,6 +48,7 @@ namespace CodeSmile.Luny
 		{
 			if (Directory.Exists(fullPath))
 			{
+				//LunyLogger.LogInfo($"Monitoring *.lua changes in: {fullPath}");
 				var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
 				fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
 				fileWatcher.Changed += OnFileChanged;
@@ -59,14 +60,14 @@ namespace CodeSmile.Luny
 
 		public void WatchScript(LunyLuaScript script)
 		{
-			var scriptFullPath = script.LuaAsset.FullPath;
+			var scriptFullPath = script.FullPath;
 			if (m_WatchedScripts.ContainsKey(scriptFullPath) == false)
 				m_WatchedScripts.Add(scriptFullPath, script);
 		}
 
 		public void UnwatchScript(LunyLuaScript script)
 		{
-			var scriptFullPath = script.LuaAsset.FullPath;
+			var scriptFullPath = script.FullPath;
 			m_WatchedScripts.Remove(scriptFullPath);
 		}
 
@@ -109,7 +110,9 @@ namespace CodeSmile.Luny
 				if (changedScript != null)
 				{
 					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-					EditorAssetUtility.Import(changedScript.LuaAsset);
+					if (changedScript is LunyLuaAssetScript assetScript)
+						EditorAssetUtility.Import(assetScript.LuaAsset);
+
 					await changedScript.OnScriptChanged();
 				}
 			}
