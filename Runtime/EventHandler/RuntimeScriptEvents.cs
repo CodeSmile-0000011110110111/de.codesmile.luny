@@ -6,25 +6,39 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public enum LunyLifecycleEvent
+	public enum ScriptLifecycleEvent
 	{
 		Awake,
-		FixedUpdate,
-		LateUpdate,
 		OnDestroy,
 		OnDisable,
 		OnEnable,
-		Reset,
 		Start,
+	}
+
+	public enum ScriptReloadEvent
+	{
+		OnWillReloadScript,
+		OnDidReloadScript,
+	}
+
+	public enum ScriptUpdateEvent
+	{
+		FixedUpdate,
+		LateUpdate,
 		Update,
 	}
 
-	public enum MonoBehaviourEditorEvent
+	public enum ScriptGUIEvent
 	{
 		OnDrawGizmos,
 		OnDrawGizmosSelected,
 		OnGUI,
+	}
+
+	public enum ScriptEditorOnlyEvent
+	{
 		OnValidate,
+		Reset,
 	}
 
 	public enum MonoBehaviourTransformMessage
@@ -72,8 +86,10 @@ namespace CodeSmile.Luny
 		OnCollisionStay,
 		OnCollisionStay2D,
 		OnControllerColliderHit,
+
 		OnJointBreak,
 		OnJointBreak2D,
+
 		OnTriggerEnter,
 		OnTriggerEnter2D,
 		OnTriggerExit,

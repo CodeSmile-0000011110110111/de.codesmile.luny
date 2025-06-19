@@ -89,9 +89,9 @@ namespace CodeSmile.Luny.Components
 			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
-			var runtimeStartupScripts = LunyLuaAssetScript.Create(m_AssetRegistry.RuntimeStartupLuaAssets);
+			var runtimeStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeStartupLuaAssets);
 			await m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
-			var moddingStartupScripts = LunyLuaAssetScript.Create(m_AssetRegistry.ModdingStartupLuaAssets);
+			var moddingStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingStartupLuaAssets);
 			await m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
 
 			{

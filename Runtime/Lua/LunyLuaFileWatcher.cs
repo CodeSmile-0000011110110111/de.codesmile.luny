@@ -1,11 +1,9 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -17,12 +15,8 @@ namespace CodeSmile.Luny
 		private Dictionary<String, FileSystemWatcher> m_Watchers = new();
 		private Dictionary<String, LunyLuaScript> m_WatchedScripts = new();
 		private List<LunyLuaScript> m_ChangedScripts = new();
-		internal List<LunyLuaScript> ChangedScripts => m_ChangedScripts;
 
-		public LunyLuaFileWatcher(LunyLuaContext luaContext)
-		{
-			InstallFileWatchers(luaContext.SearchPaths);
-		}
+		public LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
 
 		private void InstallFileWatchers(LunySearchPaths searchPaths)
 		{
@@ -36,7 +30,7 @@ namespace CodeSmile.Luny
 			foreach (var searchPath in searchPaths.Paths)
 			{
 				if (searchPath.IsAssetPath || isEditor && searchPath.IsStreamingAssetPath)
-					continue; // at runtime assets won't change, and in editor we generally watch all "Assets"
+					continue; // at runtime assets won't change, and in editor we generally watch all "Assets/*"
 
 				TryCreateFileSystemWatcher(searchPath.FullPath);
 			}
@@ -49,10 +43,10 @@ namespace CodeSmile.Luny
 
 			//LunyLogger.LogInfo($"Monitoring *.lua changes in: {fullPath}");
 			var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
-			fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
 			fileWatcher.Changed += OnFileChanged;
-			fileWatcher.IncludeSubdirectories = true;
 			fileWatcher.EnableRaisingEvents = true;
+			fileWatcher.IncludeSubdirectories = true;
+			fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
 			m_Watchers[fullPath] = fileWatcher;
 		}
 
@@ -63,10 +57,7 @@ namespace CodeSmile.Luny
 				m_WatchedScripts.Add(scriptFullPath, script);
 		}
 
-		public void UnwatchScript(LunyLuaScript script)
-		{
-			m_WatchedScripts.Remove(script.FullPath);
-		}
+		public void UnwatchScript(LunyLuaScript script) => m_WatchedScripts.Remove(script.FullPath);
 
 		public void Dispose()
 		{
@@ -93,7 +84,7 @@ namespace CodeSmile.Luny
 				m_ChangedScripts.Add(script); // add to queue for processing on main thread
 		}
 
-		public void ProcessChangedScripts()
+		public void NotifyChangedScripts()
 		{
 			if (m_ChangedScripts.Count > 0)
 			{

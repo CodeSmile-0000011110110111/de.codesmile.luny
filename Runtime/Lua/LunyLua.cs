@@ -24,6 +24,7 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
+		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
 		void Dispose();
 	}
 
@@ -197,22 +198,15 @@ namespace CodeSmile.Luny
 
 		private void OverridePrintAndLog()
 		{
-			var logTable = new LuaTable(0, 4);
-			logTable["info"] = LunyLogger._logInfo;
-			logTable["warning"] = LunyLogger._logWarn;
-			logTable["error"] = LunyLogger._logError;
-			logTable["warn"] = logTable["warning"]; // alias
-
 			var env = m_LuaState.Environment;
-			env["log"] = logTable;
-			env["print"] = logTable["info"];
-			env["warn"] = logTable["warning"];
-			env["error"] = logTable["error"];
+			env["print"] = LunyLogger.LuaLogInfo;
+			env["warn"] = LunyLogger.LuaLogWarn;
+			env["error"] = LunyLogger.LuaLogError;
 		}
 
 		public void Update()
 		{
-			m_FileWatcher.ProcessChangedScripts();
+			m_FileWatcher.NotifyChangedScripts();
 		}
 	}
 }

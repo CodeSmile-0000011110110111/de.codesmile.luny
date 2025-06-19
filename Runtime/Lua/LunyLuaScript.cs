@@ -15,6 +15,7 @@ namespace CodeSmile.Luny
 	public abstract class LunyLuaScript : IDisposable
 	{
 		public event Action<LunyLuaScript> OnScriptChanged;
+		public const String InstanceKey = "this";
 		public const String ScriptTypeKey = "ScriptType";
 		public const String ScriptNameKey = "ScriptName";
 		public const String ScriptPathKey = "ScriptPath";
@@ -61,10 +62,18 @@ namespace CodeSmile.Luny
 			if (handler == null)
 			{
 				handler = new LunyEventHandler<T>(ScriptContext);
-				m_EventHandlers.Add(handler);
+				m_EventHandlers.Add(typeof(T), handler);
 			}
 
 			return handler;
+		}
+
+		public void Reload(LuaState luaState)
+		{
+			var reloadEvent = EventHandler<ScriptReloadEvent>();
+			reloadEvent.Send(luaState, (int)ScriptReloadEvent.OnWillReloadScript);
+			DoScriptAsync(luaState);
+			reloadEvent.Send(luaState, (int)ScriptReloadEvent.OnDidReloadScript);
 		}
 	}
 
@@ -76,7 +85,7 @@ namespace CodeSmile.Luny
 
 		public override String FullPath => m_LuaAsset.FullPath;
 
-		public static IEnumerable<LunyLuaAssetScript> Create(IEnumerable<LunyLuaAsset> luaAssets)
+		public static IEnumerable<LunyLuaAssetScript> CreateAll(IEnumerable<LunyLuaAsset> luaAssets)
 		{
 			var scripts = new List<LunyLuaAssetScript>();
 			if (luaAssets != null)

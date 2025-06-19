@@ -17,17 +17,17 @@ namespace CodeSmile.Luny
 
 	public static class LunyLogger
 	{
-		internal static readonly LuaFunction _logInfo = new("LogInfo", (context, ct) =>
+		internal static readonly LuaFunction LuaLogInfo = new("print", (context, ct) =>
 		{
 			LogInfo(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(0);
 		});
-		internal static readonly LuaFunction _logWarn = new("LogWarn", (context, ct) =>
+		internal static readonly LuaFunction LuaLogWarn = new("warn", (context, ct) =>
 		{
 			LogWarn(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(0);
 		});
-		internal static readonly LuaFunction _logError = new("LogError", (context, ct) =>
+		internal static readonly LuaFunction LuaLogError = new("error", (context, ct) =>
 		{
 			LogError(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(0);

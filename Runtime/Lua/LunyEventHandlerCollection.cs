@@ -6,40 +6,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
-	public sealed class LunyEventHandlerCollection : ICollection<LunyEventHandlerBase>
+	public sealed class LunyEventHandlerCollection : IEnumerable<LunyEventHandlerBase>
 	{
-		private readonly HashSet<LunyEventHandlerBase> m_EventHandlers = new();
+		private readonly Dictionary<Type, LunyEventHandlerBase> m_EventHandlers = new();
 
 		public Int32 Count => m_EventHandlers.Count;
 		public Boolean IsReadOnly => false;
 
-		public IEnumerator<LunyEventHandlerBase> GetEnumerator() => m_EventHandlers.GetEnumerator();
+		public IEnumerator<LunyEventHandlerBase> GetEnumerator() => m_EventHandlers.Values.GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		public void Add(LunyEventHandlerBase item) => m_EventHandlers.Add(item);
+		public void Add(Type enumType, LunyEventHandlerBase item) => m_EventHandlers.Add(enumType, item);
 
-		public void Clear() => m_EventHandlers.Clear();
-
-		public Boolean Contains(LunyEventHandlerBase item) => m_EventHandlers.Contains(item);
-
-		public void CopyTo(LunyEventHandlerBase[] array, Int32 arrayIndex) => m_EventHandlers.CopyTo(array, arrayIndex);
-
-		public Boolean Remove(LunyEventHandlerBase item) => m_EventHandlers.Remove(item);
-
-		public LunyEventHandler<T> TryGet<T>() where T : Enum
-		{
-			var enumType = typeof(T);
-			foreach (var eventHandler in m_EventHandlers)
-			{
-				if (eventHandler != null && eventHandler.GetType().IsAssignableFrom(enumType))
-					return (LunyEventHandler<T>)eventHandler;
-			}
-			return null;
-		}
+		public LunyEventHandler<T> TryGet<T>() where T : Enum => m_EventHandlers.TryGetValue(typeof(T), out var handler)
+			? (LunyEventHandler<T>)handler
+			: null;
 	}
 }

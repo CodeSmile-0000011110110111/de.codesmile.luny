@@ -29,65 +29,55 @@ namespace CodeSmileEditor.Luny
 
 		private LunyLua m_Lua;
 
-		public ILunyLua Lua => m_Lua;
+		public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
 		public static ILunyEditor Singleton => instance; // for consistency
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
-		private void Reset() {}
+		//private void Reset() {}
 
-		// Awake runs every time the project is loaded
-		private void Awake() {}
+		// Awake runs once, when the project is loaded (the instance is instantiated for the first time)
+		//private void Awake() {}
 
 		// OnEnable runs after every domain reload (including project load)
-		private async Task OnEnable()
+		private async ValueTask OnEnable()
 		{
-			EditorApplication.focusChanged += OnFocusChanged;
-
 			var registry = LunyEditorAssetRegistry.Singleton;
-			registry.OnEditorContextChanged += OnLuaContextChanged;
+			registry.OnEditorContextChanged += OnEditorContextChanged;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
 
-			if (registry.EditorContext != null)
-			{
-				CreateLuaState(registry.EditorContext);
-
-				var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
-				var scripts = LunyLuaAssetScript.Create(startupScripts);
-				await m_Lua.AddAndRunScripts(scripts);
-
-				foreach (var script in scripts)
-				{
-					if (script == null)
-						continue;
-
-					Debug.Log($"script is of type: {script.EditorType}");
-					switch (script.EditorType)
-					{
-						case LunyLuaScript.ScriptableSingletonEditorType:
-							var instance = LunyScriptableSingleton.Singleton;
-							instance.AddScript(script);
-							break;
-					}
-				}
-			}
+			await RunStartupScripts();
 		}
 
 		// OnDisable runs before every domain reload
-		private void OnDisable()
-		{
-			// ensure OnDisable/OnDestroy run in LSS scripts before we destroy the Lua state
-			DestroyImmediate(LunyScriptableSingleton.Singleton);
-
-			Save(true);
-			DestroyLuaState();
-		}
+		private void OnDisable() => Save(true);
 
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
 		private void OnDestroy() {}
+
+		private async Task RunStartupScripts()
+		{
+			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
+			var scripts = LunyLuaAssetScript.CreateAll(startupScripts);
+			await Lua.AddAndRunScripts(scripts);
+
+			foreach (var script in scripts)
+			{
+				if (script == null)
+					continue;
+
+				switch (script.EditorType)
+				{
+					case LunyLuaScript.ScriptableSingletonEditorType:
+						var instance = LunyScriptableSingleton.Singleton;
+						instance.AddScript(script);
+						break;
+				}
+			}
+		}
 
 		private void OnEditorUpdate()
 		{
@@ -95,21 +85,12 @@ namespace CodeSmileEditor.Luny
 				m_Lua.Update();
 		}
 
-		private void OnLuaContextChanged(LunyLuaContext luaContext) =>
-			CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
+		private void OnEditorContextChanged(LunyLuaContext luaContext) => m_Lua = CreateLuaState();
 
-		private void OnFocusChanged(Boolean hasFocus) {}
-
-		private void CreateLuaState(LunyLuaContext editorContext)
+		private LunyLua CreateLuaState()
 		{
-			DestroyLuaState();
-			m_Lua = new LunyLua(editorContext, new FileSystem(editorContext));
-		}
-
-		private void DestroyLuaState()
-		{
-			m_Lua?.Dispose();
-			m_Lua = null;
+			var editorContext = LunyEditorAssetRegistry.Singleton.EditorContext;
+			return editorContext != null ? new LunyLua(editorContext, new FileSystem(editorContext)) : null;
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)

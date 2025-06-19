@@ -31,9 +31,7 @@ namespace CodeSmileEditor.Luny
 			var functions = userdata.Metatable["functions"].Read<LuaTable>();
 			Debug.Log($"functions = {functions}");
 			foreach (var kvp in functions)
-			{
 				Debug.Log($"\t{kvp.Key}: {kvp.Value}");
-			}
 
 			Debug.Log($"LuaTryGetValueForKey({userdata}, \"{key}\") {functions.Count()} => {functions[key]}");
 			return new ValueTask<Int32>(context.Return(functions[key]));
@@ -70,8 +68,8 @@ namespace CodeSmileEditor.Luny
 			var luaState = LunyEditor.Singleton.Lua.State;
 			foreach (var script in m_Scripts)
 			{
-				var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
-				lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnEnable);
+				var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+				lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
 			}
 		}
 
@@ -86,8 +84,8 @@ namespace CodeSmileEditor.Luny
 				var luaState = LunyEditor.Singleton.Lua?.State;
 				foreach (var script in m_Scripts)
 				{
-					var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
-					lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDisable);
+					var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+					lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnDisable);
 				}
 			}
 		}
@@ -98,8 +96,8 @@ namespace CodeSmileEditor.Luny
 			var luaState = LunyEditor.Singleton.Lua.State;
 			foreach (var script in m_Scripts)
 			{
-				var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
-				lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDestroy);
+				var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+				lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnDestroy);
 			}
 
 			m_Scripts.Clear();
@@ -107,7 +105,8 @@ namespace CodeSmileEditor.Luny
 
 		internal void Save(LuaTable scriptContext)
 		{
-			Debug.Log($"Save called: {scriptContext[LunyLuaScript.ScriptNameKey]}");
+			var instance = scriptContext[LunyLuaScript.InstanceKey].Read<LunyScriptableSingleton>();
+			Debug.Log($"Save called: {scriptContext[LunyLuaScript.ScriptNameKey]}, {instance}");
 			//Save(true);
 		}
 
@@ -121,7 +120,7 @@ namespace CodeSmileEditor.Luny
 			m_Scripts.Add(script);
 
 			var context = script.ScriptContext;
-			context["this"] = new LuaValue((ILuaUserData)this);
+			context[LunyLuaScript.InstanceKey] = new LuaValue((ILuaUserData)this);
 			context[nameof(Save)] = new LuaFunction(nameof(Save), LuaSave);
 
 			script.OnScriptChanged -= OnScriptChanged;
@@ -129,21 +128,22 @@ namespace CodeSmileEditor.Luny
 
 			// simulate the instantiation events
 			var luaState = LunyEditor.Singleton.Lua.State;
-			var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.Reset);
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.Awake);
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnEnable);
+			var editorOnlyEvent = script.EventHandler<ScriptEditorOnlyEvent>();
+			editorOnlyEvent.Send(luaState, (Int32)ScriptEditorOnlyEvent.Reset);
+			var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.Awake);
+			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
 		}
 
 		private void OnScriptChanged(LunyLuaScript script)
 		{
-			// simulate domain reload events
 			var luaState = LunyEditor.Singleton.Lua.State;
-			script.DoScriptAsync(luaState);
-			var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDisable);
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDestroy);
-			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnEnable);
+			script.Reload(luaState);
+
+			// simulate file change as if it had been a domain reload
+			var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnDisable);
+			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
 		}
 	}
 }
