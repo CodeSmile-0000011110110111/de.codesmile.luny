@@ -22,8 +22,6 @@ namespace CodeSmileEditor.Luny
 		internal static LunyScriptableSingleton Singleton => instance; // for consistency
 		public LuaTable Metatable { get; set; }
 
-		public static implicit operator LuaValue(LunyScriptableSingleton lss) => new((ILuaUserData)lss);
-
 		private static ValueTask<Int32> LuaTryGetValueForKey(LuaFunctionExecutionContext context,
 			CancellationToken cancellationToken)
 		{
@@ -57,13 +55,13 @@ namespace CodeSmileEditor.Luny
 		// Awake runs every time the singleton is instantiated
 		private void Awake()
 		{
-			var functions = new LuaTable(0, 4);
-			functions[nameof(Save)] = new LuaFunction(nameof(Save), LuaSave);
-
 			Metatable = new LuaTable(0, 4);
-			Metatable["functions"] = functions;
 			Metatable[Metamethods.Index] = new LuaFunction("__index", LuaTryGetValueForKey);
 			Metatable[Metamethods.ToString] = new LuaFunction("__tostring", LuaToString);
+
+			var functions = new LuaTable(0, 4);
+			functions[nameof(Save)] = new LuaFunction(nameof(Save), LuaSave);
+			Metatable["functions"] = functions;
 		}
 
 		// OnEnable runs after every domain reload (including project load)
@@ -141,6 +139,7 @@ namespace CodeSmileEditor.Luny
 		{
 			// simulate domain reload events
 			var luaState = LunyEditor.Singleton.Lua.State;
+			script.DoScriptAsync(luaState);
 			var lifecycleEvent = script.EventHandler<LunyLifecycleEvent>();
 			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDisable);
 			lifecycleEvent.Send(luaState, (Int32)LunyLifecycleEvent.OnDestroy);

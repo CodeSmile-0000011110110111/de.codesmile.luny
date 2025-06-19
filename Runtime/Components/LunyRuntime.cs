@@ -72,12 +72,12 @@ namespace CodeSmile.Luny.Components
 			s_Singleton = null;
 		}
 
-		private async Task Update()
+		private void Update()
 		{
 			if (m_RuntimeLua != null)
-				await m_RuntimeLua.Update();
+				m_RuntimeLua.Update();
 			if (m_ModdingLua != null)
-				await m_ModdingLua.Update();
+				m_ModdingLua.Update();
 		}
 
 		internal event Action OnDestroyLuny;

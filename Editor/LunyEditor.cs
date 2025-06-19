@@ -89,10 +89,10 @@ namespace CodeSmileEditor.Luny
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
 		private void OnDestroy() {}
 
-		private async void OnEditorUpdate()
+		private void OnEditorUpdate()
 		{
 			if (m_Lua != null)
-				await m_Lua.Update();
+				m_Lua.Update();
 		}
 
 		private void OnLuaContextChanged(LunyLuaContext luaContext) =>

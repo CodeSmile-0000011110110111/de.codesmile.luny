@@ -30,13 +30,12 @@ namespace CodeSmile.Luny
 
 		public String EditorType => m_ScriptContext[EditorTypeKey].TryRead(out String editorType) ? editorType : null;
 
-		public LunyLuaScript(LuaTable context = null) => m_ScriptContext = context ?? new LuaTable(0, 3);
+		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? new LuaTable(0, 3);
 
 		public void Dispose() => m_ScriptContext = null;
 
-		protected void InvokeOnScriptChangedEvent() => OnScriptChanged?.Invoke(this);
+		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this);
 
-		internal abstract ValueTask OnScriptChangedInternal(LuaState luaState);
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
 		protected void OnAfterDoScript()
@@ -91,17 +90,11 @@ namespace CodeSmile.Luny
 			return scripts;
 		}
 
-		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable context = null)
-			: base(context)
+		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable scriptContext = null)
+			: base(scriptContext)
 		{
 			m_LuaAsset = luaAsset;
 			SetScriptContext(luaAsset.name, luaAsset.Path);
-		}
-
-		internal override async ValueTask OnScriptChangedInternal(LuaState luaState)
-		{
-			await DoScriptAsync(luaState);
-			InvokeOnScriptChangedEvent();
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
@@ -132,18 +125,12 @@ namespace CodeSmile.Luny
 			return scripts;
 		}
 
-		public LunyLuaFileScript(String filePath, LuaTable context = null)
-			: base(context)
+		public LunyLuaFileScript(String filePath, LuaTable scriptContext = null)
+			: base(scriptContext)
 		{
 			m_FullPath = Path.GetFullPath(filePath).ToForwardSlashes();
 			m_ScriptPath = File.Exists(filePath) ? filePath : m_FullPath;
 			SetScriptContext(Path.GetFileNameWithoutExtension(m_ScriptPath), m_ScriptPath);
-		}
-
-		internal override async ValueTask OnScriptChangedInternal(LuaState luaState)
-		{
-			await DoScriptAsync(luaState);
-			InvokeOnScriptChangedEvent();
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)

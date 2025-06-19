@@ -1,9 +1,11 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -12,7 +14,6 @@ namespace CodeSmile.Luny
 {
 	internal sealed class LunyLuaFileWatcher
 	{
-		private LunySearchPaths m_SearchPaths;
 		private Dictionary<String, FileSystemWatcher> m_Watchers = new();
 		private Dictionary<String, LunyLuaScript> m_WatchedScripts = new();
 		private List<LunyLuaScript> m_ChangedScripts = new();
@@ -20,42 +21,39 @@ namespace CodeSmile.Luny
 
 		public LunyLuaFileWatcher(LunyLuaContext luaContext)
 		{
-			m_SearchPaths = luaContext.SearchPaths;
-			InstallFileWatchers();
+			InstallFileWatchers(luaContext.SearchPaths);
 		}
 
-		private void InstallFileWatchers()
+		private void InstallFileWatchers(LunySearchPaths searchPaths)
 		{
-			m_Watchers.Clear();
-
 			// always monitor "Assets" in editor
-			if (Application.isEditor)
-				CreateFileSystemWatcher(Application.dataPath);
+			var isEditor = Application.isEditor;
+			if (isEditor)
+				TryCreateFileSystemWatcher(Application.dataPath);
 
 			// TODO: maybe support watching package paths?
 
-			foreach (var searchPath in m_SearchPaths.Paths)
+			foreach (var searchPath in searchPaths.Paths)
 			{
-				if (searchPath.IsAssetPath)
+				if (searchPath.IsAssetPath || isEditor && searchPath.IsStreamingAssetPath)
 					continue; // at runtime assets won't change, and in editor we generally watch all "Assets"
 
-				if (String.IsNullOrEmpty(searchPath.FullPath) == false)
-					CreateFileSystemWatcher(searchPath.FullPath);
+				TryCreateFileSystemWatcher(searchPath.FullPath);
 			}
 		}
 
-		private void CreateFileSystemWatcher(String fullPath)
+		private void TryCreateFileSystemWatcher(String fullPath)
 		{
-			if (Directory.Exists(fullPath))
-			{
-				//LunyLogger.LogInfo($"Monitoring *.lua changes in: {fullPath}");
-				var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
-				fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-				fileWatcher.Changed += OnFileChanged;
-				fileWatcher.IncludeSubdirectories = true;
-				fileWatcher.EnableRaisingEvents = true;
-				m_Watchers[fullPath] = fileWatcher;
-			}
+			if (String.IsNullOrEmpty(fullPath) || m_Watchers.ContainsKey(fullPath) || !Directory.Exists(fullPath))
+				return;
+
+			//LunyLogger.LogInfo($"Monitoring *.lua changes in: {fullPath}");
+			var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
+			fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+			fileWatcher.Changed += OnFileChanged;
+			fileWatcher.IncludeSubdirectories = true;
+			fileWatcher.EnableRaisingEvents = true;
+			m_Watchers[fullPath] = fileWatcher;
 		}
 
 		public void WatchScript(LunyLuaScript script)
@@ -67,8 +65,7 @@ namespace CodeSmile.Luny
 
 		public void UnwatchScript(LunyLuaScript script)
 		{
-			var scriptFullPath = script.FullPath;
-			m_WatchedScripts.Remove(scriptFullPath);
+			m_WatchedScripts.Remove(script.FullPath);
 		}
 
 		public void Dispose()
@@ -79,7 +76,6 @@ namespace CodeSmile.Luny
 				kvp.Value.Changed -= OnFileChanged;
 			}
 
-			m_SearchPaths = null;
 			m_WatchedScripts = null;
 			m_Watchers = null;
 			m_ChangedScripts = null;
@@ -95,6 +91,26 @@ namespace CodeSmile.Luny
 			fullPath = fullPath.ToForwardSlashes();
 			if (m_WatchedScripts.TryGetValue(fullPath, out var script) && script != null)
 				m_ChangedScripts.Add(script); // add to queue for processing on main thread
+		}
+
+		public void ProcessChangedScripts()
+		{
+			if (m_ChangedScripts.Count > 0)
+			{
+				foreach (var changedScript in m_ChangedScripts)
+				{
+					if (changedScript != null)
+					{
+						// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
+						if (changedScript is LunyLuaAssetScript assetScript)
+							EditorAssetUtility.Import(assetScript.LuaAsset);
+
+						changedScript.OnScriptChangedInternal();
+					}
+				}
+
+				m_ChangedScripts.Clear();
+			}
 		}
 	}
 }

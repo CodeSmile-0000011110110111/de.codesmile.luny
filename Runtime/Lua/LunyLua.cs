@@ -210,29 +210,9 @@ namespace CodeSmile.Luny
 			env["error"] = logTable["error"];
 		}
 
-		public async ValueTask Update()
+		public void Update()
 		{
-			var changedScripts = m_FileWatcher.ChangedScripts;
-			if (changedScripts.Count > 0)
-			{
-				await LoadAndRunChangedScripts(changedScripts);
-				changedScripts.Clear();
-			}
-		}
-
-		private async ValueTask LoadAndRunChangedScripts(IList<LunyLuaScript> changedScripts)
-		{
-			foreach (var changedScript in changedScripts)
-			{
-				if (changedScript != null)
-				{
-					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-					if (changedScript is LunyLuaAssetScript assetScript)
-						EditorAssetUtility.Import(assetScript.LuaAsset);
-
-					await changedScript.OnScriptChangedInternal(m_LuaState);
-				}
-			}
+			m_FileWatcher.ProcessChangedScripts();
 		}
 	}
 }
