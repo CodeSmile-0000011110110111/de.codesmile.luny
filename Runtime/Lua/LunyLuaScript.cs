@@ -14,34 +14,35 @@ namespace CodeSmile.Luny
 {
 	public abstract class LunyLuaScript : IDisposable
 	{
-		public const String Context_EditorTypeKey = "EditorType";
-		public const String EditorType_ScriptableSingleton = "ScriptableSingleton";
-
 		public event Action<LunyLuaScript> OnScriptChanged;
+		public const String ScriptTypeKey = "ScriptType";
+		public const String ScriptNameKey = "ScriptName";
+		public const String ScriptPathKey = "ScriptPath";
+		public const String EditorTypeKey = "EditorType";
+
+		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
+		private readonly LunyEventHandlerCollection m_EventHandlers = new();
 
 		private LuaTable m_ScriptContext;
-		private readonly LunyEventHandlerCollection m_EventHandlers = new();
 
 		public abstract String FullPath { get; }
 		public LuaTable ScriptContext => m_ScriptContext;
 
-		public String EditorType => m_ScriptContext[Context_EditorTypeKey].TryRead(out String editorType) ? editorType : null;
+		public String EditorType => m_ScriptContext[EditorTypeKey].TryRead(out String editorType) ? editorType : null;
 
 		public LunyLuaScript(LuaTable context = null) => m_ScriptContext = context ?? new LuaTable(0, 3);
 
 		public void Dispose() => m_ScriptContext = null;
 
-		internal virtual ValueTask OnScriptChangedInternal(LuaState luaState)
-		{
-			OnScriptChanged?.Invoke(this);
-			return new ValueTask();
-		}
+		protected void InvokeOnScriptChangedEvent() => OnScriptChanged?.Invoke(this);
+
+		internal abstract ValueTask OnScriptChangedInternal(LuaState luaState);
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
 		protected void OnAfterDoScript()
 		{
-			if (m_ScriptContext[Context_EditorTypeKey] == LuaValue.Nil)
-				m_ScriptContext[Context_EditorTypeKey] = EditorType_ScriptableSingleton;
+			if (m_ScriptContext[EditorTypeKey] == LuaValue.Nil)
+				m_ScriptContext[EditorTypeKey] = ScriptableSingletonEditorType;
 
 			// re-bind event functions
 			foreach (var eventHandler in m_EventHandlers)
@@ -50,9 +51,9 @@ namespace CodeSmile.Luny
 
 		protected void SetScriptContext(String name, String path)
 		{
-			ScriptContext["scriptType"] = GetType().Name;
-			ScriptContext["scriptName"] = name;
-			ScriptContext["scriptPath"] = path;
+			ScriptContext[ScriptTypeKey] = GetType().Name;
+			ScriptContext[ScriptNameKey] = name;
+			ScriptContext[ScriptPathKey] = path;
 		}
 
 		public LunyEventHandler<T> EventHandler<T>() where T : Enum
@@ -100,12 +101,12 @@ namespace CodeSmile.Luny
 		internal override async ValueTask OnScriptChangedInternal(LuaState luaState)
 		{
 			await DoScriptAsync(luaState);
-			base.OnScriptChangedInternal(luaState);
+			InvokeOnScriptChangedEvent();
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
-			await luaState.DoStringAsync(LuaAsset.Text, LuaAsset.Path, ScriptContext);
+			await luaState.DoStringAsync(LuaAsset.Text, $"@{LuaAsset.Path}", ScriptContext);
 			OnAfterDoScript();
 		}
 	}
@@ -142,7 +143,7 @@ namespace CodeSmile.Luny
 		internal override async ValueTask OnScriptChangedInternal(LuaState luaState)
 		{
 			await DoScriptAsync(luaState);
-			base.OnScriptChangedInternal(luaState);
+			InvokeOnScriptChangedEvent();
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)

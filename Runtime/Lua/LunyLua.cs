@@ -7,6 +7,7 @@ using Lua.Standard;
 using Lua.Unity;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -58,12 +59,14 @@ namespace CodeSmile.Luny
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
 			var standardIO = new LunyLuaStandardIO(luaContext);
 			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
-			m_LuaState.OnBeforeLoadChunk = OnBeforeLoadChunk;
 			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
 
 			var libraries = luaContext.Libraries;
 			if ((libraries & LuaLibraryFlags.Basic) != 0)
+			{
 				m_LuaState.OpenBasicLibrary();
+				InstallBasicLibraryOverrides();
+			}
 			if ((libraries & LuaLibraryFlags.Bitwise) != 0)
 				m_LuaState.OpenBitwiseLibrary();
 			if ((libraries & LuaLibraryFlags.Coroutine) != 0)
@@ -92,12 +95,37 @@ namespace CodeSmile.Luny
 				module.Load(m_LuaState);
 		}
 
-		private void OnBeforeLoadChunk(ref String chunkName)
+		private void InstallBasicLibraryOverrides()
 		{
-			var fileSystem = m_LuaState.Platform.FileSystem as LunyLuaFileSystem;
-			var path = fileSystem.Hook.TryGetAssetPath(chunkName);
-			if (path != null)
-				chunkName = path;
+			m_LuaState.Environment["dofile"] = new LuaFunction("dofile", DoFile);
+			m_LuaState.Environment["loadfile"] = new LuaFunction("loadfile", LoadFile);
+			async ValueTask<int> DoFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
+			{
+				var arg0 = context.GetArgument<string>(0);
+				context.Thread.Stack.PopUntil(context.ReturnFrameBase);
+				var closure = await context.State.LunyLoadFileAsync(arg0, null, cancellationToken);
+				return await context.Access.RunAsync(closure, cancellationToken);
+			}
+			async ValueTask<int> LoadFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
+			{
+				var arg0 = context.GetArgument<string>(0);
+				// var mode = context.HasArgument(1)
+				// 	? context.GetArgument<string>(1)
+				// 	: "bt";
+				var arg2 = context.HasArgument(2)
+					? context.GetArgument<LuaTable>(2)
+					: null;
+
+				// do not use LuaState.DoFileAsync as it uses the newExecutionContext
+				try
+				{
+					return context.Return(await context.State.LunyLoadFileAsync(arg0, arg2, cancellationToken));
+				}
+				catch (Exception ex)
+				{
+					return context.Return(LuaValue.Nil, ex.Message);
+				}
+			}
 		}
 
 		public async ValueTask AddAndRunScript(LunyLuaScript script)
@@ -121,7 +149,7 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		public void RemoveScript(LunyLuaAsset luaAsset)
+		internal void RemoveScript(LunyLuaAsset luaAsset)
 		{
 			if (luaAsset != null)
 			{
@@ -139,7 +167,7 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		public void RemoveScript(LunyLuaScript script)
+		private void RemoveScript(LunyLuaScript script)
 		{
 			if (m_Scripts != null && m_Scripts.Remove(script))
 			{
@@ -148,17 +176,16 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		public void RemoveScripts(IEnumerable<LunyLuaScript> scripts)
+		private void RemoveScripts(IList<LunyLuaScript> scripts)
 		{
-			foreach (var script in scripts)
-				RemoveScript(script);
+			var count = scripts.Count;
+			for (var i = count - 1; i >= 0; i--)
+				RemoveScript(scripts[i]);
 		}
 
-		public void ClearScripts()
+		private void ClearScripts()
 		{
-			foreach (var luaScript in m_Scripts)
-				luaScript.Dispose();
-
+			RemoveScripts(m_Scripts);
 			m_Scripts.Clear();
 		}
 

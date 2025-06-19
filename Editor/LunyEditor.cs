@@ -67,7 +67,7 @@ namespace CodeSmileEditor.Luny
 					Debug.Log($"script is of type: {script.EditorType}");
 					switch (script.EditorType)
 					{
-						case LunyLuaScript.EditorType_ScriptableSingleton:
+						case LunyLuaScript.ScriptableSingletonEditorType:
 							var instance = LunyScriptableSingleton.Singleton;
 							instance.AddScript(script);
 							break;
