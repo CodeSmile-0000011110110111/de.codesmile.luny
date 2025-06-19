@@ -130,6 +130,7 @@ namespace CodeSmileEditor.Luny
 			var luaState = LunyEditor.Singleton.Lua.State;
 			var editorOnlyEvent = script.EventHandler<ScriptEditorOnlyEvent>();
 			editorOnlyEvent.Send(luaState, (Int32)ScriptEditorOnlyEvent.Reset);
+			
 			var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.Awake);
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
@@ -138,11 +139,11 @@ namespace CodeSmileEditor.Luny
 		private void OnScriptChanged(LunyLuaScript script)
 		{
 			var luaState = LunyEditor.Singleton.Lua.State;
-			script.Reload(luaState);
-
-			// simulate file change as if it had been a domain reload
 			var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
+
+			// simulate events as if file change had been a domain reload
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnDisable);
+			script.Reload(luaState);
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
 		}
 	}
