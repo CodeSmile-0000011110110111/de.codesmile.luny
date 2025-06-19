@@ -15,13 +15,15 @@ namespace CodeSmile.Luny
 
 		internal LuaCallbacks(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
 
-		public LuaValue[] TryInvoke(LuaState luaState, Int32 index, params LuaValue[] args)
+		public void TryInvoke(LuaState luaState, Int32 index, params LuaValue[] args)
 		{
-			var func = m_CallbackFunctions[index];
-			if (func == null)
-				return null;
+			var eventFunc = m_CallbackFunctions[index];
+			if (eventFunc == null)
+				return;
 
 			var access = luaState.RootAccess;
+
+			// push any function arguments onto stack
 			var argCount = args.Length;
 			if (argCount > 0)
 			{
@@ -30,20 +32,15 @@ namespace CodeSmile.Luny
 					stack.Push(arg);
 			}
 
-			LuaValue[] returnValues = null;
 			try
 			{
-				// force synchronous execution, otherwise events like OnDestroy may try to run after the object has been destroyed
-				var returnCount = access.RunAsync(func, argCount).Preserve().GetAwaiter().GetResult();
-				using var results = access.ReadReturnValues(returnCount);
-				returnValues = results.AsSpan().ToArray();
+				// force synchronous execution, otherwise events like OnDestroy may run after the object has been destroyed
+				access.RunAsync(eventFunc, argCount).Preserve().GetAwaiter().GetResult();
 			}
 			catch (LuaRuntimeException e)
 			{
 				LunyLogger.LogException(e);
 			}
-
-			return returnValues;
 		}
 	}
 }

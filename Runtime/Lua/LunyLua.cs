@@ -106,7 +106,7 @@ namespace CodeSmile.Luny
 				throw new ArgumentNullException(nameof(script));
 
 			RemoveScript(script);
-			m_Scripts.Add(script);
+			m_Scripts.Add(script); // FIXME: LunyLua should not keep references to scripts but needs it for filewatcher
 			m_FileWatcher.WatchScript(script);
 
 			await script.DoScriptAsync(m_LuaState);
@@ -203,7 +203,7 @@ namespace CodeSmile.Luny
 					if (changedScript is LunyLuaAssetScript assetScript)
 						EditorAssetUtility.Import(assetScript.LuaAsset);
 
-					await changedScript.OnScriptChanged(m_LuaState);
+					await changedScript.OnScriptChangedInternal(m_LuaState);
 				}
 			}
 		}

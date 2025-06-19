@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public enum UnityObjectLifecycleEvent
+	public enum LunyLifecycleEvent
 	{
 		Awake,
 		FixedUpdate,

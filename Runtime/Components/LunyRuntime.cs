@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny.Components
 {
-	public interface ILuny
+	public interface ILunyRuntime
 	{
 		ILunyLua RuntimeLua { get; }
 		ILunyLua ModdingLua { get; }
@@ -23,9 +23,9 @@ namespace CodeSmile.Luny.Components
 	/// </summary>
 	[DisallowMultipleComponent]
 	[DefaultExecutionOrder(Int32.MinValue)] // make Luny component run its Awake before any other component
-	public sealed class Luny : MonoBehaviour, ILuny
+	public sealed class LunyRuntime : MonoBehaviour, ILunyRuntime
 	{
-		private static Luny s_Singleton;
+		private static LunyRuntime s_Singleton;
 		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
 		// TODO: refactor to load all scripts with given label automatically ie "ModdingStartupScript"
@@ -37,7 +37,7 @@ namespace CodeSmile.Luny.Components
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
 
-		public static ILuny Singleton => s_Singleton;
+		public static ILunyRuntime Singleton => s_Singleton;
 		public ILunyLua RuntimeLua => m_RuntimeLua;
 		public ILunyLua ModdingLua => m_ModdingLua;
 

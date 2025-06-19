@@ -28,19 +28,17 @@ namespace CodeSmileEditor.Luny
 		//private LuaTable m_SessionData;
 
 		private LunyLua m_Lua;
-		private Boolean m_ShouldCallReset;
-		private Boolean m_ShouldCallAwake;
 
 		public ILunyLua Lua => m_Lua;
-		public ILunyEditor Singleton => instance; // for consistency
+		public static ILunyEditor Singleton => instance; // for consistency
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
-		private void Reset() => m_ShouldCallReset = true;
+		private void Reset() {}
 
 		// Awake runs every time the project is loaded
-		private void Awake() => m_ShouldCallAwake = true;
+		private void Awake() {}
 
 		// OnEnable runs after every domain reload (including project load)
 		private async Task OnEnable()
@@ -63,25 +61,33 @@ namespace CodeSmileEditor.Luny
 
 				foreach (var script in scripts)
 				{
-					var lifecycleEvents = script.EventHandler<UnityObjectLifecycleEvent>();
-					if (m_ShouldCallReset)
-						lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.Reset);
-					if (m_ShouldCallAwake)
-						lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.Awake);
+					if (script == null)
+						continue;
 
-					lifecycleEvents.Send(m_Lua.State, (Int32)UnityObjectLifecycleEvent.OnEnable);
+					Debug.Log($"script is of type: {script.EditorType}");
+					switch (script.EditorType)
+					{
+						case LunyLuaScript.EditorType_ScriptableSingleton:
+							var instance = LunyScriptableSingleton.Singleton;
+							instance.AddScript(script);
+							break;
+					}
 				}
 			}
-
-			m_ShouldCallReset = m_ShouldCallAwake = false;
 		}
 
 		// OnDisable runs before every domain reload
 		private void OnDisable()
 		{
+			// ensure OnDisable/OnDestroy run in LSS scripts before we destroy the Lua state
+			DestroyImmediate(LunyScriptableSingleton.Singleton);
+
 			Save(true);
 			DestroyLuaState();
 		}
+
+		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
+		private void OnDestroy() {}
 
 		private async void OnEditorUpdate()
 		{
@@ -91,9 +97,6 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLuaContextChanged(LunyLuaContext luaContext) =>
 			CreateLuaState(luaContext ?? LunyEditorAssetRegistry.Singleton.EditorContext);
-
-		// Note: OnDestroy is never called, not even on project close according to editor.log
-		//private void OnDestroy() => throw new LunyException("LunyEditor OnDestroy -- this will NEVER throw!");
 
 		private void OnFocusChanged(Boolean hasFocus) {}
 

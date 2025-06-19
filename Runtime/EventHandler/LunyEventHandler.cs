@@ -13,7 +13,7 @@ namespace CodeSmile.Luny
 	{
 		private LuaCallbacks m_Callbacks;
 
-		public LuaValue[] Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
+		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
 			m_Callbacks?.TryInvoke(luaState, eventIndex, args);
 
 		private LuaCallbacks CreateCallbacks<T>(LuaTable context) where T : Enum
@@ -37,12 +37,12 @@ namespace CodeSmile.Luny
 		}
 
 		internal void BindEventCallbacks<T>(LuaTable context) where T : Enum => m_Callbacks = CreateCallbacks<T>(context);
-		public abstract void BindEventCallbacks(LuaTable context);
+		internal abstract void BindEventCallbacks(LuaTable context);
 	}
 
 	public sealed class LunyEventHandler<T> : LunyEventHandlerBase where T : Enum
 	{
 		public LunyEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
-		public override void BindEventCallbacks(LuaTable context) => BindEventCallbacks<T>(context);
+		internal override void BindEventCallbacks(LuaTable context) => BindEventCallbacks<T>(context);
 	}
 }

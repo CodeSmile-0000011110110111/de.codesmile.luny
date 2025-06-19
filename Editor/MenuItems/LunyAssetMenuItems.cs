@@ -93,7 +93,7 @@ namespace CodeSmileEditor.Luny
 		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
 		private static void CreateLunyGameObject(MenuCommand menuCommand)
 		{
-			var luny = new GameObject(nameof(Luny), typeof(CodeSmile.Luny.Components.Luny));
+			var luny = new GameObject(nameof(Luny), typeof(CodeSmile.Luny.Components.LunyRuntime));
 			var go = luny.gameObject;
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);

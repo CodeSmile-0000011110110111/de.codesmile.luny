@@ -6,18 +6,13 @@ using UnityEngine;
 
 namespace DefaultNamespace
 {
-	public enum EditorLifecycleEvent
+	public enum EditorEvent
 	{
-		Awake,
 		CreateGUI,
-		OnEnable,
-		OnDisable,
-		OnDestroy,
 		OnFocus,
 		OnValidate,
 		PlayModeStateChanged,
 		Reset,
-		Update,
 	}
 
 	public enum EditorAssetModificationEvent
