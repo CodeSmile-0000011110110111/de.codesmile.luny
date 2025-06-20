@@ -12,6 +12,7 @@ namespace CodeSmile.Luny
 	public sealed class LunyLuaScriptCollection : IList<LunyLuaScript>
 	{
 		private readonly List<LunyLuaScript> m_Scripts = new();
+		private readonly Dictionary<String, LunyLuaScript> m_FullPathScripts = new();
 
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
 		public Int32 Count => m_Scripts.Count;
@@ -23,10 +24,23 @@ namespace CodeSmile.Luny
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		public void Add(LunyLuaScript luaScript) => m_Scripts.Add(luaScript);
+		public void Add(LunyLuaScript luaScript)
+		{
+			m_Scripts.Add(luaScript);
+			m_FullPathScripts.Add(luaScript.FullPath, luaScript);
+		}
 
-		public Boolean Remove(LunyLuaScript luaScript) => m_Scripts.Remove(luaScript);
-		public void Clear() => m_Scripts.Clear();
+		public Boolean Remove(LunyLuaScript luaScript)
+		{
+			m_FullPathScripts.Remove(luaScript.FullPath);
+			return m_Scripts.Remove(luaScript);
+		}
+
+		public void Clear()
+		{
+			m_Scripts.Clear();
+			m_FullPathScripts.Clear();
+		}
 
 		public Boolean Contains(LunyLuaScript luaScript) => m_Scripts.Contains(luaScript);
 
@@ -35,5 +49,8 @@ namespace CodeSmile.Luny
 
 		public void Insert(Int32 index, LunyLuaScript luaScript) => m_Scripts.Insert(index, luaScript);
 		public void RemoveAt(Int32 index) => m_Scripts.RemoveAt(index);
+
+		public Boolean TryGetScriptForPath(String fullPath, out LunyLuaScript script) =>
+			m_FullPathScripts.TryGetValue(fullPath, out script);
 	}
 }

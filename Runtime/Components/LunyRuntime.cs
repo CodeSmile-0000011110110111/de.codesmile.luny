@@ -49,7 +49,14 @@ namespace CodeSmile.Luny
 
 		public static GameObject CreateLunyObject() => new(nameof(LunyRuntime), typeof(LunyRuntime));
 
-		private void OnValidate() => m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton; // ensure it is assigned for builds
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			// ensure registry is assigned and gets serialized, we need its reference in builds
+			m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton;
+			ApplyRunInBackgroundSetting();
+		}
+#endif
 
 		private void Awake()
 		{
@@ -85,9 +92,9 @@ namespace CodeSmile.Luny
 		private void Update()
 		{
 			if (m_RuntimeLua != null)
-				m_RuntimeLua.Update();
+				m_RuntimeLua.NotifyChangedScripts();
 			if (m_ModdingLua != null)
-				m_ModdingLua.Update();
+				m_ModdingLua.NotifyChangedScripts();
 		}
 
 		private void ApplyRunInBackgroundSetting()
@@ -105,10 +112,12 @@ namespace CodeSmile.Luny
 			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			var runtimeStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeStartupLuaAssets);
 			m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
 			var moddingStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingStartupLuaAssets);
 			m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
+#pragma warning restore CS4014
 
 			// Test running mod scripts
 			// {

@@ -14,9 +14,10 @@ namespace CodeSmile.Luny
 	internal sealed class LunyLuaFileWatcher
 	{
 		private readonly List<String> m_WatchedPaths = new();
-		private Dictionary<String, LunyLuaScript> m_WatchedScripts = new();
 
-		public LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
+		internal String[] ChangedFiles => LuaFileWatchers.ChangedFiles;
+		internal LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
+		internal void RemoveChangedFile(String fullPath) => LuaFileWatchers.RemoveChangedFile(fullPath);
 
 		private void InstallFileWatchers(LunySearchPaths searchPaths)
 		{
@@ -46,46 +47,10 @@ namespace CodeSmile.Luny
 			LuaFileWatchers.AddWatcher(fullPath);
 		}
 
-		public void WatchScript(LunyLuaScript script)
-		{
-			var scriptFullPath = script.FullPath;
-			if (m_WatchedScripts.ContainsKey(scriptFullPath) == false)
-				m_WatchedScripts.Add(scriptFullPath, script);
-		}
-
-		public void UnwatchScript(LunyLuaScript script)
-		{
-			m_WatchedScripts.Remove(script.FullPath);
-			LuaFileWatchers.RemoveChangedFile(script.FullPath); // avoid even the rare chance ...
-		}
-
 		public void Dispose()
 		{
 			foreach (var path in m_WatchedPaths)
 				LuaFileWatchers.RemoveWatcher(path);
-
-			m_WatchedScripts = null;
-		}
-
-		public void NotifyChangedScripts()
-		{
-			var changedFiles = LuaFileWatchers.ChangedFiles;
-			if (changedFiles == null)
-				return;
-
-			foreach (var path in changedFiles)
-			{
-				if (m_WatchedScripts.TryGetValue(path, out var changedScript))
-				{
-					LuaFileWatchers.RemoveChangedFile(path);
-
-					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-					if (changedScript is LunyLuaAssetScript assetScript)
-						EditorAssetUtility.Import(assetScript.LuaAsset);
-
-					changedScript.OnScriptChangedInternal();
-				}
-			}
 		}
 
 		private static class LuaFileWatchers

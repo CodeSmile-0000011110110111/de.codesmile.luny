@@ -82,7 +82,7 @@ namespace CodeSmileEditor.Luny
 		private void OnEditorUpdate()
 		{
 			if (m_Lua != null)
-				m_Lua.Update();
+				m_Lua.NotifyChangedScripts();
 		}
 
 		private void OnEditorContextChanged(LunyLuaContext luaContext) => m_Lua = CreateLuaState();

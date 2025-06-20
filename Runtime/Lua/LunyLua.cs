@@ -61,7 +61,6 @@ namespace CodeSmile.Luny
 
 			RemoveScript(script);
 			m_Scripts.Add(script); // FIXME: LunyLua should not keep references to scripts but needs it for filewatcher
-			m_FileWatcher.WatchScript(script);
 
 			await script.DoScriptAsync(m_LuaState);
 		}
@@ -84,10 +83,7 @@ namespace CodeSmile.Luny
 				return;
 
 			if (m_Scripts.Remove(script))
-			{
-				m_FileWatcher.UnwatchScript(script);
-				script.Dispose();
-			}
+				DisposeScript(script);
 		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -180,11 +176,16 @@ namespace CodeSmile.Luny
 				if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
 				{
 					m_Scripts.RemoveAt(i);
-					m_FileWatcher.UnwatchScript(script);
-					script.Dispose();
+					DisposeScript(script);
 					break;
 				}
 			}
+		}
+
+		private void DisposeScript(LunyLuaScript script)
+		{
+			m_FileWatcher.RemoveChangedFile(script.FullPath); // on the rare chance ..
+			script.Dispose();
 		}
 
 		private void RemoveScripts(IList<LunyLuaScript> scripts)
@@ -214,6 +215,25 @@ namespace CodeSmile.Luny
 			env["error"] = LunyLogger.LuaLogError;
 		}
 
-		public void Update() => m_FileWatcher.NotifyChangedScripts();
+		public void NotifyChangedScripts()
+		{
+			var changedFiles = m_FileWatcher.ChangedFiles;
+			if (changedFiles == null)
+				return;
+
+			foreach (var path in changedFiles)
+			{
+				if (m_Scripts.TryGetScriptForPath(path, out var changedScript))
+				{
+					m_FileWatcher.RemoveChangedFile(path);
+
+					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
+					if (changedScript is LunyLuaAssetScript assetScript)
+						EditorAssetUtility.Import(assetScript.LuaAsset);
+
+					changedScript.OnScriptChangedInternal();
+				}
+			}
+		}
 	}
 }
