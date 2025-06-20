@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 
 		public String EditorType => m_ScriptContext[EditorTypeKey].TryRead(out String editorType) ? editorType : null;
 
-		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? new LuaTable(0, 3);
+		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? new LuaTable(0, 4);
 
 		public void Dispose() => m_ScriptContext = null;
 
@@ -39,7 +39,7 @@ namespace CodeSmile.Luny
 
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
-		protected void OnAfterDoScript()
+		protected void OnAfterDoScript(LuaState luaState)
 		{
 			if (m_ScriptContext[EditorTypeKey] == LuaValue.Nil)
 				m_ScriptContext[EditorTypeKey] = ScriptableSingletonEditorType;
@@ -47,9 +47,12 @@ namespace CodeSmile.Luny
 			// re-bind event functions
 			foreach (var eventHandler in m_EventHandlers)
 				eventHandler.BindEventCallbacks(m_ScriptContext);
+
+			var loadEvent = EventHandler<ScriptLoadEvent>();
+			loadEvent.Send(luaState, (int)ScriptLoadEvent.OnDidLoadScript);
 		}
 
-		protected void SetScriptContext(String name, String path)
+		protected void SetDefaultContextValues(String name, String path)
 		{
 			ScriptContext[ScriptTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
@@ -70,10 +73,9 @@ namespace CodeSmile.Luny
 
 		public void Reload(LuaState luaState)
 		{
-			var reloadEvent = EventHandler<ScriptReloadEvent>();
-			reloadEvent.Send(luaState, (int)ScriptReloadEvent.OnWillReloadScript);
+			var reloadEvent = EventHandler<ScriptLoadEvent>();
+			reloadEvent.Send(luaState, (int)ScriptLoadEvent.OnWillReloadScript);
 			DoScriptAsync(luaState);
-			reloadEvent.Send(luaState, (int)ScriptReloadEvent.OnDidReloadScript);
 		}
 	}
 
@@ -102,14 +104,17 @@ namespace CodeSmile.Luny
 		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
+			if (luaAsset == null)
+				throw new ArgumentNullException(nameof(luaAsset));
+
 			m_LuaAsset = luaAsset;
-			SetScriptContext(luaAsset.name, luaAsset.Path);
+			SetDefaultContextValues(luaAsset.name, luaAsset.Path);
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
 			await luaState.DoStringAsync(LuaAsset.Text, $"@{LuaAsset.Path}", ScriptContext);
-			OnAfterDoScript();
+			OnAfterDoScript(luaState);
 		}
 	}
 
@@ -137,15 +142,18 @@ namespace CodeSmile.Luny
 		public LunyLuaFileScript(String filePath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
+			if (string.IsNullOrEmpty(filePath))
+				throw new ArgumentException(nameof(filePath));
+
 			m_FullPath = Path.GetFullPath(filePath).ToForwardSlashes();
 			m_ScriptPath = File.Exists(filePath) ? filePath : m_FullPath;
-			SetScriptContext(Path.GetFileNameWithoutExtension(m_ScriptPath), m_ScriptPath);
+			SetDefaultContextValues(Path.GetFileNameWithoutExtension(m_ScriptPath), m_ScriptPath);
 		}
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
 			await luaState.DoFileAsync(m_ScriptPath, ScriptContext);
-			OnAfterDoScript();
+			OnAfterDoScript(luaState);
 		}
 	}
 }

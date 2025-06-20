@@ -41,7 +41,6 @@ namespace CodeSmile.Luny
 			if (String.IsNullOrEmpty(fullPath) || m_Watchers.ContainsKey(fullPath) || !Directory.Exists(fullPath))
 				return;
 
-			//LunyLogger.LogInfo($"Monitoring *.lua changes in: {fullPath}");
 			var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
 			fileWatcher.Changed += OnFileChanged;
 			fileWatcher.EnableRaisingEvents = true;
@@ -82,26 +81,28 @@ namespace CodeSmile.Luny
 			fullPath = fullPath.ToForwardSlashes();
 			if (m_WatchedScripts.TryGetValue(fullPath, out var script) && script != null)
 				m_ChangedScripts.Add(script); // add to queue for processing on main thread
+
+			LunyLogger.LogInfo($"File changed: {fullPath}, change queue count: {m_ChangedScripts.Count}");
 		}
 
 		public void NotifyChangedScripts()
 		{
-			if (m_ChangedScripts.Count > 0)
+			if (m_ChangedScripts.Count == 0)
+				return;
+
+			foreach (var changedScript in m_ChangedScripts)
 			{
-				foreach (var changedScript in m_ChangedScripts)
-				{
-					if (changedScript != null)
-					{
-						// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-						if (changedScript is LunyLuaAssetScript assetScript)
-							EditorAssetUtility.Import(assetScript.LuaAsset);
+				if (changedScript == null)
+					continue;
 
-						changedScript.OnScriptChangedInternal();
-					}
-				}
+				// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
+				if (changedScript is LunyLuaAssetScript assetScript)
+					EditorAssetUtility.Import(assetScript.LuaAsset);
 
-				m_ChangedScripts.Clear();
+				changedScript.OnScriptChangedInternal();
 			}
+
+			m_ChangedScripts.Clear();
 		}
 	}
 }

@@ -24,7 +24,9 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
+		ValueTask AddAndRunScript(LunyLuaScript script);
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
+		void RemoveScript(LunyLuaScript script);
 		void Dispose();
 	}
 
@@ -50,6 +52,42 @@ namespace CodeSmile.Luny
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
 			m_LuaState = null;
+		}
+
+		public async ValueTask AddAndRunScript(LunyLuaScript script)
+		{
+			if (script == null)
+				throw new ArgumentNullException(nameof(script));
+
+			RemoveScript(script);
+			m_Scripts.Add(script); // FIXME: LunyLua should not keep references to scripts but needs it for filewatcher
+			m_FileWatcher.WatchScript(script);
+
+			await script.DoScriptAsync(m_LuaState);
+		}
+
+		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
+		{
+			if (scripts == null)
+				throw new ArgumentNullException(nameof(scripts));
+
+			foreach (var script in scripts)
+			{
+				if (script != null)
+					await AddAndRunScript(script);
+			}
+		}
+
+		public void RemoveScript(LunyLuaScript script)
+		{
+			if (script == null || m_Scripts == null)
+				return;
+
+			if (m_Scripts.Remove(script))
+			{
+				m_FileWatcher.UnwatchScript(script);
+				script.Dispose();
+			}
 		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -100,16 +138,18 @@ namespace CodeSmile.Luny
 		{
 			m_LuaState.Environment["dofile"] = new LuaFunction("dofile", DoFile);
 			m_LuaState.Environment["loadfile"] = new LuaFunction("loadfile", LoadFile);
-			async ValueTask<int> DoFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
+
+			async ValueTask<Int32> DoFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
 			{
-				var arg0 = context.GetArgument<string>(0);
+				var arg0 = context.GetArgument<String>(0);
 				context.Thread.Stack.PopUntil(context.ReturnFrameBase);
 				var closure = await context.State.LunyLoadFileAsync(arg0, null, cancellationToken);
 				return await context.Access.RunAsync(closure, cancellationToken);
 			}
-			async ValueTask<int> LoadFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
+
+			async ValueTask<Int32> LoadFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
 			{
-				var arg0 = context.GetArgument<string>(0);
+				var arg0 = context.GetArgument<String>(0);
 				// var mode = context.HasArgument(1)
 				// 	? context.GetArgument<string>(1)
 				// 	: "bt";
@@ -129,51 +169,21 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		public async ValueTask AddAndRunScript(LunyLuaScript script)
-		{
-			if (script == null)
-				throw new ArgumentNullException(nameof(script));
-
-			RemoveScript(script);
-			m_Scripts.Add(script); // FIXME: LunyLua should not keep references to scripts but needs it for filewatcher
-			m_FileWatcher.WatchScript(script);
-
-			await script.DoScriptAsync(m_LuaState);
-		}
-
-		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
-		{
-			foreach (var script in scripts)
-			{
-				if (script != null)
-					await AddAndRunScript(script);
-			}
-		}
-
 		internal void RemoveScript(LunyLuaAsset luaAsset)
 		{
-			if (luaAsset != null)
-			{
-				for (var i = m_Scripts.Count - 1; i >= 0; i--)
-				{
-					var script = m_Scripts[i];
-					if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
-					{
-						m_Scripts.RemoveAt(i);
-						m_FileWatcher.UnwatchScript(script);
-						script.Dispose();
-						break;
-					}
-				}
-			}
-		}
+			if (luaAsset == null)
+				return;
 
-		private void RemoveScript(LunyLuaScript script)
-		{
-			if (m_Scripts != null && m_Scripts.Remove(script))
+			for (var i = m_Scripts.Count - 1; i >= 0; i--)
 			{
-				m_FileWatcher.UnwatchScript(script);
-				script.Dispose();
+				var script = m_Scripts[i];
+				if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
+				{
+					m_Scripts.RemoveAt(i);
+					m_FileWatcher.UnwatchScript(script);
+					script.Dispose();
+					break;
+				}
 			}
 		}
 
@@ -204,9 +214,6 @@ namespace CodeSmile.Luny
 			env["error"] = LunyLogger.LuaLogError;
 		}
 
-		public void Update()
-		{
-			m_FileWatcher.NotifyChangedScripts();
-		}
+		public void Update() => m_FileWatcher.NotifyChangedScripts();
 	}
 }

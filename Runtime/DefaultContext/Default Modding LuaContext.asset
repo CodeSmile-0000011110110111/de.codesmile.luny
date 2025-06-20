@@ -17,7 +17,7 @@ MonoBehaviour:
   - '%PersistentDataPath%'
   - '%StreamingAssetsPath%'
   - Assets/Scripts/Luny/Modding
-  m_Libraries: 603979780
+  m_Libraries: 604111140
   m_Modules: []
   m_Path: Packages/de.codesmile.luny/Runtime/DefaultContext/Default Modding LuaContext.asset
   m_IsModdingContext: 1

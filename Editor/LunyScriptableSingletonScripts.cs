@@ -14,12 +14,12 @@ using UnityEngine;
 namespace CodeSmileEditor.Luny
 {
 	//[FilePath("ProjectSettings/LunyScriptableSingletonState.asset", FilePathAttribute.Location.ProjectFolder)]
-	internal sealed class LunyScriptableSingleton : ScriptableSingleton<LunyScriptableSingleton>, ILuaUserData
+	internal sealed class LunyScriptableSingletonScripts : ScriptableSingleton<LunyScriptableSingletonScripts>, ILuaUserData
 	{
 		private readonly LunyLuaScriptCollection m_Scripts = new();
 		private Boolean m_IsAlreadyDisabled;
 
-		internal static LunyScriptableSingleton Singleton => instance; // for consistency
+		internal static LunyScriptableSingletonScripts Singleton => instance; // for consistency
 		public LuaTable Metatable { get; set; }
 
 		private static ValueTask<Int32> LuaTryGetValueForKey(LuaFunctionExecutionContext context,
@@ -105,7 +105,7 @@ namespace CodeSmileEditor.Luny
 
 		internal void Save(LuaTable scriptContext)
 		{
-			var instance = scriptContext[LunyLuaScript.InstanceKey].Read<LunyScriptableSingleton>();
+			var instance = scriptContext[LunyLuaScript.InstanceKey].Read<LunyScriptableSingletonScripts>();
 			Debug.Log($"Save called: {scriptContext[LunyLuaScript.ScriptNameKey]}, {instance}");
 			//Save(true);
 		}

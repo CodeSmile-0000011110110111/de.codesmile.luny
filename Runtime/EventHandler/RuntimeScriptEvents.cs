@@ -15,10 +15,10 @@ namespace CodeSmile.Luny
 		Start,
 	}
 
-	public enum ScriptReloadEvent
+	public enum ScriptLoadEvent
 	{
 		OnWillReloadScript,
-		OnDidReloadScript,
+		OnDidLoadScript,
 	}
 
 	public enum ScriptUpdateEvent

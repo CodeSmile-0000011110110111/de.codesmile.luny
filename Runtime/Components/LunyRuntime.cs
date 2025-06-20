@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ namespace CodeSmile.Luny
 {
 	public interface ILunyRuntime
 	{
+		event Action OnDestroyLunyRuntime;
 		ILunyLua RuntimeLua { get; }
 		ILunyLua ModdingLua { get; }
 	}
@@ -25,15 +25,15 @@ namespace CodeSmile.Luny
 	[DefaultExecutionOrder(Int32.MinValue)] // make Luny component run its Awake before any other component
 	public sealed class LunyRuntime : MonoBehaviour, ILunyRuntime
 	{
+		/// <summary>
+		/// Can be used for last-second cleanup of anything Luny/Lua related.
+		/// </summary>
+		public event Action OnDestroyLunyRuntime;
+
 		private static LunyRuntime s_Singleton;
 		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
-		// TODO: refactor to load all scripts with given label automatically ie "ModdingStartupScript"
-		// [Tooltip("These scripts will run once, from top to bottom, before any LunyScript runs." +
-		//          "Intended for setting up global Lua environment variables and functions.")]
-		// [SerializeField] private LunyLuaAsset[] m_StartupScripts = new LunyLuaAsset[0];
-
-		// TODO: consider splitting into LunyRuntimeState and LunyModdingState
+		// TODO: consider splitting into LunyRuntime and LunyModding
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
 
@@ -41,12 +41,14 @@ namespace CodeSmile.Luny
 		public ILunyLua RuntimeLua => m_RuntimeLua;
 		public ILunyLua ModdingLua => m_ModdingLua;
 
+		public static GameObject CreateLunyObject() => new(nameof(LunyRuntime), typeof(LunyRuntime));
+
 		private void OnValidate() => m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton; // ensure it is assigned for builds
 
 		private async void Awake()
 		{
 			if (m_AssetRegistry == null)
-				throw new LunyException("Missing reference to asset registry.");
+				throw new LunyException("Missing LunyRuntimeAssetRegistry reference.");
 
 			if (s_Singleton != null)
 			{
@@ -63,7 +65,7 @@ namespace CodeSmile.Luny
 
 		private void OnDestroy()
 		{
-			OnDestroyLuny?.Invoke();
+			OnDestroyLunyRuntime?.Invoke();
 
 			m_RuntimeLua?.Dispose();
 			m_ModdingLua?.Dispose();
@@ -80,8 +82,6 @@ namespace CodeSmile.Luny
 				m_ModdingLua.Update();
 		}
 
-		internal event Action OnDestroyLuny;
-
 		private async ValueTask CreateLuaStates(LunyLuaContext runtimeContext, LunyLuaContext moddingContext)
 		{
 			m_RuntimeLua?.Dispose();
@@ -94,18 +94,19 @@ namespace CodeSmile.Luny
 			var moddingStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingStartupLuaAssets);
 			await m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
 
-			{
-				var ctx = new LuaTable();
-				ctx["streamingAssetsScript"] = true;
-				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript("Assets/StreamingAssets/StreamingLua.lua",
-					ctx));
-			}
-			{
-				var ctx = new LuaTable();
-				ctx["persistentDataScript"] = true;
-				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(Application.persistentDataPath + "/PersistentLua.lua",
-					ctx));
-			}
+			// Test running mod scripts
+			// {
+			// 	var ctx = new LuaTable();
+			// 	ctx["streamingAssetsScript"] = true;
+			// 	await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript("Assets/StreamingAssets/StreamingLua.lua",
+			// 		ctx));
+			// }
+			// {
+			// 	var ctx = new LuaTable();
+			// 	ctx["persistentDataScript"] = true;
+			// 	await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(Application.persistentDataPath + "/PersistentLua.lua",
+			// 		ctx));
+			// }
 		}
 
 		private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");
