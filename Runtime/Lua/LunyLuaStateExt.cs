@@ -10,20 +10,19 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public static class LunyLuaOverrides
+	public static class LunyLuaStateExt
 	{
 		public static async ValueTask<LuaClosure> LunyLoadFileAsync(this LuaState state, string fileName, LuaTable environment, CancellationToken cancellationToken)
 		{
 			using var stream = await state.FileSystem.Open(fileName, LuaFileOpenMode.Read, cancellationToken);
 			var source = await stream.ReadAllAsync(cancellationToken);
 
+			// get the relative asset path, if any, and use it as the chunk name for hyperlinking
 			var fileSystem = state.Platform.FileSystem as LunyLuaFileSystem;
 			var assetPath = fileSystem.Hook.TryGetAssetPath(fileName);
-			Debug.LogWarning($"load: {fileName} => {assetPath}");
 			if (assetPath != null)
 				fileName = assetPath;
 
-			//var chunkName = "@" + fileName;
 			LuaClosure closure = state.Load(source, fileName, environment);
 			return closure;
 		}
