@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny.Components
+namespace CodeSmile.Luny
 {
 	public interface ILunyRuntime
 	{
@@ -51,7 +51,7 @@ namespace CodeSmile.Luny.Components
 			if (s_Singleton != null)
 			{
 				throw new LunyException($"Duplicate Luny component on '{gameObject.name}' ({gameObject.GetInstanceID()}) in " +
-				                        $"scene {gameObject.scene.name}. Enter 't:Luny' in Hierarchy search to find them.");
+				                        $"scene {gameObject.scene.name}. Please remove all but one.");
 			}
 
 			s_Singleton = this;
@@ -97,7 +97,7 @@ namespace CodeSmile.Luny.Components
 			{
 				var ctx = new LuaTable();
 				ctx["streamingAssetsScript"] = true;
-				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript(Application.streamingAssetsPath + "/StreamingLua.lua",
+				await m_ModdingLua.AddAndRunScript(new LunyLuaFileScript("Assets/StreamingAssets/StreamingLua.lua",
 					ctx));
 			}
 			{

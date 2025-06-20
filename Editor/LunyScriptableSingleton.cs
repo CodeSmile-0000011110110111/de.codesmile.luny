@@ -130,7 +130,7 @@ namespace CodeSmileEditor.Luny
 			var luaState = LunyEditor.Singleton.Lua.State;
 			var editorOnlyEvent = script.EventHandler<ScriptEditorOnlyEvent>();
 			editorOnlyEvent.Send(luaState, (Int32)ScriptEditorOnlyEvent.Reset);
-			
+
 			var lifecycleEvent = script.EventHandler<ScriptLifecycleEvent>();
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.Awake);
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);

@@ -20,17 +20,17 @@ namespace CodeSmile.Luny
 		internal static readonly LuaFunction LuaLogInfo = new("print", (context, ct) =>
 		{
 			LogInfo(GetLuaMessageAndTraceback(context));
-			return new ValueTask<Int32>(0);
+			return new ValueTask<Int32>(context.Return());
 		});
 		internal static readonly LuaFunction LuaLogWarn = new("warn", (context, ct) =>
 		{
 			LogWarn(GetLuaMessageAndTraceback(context));
-			return new ValueTask<Int32>(0);
+			return new ValueTask<Int32>(context.Return());
 		});
 		internal static readonly LuaFunction LuaLogError = new("error", (context, ct) =>
 		{
 			LogError(GetLuaMessageAndTraceback(context));
-			return new ValueTask<Int32>(0);
+			return new ValueTask<Int32>(context.Return());
 		});
 
 		[HideInCallstack] public static void LogInfo(String message) => Debug.Log(message);

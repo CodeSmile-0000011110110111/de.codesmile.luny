@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
-using CodeSmile.Luny.Components;
 using CodeSmileEditor.Core;
 using System;
 using System.IO;
@@ -93,7 +92,7 @@ namespace CodeSmileEditor.Luny
 		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
 		private static void CreateLunyGameObject(MenuCommand menuCommand)
 		{
-			var luny = new GameObject(nameof(Luny), typeof(CodeSmile.Luny.Components.LunyRuntime));
+			var luny = new GameObject(nameof(Luny), typeof(LunyRuntime));
 			var go = luny.gameObject;
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
@@ -103,7 +102,7 @@ namespace CodeSmileEditor.Luny
 		[MenuItem("GameObject/Luny/" + nameof(LunyScript), false, priority = 11)]
 		private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
 		{
-			var go = LunyScript.CreateGameObject();
+			var go = LunyScript.CreateLunyScriptObject();
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
 			Selection.activeObject = go;
