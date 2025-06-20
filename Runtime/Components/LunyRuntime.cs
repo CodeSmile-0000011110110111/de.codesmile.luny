@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,6 +32,13 @@ namespace CodeSmile.Luny
 		private static LunyRuntime s_Singleton;
 		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
+#if DEBUG || UNITY_EDITOR
+		[Tooltip("If enabled, PlayMode will continue to run while the editor is in background. Useful for editing runtime " +
+		         "scripts with changes taking effect without having to focus the editor or player window. Only takes effect " +
+		         "in development (debug) builds and editor.")]
+		[SerializeField] private Boolean m_DevelopRunInBackground = true;
+#endif
+
 		// TODO: consider splitting into LunyRuntime and LunyModding
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
@@ -45,7 +51,7 @@ namespace CodeSmile.Luny
 
 		private void OnValidate() => m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton; // ensure it is assigned for builds
 
-		private async void Awake()
+		private void Awake()
 		{
 			if (m_AssetRegistry == null)
 				throw new LunyException("Missing LunyRuntimeAssetRegistry reference.");
@@ -58,7 +64,9 @@ namespace CodeSmile.Luny
 
 			s_Singleton = this;
 
-			await CreateLuaStates(m_AssetRegistry.RuntimeContext, m_AssetRegistry.ModdingContext);
+			ApplyRunInBackgroundSetting();
+
+			CreateLuaStates(m_AssetRegistry.RuntimeContext, m_AssetRegistry.ModdingContext);
 
 			RegisterLunyScriptComponents();
 		}
@@ -82,17 +90,25 @@ namespace CodeSmile.Luny
 				m_ModdingLua.Update();
 		}
 
-		private async ValueTask CreateLuaStates(LunyLuaContext runtimeContext, LunyLuaContext moddingContext)
+		private void ApplyRunInBackgroundSetting()
 		{
+#if DEBUG || UNITY_EDITOR
+			Application.runInBackground = m_DevelopRunInBackground;
+#endif
+		}
+
+		private void CreateLuaStates(LunyLuaContext runtimeContext, LunyLuaContext moddingContext)
+		{
+			LunyLogger.LogInfo("Creating runtime Lua states ...");
 			m_RuntimeLua?.Dispose();
 			m_ModdingLua?.Dispose();
 			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
 			var runtimeStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeStartupLuaAssets);
-			await m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
+			m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
 			var moddingStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingStartupLuaAssets);
-			await m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
+			m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
 
 			// Test running mod scripts
 			// {

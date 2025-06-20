@@ -47,8 +47,8 @@ namespace CodeSmile.Luny
 				message = luaParEx.Message;
 
 			var gameObjectName =
-				component != null ? $"{component.gameObject.name} ({component.gameObject.GetInstanceID()})" : null;
-			Debug.LogError($"{scriptName} {message} on {gameObjectName}\n{ex.GetType().Name}: " +
+				component != null ? $" on {component.gameObject.name} ({component.gameObject.GetInstanceID()})" : null;
+			Debug.LogError($"{scriptName} {message}{gameObjectName}\n{ex.GetType().Name}: " +
 			               $"{ex.StackTrace}\n{ex.InnerException?.Message}\n{ex.InnerException?.StackTrace}");
 		}
 

@@ -30,7 +30,7 @@ namespace CodeSmile.Luny
 			// OnReset();
 		}
 
-		private async ValueTask Awake()
+		private void Awake()
 		{
 			m_LunyRef = GetOrAddLunyReference();
 
@@ -38,12 +38,15 @@ namespace CodeSmile.Luny
 			OnAwake();
 
 			m_Lua = m_UseModdingContext ? LunyRef.LunyRuntime.ModdingLua : LunyRef.LunyRuntime.RuntimeLua;
+			if (m_Lua == null)
+				throw new ArgumentNullException(nameof(m_Lua));
+
 			m_LuaScript = new LunyLuaAssetScript(m_LuaAsset);
 			m_LuaScript.OnScriptChanged -= OnScriptChanged;
 			m_LuaScript.OnScriptChanged += OnScriptChanged;
 			m_ScriptLifecycleEvent = m_LuaScript.EventHandler<ScriptLifecycleEvent>();
 
-			await DoScriptAsync();
+			DoScriptAsync();
 			OnBeforeScriptLoad(m_LuaScript.ScriptContext);
 			m_ScriptLifecycleEvent.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.Awake);
 		}
@@ -69,17 +72,16 @@ namespace CodeSmile.Luny
 
 		private void OnScriptChanged(LunyLuaScript script) => script.Reload(m_Lua.State);
 
-		private async Task DoScriptAsync()
+		private void DoScriptAsync()
 		{
 			try
 			{
 				m_Lua.RemoveScript(m_LuaScript);
-				await m_Lua.AddAndRunScript(m_LuaScript);
+				m_Lua.AddAndRunScript(m_LuaScript);
 			}
 			catch (Exception e)
 			{
-				LunyLogger.LogException(e);
-				throw;
+				LunyLogger.LogError($"Error in {m_LuaScript}: {e.Message}");
 			}
 
 			var runnerRegistry = gameObject.GetOrAddComponent<LunyScriptRunnerRegistry>();

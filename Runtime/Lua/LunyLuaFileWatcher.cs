@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -12,9 +13,8 @@ namespace CodeSmile.Luny
 {
 	internal sealed class LunyLuaFileWatcher
 	{
-		private Dictionary<String, FileSystemWatcher> m_Watchers = new();
+		private readonly List<String> m_WatchedPaths = new();
 		private Dictionary<String, LunyLuaScript> m_WatchedScripts = new();
-		private List<LunyLuaScript> m_ChangedScripts = new();
 
 		public LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
 
@@ -23,30 +23,27 @@ namespace CodeSmile.Luny
 			// always monitor "Assets" in editor
 			var isEditor = Application.isEditor;
 			if (isEditor)
-				TryCreateFileSystemWatcher(Application.dataPath);
+				AddFileChangedCallback(Application.dataPath);
 
 			// TODO: maybe support watching package paths?
 
 			foreach (var searchPath in searchPaths.Paths)
 			{
-				if (searchPath.IsAssetPath || isEditor && searchPath.IsStreamingAssetPath)
-					continue; // at runtime assets won't change, and in editor we generally watch all "Assets/*"
+				// at runtime assets won't change
+				if (searchPath.IsAssetPath)
+					continue;
 
-				TryCreateFileSystemWatcher(searchPath.FullPath);
+				AddFileChangedCallback(searchPath.FullPath);
 			}
 		}
 
-		private void TryCreateFileSystemWatcher(String fullPath)
+		private void AddFileChangedCallback(String fullPath)
 		{
-			if (String.IsNullOrEmpty(fullPath) || m_Watchers.ContainsKey(fullPath) || !Directory.Exists(fullPath))
+			if (String.IsNullOrEmpty(fullPath) || Directory.Exists(fullPath) == false)
 				return;
 
-			var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
-			fileWatcher.Changed += OnFileChanged;
-			fileWatcher.EnableRaisingEvents = true;
-			fileWatcher.IncludeSubdirectories = true;
-			fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-			m_Watchers[fullPath] = fileWatcher;
+			m_WatchedPaths.Add(fullPath);
+			LuaFileWatchers.AddWatcher(fullPath);
 		}
 
 		public void WatchScript(LunyLuaScript script)
@@ -56,53 +53,131 @@ namespace CodeSmile.Luny
 				m_WatchedScripts.Add(scriptFullPath, script);
 		}
 
-		public void UnwatchScript(LunyLuaScript script) => m_WatchedScripts.Remove(script.FullPath);
+		public void UnwatchScript(LunyLuaScript script)
+		{
+			m_WatchedScripts.Remove(script.FullPath);
+			LuaFileWatchers.RemoveChangedFile(script.FullPath); // avoid even the rare chance ...
+		}
 
 		public void Dispose()
 		{
-			foreach (var kvp in m_Watchers)
-			{
-				kvp.Value.EnableRaisingEvents = false;
-				kvp.Value.Changed -= OnFileChanged;
-			}
+			foreach (var path in m_WatchedPaths)
+				LuaFileWatchers.RemoveWatcher(path);
 
 			m_WatchedScripts = null;
-			m_Watchers = null;
-			m_ChangedScripts = null;
-		}
-
-		// CAUTION: This runs on a background thread!
-		private void OnFileChanged(Object sender, FileSystemEventArgs e)
-		{
-			var fullPath = e.FullPath;
-			if (!File.Exists(fullPath))
-				return;
-
-			fullPath = fullPath.ToForwardSlashes();
-			if (m_WatchedScripts.TryGetValue(fullPath, out var script) && script != null)
-				m_ChangedScripts.Add(script); // add to queue for processing on main thread
-
-			LunyLogger.LogInfo($"File changed: {fullPath}, change queue count: {m_ChangedScripts.Count}");
 		}
 
 		public void NotifyChangedScripts()
 		{
-			if (m_ChangedScripts.Count == 0)
+			var changedFiles = LuaFileWatchers.ChangedFiles;
+			if (changedFiles == null)
 				return;
 
-			foreach (var changedScript in m_ChangedScripts)
+			foreach (var path in changedFiles)
 			{
-				if (changedScript == null)
-					continue;
+				if (m_WatchedScripts.TryGetValue(path, out var changedScript))
+				{
+					LuaFileWatchers.RemoveChangedFile(path);
 
-				// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-				if (changedScript is LunyLuaAssetScript assetScript)
-					EditorAssetUtility.Import(assetScript.LuaAsset);
+					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
+					if (changedScript is LunyLuaAssetScript assetScript)
+						EditorAssetUtility.Import(assetScript.LuaAsset);
 
-				changedScript.OnScriptChangedInternal();
+					changedScript.OnScriptChangedInternal();
+				}
+			}
+		}
+
+		private static class LuaFileWatchers
+		{
+			private static readonly Dictionary<String, RefCountWatcher> s_Watchers = new();
+			private static readonly HashSet<String> s_ChangedFiles = new();
+			public static String[] ChangedFiles => s_ChangedFiles.Count > 0 ? s_ChangedFiles.ToArray() : null;
+
+			public static void RemoveChangedFile(String fullPath) => s_ChangedFiles.Remove(fullPath);
+
+			public static void AddWatcher(String fullPath)
+			{
+				if (String.IsNullOrEmpty(fullPath))
+					throw new ArgumentNullException(nameof(fullPath));
+
+				var watcher = FindMatchingWatcher(fullPath);
+				if (watcher != null)
+				{
+					watcher.UsageCount++;
+					// LunyLogger.LogInfo($"Using existing ({watcher.UsageCount}) LuaFileWatcher: " +
+					//                    $"{watcher.Watcher.Path} (requested path: {fullPath})");
+					return;
+				}
+
+				CreateWatcher(fullPath);
+				// LunyLogger.LogInfo($"Created LuaFileWatcher: {fullPath}");
 			}
 
-			m_ChangedScripts.Clear();
+			public static void RemoveWatcher(String fullPath)
+			{
+				if (String.IsNullOrEmpty(fullPath))
+					throw new ArgumentNullException(nameof(fullPath));
+
+				var watcher = FindMatchingWatcher(fullPath);
+				if (watcher != null)
+				{
+					watcher.UsageCount--;
+					if (watcher.UsageCount <= 0)
+					{
+						watcher.Watcher.Changed -= OnFileChanged;
+						watcher.Watcher.Dispose();
+						s_Watchers.Remove(fullPath);
+						// LunyLogger.LogInfo($"Removed LuaFileWatcher: {watcher.Watcher.Path} (requested path: {fullPath})");
+					}
+				}
+			}
+
+			private static RefCountWatcher FindMatchingWatcher(String fullPath)
+			{
+				if (s_Watchers.TryGetValue(fullPath, out var watcher) == false)
+				{
+					// check for partial matches, ie path already covered by a parent paths' watcher
+					foreach (var pair in s_Watchers)
+					{
+						if (fullPath.StartsWith(pair.Key))
+							watcher = pair.Value;
+					}
+				}
+				return watcher;
+			}
+
+			private static void CreateWatcher(String fullPath)
+			{
+				var fileWatcher = new FileSystemWatcher(fullPath, "*.lua");
+				fileWatcher.EnableRaisingEvents = true;
+				fileWatcher.IncludeSubdirectories = true;
+				fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+				fileWatcher.Changed += OnFileChanged;
+				var watcher = new RefCountWatcher { Watcher = fileWatcher, UsageCount = 1 };
+				s_Watchers[fullPath] = watcher;
+			}
+
+			private static void OnFileChanged(Object sender, FileSystemEventArgs e)
+			{
+				// CAUTION: This runs on a background thread!
+
+				var fullPath = e.FullPath;
+				if (!File.Exists(fullPath))
+					return;
+
+				fullPath = fullPath.ToForwardSlashes();
+				s_ChangedFiles.Add(fullPath);
+
+				// LunyLogger.LogInfo($"File changed: {fullPath} ({(sender as FileSystemWatcher)?.Path.ToForwardSlashes()}), " +
+				//                    $"change queue count: {s_ChangedFiles.Count}");
+			}
+
+			private class RefCountWatcher
+			{
+				public FileSystemWatcher Watcher;
+				public Int32 UsageCount;
+			}
 		}
 	}
 }

@@ -25,7 +25,9 @@ namespace CodeSmile.Luny
 		private readonly LunyEventHandlerCollection m_EventHandlers = new();
 
 		private LuaTable m_ScriptContext;
+		private string m_ScriptName;
 
+		public string Name => m_ScriptName;
 		public abstract String FullPath { get; }
 		public LuaTable ScriptContext => m_ScriptContext;
 
@@ -54,6 +56,7 @@ namespace CodeSmile.Luny
 
 		protected void SetDefaultContextValues(String name, String path)
 		{
+			m_ScriptName = name;
 			ScriptContext[ScriptTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
 			ScriptContext[ScriptPathKey] = path;
@@ -77,6 +80,8 @@ namespace CodeSmile.Luny
 			reloadEvent.Send(luaState, (int)ScriptLoadEvent.OnWillReloadScript);
 			DoScriptAsync(luaState);
 		}
+
+		public override String ToString() => $"{m_ScriptName} ({GetType().Name})";
 	}
 
 	public sealed class LunyLuaAssetScript : LunyLuaScript
