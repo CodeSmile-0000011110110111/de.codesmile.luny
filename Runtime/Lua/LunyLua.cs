@@ -226,7 +226,7 @@ namespace CodeSmile.Luny
 			if (changedFiles == null)
 				return;
 
-			const string ResourcesFilter = "/resources/";
+			const String ResourcesFilter = "/resources/";
 
 			foreach (var changedFile in changedFiles)
 			{
@@ -270,9 +270,6 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		internal void ClearChangedScripts()
-		{
-			m_FileWatcher.ClearChangedFiles();
-		}
+		internal void ClearChangedScripts() => m_FileWatcher.ClearChangedFiles();
 	}
 }

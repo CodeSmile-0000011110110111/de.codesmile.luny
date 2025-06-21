@@ -4,15 +4,18 @@
 using Lua;
 using Lua.IO;
 using Lua.Runtime;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Luny
 {
 	public static class LunyLuaStateExt
 	{
-		public static async ValueTask<LuaClosure> LunyLoadFileAsync(this LuaState state, string fileName, LuaTable environment, CancellationToken cancellationToken)
+		public static async ValueTask<LuaClosure> LunyLoadFileAsync(this LuaState state, String fileName, LuaTable environment,
+			CancellationToken cancellationToken)
 		{
 			using var stream = await state.FileSystem.Open(fileName, LuaFileOpenMode.Read, cancellationToken);
 			var source = await stream.ReadAllAsync(cancellationToken);
@@ -23,7 +26,7 @@ namespace CodeSmile.Luny
 			if (assetPath != null)
 				fileName = assetPath;
 
-			LuaClosure closure = state.Load(source, fileName, environment);
+			var closure = state.Load(source, fileName, environment);
 			return closure;
 		}
 	}

@@ -124,7 +124,7 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLuaResourcesScript : LunyLuaScript
 	{
-		private string m_ScriptPath;
+		private readonly String m_ScriptPath;
 
 		public override String FullPath => m_ScriptPath;
 

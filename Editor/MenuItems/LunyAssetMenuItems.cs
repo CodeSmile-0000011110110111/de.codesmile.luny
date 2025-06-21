@@ -13,13 +13,14 @@ namespace CodeSmileEditor.Luny
 {
 	internal static class CreateLunyAssetsMenu
 	{
-		private static readonly String s_EmptyLuaScript = "-- 'context' can be any name, the ellipsis (...) represents arguments passed to the script\n" +
-		                                                  "local context = ...\n" +
-		                                                  "\n" +
-		                                                  "-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
-		                                                  "function context.Awake()\n" +
-		                                                  "	print(\"Hello, \" .. context.ScriptName .. \".lua on \" .. tostring(context.gameObject))\n" +
-		                                                  "end\n";
+		private static readonly String s_EmptyLuaScript =
+			"-- 'context' can be any name, the ellipsis (...) represents arguments passed to the script\n" +
+			"local context = ...\n" +
+			"\n" +
+			"-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
+			"function context.Awake()\n" +
+			"	print(\"Hello, \" .. context.ScriptName .. \".lua on \" .. tostring(context.gameObject))\n" +
+			"end\n";
 
 		private static readonly String s_EmptyLunyScript = "using CodeSmile.Luny;\n" +
 		                                                   "using UnityEngine;\n\n" +

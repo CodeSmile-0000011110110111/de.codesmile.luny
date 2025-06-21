@@ -81,6 +81,7 @@ namespace CodeSmile.Luny
 		OnTriggerExit2D,
 		OnTriggerStay2D,
 	}
+
 	public enum ScriptPhysics3DEvent
 	{
 		OnCollisionEnter,
@@ -92,6 +93,7 @@ namespace CodeSmile.Luny
 		OnTriggerExit,
 		OnTriggerStay,
 	}
+
 	public enum ScriptRenderingEvent
 	{
 		OnBecameInvisible,
