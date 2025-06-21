@@ -18,16 +18,16 @@ namespace CodeSmile.Luny
 	/// OnDestroy runs before dependent components have been destroyed.
 	/// </remarks>
 	[AddComponentMenu("GameObject/")] // Do not list in "Add Component" menu
-	public sealed class LunyScriptRunner : MonoBehaviour
+	internal sealed class LunyScriptRunner : MonoBehaviour
 	{
 		private static readonly LuaValue[] OneArg = new LuaValue[1];
 
 		private ILunyLua m_Lua;
 		private LunyLuaScript m_LuaScript;
-		private LunyEventHandler<ScriptLifecycleEvent> m_LifecycleEvents;
-		private LunyEventHandler<ScriptPhysics2DEvent> m_Physics2DEvents;
-		private LunyEventHandler<ScriptPhysics3DEvent> m_Physics3DEvents;
-		private LunyEventHandler<ScriptRenderingEvent> m_RenderEvents;
+		private LunyLuaScriptEventHandler<ScriptLifecycleEvent> m_LifecycleEvents;
+		private LunyLuaScriptEventHandler<ScriptPhysics2DEvent> m_Physics2DEvents;
+		private LunyLuaScriptEventHandler<ScriptPhysics3DEvent> m_Physics3DEvents;
+		private LunyLuaScriptEventHandler<ScriptRenderingEvent> m_RenderEvents;
 
 		private Boolean m_Physics2DEventsEnabled;
 		private Boolean m_Physics3DEventsEnabled;
@@ -35,13 +35,15 @@ namespace CodeSmile.Luny
 		private Boolean m_DestroyDidCallOnDisable;
 		private Boolean m_DestroyDidCallOnDestroy;
 
-		private LunyEventHandler<ScriptPhysics2DEvent> Physics2DEvents => m_Physics2DEventsEnabled && m_Physics2DEvents != null
-			? m_Physics2DEvents
-			: m_Physics2DEvents = m_LuaScript.EventHandler<ScriptPhysics2DEvent>();
-		private LunyEventHandler<ScriptPhysics3DEvent> Physics3DEvents => m_Physics3DEventsEnabled && m_Physics3DEvents != null
-			? m_Physics3DEvents
-			: m_Physics3DEvents = m_LuaScript.EventHandler<ScriptPhysics3DEvent>();
-		private LunyEventHandler<ScriptRenderingEvent> RenderEvents => m_RenderEventsEnabled && m_RenderEvents != null
+		private LunyLuaScriptEventHandler<ScriptPhysics2DEvent> Physics2DEvents =>
+			m_Physics2DEventsEnabled && m_Physics2DEvents != null
+				? m_Physics2DEvents
+				: m_Physics2DEvents = m_LuaScript.EventHandler<ScriptPhysics2DEvent>();
+		private LunyLuaScriptEventHandler<ScriptPhysics3DEvent> Physics3DEvents =>
+			m_Physics3DEventsEnabled && m_Physics3DEvents != null
+				? m_Physics3DEvents
+				: m_Physics3DEvents = m_LuaScript.EventHandler<ScriptPhysics3DEvent>();
+		private LunyLuaScriptEventHandler<ScriptRenderingEvent> RenderEvents => m_RenderEventsEnabled && m_RenderEvents != null
 			? m_RenderEvents
 			: m_RenderEvents = m_LuaScript.EventHandler<ScriptRenderingEvent>();
 
@@ -54,8 +56,8 @@ namespace CodeSmile.Luny
 			m_Lua = initRefs.Lua;
 			m_LuaScript = initRefs.LuaScript;
 			m_LifecycleEvents = m_LuaScript.EventHandler<ScriptLifecycleEvent>();
-			m_Physics2DEventsEnabled =(initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics2D) != 0;
-			m_Physics3DEventsEnabled =(initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics3D) != 0;
+			m_Physics2DEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics2D) != 0;
+			m_Physics3DEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics3D) != 0;
 			m_RenderEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Rendering) != 0;
 		}
 
@@ -84,15 +86,13 @@ namespace CodeSmile.Luny
 			m_LifecycleEvents = null;
 		}
 
+		// Update events
 		private void FixedUpdate() => m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.FixedUpdate);
 		private void Update() => m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.Update);
 		private void LateUpdate() => m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.LateUpdate);
 
 		// Editor-only events
-		private void Reset() => m_LuaScript.EventHandler<ScriptEditorOnlyEvent>()
-			.Send(m_Lua.State, (Int32)ScriptEditorOnlyEvent.Reset);
-
-		private void OnValidate() => m_LuaScript.EventHandler<ScriptEditorOnlyEvent>()
+		internal void OnValidate() => m_LuaScript.EventHandler<ScriptEditorOnlyEvent>()
 			.Send(m_Lua.State, (Int32)ScriptEditorOnlyEvent.OnValidate);
 
 		private void OnDrawGizmos() => m_LuaScript.EventHandler<ScriptEditorOnlyEvent>()
@@ -126,26 +126,111 @@ namespace CodeSmile.Luny
 		private void OnPreRender() => RenderEvents?.Send(m_Lua.State, (Int32)ScriptRenderingEvent.OnPreRender);
 		private void OnWillRenderObject() => RenderEvents?.Send(m_Lua.State, (Int32)ScriptRenderingEvent.OnWillRenderObject);
 		private void OnRenderObject() => RenderEvents?.Send(m_Lua.State, (Int32)ScriptRenderingEvent.OnRenderObject);
-		//private void OnRenderImage(RenderTexture source, RenderTexture destination) {}
 		private void OnPostRender() => RenderEvents?.Send(m_Lua.State, (Int32)ScriptRenderingEvent.OnPostRender);
 
 		// 2D Physics events
-		private void OnJointBreak2D(Joint2D brokenJoint) => Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnJointBreak2D);
-		// private void OnCollisionEnter2D(Collision2D other) => m_LuaScript?.OnCollisionEnter2D(other);
-		// private void OnCollisionExit2D(Collision2D other) => m_LuaScript?.OnCollisionExit2D(other);
-		// private void OnCollisionStay2D(Collision2D other) => m_LuaScript?.OnCollisionStay2D(other);
-		// private void OnTriggerEnter2D(Collider2D other) => m_LuaScript?.OnTriggerEnter2D(other);
-		// private void OnTriggerExit2D(Collider2D other) => m_LuaScript?.OnTriggerExit2D(other);
-		// private void OnTriggerStay2D(Collider2D other) => m_LuaScript?.OnTriggerStay2D(other);
+		private void OnJointBreak2D(Joint2D brokenJoint)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnJointBreak2D, OneArg);
+		}
+
+		private void OnCollisionEnter2D(Collision2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnCollisionEnter2D, OneArg);
+		}
+
+		private void OnCollisionExit2D(Collision2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnCollisionExit2D, OneArg);
+		}
+
+		private void OnCollisionStay2D(Collision2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnCollisionStay2D, OneArg);
+		}
+
+		private void OnTriggerEnter2D(Collider2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnTriggerEnter2D, OneArg);
+		}
+
+		private void OnTriggerExit2D(Collider2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnTriggerExit2D, OneArg);
+		}
+
+		private void OnTriggerStay2D(Collider2D other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics2DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics2DEvent.OnTriggerStay2D, OneArg);
+		}
 
 		// 3D Physics events
-		private void OnJointBreak(Single breakForce) => Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnJointBreak);
-		// private void OnCollisionEnter(Collision other) => m_LuaScript?.OnCollisionEnter(other);
-		// private void OnCollisionExit(Collision other) => m_LuaScript?.OnCollisionExit(other);
-		// private void OnCollisionStay(Collision other) => m_LuaScript?.OnCollisionStay(other);
-		// private void OnTriggerEnter(Collider other) => m_LuaScript?.OnTriggerEnter(other);
-		// private void OnTriggerExit(Collider other) => m_LuaScript?.OnTriggerExit(other);
-		// private void OnTriggerStay(Collider other) => m_LuaScript?.OnTriggerStay(other);
+		private void OnJointBreak(Single breakForce)
+		{
+			OneArg[0] = breakForce;
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnJointBreak, OneArg);
+		}
+
+		private void OnCollisionEnter(Collision other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnCollisionEnter, OneArg);
+		}
+
+		private void OnCollisionExit(Collision other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnCollisionExit, OneArg);
+		}
+
+		private void OnCollisionStay(Collision other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnCollisionStay, OneArg);
+		}
+
+		private void OnTriggerEnter(Collider other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnTriggerEnter, OneArg);
+		}
+
+		private void OnTriggerExit(Collider other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnTriggerExit, OneArg);
+		}
+
+		private void OnTriggerStay(Collider other)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnTriggerStay, OneArg);
+		}
+
+		private void OnControllerColliderHit(ControllerColliderHit hit)
+		{
+			OneArg[0] = "ArgumentNotImplemented";
+			Physics3DEvents?.Send(m_Lua.State, (Int32)ScriptPhysics3DEvent.OnControllerColliderHit, OneArg);
+		}
+
+		// Transform events
+		private void OnBeforeTransformParentChanged() => m_LuaScript.EventHandler<ScriptTransformEvent>()
+			.Send(m_Lua.State, (Int32)ScriptTransformEvent.OnBeforeTransformParentChanged);
+
+		private void OnTransformChildrenChanged() => m_LuaScript.EventHandler<ScriptTransformEvent>()
+			.Send(m_Lua.State, (Int32)ScriptTransformEvent.OnTransformChildrenChanged);
+
+		private void OnTransformParentChanged() => m_LuaScript.EventHandler<ScriptTransformEvent>()
+			.Send(m_Lua.State, (Int32)ScriptTransformEvent.OnTransformParentChanged);
+
+		public void OnWillReload() {}
 
 		public void OnBeforeDestroy()
 		{
@@ -159,6 +244,7 @@ namespace CodeSmile.Luny
 			m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.Awake);
 			m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.OnEnable);
 		}
+
 		private void SendOnDisable()
 		{
 			if (m_DestroyDidCallOnDisable)
@@ -176,30 +262,5 @@ namespace CodeSmile.Luny
 			m_DestroyDidCallOnDestroy = true;
 			m_LifecycleEvents.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.OnDestroy);
 		}
-
-
-		// Unity Messages not yet implemented:
-
-		// private void OnMouseDown() {}
-		// private void OnMouseDrag() {}
-		// private void OnMouseEnter() {}
-		// private void OnMouseExit() {}
-		// private void OnMouseOver() {}
-		// private void OnMouseUp() {}
-		// private void OnMouseUpAsButton() {}
-
-		// private void OnBeforeTransformParentChanged() => Debug.Log("LunyScript OnBeforeTransformParentChanged");
-		// private void OnTransformChildrenChanged() => Debug.Log("LunyScript OnTransformChildrenChanged");
-		// private void OnTransformParentChanged() => Debug.Log("LunyScript OnTransformParentChanged");
-
-		// private void OnGUI() => throw new NotImplementedException();
-		// private void OnCanvasGroupChanged() => throw new NotImplementedException();
-		// private void OnCanvasHierarchyChanged() => throw new NotImplementedException();
-		// private void OnRectTransformDimensionsChange() => throw new NotImplementedException();
-
-		// private void OnParticleCollision(GameObject other) => throw new NotImplementedException();
-		// private void OnParticleSystemStopped() => throw new NotImplementedException();
-		// private void OnParticleTrigger() => throw new NotImplementedException();
-		// private void OnParticleUpdateJobScheduled() => throw new NotImplementedException();
 	}
 }

@@ -30,10 +30,33 @@ namespace CodeSmile.Luny
 			(m_LunyRuntime as LunyRuntime).OnDestroyLunyRuntime += OnDestroyLunyRuntime;
 		}
 
+		private void OnDestroy()
+		{
+			UnregisterLunyOnDestroyEvent();
+			InvokeAllRunnersOnBeforeDestroy();
+
+			// (m_LunyGameObject as ILunyGameObjectInternal)?.Dispose();
+			// m_LunyGameObject = null;
+			m_LunyRuntime = null;
+		}
+
 		private void OnDestroyLunyRuntime()
 		{
-			//InvokeAllRunnersOnBeforeDestroy();
-			//throw new NotImplementedException();
+			UnregisterLunyOnDestroyEvent();
+			InvokeAllRunnersOnBeforeDestroy();
+		}
+
+		private void UnregisterLunyOnDestroyEvent()
+		{
+			if (m_LunyRuntime != null)
+				m_LunyRuntime.OnDestroyLunyRuntime -= OnDestroyLunyRuntime;
+		}
+
+		private void InvokeAllRunnersOnBeforeDestroy()
+		{
+			// make all runners call OnDestroy first before invalidating the LunyGameObject instance
+			if (TryGetComponent(out LunyScriptCoordinator coordinator))
+				coordinator.InvokeAllRunnersOnBeforeDestroy();
 		}
 
 		private ILunyRuntime GetOrAddLunyRuntime()

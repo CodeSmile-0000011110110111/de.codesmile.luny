@@ -14,7 +14,6 @@ namespace CodeSmile.Luny
 {
 	public abstract class LunyLuaScript
 	{
-		public event Func<LunyLuaScript, ValueTask> OnScriptChanged;
 		public const String InstanceKey = "this";
 		public const String ScriptTypeKey = "ScriptType";
 		public const String ScriptNameKey = "ScriptName";
@@ -22,12 +21,13 @@ namespace CodeSmile.Luny
 		public const String EditorTypeKey = "EditorType";
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
-		private readonly LunyEventHandlerCollection m_EventHandlers = new();
+		private readonly LunyLuaScriptEventHandlerCollection m_EventHandlers = new();
+		public Action<LunyLuaScript> OnScriptChanged;
 
 		private LuaTable m_ScriptContext;
-		private string m_ScriptName;
+		private String m_ScriptName;
 
-		public string Name => m_ScriptName;
+		public String Name => m_ScriptName;
 		public abstract String FullPath { get; }
 		public LuaTable ScriptContext => m_ScriptContext;
 
@@ -37,7 +37,7 @@ namespace CodeSmile.Luny
 
 		internal void Dispose() => m_ScriptContext = null;
 
-		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this).Preserve().GetAwaiter().GetResult();
+		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this);
 
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
@@ -51,7 +51,7 @@ namespace CodeSmile.Luny
 				eventHandler.BindEventCallbacks(m_ScriptContext);
 
 			var loadEvent = EventHandler<ScriptLoadEvent>();
-			loadEvent.Send(luaState, (int)ScriptLoadEvent.OnDidLoadScript);
+			loadEvent.Send(luaState, (Int32)ScriptLoadEvent.OnDidLoadScript);
 		}
 
 		protected void SetDefaultContextValues(String name, String path)
@@ -62,12 +62,12 @@ namespace CodeSmile.Luny
 			ScriptContext[ScriptPathKey] = path;
 		}
 
-		public LunyEventHandler<T> EventHandler<T>() where T : Enum
+		public LunyLuaScriptEventHandler<T> EventHandler<T>() where T : Enum
 		{
 			var handler = m_EventHandlers.TryGet<T>();
 			if (handler == null)
 			{
-				handler = new LunyEventHandler<T>(ScriptContext);
+				handler = new LunyLuaScriptEventHandler<T>(ScriptContext);
 				m_EventHandlers.Add(typeof(T), handler);
 			}
 
@@ -77,7 +77,7 @@ namespace CodeSmile.Luny
 		public async ValueTask ReloadScript(LuaState luaState)
 		{
 			var reloadEvent = EventHandler<ScriptLoadEvent>();
-			reloadEvent.Send(luaState, (int)ScriptLoadEvent.OnWillReloadScript);
+			reloadEvent.Send(luaState, (Int32)ScriptLoadEvent.OnWillReloadScript);
 			await DoScriptAsync(luaState);
 		}
 
@@ -123,6 +123,92 @@ namespace CodeSmile.Luny
 		}
 	}
 
+	public sealed class LunyLuaResourcesScript : LunyLuaScript
+	{
+		private string m_ScriptPath;
+
+		public override String FullPath => m_ScriptPath;
+
+		public static IEnumerable<LunyLuaResourcesScript> CreateAll(IEnumerable<String> paths)
+		{
+			var scripts = new List<LunyLuaResourcesScript>();
+			if (paths != null)
+			{
+				foreach (var path in paths)
+				{
+					if (String.IsNullOrEmpty(path) == false)
+						scripts.Add(new LunyLuaResourcesScript(path));
+				}
+			}
+			return scripts;
+		}
+
+		public LunyLuaResourcesScript(String resourcesPath, LuaTable scriptContext = null)
+			: base(scriptContext)
+		{
+			if (String.IsNullOrEmpty(resourcesPath))
+				throw new ArgumentException(nameof(resourcesPath));
+			if (Path.HasExtension(resourcesPath))
+				throw new ArgumentException(nameof(resourcesPath), $"{resourcesPath} has a file extension");
+
+			m_ScriptPath = resourcesPath;
+			var luaAsset = Resources.Load<LunyLuaAsset>(m_ScriptPath);
+			SetDefaultContextValues(luaAsset.name, FullPath);
+		}
+
+		internal override async ValueTask DoScriptAsync(LuaState luaState)
+		{
+			var luaAsset = Resources.Load<LunyLuaAsset>(m_ScriptPath);
+			await luaState.DoStringAsync(luaAsset.Text, luaAsset.name, ScriptContext);
+			OnAfterDoScript(luaState);
+		}
+	}
+
+	public sealed class LunyLuaStreamingAssetsScript : LunyLuaScript
+	{
+		private readonly String m_FullPath;
+		private readonly String m_ScriptPath;
+
+		public override String FullPath => m_FullPath;
+
+		public static IEnumerable<LunyLuaStreamingAssetsScript> CreateAll(IEnumerable<String> paths)
+		{
+			var scripts = new List<LunyLuaStreamingAssetsScript>();
+			if (paths != null)
+			{
+				foreach (var path in paths)
+				{
+					if (String.IsNullOrEmpty(path) == false)
+						scripts.Add(new LunyLuaStreamingAssetsScript(path));
+				}
+			}
+			return scripts;
+		}
+
+		public LunyLuaStreamingAssetsScript(String streamingAssetsPath, LuaTable scriptContext = null)
+			: base(scriptContext)
+		{
+			if (String.IsNullOrEmpty(streamingAssetsPath))
+				throw new ArgumentException(nameof(streamingAssetsPath));
+			if (Path.IsPathRooted(streamingAssetsPath))
+				throw new ArgumentException($"not a relative StreamingAssets path: {streamingAssetsPath}");
+
+			m_FullPath = $"{Application.streamingAssetsPath}/{streamingAssetsPath}";
+			m_ScriptPath = $"Assets/StreamingAssets/{streamingAssetsPath}";
+
+			if (File.Exists(m_FullPath) == false)
+				throw new FileNotFoundException($"StreamingAssets script does not exist: {m_FullPath}");
+
+			SetDefaultContextValues(Path.GetFileNameWithoutExtension(m_ScriptPath), m_ScriptPath);
+		}
+
+		internal override async ValueTask DoScriptAsync(LuaState luaState)
+		{
+			await luaState.DoFileAsync(m_ScriptPath, ScriptContext);
+			OnAfterDoScript(luaState);
+		}
+	}
+
 	public sealed class LunyLuaFileScript : LunyLuaScript
 	{
 		private readonly String m_FullPath;
@@ -130,7 +216,7 @@ namespace CodeSmile.Luny
 
 		public override String FullPath => m_FullPath;
 
-		public static IEnumerable<LunyLuaFileScript> Create(IEnumerable<String> paths)
+		public static IEnumerable<LunyLuaFileScript> CreateAll(IEnumerable<String> paths)
 		{
 			var scripts = new List<LunyLuaFileScript>();
 			if (paths != null)
@@ -147,7 +233,7 @@ namespace CodeSmile.Luny
 		public LunyLuaFileScript(String filePath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
-			if (string.IsNullOrEmpty(filePath))
+			if (String.IsNullOrEmpty(filePath))
 				throw new ArgumentException(nameof(filePath));
 
 			m_FullPath = Path.GetFullPath(filePath).ToForwardSlashes();

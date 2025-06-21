@@ -19,7 +19,7 @@ namespace CodeSmile.Luny
 	/// </remarks>
 	[AddComponentMenu("GameObject/")] // Do not list in "Add Component" menu
 	[DisallowMultipleComponent]
-	public sealed class LunyScriptCoordinator : MonoBehaviour
+	internal sealed class LunyScriptCoordinator : MonoBehaviour
 	{
 		private readonly Dictionary<Int32, LunyScriptRunner> m_Runners = new();
 
@@ -53,6 +53,7 @@ namespace CodeSmile.Luny
 			if (TryGetScriptRunner(lunyScript, out var runner) == false)
 				return false;
 
+			runner.OnWillReload();
 			runner.DestroyInAnyMode();
 			return true;
 		}

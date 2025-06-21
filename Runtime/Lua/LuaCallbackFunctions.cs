@@ -2,18 +2,17 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
-using Lua.Runtime;
 using System;
 using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	internal sealed class LuaCallbacks
+	internal sealed class LuaCallbackFunctions
 	{
 		private readonly LuaFunction[] m_CallbackFunctions;
 
-		internal LuaCallbacks(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
+		internal LuaCallbackFunctions(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
 
 		public void TryInvoke(LuaState luaState, Int32 index, params LuaValue[] args)
 		{

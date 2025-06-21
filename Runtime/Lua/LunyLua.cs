@@ -7,6 +7,7 @@ using Lua.Standard;
 using Lua.Unity;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -225,15 +226,31 @@ namespace CodeSmile.Luny
 			if (changedFiles == null)
 				return;
 
-			foreach (var path in changedFiles)
+			const string ResourcesFilter = "/Resources/";
+
+			foreach (var changedFile in changedFiles)
 			{
-				if (m_Scripts.TryGetScriptForPath(path, out var changedScript))
+				var scriptPath = changedFile;
+				var resourcesIndex = changedFile.LastIndexOf(ResourcesFilter);
+				if (resourcesIndex > 0)
 				{
-					m_FileWatcher.RemoveChangedFile(path);
+					var relativePath = changedFile.Substring(resourcesIndex + ResourcesFilter.Length);
+					scriptPath = Path.GetFileNameWithoutExtension(relativePath);
+				}
+
+				if (m_Scripts.TryGetScriptForPath(scriptPath, out var changedScript))
+				{
+					m_FileWatcher.RemoveChangedFile(changedFile);
 
 					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
 					if (changedScript is LunyLuaAssetScript assetScript)
 						EditorAssetUtility.Import(assetScript.LuaAsset);
+					else if (resourcesIndex > 0)
+					{
+						// force reload of Resources script
+						var resourcePath = changedFile.Replace($"{Application.dataPath}/", "Assets/");
+						EditorAssetUtility.Import(resourcePath);
+					}
 
 					changedScript.OnScriptChangedInternal();
 				}

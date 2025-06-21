@@ -10,6 +10,7 @@ namespace CodeSmile.Luny
 	// OnGUI => This is for (legacy) IMGUI which should not be used anymore. I don't intend to support IMGUI in any way.
 	// OnMouse* => These are outdated and should not be used anymore.
 	// OnParticleUpdateJobScheduled => This makes only sense in combination with Jobs.
+	// OnRenderImage => This is a legacy Built-In Render Pipeline method. It won't work with Scriptable Render Pipelines.
 
 	public enum ScriptAnimatorEvent
 	{
@@ -34,7 +35,7 @@ namespace CodeSmile.Luny
 		OnDrawGizmos,
 		OnDrawGizmosSelected,
 		OnValidate,
-		Reset,
+		Reset, // MonoBehaviour scripts will not receive this as Reset won't occur in Playmode
 	}
 
 	public enum ScriptLifecycleEvent
@@ -48,12 +49,12 @@ namespace CodeSmile.Luny
 		Start,
 		Update,
 	}
-	public enum ScriptUpdateEvent
-	{
-		FixedUpdate,
-		LateUpdate,
-		Update,
-	}
+	// public enum ScriptUpdateEvent
+	// {
+	// 	FixedUpdate,
+	// 	LateUpdate,
+	// 	Update,
+	// }
 
 	public enum ScriptLoadEvent
 	{
@@ -96,13 +97,13 @@ namespace CodeSmile.Luny
 		OnPostRender,
 		OnPreCull,
 		OnPreRender,
-		OnRenderImage,
 		OnRenderObject,
 		OnWillRenderObject,
 	}
 
 	public enum ScriptTransformEvent
 	{
+		OnBeforeTransformParentChanged,
 		OnTransformChildrenChanged,
 		OnTransformParentChanged,
 	}

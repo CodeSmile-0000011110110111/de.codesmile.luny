@@ -9,14 +9,14 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public abstract class LunyEventHandlerBase
+	public abstract class LunyLuaScriptEventHandlerBase
 	{
-		private LuaCallbacks m_Callbacks;
+		private LuaCallbackFunctions m_Callbacks;
 
 		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
 			m_Callbacks?.TryInvoke(luaState, eventIndex, args);
 
-		private LuaCallbacks CreateCallbacks<T>(LuaTable context) where T : Enum
+		private LuaCallbackFunctions CreateCallbacks<T>(LuaTable context) where T : Enum
 		{
 			var functionNames = Enum.GetNames(typeof(T));
 			var functionCount = functionNames.Length;
@@ -33,16 +33,16 @@ namespace CodeSmile.Luny
 				}
 			}
 
-			return callbackCount > 0 ? new LuaCallbacks(callbackFunctions) : null;
+			return callbackCount > 0 ? new LuaCallbackFunctions(callbackFunctions) : null;
 		}
 
 		internal void BindEventCallbacks<T>(LuaTable context) where T : Enum => m_Callbacks = CreateCallbacks<T>(context);
 		internal abstract void BindEventCallbacks(LuaTable context);
 	}
 
-	public sealed class LunyEventHandler<T> : LunyEventHandlerBase where T : Enum
+	public sealed class LunyLuaScriptEventHandler<T> : LunyLuaScriptEventHandlerBase where T : Enum
 	{
-		public LunyEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
+		public LunyLuaScriptEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
 		internal override void BindEventCallbacks(LuaTable context) => BindEventCallbacks<T>(context);
 	}
 }
