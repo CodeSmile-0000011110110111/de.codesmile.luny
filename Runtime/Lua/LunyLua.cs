@@ -220,7 +220,7 @@ namespace CodeSmile.Luny
 			env["error"] = LunyLogger.LuaLogError;
 		}
 
-		public void NotifyChangedScripts()
+		internal void NotifyChangedScripts()
 		{
 			var changedFiles = m_FileWatcher.ChangedFiles;
 			if (changedFiles == null)
@@ -255,6 +255,11 @@ namespace CodeSmile.Luny
 					changedScript.OnScriptChangedInternal();
 				}
 			}
+		}
+
+		internal void ClearChangedScripts()
+		{
+			m_FileWatcher.ClearChangedFiles();
 		}
 	}
 }

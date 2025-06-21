@@ -19,6 +19,8 @@ namespace CodeSmile.Luny
 		internal LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
 		internal void RemoveChangedFile(String fullPath) => LuaFileWatchers.RemoveChangedFile(fullPath);
 
+		internal void ClearChangedFiles() => LuaFileWatchers.ClearChangedFiles();
+
 		private void InstallFileWatchers(LunySearchPaths searchPaths)
 		{
 			// always monitor "Assets" in editor
@@ -57,9 +59,7 @@ namespace CodeSmile.Luny
 		{
 			private static readonly Dictionary<String, RefCountWatcher> s_Watchers = new();
 			private static readonly HashSet<String> s_ChangedFiles = new();
-			public static String[] ChangedFiles => s_ChangedFiles.Count > 0 ? s_ChangedFiles.ToArray() : null;
-
-			public static void RemoveChangedFile(String fullPath) => s_ChangedFiles.Remove(fullPath);
+			internal static String[] ChangedFiles => s_ChangedFiles.Count > 0 ? s_ChangedFiles.ToArray() : null;
 
 			public static void AddWatcher(String fullPath)
 			{
@@ -97,6 +97,9 @@ namespace CodeSmile.Luny
 					}
 				}
 			}
+
+			internal static void RemoveChangedFile(String fullPath) => s_ChangedFiles.Remove(fullPath);
+			internal static void ClearChangedFiles() => s_ChangedFiles.Clear();
 
 			private static RefCountWatcher FindMatchingWatcher(String fullPath)
 			{

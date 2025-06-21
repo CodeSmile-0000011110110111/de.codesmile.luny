@@ -82,7 +82,13 @@ namespace CodeSmileEditor.Luny
 		private void OnEditorUpdate()
 		{
 			if (m_Lua != null)
+			{
 				m_Lua.NotifyChangedScripts();
+
+				// clear any runtime-only changed scripts, these don't need hot reloading outside playmode
+				if (Application.isPlaying == false)
+					m_Lua.ClearChangedScripts();
+			}
 		}
 
 		private void OnEditorContextChanged(LunyLuaContext luaContext) => m_Lua = CreateLuaState();
