@@ -87,7 +87,6 @@ namespace CodeSmile.Luny
 	public sealed class LunyLuaAssetScript : LunyLuaScript
 	{
 		private readonly LunyLuaAsset m_LuaAsset;
-
 		public LunyLuaAsset LuaAsset => m_LuaAsset;
 
 		public override String FullPath => m_LuaAsset.FullPath;

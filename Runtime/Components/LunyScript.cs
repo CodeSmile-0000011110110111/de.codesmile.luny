@@ -14,27 +14,37 @@ namespace CodeSmile.Luny
 	[Flags]
 	public enum LuaScriptEvents
 	{
-		Lifecycle = 1 << 0,
-		// Update?
-		Physics2D = 1 << 3,
-		Physics3D = 1 << 4,
-		Rendering = 1 << 8,
+		// Animator? = 1 << 0,
+		// Audio? = 1 << 1,
+		// EditorOnly? = 1 << 2,
+		Lifecycle = 1 << 3,
+		// Particles? = 1 << 4,
+		Physics2D = 1 << 5,
+		Physics3D = 1 << 6,
+		Rendering = 1 << 7,
+		// TransformChange? = 1 << 8,
+		// UGUI? = 1 << 9,
+		// Update? = 1 << 10,
 	}
 
 	public class LunyScript : MonoBehaviour
 	{
 		[Tooltip("The script asset to run.")]
 		[SerializeField] private LunyRuntimeLuaAsset m_LuaAsset;
-		[Tooltip("Relative path to a Lua script file in StreamingAssets (with .lua extension) or Resources (no extension).")]
+		[Tooltip("Relative path to a Lua file located in StreamingAssets (with .lua extension) or Resources (no extension). " +
+		         "Path must be relative to StreamingAssets/Resources ie it mustn't start with '/Assets/..'. " +
+		         "Note: Resources scripts should be assigned to the LuaAsset field instead.")]
 		[SerializeField] private String m_LuaFilePath;
-		[SerializeField] private LuaScriptEvents m_LuaScriptEvents = (LuaScriptEvents)(-1); // default to "Everything"
+		[Tooltip("Defines what kind of frequently raised events (Unity 'messages') the Lua script will receive. " +
+		         "Disabling event categories that you do not use could improve performance.")]
+		[SerializeField] private LuaScriptEvents m_ForwardedEventTypes = (LuaScriptEvents)(-1); // default to "Everything"
 		[SerializeField] private Boolean m_UseModdingContext;
 
 		private ILunyLua m_Lua;
 		private LunyReference m_LunyRef;
 		private LunyLuaScript m_LuaScript;
 		private Boolean m_IsLunyRefAssigned;
-		public LuaScriptEvents LuaScriptEvents => m_LuaScriptEvents;
+		public LuaScriptEvents ForwardedEventTypes => m_ForwardedEventTypes;
 
 		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
 		public ILunyLua Lua => m_Lua;
@@ -46,7 +56,7 @@ namespace CodeSmile.Luny
 		/// </summary>
 		protected virtual void OnValidate()
 		{
-			m_LuaScriptEvents |= LuaScriptEvents.Lifecycle;
+			m_ForwardedEventTypes |= LuaScriptEvents.Lifecycle;
 
 			// LuaAsset and FilePath are mutually exclusive
 			if (m_LuaFilePath?.Length > 0)

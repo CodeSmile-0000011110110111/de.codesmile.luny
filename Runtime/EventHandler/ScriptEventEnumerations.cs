@@ -11,11 +11,13 @@ namespace CodeSmile.Luny
 	// OnMouse* => These are outdated and should not be used anymore.
 	// OnParticleUpdateJobScheduled => This makes only sense in combination with Jobs.
 	// OnRenderImage => This is a legacy Built-In Render Pipeline method. It won't work with Scriptable Render Pipelines.
+	// On*Server* => These are obsolete UNET messages no longer in use.
 
 	public enum ScriptAnimatorEvent
 	{
 		OnAnimatorIK,
 		OnAnimatorMove,
+		OnDidApplyAnimationProperties,
 	}
 
 	public enum ScriptApplicationEvent

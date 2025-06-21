@@ -226,29 +226,42 @@ namespace CodeSmile.Luny
 			if (changedFiles == null)
 				return;
 
-			const string ResourcesFilter = "/Resources/";
+			const string ResourcesFilter = "/resources/";
 
 			foreach (var changedFile in changedFiles)
 			{
 				var scriptPath = changedFile;
-				var resourcesIndex = changedFile.LastIndexOf(ResourcesFilter);
-				if (resourcesIndex > 0)
+				var foundScript = m_Scripts.TryGetScriptForPath(scriptPath, out var changedScript);
+				var isResourcesScript = false;
+				if (foundScript == false)
 				{
-					var relativePath = changedFile.Substring(resourcesIndex + ResourcesFilter.Length);
-					scriptPath = Path.GetFileNameWithoutExtension(relativePath);
+					// not found? It could be a Resources path
+					var resourcesIndex = changedFile.ToLower().LastIndexOf(ResourcesFilter);
+					if (resourcesIndex > 0)
+					{
+						isResourcesScript = true;
+						var relativePath = changedFile.Substring(resourcesIndex + ResourcesFilter.Length);
+						scriptPath = Path.GetFileNameWithoutExtension(relativePath);
+
+						foundScript = m_Scripts.TryGetScriptForPath(scriptPath, out changedScript);
+					}
 				}
 
-				if (m_Scripts.TryGetScriptForPath(scriptPath, out var changedScript))
+				if (foundScript)
 				{
 					m_FileWatcher.RemoveChangedFile(changedFile);
 
 					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
 					if (changedScript is LunyLuaAssetScript assetScript)
+					{
+						//Debug.Log($"Reimport {assetScript} at path {assetScript.FullPath}");
 						EditorAssetUtility.Import(assetScript.LuaAsset);
-					else if (resourcesIndex > 0)
+					}
+					else if (isResourcesScript)
 					{
 						// force reload of Resources script
 						var resourcePath = changedFile.Replace($"{Application.dataPath}/", "Assets/");
+						//Debug.Log($"Reimport {resourcePath}");
 						EditorAssetUtility.Import(resourcePath);
 					}
 

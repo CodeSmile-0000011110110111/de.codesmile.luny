@@ -56,9 +56,9 @@ namespace CodeSmile.Luny
 			m_Lua = initRefs.Lua;
 			m_LuaScript = initRefs.LuaScript;
 			m_LifecycleEvents = m_LuaScript.EventHandler<ScriptLifecycleEvent>();
-			m_Physics2DEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics2D) != 0;
-			m_Physics3DEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Physics3D) != 0;
-			m_RenderEventsEnabled = (initRefs.LunyScript.LuaScriptEvents & LuaScriptEvents.Rendering) != 0;
+			m_Physics2DEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Physics2D) != 0;
+			m_Physics3DEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Physics3D) != 0;
+			m_RenderEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Rendering) != 0;
 		}
 
 		private void OnEnable()
