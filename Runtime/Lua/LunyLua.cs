@@ -24,8 +24,10 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
+		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
+		ValueTask RunScript(LunyLuaScript script);
 		void RemoveScript(LunyLuaScript script);
 		void Dispose();
 	}
@@ -59,11 +61,13 @@ namespace CodeSmile.Luny
 			if (script == null)
 				throw new ArgumentNullException(nameof(script));
 
-			RemoveScript(script);
-			m_Scripts.Add(script); // FIXME: LunyLua should not keep references to scripts but needs it for filewatcher
-
-			await script.DoScriptAsync(m_LuaState);
+			AddScript(script);
+			await RunScript(script);
 		}
+
+		public void AddScript(LunyLuaScript script) => m_Scripts.Add(script);
+
+		public async ValueTask RunScript(LunyLuaScript script) => await script.DoScriptAsync(m_LuaState);
 
 		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
 		{

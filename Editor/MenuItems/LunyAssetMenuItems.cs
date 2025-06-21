@@ -13,26 +13,17 @@ namespace CodeSmileEditor.Luny
 {
 	internal static class CreateLunyAssetsMenu
 	{
-		private static readonly String s_EmptyLuaScript = "-- 'script' can be renamed, but it must be a table\n" +
-		                                                  "-- the three dots (...) represent variable arguments passed in (reserved for future use)\n" +
-		                                                  "local script = {...}\n" +
-		                                                  "-- you are free to add custom variables to script, these are read/writeable in C#\n" +
-		                                                  "script.OhWowThatsCoolBool = true\n" +
+		private static readonly String s_EmptyLuaScript = "-- 'context' can be any name, the ellipsis (...) represents arguments passed to the script\n" +
+		                                                  "local context = ...\n" +
 		                                                  "\n" +
-		                                                  "-- any Unity event can be a Lua function defined in the 'script' table\n" +
-		                                                  "function script.Start()\n" +
-		                                                  "	print(\"Hello, \" .. script.name .. \".lua on \" .. tostring(script.gameObject))\n" +
-		                                                  "end\n" +
-		                                                  "\n" +
-		                                                  "-- scripts must return a table containing zero or more Unity event functions\n" +
-		                                                  "return script\n";
+		                                                  "-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
+		                                                  "function context.Awake()\n" +
+		                                                  "	print(\"Hello, \" .. context.ScriptName .. \".lua on \" .. tostring(context.gameObject))\n" +
+		                                                  "end\n";
 
 		private static readonly String s_EmptyLunyScript = "using CodeSmile.Luny;\n" +
 		                                                   "using UnityEngine;\n\n" +
 		                                                   "public sealed class $ClassName$ : LunyScript\n{\n" +
-		                                                   "\t// Awake cannot be overridden, use OnAwake instead. " +
-		                                                   "The script has not been loaded at this point!\n" +
-		                                                   "\tprotected override void OnAwake()\n\t{\n\t}\n\n" +
 		                                                   "\t// Script was run and returned a LuaTable. " +
 		                                                   "Script's Awake() function has not been called yet.\n" +
 		                                                   "\t// You may want to get/set initial script variables before script's Awake():\n" +

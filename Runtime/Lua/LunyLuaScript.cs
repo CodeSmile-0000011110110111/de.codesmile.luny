@@ -12,9 +12,9 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public abstract class LunyLuaScript : IDisposable
+	public abstract class LunyLuaScript
 	{
-		public event Action<LunyLuaScript> OnScriptChanged;
+		public event Func<LunyLuaScript, ValueTask> OnScriptChanged;
 		public const String InstanceKey = "this";
 		public const String ScriptTypeKey = "ScriptType";
 		public const String ScriptNameKey = "ScriptName";
@@ -35,9 +35,9 @@ namespace CodeSmile.Luny
 
 		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? new LuaTable(0, 4);
 
-		public void Dispose() => m_ScriptContext = null;
+		internal void Dispose() => m_ScriptContext = null;
 
-		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this);
+		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this).Preserve().GetAwaiter().GetResult();
 
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
@@ -74,11 +74,11 @@ namespace CodeSmile.Luny
 			return handler;
 		}
 
-		public void Reload(LuaState luaState)
+		public async ValueTask ReloadScript(LuaState luaState)
 		{
 			var reloadEvent = EventHandler<ScriptLoadEvent>();
 			reloadEvent.Send(luaState, (int)ScriptLoadEvent.OnWillReloadScript);
-			DoScriptAsync(luaState);
+			await DoScriptAsync(luaState);
 		}
 
 		public override String ToString() => $"{m_ScriptName} ({GetType().Name})";

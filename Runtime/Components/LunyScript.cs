@@ -3,91 +3,84 @@
 
 using Lua;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Luny
 {
+	[Flags]
+	public enum LuaScriptEvents
+	{
+		Lifecycle = 1 << 0,
+		// Update?
+		Physics2D = 1 << 3,
+		Physics3D = 1 << 4,
+		Rendering = 1 << 8,
+	}
+
 	public class LunyScript : MonoBehaviour
 	{
 		[SerializeField] private LunyRuntimeLuaAsset m_LuaAsset;
+		[SerializeField] private LuaScriptEvents m_LuaScriptEvents = (LuaScriptEvents)(-1); // default to "Everything"
 		[SerializeField] private Boolean m_UseModdingContext;
 
 		private ILunyLua m_Lua;
-		private LunyLuaScript m_LuaScript;
-		private LunyEventHandler<ScriptLifecycleEvent> m_ScriptLifecycleEvent;
 		private LunyReference m_LunyRef;
+		private LunyLuaScript m_LuaScript;
 		private Boolean m_IsLunyRefAssigned;
+		public LuaScriptEvents LuaScriptEvents => m_LuaScriptEvents;
 
 		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
+		public ILunyLua Lua => m_Lua;
 
 		public static GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
 
-		private void Reset()
+		/// <summary>
+		/// Must call base.Reset() when overridden!
+		/// </summary>
+		protected virtual void Reset() => Helper.TryAssignMatchingScriptAsset(this);
+
+		/// <summary>
+		/// Must call base.OnValidate() when overridden!
+		/// </summary>
+		protected virtual void OnValidate()
 		{
-			// TryAssignMatchingScriptAsset();
-			// OnReset();
+			m_LuaScriptEvents |= LuaScriptEvents.Lifecycle;
 		}
 
-		private void Awake()
+		/// <summary>
+		/// Must call base.Awake() when overridden!
+		/// </summary>
+		/// <remarks>Prefer to override OnBeforeFirstScriptLoad(..) for once-only initialization!
+		/// Before calling base.Awake() none of the required references are assigned, and after base.Awake() the Lua script
+		/// will have already run its Awake() and OnEnable() functions.
+		/// </remarks>
+		protected virtual void Awake()
 		{
 			m_LunyRef = GetOrAddLunyReference();
+			m_Lua = GetLuaReference();
+			m_LuaScript = CreateLuaScriptInstance();
 
-			// for user override in subclass, to avoid having user call base.Awake (or forgetting to do so)
-			OnAwake();
-
-			m_Lua = m_UseModdingContext ? LunyRef.LunyRuntime.ModdingLua : LunyRef.LunyRuntime.RuntimeLua;
-			if (m_Lua == null)
-				throw new ArgumentNullException(nameof(m_Lua));
-
-			m_LuaScript = new LunyLuaAssetScript(m_LuaAsset);
-			m_LuaScript.OnScriptChanged -= OnScriptChanged;
-			m_LuaScript.OnScriptChanged += OnScriptChanged;
-			m_ScriptLifecycleEvent = m_LuaScript.EventHandler<ScriptLifecycleEvent>();
-
-			DoScriptAsync();
-			OnBeforeScriptLoad(m_LuaScript.ScriptContext);
-			m_ScriptLifecycleEvent.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.Awake);
+			OnBeforeFirstScriptLoad(m_LuaScript.ScriptContext);
+			DoScriptAsync().Preserve().GetAwaiter().GetResult();
 		}
 
 		/// <summary>
-		/// Must call base.OnEnable when overridden!
+		/// Must call base.OnEnable() when overridden!
 		/// </summary>
-		protected virtual void OnEnable()
-		{
-			m_ScriptLifecycleEvent.Send(m_Lua.State, (Int32)ScriptLifecycleEvent.OnEnable);
-			UpdateScriptRunnerEnabledState();
-		}
+		protected virtual void OnEnable() => UpdateScriptRunnerEnabledState();
 
 		/// <summary>
-		/// Must call base.OnDisable when overridden!
+		/// Must call base.OnDisable() when overridden!
 		/// </summary>
 		protected virtual void OnDisable() => UpdateScriptRunnerEnabledState();
 
 		/// <summary>
-		/// Must call base.OnDestroy when overridden!
+		/// Must call base.OnDestroy() when overridden!
 		/// </summary>
-		protected virtual void OnDestroy() {}
-
-		private void OnScriptChanged(LunyLuaScript script) => script.Reload(m_Lua.State);
-
-		private void DoScriptAsync()
-		{
-			try
-			{
-				m_Lua.RemoveScript(m_LuaScript);
-				m_Lua.AddAndRunScript(m_LuaScript);
-			}
-			catch (Exception e)
-			{
-				LunyLogger.LogError($"Error in {m_LuaScript}: {e.Message}");
-			}
-
-			var runnerRegistry = gameObject.GetOrAddComponent<LunyScriptRunnerRegistry>();
-			// if (runnerRegistry.DestroyScriptRunner(this))
-			// 	await Awaitable.EndOfFrameAsync(); // must wait for actual destroy of LunyScriptRunner component
-		}
+		protected virtual void OnDestroy() => m_Lua.RemoveScript(m_LuaScript);
 
 		private LunyReference GetOrAddLunyReference()
 		{
@@ -95,32 +88,107 @@ namespace CodeSmile.Luny
 			return gameObject.GetOrAddComponent<LunyReference>();
 		}
 
-		/// <summary>
-		/// Override this instead of Reset().
-		/// </summary>
-		protected virtual void OnReset() {}
+		private ILunyLua GetLuaReference()
+		{
+			var lua = m_UseModdingContext ? LunyRef.LunyRuntime.ModdingLua : LunyRef.LunyRuntime.RuntimeLua;
+			return lua != null ? lua : throw new ArgumentNullException(nameof(lua));
+		}
+
+		private LunyLuaScript CreateLuaScriptInstance()
+		{
+			if (m_LuaAsset == null)
+				throw new MissingReferenceException($"{nameof(m_LuaAsset)} is not assigned");
+
+			var luaScript = new LunyLuaAssetScript(m_LuaAsset);
+			m_Lua.AddScript(luaScript);
+			luaScript.OnScriptChanged -= OnScriptChanged;
+			luaScript.OnScriptChanged += OnScriptChanged;
+			return luaScript;
+		}
+
+		private async ValueTask OnScriptChanged(LunyLuaScript script)
+		{
+			Debug.Assert(script == m_LuaScript);
+			var reloadEvent = m_LuaScript.EventHandler<ScriptLoadEvent>();
+			reloadEvent.Send(m_Lua.State, (Int32)ScriptLoadEvent.OnWillReloadScript);
+			await DoScriptAsync();
+			reloadEvent.Send(m_Lua.State, (Int32)ScriptLoadEvent.OnDidLoadScript);
+		}
+
+		private async ValueTask DoScriptAsync()
+		{
+			try
+			{
+				OnBeforeScriptLoad(m_LuaScript.ScriptContext);
+				m_Lua.RunScript(m_LuaScript);
+				OnAfterScriptLoad(m_LuaScript.ScriptContext);
+
+				var coordinator = gameObject.GetOrAddComponent<LunyScriptCoordinator>();
+				if (coordinator.DestroyScriptRunner(this))
+					await Awaitable.EndOfFrameAsync(); // must wait for actual destroy of LunyScriptRunner component
+
+				coordinator.AddScriptRunner(this, m_LuaScript);
+			}
+			catch (Exception e)
+			{
+				LunyLogger.LogError($"Error in {m_LuaScript}: {e.Message}");
+				OnScriptLoadError();
+			}
+		}
 
 		/// <summary>
-		/// Override this instead of Awake().
+		/// Override this to do once-only initialization before the first script load.
 		/// </summary>
-		protected virtual void OnAwake() {}
+		/// <remarks>This runs during base.Awake(), after the LunyScript references have been assigned.</remarks>
+		/// <param name="scriptContext"></param>
+		protected virtual void OnBeforeFirstScriptLoad(LuaTable scriptContext) {}
 
 		/// <summary>
-		/// Override this to modify the script context table before the script gets loaded.
+		/// Override this to modify the script context table before the script gets (re-)loaded.
 		/// </summary>
 		/// <param name="scriptContext"></param>
 		protected virtual void OnBeforeScriptLoad(LuaTable scriptContext) {}
 
 		/// <summary>
-		/// This gets called when there was any error loading and running the script.
+		/// Override this to modify the script context table after the script was (re-)loaded.
+		/// The script hasn't run its Awake() function yet at this point.
 		/// </summary>
-		/// <remarks>Is not called when the supplied script was null or empty. In that case a warning log appears in the console.</remarks>
-		protected virtual void OnRunScriptError() {}
+		/// <param name="scriptContext"></param>
+		protected virtual void OnAfterScriptLoad(LuaTable scriptContext) {}
+
+		/// <summary>
+		/// This gets called when there was any error loading the script (eg syntax error).
+		/// </summary>
+		protected virtual void OnScriptLoadError() {}
 
 		private void UpdateScriptRunnerEnabledState()
 		{
-			// if (TryGetScriptRunner(out var runner))
-			// 	runner.enabled = enabled;
+			if (TryGetAssociatedScriptRunner(out var runner))
+				runner.enabled = enabled;
+		}
+
+		internal Boolean TryGetAssociatedScriptRunner(out LunyScriptRunner runner)
+		{
+			runner = null;
+			return gameObject.TryGetComponent(out LunyScriptCoordinator coordinator) &&
+			       coordinator.TryGetScriptRunner(this, out runner);
+		}
+
+		private static class Helper
+		{
+			internal static void TryAssignMatchingScriptAsset(LunyScript instance)
+			{
+#if UNITY_EDITOR
+				if (instance.m_LuaAsset == null)
+				{
+					// try to assign a Lua script of the same name in the same folder
+					var monoScript = MonoScript.FromMonoBehaviour(instance);
+					var scriptPath = AssetDatabase.GetAssetPath(monoScript);
+					scriptPath = Path.ChangeExtension(scriptPath, ".lua");
+					instance.m_LuaAsset = AssetDatabase.LoadAssetAtPath<LunyRuntimeLuaAsset>(scriptPath);
+				}
+#endif
+			}
 		}
 	}
 }
