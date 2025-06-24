@@ -69,14 +69,24 @@ namespace CodeSmileEditor.Luny
 				if (script == null)
 					continue;
 
-				switch (script.EditorType)
-				{
-					case LunyLuaScript.ScriptableSingletonEditorType:
-						var instance = LunyScriptableSingletonScripts.Singleton;
-						instance.AddScript(script);
-						break;
-				}
+				RegisterEditorScriptByType(script);
 			}
+		}
+
+		private static void RegisterEditorScriptByType(LunyLuaAssetScript script)
+		{
+			switch (script.EditorType)
+			{
+				case LunyLuaScript.ScriptableSingletonEditorType:
+					var instance = LunyScriptableSingletonScripts.Singleton;
+					instance.AddScript(script);
+					break;
+			}
+		}
+		private static void UnregisterEditorScriptByAsset(LunyLuaAsset luaAsset)
+		{
+			var lssInstance = LunyScriptableSingletonScripts.Singleton;
+			lssInstance.RemoveScriptByAsset(luaAsset);
 		}
 
 		private void OnEditorUpdate()
@@ -103,14 +113,21 @@ namespace CodeSmileEditor.Luny
 		{
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
-				await m_Lua.AddAndRunScript(new LunyLuaAssetScript(luaAsset));
+			{
+				var script = new LunyLuaAssetScript(luaAsset);
+				await m_Lua.AddAndRunScript(script);
+				RegisterEditorScriptByType(script);
+			}
 		}
 
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
+			{
 				m_Lua.RemoveScript(luaAsset);
+				UnregisterEditorScriptByAsset(luaAsset);
+			}
 		}
 
 		private sealed class FileSystem : ILunyLuaFileSystem

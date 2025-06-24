@@ -35,6 +35,21 @@ namespace CodeSmile.Luny
 			m_FullPathScripts.Remove(luaScript.FullPath);
 			return m_Scripts.Remove(luaScript);
 		}
+		public void Remove(LunyLuaAsset luaAsset)
+		{
+			var assetFullPath = luaAsset.FullPath;
+			m_FullPathScripts.Remove(assetFullPath);
+
+			for (int i = m_Scripts.Count - 1; i >= 0; i--)
+			{
+				var script = m_Scripts[i];
+				if (script.FullPath == assetFullPath)
+				{
+					m_Scripts.RemoveAt(i);
+					break;
+				}
+			}
+		}
 
 		public void Clear()
 		{
@@ -47,8 +62,13 @@ namespace CodeSmile.Luny
 		public void CopyTo(LunyLuaScript[] array, Int32 arrayIndex) => m_Scripts.CopyTo(array, arrayIndex);
 		public Int32 IndexOf(LunyLuaScript luaScript) => m_Scripts.IndexOf(luaScript);
 
-		public void Insert(Int32 index, LunyLuaScript luaScript) => m_Scripts.Insert(index, luaScript);
-		public void RemoveAt(Int32 index) => m_Scripts.RemoveAt(index);
+		public void Insert(Int32 index, LunyLuaScript luaScript) => throw new NotImplementedException();
+		public void RemoveAt(Int32 index)
+		{
+			var script = m_Scripts[index];
+			m_Scripts.RemoveAt(index);
+			m_FullPathScripts.Remove(script.FullPath);
+		}
 
 		public Boolean TryGetScriptForPath(String fullPath, out LunyLuaScript script) =>
 			m_FullPathScripts.TryGetValue(fullPath, out script);

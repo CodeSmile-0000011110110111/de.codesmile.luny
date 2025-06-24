@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
+using Lua.Runtime;
 using Lua.Unity;
 using System;
 using System.Collections.Generic;
@@ -158,7 +159,7 @@ namespace CodeSmile.Luny
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
 			var luaAsset = Resources.Load<LunyLuaAsset>(m_ScriptPath);
-			await luaState.DoStringAsync(luaAsset.Text, luaAsset.name, ScriptContext);
+			await luaState.DoStringAsync(luaAsset.Text, "@" + luaAsset.Path, ScriptContext);
 			OnAfterDoScript(luaState);
 		}
 	}

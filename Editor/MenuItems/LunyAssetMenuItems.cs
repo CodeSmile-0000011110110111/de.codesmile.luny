@@ -13,29 +13,36 @@ namespace CodeSmileEditor.Luny
 {
 	internal static class CreateLunyAssetsMenu
 	{
-		private static readonly String s_EmptyLuaScript =
-			"-- 'context' can be any name, the ellipsis (...) represents arguments passed to the script\n" +
-			"local context = ...\n" +
-			"\n" +
+		private static readonly string s_LuaScriptContext =
+			"-- assign script's 'context' table to a local variable\n" +
+			"-- the context is where you define event functions and exchange data with C#\n" +
+			"-- the ellipsis (...) represents the arguments passed when the script is loaded\n" +
+			"local context = ...\n\n";
+
+		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
+			"-- Use these events to respond to script loading, including hot reload\n" +
+			"function context.OnWillReloadScript()\n" +
+			"\tprint(context.ScriptName .. \" was changed and will hot reload.\")\n" +
+			"end\n" +
+			"function context.OnDidLoadScript()\n" +
+			"\tprint(context.ScriptName .. \" was (re-)loaded.\")\n" +
+			"end\n\n" +
 			"-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
-			"function context.Awake()\n" +
-			"	print(\"Hello, \" .. context.ScriptName .. \".lua on \" .. tostring(context.gameObject))\n" +
+			"function context.OnEnable()\n" +
+			"	print(\"Hello, \" .. context.ScriptName .. \".lua\")\n" +
 			"end\n";
 
 		private static readonly String s_EmptyLunyScript = "using CodeSmile.Luny;\n" +
+		                                                   "using Lua;" +
 		                                                   "using UnityEngine;\n\n" +
 		                                                   "public sealed class $ClassName$ : LunyScript\n{\n" +
-		                                                   "\t// Script was run and returned a LuaTable. " +
-		                                                   "Script's Awake() function has not been called yet.\n" +
-		                                                   "\t// You may want to get/set initial script variables before script's Awake():\n" +
-		                                                   "\tprotected override void OnBeforeScriptAwake()\n\t{\n" +
-		                                                   "\t\t// Variables are set to the script table (commonly named 'script'):" +
-		                                                   " 'print(script.ImportantMessage)'\n" +
-		                                                   "\t\tSetString(\"ImportantMessage\", \"Testing One-Two-Three ..\");\n\n" +
-		                                                   "\t\t// If you need the value of 'script.OhWowThatsCoolBool' assigned by" +
-		                                                   " the Lua script:\n" +
-		                                                   "\t\tvar datBool = GetBool(\"OhWowThatsCoolBool\");\n" +
-		                                                   "\t}\n}\n";
+		                                                   "\t// To get/set script variables when the script is first loaded:\n" +
+		                                                   "\tprotected override void OnBeforeFirstScriptLoad(LuaTable scriptContext)\n\t{\n\t}\n\n" +
+		                                                   "\t// To get/set script variables every time the script is loaded (incl. hot reload):\n" +
+		                                                   "\tprotected override void OnBeforeScriptLoad(LuaTable scriptContext) \n\t{\n\t}\n\n" +
+		                                                   "\t// To get/set script variables every time after the script was loaded (incl. hot reload):\n" +
+		                                                   "\tprotected override void OnAfterScriptLoad(LuaTable scriptContext)\n\t{\n\t}\n" +
+		                                                   "}";
 
 		private static Boolean s_WillCreateLunyScript;
 		private static Boolean s_WillCreateStartupScript;
@@ -78,7 +85,7 @@ namespace CodeSmileEditor.Luny
 		private static void CreateStartupLuaScript()
 		{
 			s_WillCreateStartupScript = true;
-			ProjectWindowUtil.CreateAssetWithContent("NewStartupLuaScript.lua", @"print(""Hello, Startup Lua!"")");
+			ProjectWindowUtil.CreateAssetWithContent("NewStartupLuaScript.lua", s_EmptyLuaScript);
 		}
 
 		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
