@@ -15,7 +15,9 @@ It *might* work with 2022.3 or earlier but I'm not testing that. [Support for 20
 
 ## Installation
 
-### Installation Package
+### Installer
+
+For your convenience, I created an Installer package:
 
 - Open Package Manager in Unity Editor
 - Choose "Install package from git URL..."
@@ -25,8 +27,12 @@ This will add the necessary packages to Package Manager one by one.
 
 ### Manual Installation
 
-Repeat the above (enter URL in Package Manager) for each of these URLs in this order:
+If you'd rather do it yourself, follow these steps:
 
-- `https://github.com/CodeSmile-0000011110110111/de.codesmile.luacsharp`
-- `https://github.com/CodeSmile-0000011110110111/de.codesmile.core`
-- `https://github.com/CodeSmile-0000011110110111/de.codesmile.luny`
+1. Open Package Manager in Unity Editor
+2. Choose "Install package from git URL..."
+3. Enter this URL: `https://github.com/CodeSmile-0000011110110111/de.codesmile.luacsharp`
+4. Choose "Install package from git URL..."
+5. Enter this URL: `https://github.com/CodeSmile-0000011110110111/de.codesmile.core`
+6. Choose "Install package from git URL..."
+7. Enter this URL: `https://github.com/CodeSmile-0000011110110111/de.codesmile.luny`
