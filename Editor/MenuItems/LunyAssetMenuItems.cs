@@ -70,18 +70,18 @@ namespace CodeSmileEditor.Luny
 			return content;
 		}
 
-		[MenuItem("Assets/Create/Luny/Empty LunyScript (C# + Lua)", false, priority = 5)]
+		[MenuItem("Assets/Create/Luny/LunyScript C# + Lua", false, priority = 5)]
 		private static void CreateLunyScripts()
 		{
 			s_WillCreateLunyScript = true;
 			ProjectWindowUtil.CreateAssetWithContent("NewLunyScript.lua", s_EmptyLuaScript);
 		}
 
-		[MenuItem("Assets/Create/Luny/Empty Lua Script", false, priority = 6)]
+		[MenuItem("Assets/Create/Luny/Lua Script", false, priority = 6)]
 		private static void CreateLuaScript() =>
 			ProjectWindowUtil.CreateAssetWithContent("NewLuaScript.lua", @"print(""Hello, Lua!"")");
 
-		[MenuItem("Assets/Create/Luny/Empty Startup Lua Script", false, priority = 7)]
+		[MenuItem("Assets/Create/Luny/Startup Lua Script", false, priority = 7)]
 		private static void CreateStartupLuaScript()
 		{
 			s_WillCreateStartupScript = true;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	[CreateAssetMenu(fileName = "New LuaModule", menuName = "Luny/LuaModule", order = 101)]
+	[CreateAssetMenu(fileName = "New LuaModule", menuName = "Luny/Lua Module", order = 101)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaModuleIcon.png")]
 	public sealed class LunyLuaModule : ScriptableObject
 	{

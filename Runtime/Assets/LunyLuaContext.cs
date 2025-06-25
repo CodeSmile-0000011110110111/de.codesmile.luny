@@ -12,7 +12,7 @@ namespace CodeSmile.Luny
 	/// <summary>
 	/// Contains settings for a Lua context and instantiates an instance of Lua.
 	/// </summary>
-	[CreateAssetMenu(fileName = "New LuaContext", menuName = "Luny/LuaContext", order = 100)]
+	[CreateAssetMenu(fileName = "New LuaContext", menuName = "Luny/Lua Context", order = 100)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaContextIcon.png")]
 	public sealed class LunyLuaContext : ScriptableObject
 	{
