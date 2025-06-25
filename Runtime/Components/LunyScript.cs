@@ -38,7 +38,6 @@ namespace CodeSmile.Luny
 		[Tooltip("Defines what kind of frequently raised events (Unity 'messages') the Lua script will receive. " +
 		         "Disabling event categories that you do not use could improve performance.")]
 		[SerializeField] private LuaScriptEvents m_ForwardedEventTypes = (LuaScriptEvents)(-1); // default to "Everything"
-		[SerializeField] private Boolean m_UseModdingContext;
 
 		private ILunyLua m_Lua;
 		private LunyReference m_LunyRef;
@@ -108,7 +107,7 @@ namespace CodeSmile.Luny
 
 		private async void AssignReferencesAndLoadScript()
 		{
-			m_Lua = GetLuaReference();
+			m_Lua = GetModdingOrRuntimeLuaInstance();
 			m_LunyRef = GetOrAddLunyReference();
 			m_LuaScript = CreateLuaScriptInstance();
 			gameObject.GetOrAddComponent<LunyScriptCoordinator>();
@@ -117,16 +116,14 @@ namespace CodeSmile.Luny
 			await DoScriptAsync();
 		}
 
+		private ILunyLua GetModdingOrRuntimeLuaInstance() => m_LuaAsset is LunyModdingLuaAsset
+			? LunyRef.LunyRuntime.ModdingLua
+			: LunyRef.LunyRuntime.RuntimeLua;
+
 		private LunyReference GetOrAddLunyReference()
 		{
 			m_IsLunyRefAssigned = true;
 			return gameObject.GetOrAddComponent<LunyReference>();
-		}
-
-		private ILunyLua GetLuaReference()
-		{
-			var lua = m_UseModdingContext ? LunyRef.LunyRuntime.ModdingLua : LunyRef.LunyRuntime.RuntimeLua;
-			return lua != null ? lua : throw new ArgumentNullException(nameof(lua));
 		}
 
 		private LunyLuaScript CreateLuaScriptInstance()
