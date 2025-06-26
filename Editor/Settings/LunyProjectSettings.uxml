@@ -8,8 +8,8 @@
         <uie:PropertyField binding-path="m_ModdingContext" name="ModdingContext" class="unity-base-field__aligned" />
     </ui:GroupBox>
     <ui:GroupBox>
-        <uie:PropertyField binding-path="m_EditorStartupScripts" name="EditorStartupScripts" />
-        <uie:PropertyField binding-path="m_RuntimeStartupScripts" name="RuntimeStartupScripts" />
-        <uie:PropertyField binding-path="m_ModdingStartupScripts" name="ModdingStartupScripts" />
+        <uie:PropertyField binding-path="m_EditorAutoRunScripts" name="EditorAutoRunScripts" />
+        <uie:PropertyField binding-path="m_RuntimeAutoRunScripts" name="RuntimeAutoRunScripts" />
+        <uie:PropertyField binding-path="m_ModdingAutoRunScripts" name="ModdingAutoRunScripts" />
     </ui:GroupBox>
 </ui:UXML>

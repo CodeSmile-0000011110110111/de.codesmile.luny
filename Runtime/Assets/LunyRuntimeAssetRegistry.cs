@@ -4,6 +4,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CodeSmile.Luny
 {
@@ -19,23 +20,23 @@ namespace CodeSmile.Luny
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_RuntimeContext;
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
 
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeStartupLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeAutoRunLuaAssets = new();
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingStartupLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingAutoRunLuaAssets = new();
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
 
 		public LunyLuaContext RuntimeContext { get => m_RuntimeContext; set => m_RuntimeContext = value; }
 		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
 
-		public LuaAssetCollection RuntimeStartupLuaAssets
+		public LuaAssetCollection RuntimeAutoRunLuaAssets
 		{
-			get => m_RuntimeStartupLuaAssets;
-			internal set => m_RuntimeStartupLuaAssets = value;
+			get => m_RuntimeAutoRunLuaAssets;
+			internal set => m_RuntimeAutoRunLuaAssets = value;
 		}
-		public LuaAssetCollection ModdingStartupLuaAssets
+		public LuaAssetCollection ModdingAutoRunLuaAssets
 		{
-			get => m_ModdingStartupLuaAssets;
-			internal set => m_ModdingStartupLuaAssets = value;
+			get => m_ModdingAutoRunLuaAssets;
+			internal set => m_ModdingAutoRunLuaAssets = value;
 		}
 		public LuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
 		public LuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;

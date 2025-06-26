@@ -95,15 +95,15 @@ namespace CodeSmileEditor.Luny
 		{
 			var settings = LunyProjectSettings.Singleton;
 			var registry = CreateInstance<LunyRuntimeAssetRegistry>();
-			foreach (var startupScript in settings.RuntimeStartupScripts)
+			foreach (var autorunScript in settings.RuntimeAutoRunScripts)
 			{
-				if (startupScript != null)
-					registry.RuntimeStartupLuaAssets.Add(startupScript, AssetDatabase.GetAssetPath(startupScript));
+				if (autorunScript != null)
+					registry.RuntimeAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
-			foreach (var startupScript in settings.ModdingStartupScripts)
+			foreach (var autorunScript in settings.ModdingAutoRunScripts)
 			{
-				if (startupScript != null)
-					registry.ModdingStartupLuaAssets.Add(startupScript, AssetDatabase.GetAssetPath(startupScript));
+				if (autorunScript != null)
+					registry.ModdingAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
 
 			var path = $"Assets/{nameof(LunyRuntimeAssetRegistry)}.asset";
@@ -167,7 +167,7 @@ namespace CodeSmileEditor.Luny
 			{
 				if (AssetUtility.IsLuaScript(assetPath))
 				{
-					// NOTE: creating startup scripts is handled by LunyAssetMenuItems
+					// NOTE: creating auto-run scripts is handled by LunyAssetMenuItems
 
 					// delay because asset is not yet created and thus could not be loaded
 					EditorApplication.delayCall += () =>
@@ -212,7 +212,7 @@ namespace CodeSmileEditor.Luny
 							EditorApplication.delayCall += InitRegistries; // delay to ensure asset is already deleted
 						else
 						{
-							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
+							var luaAssets = GetAutoRunLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
 							luaAssets.Remove(luaAsset);
 
 							luaAssets = GetLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
@@ -220,9 +220,9 @@ namespace CodeSmileEditor.Luny
 							runtimeRegistry.Save();
 
 							if (isRuntimeLuaAsset)
-								settings.RuntimeStartupScripts.Remove((LunyRuntimeLuaAsset)luaAsset);
+								settings.RuntimeAutoRunScripts.Remove((LunyRuntimeLuaAsset)luaAsset);
 							else
-								settings.ModdingStartupScripts.Remove((LunyModdingLuaAsset)luaAsset);
+								settings.ModdingAutoRunScripts.Remove((LunyModdingLuaAsset)luaAsset);
 						}
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
@@ -231,7 +231,7 @@ namespace CodeSmileEditor.Luny
 						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
 						editorRegistry.Save();
 
-						settings.EditorStartupScripts.Remove(editorLuaAsset);
+						settings.EditorAutoRunScripts.Remove(editorLuaAsset);
 					}
 				}
 				return AssetDeleteResult.DidNotDelete;
@@ -255,7 +255,7 @@ namespace CodeSmileEditor.Luny
 							luaAsset.Path = destinationPath;
 							EditorUtility.SetDirty(luaAsset);
 
-							var luaAssets = GetStartupLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
+							var luaAssets = GetAutoRunLuaAssets(isRuntimeLuaAsset, runtimeRegistry);
 							if (luaAssets.Remove(luaAsset))
 								luaAssets.Add(luaAsset, destinationPath);
 
@@ -277,8 +277,8 @@ namespace CodeSmileEditor.Luny
 				return AssetMoveResult.DidNotMove;
 			}
 
-			private static LuaAssetCollection GetStartupLuaAssets(Boolean isRuntime, LunyRuntimeAssetRegistry registry) =>
-				isRuntime ? registry.RuntimeStartupLuaAssets : registry.ModdingStartupLuaAssets;
+			private static LuaAssetCollection GetAutoRunLuaAssets(Boolean isRuntime, LunyRuntimeAssetRegistry registry) =>
+				isRuntime ? registry.RuntimeAutoRunLuaAssets : registry.ModdingAutoRunLuaAssets;
 
 			private static LuaAssetCollection GetLuaAssets(Boolean isRuntime, LunyRuntimeAssetRegistry registry) =>
 				isRuntime ? registry.RuntimeLuaAssets : registry.ModdingLuaAssets;

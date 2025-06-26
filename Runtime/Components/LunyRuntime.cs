@@ -18,7 +18,7 @@ namespace CodeSmile.Luny
 	/// <summary>
 	/// Main Luny component. One must exist in a scene where luny scripts are to be used. Gets created automatically if absent,
 	/// using default settings. It is recommend to manually add a GameObject with a Luny component to the scene in order to
-	/// configure settings and run startup scripts (eg setup.lua, YourLevelGenerator.lua).
+	/// configure settings and run auto-run scripts (eg setup.lua, YourLevelGenerator.lua).
 	/// </summary>
 	[DisallowMultipleComponent]
 	[DefaultExecutionOrder(Int32.MinValue)] // make Luny component run its Awake before any other component
@@ -113,10 +113,10 @@ namespace CodeSmile.Luny
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-			var runtimeStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeStartupLuaAssets);
-			m_RuntimeLua.AddAndRunScripts(runtimeStartupScripts);
-			var moddingStartupScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingStartupLuaAssets);
-			m_ModdingLua.AddAndRunScripts(moddingStartupScripts);
+			var runtimeAutoRunScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeAutoRunLuaAssets);
+			m_RuntimeLua.AddAndRunScripts(runtimeAutoRunScripts);
+			var moddingAutoRunScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingAutoRunLuaAssets);
+			m_ModdingLua.AddAndRunScripts(moddingAutoRunScripts);
 #pragma warning restore CS4014
 
 			// Test running mod scripts

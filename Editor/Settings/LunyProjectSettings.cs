@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace CodeSmileEditor.Luny
@@ -22,12 +23,12 @@ namespace CodeSmileEditor.Luny
 		[SerializeField] private LunyLuaContext m_ModdingContext;
 
 		[Header("Lua Scripts")]
-		[Tooltip("These scripts are executed in the EditorContext when InitializeOnLoadMethod runs, in top to bottom order.")]
-		[SerializeField] private List<LunyEditorLuaAsset> m_EditorStartupScripts = new();
+		[Tooltip("These scripts are running (active) at all times in the EditorContext. They are run in top to bottom order.")]
+		[SerializeField] private List<LunyEditorLuaAsset> m_EditorAutoRunScripts = new();
 		[Tooltip("These scripts are executed in the RuntimeContext when the Luny component awakes, in top to bottom order.")]
-		[SerializeField] private List<LunyRuntimeLuaAsset> m_RuntimeStartupScripts = new();
+		[SerializeField] private List<LunyRuntimeLuaAsset> m_RuntimeAutoRunScripts = new();
 		[Tooltip("These scripts are executed in the ModdingContext when the Luny component awakes, in top to bottom order.")]
-		[SerializeField] private List<LunyModdingLuaAsset> m_ModdingStartupScripts = new();
+		[SerializeField] private List<LunyModdingLuaAsset> m_ModdingAutoRunScripts = new();
 
 		public static LunyProjectSettings Singleton => instance; // for consistency
 
@@ -46,9 +47,9 @@ namespace CodeSmileEditor.Luny
 			get => m_ModdingContext;
 			internal set => m_ModdingContext = value;
 		}
-		public List<LunyEditorLuaAsset> EditorStartupScripts => m_EditorStartupScripts;
-		public List<LunyRuntimeLuaAsset> RuntimeStartupScripts => m_RuntimeStartupScripts;
-		public List<LunyModdingLuaAsset> ModdingStartupScripts => m_ModdingStartupScripts;
+		public List<LunyEditorLuaAsset> EditorAutoRunScripts => m_EditorAutoRunScripts;
+		public List<LunyRuntimeLuaAsset> RuntimeAutoRunScripts => m_RuntimeAutoRunScripts;
+		public List<LunyModdingLuaAsset> ModdingAutoRunScripts => m_ModdingAutoRunScripts;
 
 		private static SerializedObject GetSerializedSettings() => new(instance);
 
@@ -64,9 +65,9 @@ namespace CodeSmileEditor.Luny
 		{
 			TryAssignDefaultsForNullValues();
 
-			RemoveDuplicateEntries(ref m_EditorStartupScripts);
-			RemoveDuplicateEntries(ref m_RuntimeStartupScripts);
-			RemoveDuplicateEntries(ref m_ModdingStartupScripts);
+			RemoveDuplicateEntries(ref m_EditorAutoRunScripts);
+			RemoveDuplicateEntries(ref m_RuntimeAutoRunScripts);
+			RemoveDuplicateEntries(ref m_ModdingAutoRunScripts);
 
 			var editorAssetRegistry = LunyEditorAssetRegistry.Singleton;
 			editorAssetRegistry.EditorContext = m_EditorContext;
@@ -74,18 +75,18 @@ namespace CodeSmileEditor.Luny
 
 			var runtimeAssetRegistry = LunyRuntimeAssetRegistry.Singleton;
 			runtimeAssetRegistry.RuntimeContext = m_RuntimeContext;
-			runtimeAssetRegistry.RuntimeStartupLuaAssets = CreateAssetCollection(m_RuntimeStartupScripts);
+			runtimeAssetRegistry.RuntimeAutoRunLuaAssets = CreateAssetCollection(m_RuntimeAutoRunScripts);
 			runtimeAssetRegistry.ModdingContext = m_ModdingContext;
-			runtimeAssetRegistry.ModdingStartupLuaAssets = CreateAssetCollection(m_ModdingStartupScripts);
+			runtimeAssetRegistry.ModdingAutoRunLuaAssets = CreateAssetCollection(m_ModdingAutoRunScripts);
 			runtimeAssetRegistry.Save();
 
 			Save(true);
 		}
 
-		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAsset> runtimeStartupScripts)
+		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAsset> runtimeAutoRunScripts)
 		{
 			var assets = new LuaAssetCollection();
-			foreach (var luaAsset in runtimeStartupScripts)
+			foreach (var luaAsset in runtimeAutoRunScripts)
 			{
 				if (luaAsset != null)
 					assets.Add(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
@@ -140,6 +141,7 @@ namespace CodeSmileEditor.Luny
 					"LuaContext",
 					"Mod",
 					"Modding",
+					"AutoRun",
 				}),
 				activateHandler = ActivateHandler,
 				deactivateHandler = DeactivateHandler,

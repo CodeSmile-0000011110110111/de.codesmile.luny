@@ -49,7 +49,7 @@ namespace CodeSmileEditor.Luny
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
 
-			await RunStartupScripts();
+			await DoAutoRunScripts();
 		}
 
 		// OnDisable runs before every domain reload
@@ -58,10 +58,10 @@ namespace CodeSmileEditor.Luny
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
 		private void OnDestroy() {}
 
-		private async Task RunStartupScripts()
+		private async Task DoAutoRunScripts()
 		{
-			var startupScripts = LunyProjectSettings.Singleton.EditorStartupScripts;
-			var scripts = LunyLuaAssetScript.CreateAll(startupScripts);
+			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunScripts;
+			var scripts = LunyLuaAssetScript.CreateAll(autorunScripts);
 			await Lua.AddAndRunScripts(scripts);
 
 			foreach (var script in scripts)
@@ -112,7 +112,7 @@ namespace CodeSmileEditor.Luny
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
-			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
+			if (settings.EditorAutoRunScripts.Contains(luaAsset as LunyEditorLuaAsset))
 			{
 				var script = new LunyLuaAssetScript(luaAsset);
 				await m_Lua.AddAndRunScript(script);
@@ -123,7 +123,7 @@ namespace CodeSmileEditor.Luny
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
-			if (settings.EditorStartupScripts.Contains(luaAsset as LunyEditorLuaAsset))
+			if (settings.EditorAutoRunScripts.Contains(luaAsset as LunyEditorLuaAsset))
 			{
 				m_Lua.RemoveScript(luaAsset);
 				UnregisterEditorScriptByAsset(luaAsset);

@@ -45,7 +45,7 @@ namespace CodeSmileEditor.Luny
 		                                                   "}";
 
 		private static Boolean s_WillCreateLunyScript;
-		private static Boolean s_WillCreateStartupScript;
+		private static Boolean s_WillCreateAutoRunScript;
 
 		// copied verbatim from ProjectWindowUtil
 		internal static String SetLineEndings(String content, LineEndingsMode lineEndingsMode)
@@ -74,18 +74,18 @@ namespace CodeSmileEditor.Luny
 		private static void CreateLunyScripts()
 		{
 			s_WillCreateLunyScript = true;
-			ProjectWindowUtil.CreateAssetWithContent("NewLunyScript.lua", s_EmptyLuaScript);
+			ProjectWindowUtil.CreateAssetWithContent("New LunyScript.lua", s_EmptyLuaScript);
 		}
 
 		[MenuItem("Assets/Create/Luny/Lua Script", false, priority = 6)]
 		private static void CreateLuaScript() =>
-			ProjectWindowUtil.CreateAssetWithContent("NewLuaScript.lua", @"print(""Hello, Lua!"")");
+			ProjectWindowUtil.CreateAssetWithContent("New Lua Script.lua", @"print(""Hello, Lua!"")");
 
-		[MenuItem("Assets/Create/Luny/Startup Lua Script", false, priority = 7)]
-		private static void CreateStartupLuaScript()
+		[MenuItem("Assets/Create/Luny/Auto-Run Lua Script", false, priority = 7)]
+		private static void CreateAutoRunLuaScript()
 		{
-			s_WillCreateStartupScript = true;
-			ProjectWindowUtil.CreateAssetWithContent("NewStartupLuaScript.lua", s_EmptyLuaScript);
+			s_WillCreateAutoRunScript = true;
+			ProjectWindowUtil.CreateAssetWithContent("New Auto-Run Lua Script.lua", s_EmptyLuaScript);
 		}
 
 		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
@@ -117,16 +117,16 @@ namespace CodeSmileEditor.Luny
 			AssetDatabase.ImportAsset(scriptPath);
 		}
 
-		private static void AddToStartupScripts(String assetPath)
+		private static void AddToAutoRunScripts(String assetPath)
 		{
 			var settings = LunyProjectSettings.Singleton;
 			var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 			if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
-				settings.EditorStartupScripts.Add(editorLuaAsset);
-			else if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
-				settings.RuntimeStartupScripts.Add(runtimeLuaAsset);
+				settings.EditorAutoRunScripts.Add(editorLuaAsset);
 			else if (luaAsset is LunyModdingLuaAsset moddingLuaAsset)
-				settings.ModdingStartupScripts.Add(moddingLuaAsset);
+				settings.ModdingAutoRunScripts.Add(moddingLuaAsset);
+			else if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
+				settings.RuntimeAutoRunScripts.Add(runtimeLuaAsset);
 
 			settings.Save();
 		}
@@ -141,10 +141,10 @@ namespace CodeSmileEditor.Luny
 					CreateMatchingCSharpLunyScript(assetPath);
 				}
 
-				if (s_WillCreateStartupScript && AssetUtility.IsLuaScript(assetPath))
+				if (s_WillCreateAutoRunScript && AssetUtility.IsLuaScript(assetPath))
 				{
-					s_WillCreateStartupScript = false;
-					EditorApplication.delayCall += () => AddToStartupScripts(assetPath); // required delay
+					s_WillCreateAutoRunScript = false;
+					EditorApplication.delayCall += () => AddToAutoRunScripts(assetPath); // required delay
 				}
 			}
 		}
