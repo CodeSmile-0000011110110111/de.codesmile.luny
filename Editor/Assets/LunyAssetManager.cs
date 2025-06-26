@@ -95,12 +95,12 @@ namespace CodeSmileEditor.Luny
 		{
 			var settings = LunyProjectSettings.Singleton;
 			var registry = CreateInstance<LunyRuntimeAssetRegistry>();
-			foreach (var autorunScript in settings.RuntimeAutoRunScripts)
+			foreach (var autorunScript in settings.RuntimeAutoRunLuaAssets)
 			{
 				if (autorunScript != null)
 					registry.RuntimeAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
-			foreach (var autorunScript in settings.ModdingAutoRunScripts)
+			foreach (var autorunScript in settings.ModdingAutoRunLuaAssets)
 			{
 				if (autorunScript != null)
 					registry.ModdingAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
@@ -220,9 +220,9 @@ namespace CodeSmileEditor.Luny
 							runtimeRegistry.Save();
 
 							if (isRuntimeLuaAsset)
-								settings.RuntimeAutoRunScripts.Remove((LunyRuntimeLuaAsset)luaAsset);
+								settings.RuntimeAutoRunLuaAssets.Remove((LunyRuntimeLuaAsset)luaAsset);
 							else
-								settings.ModdingAutoRunScripts.Remove((LunyModdingLuaAsset)luaAsset);
+								settings.ModdingAutoRunLuaAssets.Remove((LunyModdingLuaAsset)luaAsset);
 						}
 					}
 					else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
@@ -231,7 +231,7 @@ namespace CodeSmileEditor.Luny
 						editorRegistry.EditorLuaAssets.Remove(editorLuaAsset);
 						editorRegistry.Save();
 
-						settings.EditorAutoRunScripts.Remove(editorLuaAsset);
+						settings.EditorAutoRunLuaAssets.Remove(editorLuaAsset);
 					}
 				}
 				return AssetDeleteResult.DidNotDelete;

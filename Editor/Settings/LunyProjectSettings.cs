@@ -22,13 +22,16 @@ namespace CodeSmileEditor.Luny
 		[SerializeField] private LunyLuaContext m_RuntimeContext;
 		[SerializeField] private LunyLuaContext m_ModdingContext;
 
+		[FormerlySerializedAs("m_EditorAutoRunScripts")]
 		[Header("Lua Scripts")]
 		[Tooltip("These scripts are running (active) at all times in the EditorContext. They are run in top to bottom order.")]
-		[SerializeField] private List<LunyEditorLuaAsset> m_EditorAutoRunScripts = new();
+		[SerializeField] private List<LunyEditorLuaAsset> m_EditorAutoRunLuaAssets = new();
+		[FormerlySerializedAs("m_RuntimeAutoRunScripts")]
 		[Tooltip("These scripts are executed in the RuntimeContext when the Luny component awakes, in top to bottom order.")]
-		[SerializeField] private List<LunyRuntimeLuaAsset> m_RuntimeAutoRunScripts = new();
+		[SerializeField] private List<LunyRuntimeLuaAsset> m_RuntimeAutoRunLuaAssets = new();
+		[FormerlySerializedAs("m_ModdingAutoRunScripts")]
 		[Tooltip("These scripts are executed in the ModdingContext when the Luny component awakes, in top to bottom order.")]
-		[SerializeField] private List<LunyModdingLuaAsset> m_ModdingAutoRunScripts = new();
+		[SerializeField] private List<LunyModdingLuaAsset> m_ModdingAutoRunLuaAssets = new();
 
 		public static LunyProjectSettings Singleton => instance; // for consistency
 
@@ -47,9 +50,9 @@ namespace CodeSmileEditor.Luny
 			get => m_ModdingContext;
 			internal set => m_ModdingContext = value;
 		}
-		public List<LunyEditorLuaAsset> EditorAutoRunScripts => m_EditorAutoRunScripts;
-		public List<LunyRuntimeLuaAsset> RuntimeAutoRunScripts => m_RuntimeAutoRunScripts;
-		public List<LunyModdingLuaAsset> ModdingAutoRunScripts => m_ModdingAutoRunScripts;
+		public IList<LunyEditorLuaAsset> EditorAutoRunLuaAssets => m_EditorAutoRunLuaAssets;
+		public IList<LunyRuntimeLuaAsset> RuntimeAutoRunLuaAssets => m_RuntimeAutoRunLuaAssets;
+		public IList<LunyModdingLuaAsset> ModdingAutoRunLuaAssets => m_ModdingAutoRunLuaAssets;
 
 		private static SerializedObject GetSerializedSettings() => new(instance);
 
@@ -65,9 +68,9 @@ namespace CodeSmileEditor.Luny
 		{
 			TryAssignDefaultsForNullValues();
 
-			RemoveDuplicateEntries(ref m_EditorAutoRunScripts);
-			RemoveDuplicateEntries(ref m_RuntimeAutoRunScripts);
-			RemoveDuplicateEntries(ref m_ModdingAutoRunScripts);
+			RemoveDuplicateEntries(ref m_EditorAutoRunLuaAssets);
+			RemoveDuplicateEntries(ref m_RuntimeAutoRunLuaAssets);
+			RemoveDuplicateEntries(ref m_ModdingAutoRunLuaAssets);
 
 			var editorAssetRegistry = LunyEditorAssetRegistry.Singleton;
 			editorAssetRegistry.EditorContext = m_EditorContext;
@@ -75,9 +78,9 @@ namespace CodeSmileEditor.Luny
 
 			var runtimeAssetRegistry = LunyRuntimeAssetRegistry.Singleton;
 			runtimeAssetRegistry.RuntimeContext = m_RuntimeContext;
-			runtimeAssetRegistry.RuntimeAutoRunLuaAssets = CreateAssetCollection(m_RuntimeAutoRunScripts);
+			runtimeAssetRegistry.RuntimeAutoRunLuaAssets = CreateAssetCollection(m_RuntimeAutoRunLuaAssets);
 			runtimeAssetRegistry.ModdingContext = m_ModdingContext;
-			runtimeAssetRegistry.ModdingAutoRunLuaAssets = CreateAssetCollection(m_ModdingAutoRunScripts);
+			runtimeAssetRegistry.ModdingAutoRunLuaAssets = CreateAssetCollection(m_ModdingAutoRunLuaAssets);
 			runtimeAssetRegistry.Save();
 
 			Save(true);

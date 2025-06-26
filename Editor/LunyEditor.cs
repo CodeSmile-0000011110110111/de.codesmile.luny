@@ -60,7 +60,7 @@ namespace CodeSmileEditor.Luny
 
 		private async Task DoAutoRunScripts()
 		{
-			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunScripts;
+			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
 			var scripts = LunyLuaAssetScript.CreateAll(autorunScripts);
 			await Lua.AddAndRunScripts(scripts);
 
@@ -112,7 +112,7 @@ namespace CodeSmileEditor.Luny
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
-			if (settings.EditorAutoRunScripts.Contains(luaAsset as LunyEditorLuaAsset))
+			if (settings.EditorAutoRunLuaAssets.Contains(luaAsset as LunyEditorLuaAsset))
 			{
 				var script = new LunyLuaAssetScript(luaAsset);
 				await m_Lua.AddAndRunScript(script);
@@ -123,7 +123,7 @@ namespace CodeSmileEditor.Luny
 		private void OnRemoveLuaAsset(LunyLuaAsset luaAsset)
 		{
 			var settings = LunyProjectSettings.Singleton;
-			if (settings.EditorAutoRunScripts.Contains(luaAsset as LunyEditorLuaAsset))
+			if (settings.EditorAutoRunLuaAssets.Contains(luaAsset as LunyEditorLuaAsset))
 			{
 				m_Lua.RemoveScript(luaAsset);
 				UnregisterEditorScriptByAsset(luaAsset);

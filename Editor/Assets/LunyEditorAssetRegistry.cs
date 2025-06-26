@@ -3,6 +3,7 @@
 
 using CodeSmile.Luny;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ namespace CodeSmileEditor.Luny
 
 		[SerializeField] private LuaAssetCollection m_EditorLuaAssets = new();
 		[SerializeField] private LunyLuaContext m_EditorContext;
+
+		public IList<LunyEditorLuaAsset> EditorAutoRunLuaAssets => LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
 		public LuaAssetCollection EditorLuaAssets => m_EditorLuaAssets;
 		public LunyLuaContext EditorContext
 		{

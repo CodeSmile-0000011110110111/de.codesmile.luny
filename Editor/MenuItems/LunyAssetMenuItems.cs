@@ -122,11 +122,11 @@ namespace CodeSmileEditor.Luny
 			var settings = LunyProjectSettings.Singleton;
 			var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
 			if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
-				settings.EditorAutoRunScripts.Add(editorLuaAsset);
+				settings.EditorAutoRunLuaAssets.Add(editorLuaAsset);
 			else if (luaAsset is LunyModdingLuaAsset moddingLuaAsset)
-				settings.ModdingAutoRunScripts.Add(moddingLuaAsset);
+				settings.ModdingAutoRunLuaAssets.Add(moddingLuaAsset);
 			else if (luaAsset is LunyRuntimeLuaAsset runtimeLuaAsset)
-				settings.RuntimeAutoRunScripts.Add(runtimeLuaAsset);
+				settings.RuntimeAutoRunLuaAssets.Add(runtimeLuaAsset);
 
 			settings.Save();
 		}
