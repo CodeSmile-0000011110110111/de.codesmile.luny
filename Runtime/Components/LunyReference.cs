@@ -27,7 +27,7 @@ namespace CodeSmile.Luny
 			hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInInspector;
 
 			m_LunyRuntime = GetOrAddLunyRuntime();
-			(m_LunyRuntime as LunyRuntime).OnDestroyLunyRuntime += OnDestroyLunyRuntime;
+			(m_LunyRuntime as ILunyRuntimeInternal).OnDestroyLunyRuntime += OnDestroyLunyRuntime;
 		}
 
 		private void OnDestroy()
@@ -49,7 +49,7 @@ namespace CodeSmile.Luny
 		private void UnregisterLunyOnDestroyEvent()
 		{
 			if (m_LunyRuntime != null)
-				m_LunyRuntime.OnDestroyLunyRuntime -= OnDestroyLunyRuntime;
+				(m_LunyRuntime as ILunyRuntimeInternal).OnDestroyLunyRuntime -= OnDestroyLunyRuntime;
 		}
 
 		private void InvokeAllRunnersOnBeforeDestroy()

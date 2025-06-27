@@ -15,7 +15,7 @@ MonoBehaviour:
   m_IsSandbox: 1
   m_ScriptSearchPaths:
   - '%PersistentDataPath%'
-  - '%StreamingAssetsPath%'
+  - Assets/StreamingAssets
   - Assets/Scripts/Luny/Modding
   m_Libraries: 604111140
   m_Modules: []

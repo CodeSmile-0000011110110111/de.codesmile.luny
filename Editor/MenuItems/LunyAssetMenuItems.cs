@@ -88,17 +88,17 @@ namespace CodeSmileEditor.Luny
 			ProjectWindowUtil.CreateAssetWithContent("New Auto-Run Lua Script.lua", s_EmptyLuaScript);
 		}
 
-		[MenuItem("GameObject/Luny/" + nameof(Luny), false, priority = 10)]
+		[MenuItem("GameObject/Luny/Luny Runtime", false, priority = 10)]
 		private static void CreateLunyGameObject(MenuCommand menuCommand)
 		{
-			var luny = new GameObject(nameof(Luny), typeof(LunyRuntime));
+			var luny = new GameObject(nameof(LunyRuntime), typeof(LunyRuntime));
 			var go = luny.gameObject;
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
 			Selection.activeObject = go;
 		}
 
-		[MenuItem("GameObject/Luny/" + nameof(LunyScript), false, priority = 11)]
+		[MenuItem("GameObject/Luny/Luny Script", false, priority = 11)]
 		private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
 		{
 			var go = LunyScript.CreateLunyScriptObject();

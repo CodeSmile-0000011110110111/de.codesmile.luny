@@ -10,9 +10,13 @@ namespace CodeSmile.Luny
 {
 	public interface ILunyRuntime
 	{
-		event Action OnDestroyLunyRuntime;
 		ILunyLua RuntimeLua { get; }
 		ILunyLua ModdingLua { get; }
+	}
+
+	internal interface ILunyRuntimeInternal
+	{
+		internal event Action OnDestroyLunyRuntime;
 	}
 
 	/// <summary>
@@ -22,13 +26,8 @@ namespace CodeSmile.Luny
 	/// </summary>
 	[DisallowMultipleComponent]
 	[DefaultExecutionOrder(Int32.MinValue)] // make Luny component run its Awake before any other component
-	public sealed class LunyRuntime : MonoBehaviour, ILunyRuntime
+	public sealed class LunyRuntime : MonoBehaviour, ILunyRuntime, ILunyRuntimeInternal
 	{
-		/// <summary>
-		/// Can be used for last-second cleanup of anything Luny/Lua related.
-		/// </summary>
-		public event Action OnDestroyLunyRuntime;
-
 		private static LunyRuntime s_Singleton;
 		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
@@ -48,6 +47,14 @@ namespace CodeSmile.Luny
 		public ILunyLua ModdingLua => m_ModdingLua;
 
 		public static GameObject CreateLunyObject() => new(nameof(LunyRuntime), typeof(LunyRuntime));
+		/// <summary>
+		/// Can be used for last-second cleanup of anything Luny/Lua related.
+		/// </summary>
+		event Action ILunyRuntimeInternal.OnDestroyLunyRuntime
+		{
+			add => OnDestroyLunyRuntime += value;
+			remove => OnDestroyLunyRuntime -= value;
+		}
 
 #if UNITY_EDITOR
 		private void OnValidate()
@@ -96,6 +103,8 @@ namespace CodeSmile.Luny
 			if (m_ModdingLua != null)
 				m_ModdingLua.NotifyChangedScripts();
 		}
+
+		private event Action OnDestroyLunyRuntime;
 
 		private void ApplyRunInBackgroundSetting()
 		{

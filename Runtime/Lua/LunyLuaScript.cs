@@ -16,10 +16,10 @@ namespace CodeSmile.Luny
 	public abstract class LunyLuaScript
 	{
 		public const String InstanceKey = "this";
-		public const String ScriptTypeKey = "ScriptType";
 		public const String ScriptNameKey = "ScriptName";
 		public const String ScriptPathKey = "ScriptPath";
 		public const String EditorTypeKey = "EditorType";
+		public const String RuntimeTypeKey = "RuntimeType";
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
 		private readonly LunyLuaScriptEventHandlerCollection m_EventHandlers = new();
@@ -58,7 +58,7 @@ namespace CodeSmile.Luny
 		protected void SetDefaultContextValues(String name, String path)
 		{
 			m_ScriptName = name;
-			ScriptContext[ScriptTypeKey] = GetType().Name;
+			ScriptContext[RuntimeTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
 			ScriptContext[ScriptPathKey] = path;
 		}
