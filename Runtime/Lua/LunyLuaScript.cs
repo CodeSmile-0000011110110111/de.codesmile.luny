@@ -185,16 +185,15 @@ namespace CodeSmile.Luny
 			return scripts;
 		}
 
-		public LunyLuaStreamingAssetsScript(String streamingAssetsPath, LuaTable scriptContext = null)
+		public LunyLuaStreamingAssetsScript(String relativePath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
-			if (String.IsNullOrEmpty(streamingAssetsPath))
-				throw new ArgumentException(nameof(streamingAssetsPath));
-			if (Path.IsPathRooted(streamingAssetsPath))
-				throw new ArgumentException($"not a relative StreamingAssets path: {streamingAssetsPath}");
+			if (String.IsNullOrEmpty(relativePath))
+				throw new ArgumentException(nameof(relativePath));
+			if (Path.IsPathRooted(relativePath))
+				throw new ArgumentException($"rooted path not allowed: {relativePath}");
 
-			m_FullPath = $"{Application.streamingAssetsPath}/{streamingAssetsPath}";
-			m_ScriptPath = $"Assets/StreamingAssets/{streamingAssetsPath}";
+			m_FullPath = m_ScriptPath = $"{Application.streamingAssetsPath}/{relativePath}";
 
 			if (File.Exists(m_FullPath) == false)
 				throw new FileNotFoundException($"StreamingAssets script does not exist: {m_FullPath}");

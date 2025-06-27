@@ -12,7 +12,6 @@ namespace CodeSmile.Luny
 	public sealed class LunySearchPaths
 	{
 		private const String PersistentPlaceholder = "%persistentdatapath%";
-		private const String StreamingPlaceholder = "%streamingassetspath%";
 		private readonly List<SearchPathInfo> m_Paths;
 		public List<SearchPathInfo> Paths => m_Paths;
 
@@ -53,17 +52,13 @@ namespace CodeSmile.Luny
 					// pre-create user path directories
 					PathUtility.TryCreateDirectory(pathInfo.FullPath);
 				}
-				else if (lowerPath.StartsWith(StreamingPlaceholder))
-				{
-					pathInfo.IsStreamingAssetPath = true;
-					pathInfo.FullPath = Application.streamingAssetsPath + path
-						.Substring(StreamingPlaceholder.Length, path.Length - StreamingPlaceholder.Length);
-				}
 				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
 				{
 					pathInfo.IsAssetPath = true;
 					pathInfo.AssetPath = path;
 				}
+				else
+					throw new LunyException($"invalid search path: {path}");
 
 				Paths.Add(pathInfo);
 			}

@@ -29,7 +29,8 @@ namespace CodeSmile.Luny
 		[SerializeField] private String[] m_ScriptSearchPaths =
 		{
 			"%PersistentDataPath%",
-			"%StreamingAssets%",
+			"Assets/StreamingAssets",
+			"Assets/Scripts",
 			"Assets",
 		};
 

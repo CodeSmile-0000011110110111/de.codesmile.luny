@@ -181,7 +181,9 @@ namespace CodeSmile.Luny
 			if (Path.IsPathRooted(path))
 			{
 				// do allow access to StreamingAssets and PersistentData folders
-				if (path.StartsWith(Application.streamingAssetsPath) || path.StartsWith(Application.persistentDataPath))
+				var lowerPath = path.ToLower();
+				if (lowerPath.StartsWith(Application.streamingAssetsPath.ToLower()) ||
+				    lowerPath.StartsWith(Application.persistentDataPath.ToLower()))
 				{
 					content = FileUtility.TryReadAllText(path);
 					return true;
