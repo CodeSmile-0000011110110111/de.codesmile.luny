@@ -30,7 +30,6 @@ namespace CodeSmile.Luny
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
 		ValueTask RunScript(LunyLuaScript script);
 		void RemoveScript(LunyLuaScript script);
-		void Dispose();
 	}
 
 	public sealed class LunyLua : ILunyLua
