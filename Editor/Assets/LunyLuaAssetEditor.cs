@@ -33,7 +33,7 @@ namespace CodeSmileEditor.Luny
 					ChangeAutoRunStatus(shouldAutoRun);
 
 				EditorGUI.BeginDisabledGroup(true);
-				EditorGUILayout.LabelField("Context", GetLuaAssetTypeString());
+				EditorGUILayout.LabelField("Context", GetLuaAssetContextString());
 				EditorGUILayout.LabelField("Path", m_PathProperty.stringValue);
 				//EditorGUILayout.PropertyField(m_PathProperty);
 				//EditorGUILayout.PrefixLabel(m_TextProperty.displayName);
@@ -86,7 +86,7 @@ namespace CodeSmileEditor.Luny
 			var _ => throw new ArgumentOutOfRangeException(target.GetType().Name),
 		};
 
-		private String GetLuaAssetTypeString() => target.GetType().Name switch
+		private String GetLuaAssetContextString() => target.GetType().Name switch
 		{
 			nameof(LunyEditorLuaAsset) => "Editor",
 			nameof(LunyModdingLuaAsset) => "Modding",
