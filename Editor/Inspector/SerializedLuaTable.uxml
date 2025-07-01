@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:GroupBox name="group">
+        <ui:ListView name="arrayList" show-foldout-header="true" show-add-remove-footer="true" virtualization-method="DynamicHeight" header-title="Array" reorder-mode="Animated" show-border="true" binding-path="m_ArrayValues" />
+        <ui:ListView name="dictionaryList" header-title="Dictionary" virtualization-method="DynamicHeight" show-border="true" show-foldout-header="true" show-add-remove-footer="true" reorder-mode="Animated" binding-path="m_DictionaryValues" style="flex-grow: 1; flex-basis: 0%;" />
+    </ui:GroupBox>
+</ui:UXML>
