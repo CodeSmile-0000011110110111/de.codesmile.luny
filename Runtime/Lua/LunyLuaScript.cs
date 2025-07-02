@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
-using Lua.Runtime;
 using Lua.Unity;
 using System;
 using System.Collections.Generic;
@@ -55,9 +54,16 @@ namespace CodeSmile.Luny
 			loadEvent.Send(luaState, (Int32)ScriptLoadEvent.OnDidLoadScript);
 		}
 
+		private void AssertNotSet(String key) =>
+			Debug.Assert(ScriptContext[key] == LuaValue.Nil, $"'{key}' is a reserved ScriptContext keyword");
+
 		protected void SetDefaultContextValues(String name, String path)
 		{
 			m_ScriptName = name;
+			AssertNotSet(RuntimeTypeKey);
+			AssertNotSet(ScriptNameKey);
+			AssertNotSet(ScriptPathKey);
+
 			ScriptContext[RuntimeTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
 			ScriptContext[ScriptPathKey] = path;

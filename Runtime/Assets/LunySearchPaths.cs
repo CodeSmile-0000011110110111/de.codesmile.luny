@@ -54,8 +54,12 @@ namespace CodeSmile.Luny
 				}
 				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
 				{
-					pathInfo.IsAssetPath = true;
+					var streamingPath = lowerPath.StartsWith("assets/streamingassets");
+					pathInfo.IsAssetPath = !streamingPath;
+					pathInfo.IsStreamingAssetPath = streamingPath;
 					pathInfo.AssetPath = path;
+					if (streamingPath)
+						pathInfo.FullPath = Application.streamingAssetsPath;
 				}
 				else
 					throw new LunyException($"invalid search path: {path}");
