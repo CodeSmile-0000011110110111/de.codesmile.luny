@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement name="keyValuePair" style="flex-grow: 1; flex-direction: row;">
-        <uie:PropertyField name="keyField" binding-path="m_Key" style="flex-basis: 42%;" />
         <ui:VisualElement name="duplicateKey" tooltip="Duplicate Key!" style="background-image: url(&quot;project://database/Packages/com.unity.render-pipelines.core/Editor/Icons/RenderGraphViewer/MultipleUsage.png?fileID=2800000&amp;guid=cd47f6d5edd2c7541a0baf3774a54fdd&amp;type=3#MultipleUsage&quot;); background-size: 16px 16px; min-width: 20px; display: none;" />
+        <uie:PropertyField name="keyField" binding-path="m_Key" style="flex-basis: 42%;" />
         <ui:VisualElement name="VisualElement" style="flex-basis: 1%; flex-shrink: 0;" />
         <uie:PropertyField name="valueField" binding-path="m_Value" style="flex-basis: 58%;" />
     </ui:VisualElement>

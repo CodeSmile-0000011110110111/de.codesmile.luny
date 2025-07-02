@@ -15,24 +15,25 @@ namespace CodeSmile.Luny
 		[SerializeField] private List<SerializedLuaValue> m_ArrayValues = new();
 		[SerializeField] private List<SerializedLuaKeyValue> m_DictionaryValues = new();
 
+		private LuaTable m_Table = new(0, 0);
+
 		public LuaTable Table
 		{
 			get
 			{
 				var arrayCount = m_ArrayValues.Count;
 				var dictCount = m_DictionaryValues.Count;
-				var table = new LuaTable(arrayCount, dictCount);
 
 				for (var i = 0; i < arrayCount; i++)
-					table[i + 1] = m_ArrayValues[i].Value;
+					m_Table[i + 1] = m_ArrayValues[i].Value;
 
 				for (var i = 0; i < dictCount; i++)
 				{
 					var item = m_DictionaryValues[i];
-					table[item.Key] = item.Value.Value;
+					m_Table[item.Key] = item.Value.Value;
 				}
 
-				return table;
+				return m_Table;
 			}
 		}
 	}

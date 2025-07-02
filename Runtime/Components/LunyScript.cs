@@ -39,6 +39,8 @@ namespace CodeSmile.Luny
 		         "Disabling event categories that you do not use could improve performance.")]
 		[SerializeField] private LuaScriptEvents m_ForwardedEventTypes = (LuaScriptEvents)(-1); // default to "Everything"
 
+		[SerializeField] SerializedLuaTable m_ScriptContext;
+
 		private ILunyLua m_Lua;
 		private LunyReference m_LunyRef;
 		private LunyLuaScript m_LuaScript;
@@ -130,14 +132,20 @@ namespace CodeSmile.Luny
 		{
 			LunyLuaScript luaScript;
 
+			Debug.Log($"Create script with context: {m_ScriptContext.Table.GetHashCode()}");
+			foreach (var context in m_ScriptContext.Table)
+			{
+				Debug.Log($"\t{context.Key} = {context.Value}");
+			}
+
 			if (m_LuaAsset != null)
-				luaScript = new LunyLuaAssetScript(m_LuaAsset);
+				luaScript = new LunyLuaAssetScript(m_LuaAsset, m_ScriptContext.Table);
 			else if (m_LuaFilePath != null)
 			{
 				if (Path.HasExtension(m_LuaFilePath))
-					luaScript = new LunyLuaStreamingAssetsScript(m_LuaFilePath);
+					luaScript = new LunyLuaStreamingAssetsScript(m_LuaFilePath, m_ScriptContext.Table);
 				else
-					luaScript = new LunyLuaResourcesScript(m_LuaFilePath);
+					luaScript = new LunyLuaResourcesScript(m_LuaFilePath, m_ScriptContext.Table);
 
 				Debug.Assert(luaScript != null, nameof(luaScript) + $" failed to read: {m_LuaFilePath}");
 			}

@@ -12,7 +12,10 @@ namespace CodeSmile.Luny
 	{
 		[SerializeField] private String m_Key;
 		[SerializeField] private SerializedLuaValue m_Value;
+		[SerializeField] private Boolean m_IsDuplicateKey;
+
 		public String Key => m_Key;
 		public SerializedLuaValue Value => m_Value;
+		internal Boolean IsDuplicateKey { get => m_IsDuplicateKey; set => m_IsDuplicateKey = value; }
 	}
 }

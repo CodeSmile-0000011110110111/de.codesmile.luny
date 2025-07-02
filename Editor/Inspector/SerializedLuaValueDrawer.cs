@@ -53,10 +53,10 @@ namespace CodeSmileEditor.Luny
 				case LuaValueType.Boolean:
 					field.BindProperty(GetSerializedProperty(property, BooleanValuePropertyName));
 					break;
+				case LuaValueType.Nil:
 				case LuaValueType.Number:
 					field.BindProperty(GetSerializedProperty(property, NumberValuePropertyName));
 					break;
-				case LuaValueType.Nil:
 				case LuaValueType.String:
 					field.BindProperty(GetSerializedProperty(property, StringValuePropertyName));
 					break;
@@ -68,7 +68,7 @@ namespace CodeSmileEditor.Luny
 		private Int32 GetValueTypeDropdownIndex(DropdownField typeField, Int32 enumValue)
 		{
 			if (enumValue == (Int32)LuaValueType.Nil)
-				enumValue = (Int32)LuaValueType.String;
+				enumValue = (Int32)LuaValueType.Number;
 
 			return enumValue >= 0 && enumValue < s_LuaValueTypeNames.Length
 				? typeField.choices.IndexOf(s_LuaValueTypeNames[enumValue])
