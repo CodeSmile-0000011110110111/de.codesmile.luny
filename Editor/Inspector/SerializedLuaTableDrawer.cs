@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,7 +16,7 @@ namespace CodeSmileEditor.Luny
 	{
 		private SerializedProperty m_DictionaryValuesProperty;
 
-		//private ListView m_DictionaryList;
+		private ListView m_DictionaryList;
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
@@ -29,8 +30,8 @@ namespace CodeSmileEditor.Luny
 			group.text = property.displayName;
 
 			// Try find duplicate keys and mark them
-			//m_DictionaryList = container.Q<ListView>("dictionaryList");
-			//m_DictionaryList.RegisterCallback<InputEvent>(OnInput);
+			m_DictionaryList = container.Q<ListView>("dictionaryList");
+			m_DictionaryList.RegisterCallback<InputEvent>(OnInput);
 			//var duplicateKey = container.Q<VisualElement>("duplicateKey");
 
 			return container;
@@ -38,26 +39,33 @@ namespace CodeSmileEditor.Luny
 
 		private void OnInput(InputEvent evt) => EditorApplication.delayCall += () =>
 		{
-			Debug.Log($"OnInput: {evt} {m_DictionaryValuesProperty}");
+			Debug.Assert(m_DictionaryList != null);
+			Debug.Assert(m_DictionaryValuesProperty != null);
 
 			var uniqueKeys = new HashSet<String>(m_DictionaryValuesProperty.arraySize);
 			var duplicateKeys = new HashSet<String>();
 			foreach (SerializedProperty item in m_DictionaryValuesProperty)
 			{
 				var value = item.boxedValue as SerializedLuaKeyValue;
-				Debug.Log($"\t{value.Key}");
-
 				if (uniqueKeys.Add(value.Key) == false)
-				{
 					duplicateKeys.Add(value.Key);
-					Debug.LogWarning($"duplicate key: {value.Key}");
-				}
 			}
 
-			if (duplicateKeys.Count == 0)
-				return;
+			var items = m_DictionaryList.Query<VisualElement>("keyValuePair");
+			Debug.Assert(items != null);
 
-			foreach (var duplicateKey in duplicateKeys) {}
+			items.ForEach(keyValuePair =>
+			{
+				var keyField = keyValuePair.Q<PropertyField>("keyField");
+				var textElement = keyField.Q<TextElement>();
+				var dupeKey = keyValuePair.Q<VisualElement>("duplicateKey");
+				Debug.Assert(dupeKey != null);
+
+				var isDuplicate = duplicateKeys.Contains(textElement.text);
+				dupeKey.style.display = isDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
+				dupeKey.style.color = new StyleColor(isDuplicate ? Color.yellow : Color.white);
+				dupeKey.style.backgroundColor = new StyleColor(isDuplicate ? new Color(.65f, 0f, 0f) : Color.white);
+			});
 		};
 	}
 }
