@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
-        <uie:PropertyField name="propertyField" style="flex-grow: 1; flex-basis: 0%;" />
+        <uie:PropertyField name="propertyField" binding-path="m_Value" style="flex-grow: 1; flex-basis: 0%;" />
         <ui:DropdownField choices="Boolean,Number,String" name="typeField" style="min-width: 67px;" />
     </ui:VisualElement>
 </ui:UXML>

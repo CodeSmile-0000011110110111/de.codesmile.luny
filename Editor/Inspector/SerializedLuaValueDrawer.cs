@@ -53,15 +53,13 @@ namespace CodeSmileEditor.Luny
 				case LuaValueType.Boolean:
 					field.BindProperty(GetSerializedProperty(property, BooleanValuePropertyName));
 					break;
-				case LuaValueType.Nil:
 				case LuaValueType.Number:
 					field.BindProperty(GetSerializedProperty(property, NumberValuePropertyName));
 					break;
+				default:
 				case LuaValueType.String:
 					field.BindProperty(GetSerializedProperty(property, StringValuePropertyName));
 					break;
-				default:
-					throw new ArgumentOutOfRangeException(valueType.ToString());
 			}
 		}
 

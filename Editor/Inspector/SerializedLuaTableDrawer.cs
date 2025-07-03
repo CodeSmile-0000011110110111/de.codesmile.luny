@@ -15,14 +15,24 @@ namespace CodeSmileEditor.Luny
 	public sealed class SerializedLuaTableDrawer : PropertyDrawer
 	{
 		private const String PathRoot = "Packages/de.codesmile.luny/Editor/Inspector";
+
+		private VisualTreeAsset m_LuaValueTemplate;
 		private VisualTreeAsset m_LuaKeyValueTemplate;
 
-		private SerializedProperty m_TableProperty;
+		private SerializedProperty m_Property;
+		private SerializedProperty m_DictionaryValues;
+		private ListView m_ArrayList;
 		private ListView m_DictionaryList;
 
 		private static VisualTreeAsset LoadLuaTableTemplate()
 		{
 			var path = $"{PathRoot}/{nameof(SerializedLuaTable)}.uxml";
+			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+		}
+
+		private static VisualTreeAsset LoadLuaValueTemplate()
+		{
+			var path = $"{PathRoot}/{nameof(SerializedLuaValue)}.uxml";
 			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
 		}
 
@@ -34,49 +44,60 @@ namespace CodeSmileEditor.Luny
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
-			m_TableProperty = property;
+			m_Property = property;
+			m_DictionaryValues = property.FindPropertyRelative("m_DictionaryValues");
 
 			var container = LoadLuaTableTemplate().CloneTree();
+			m_LuaValueTemplate = LoadLuaValueTemplate();
 			m_LuaKeyValueTemplate = LoadLuaKeyValueTemplate();
 
 			var group = container.Q<GroupBox>("group");
 			group.text = property.displayName;
 
+			// m_ArrayList = container.Q<ListView>("arrayList");
+			// m_ArrayList.makeItem += MakeArrayItem;
 			m_DictionaryList = container.Q<ListView>("dictionaryList");
-			m_DictionaryList.makeItem += MakeItem;
+			m_DictionaryList.makeItem += MakeDictionaryItem;
 
 			return container;
 		}
 
-		private VisualElement MakeItem()
-		{
-			var container = m_LuaKeyValueTemplate.CloneTree();
+		 private VisualElement MakeArrayItem()
+		 {
+			 var luaValueElement = m_LuaValueTemplate.CloneTree();
+			 var propertyField = luaValueElement.Q<PropertyField>("propertyField");
+			 propertyField.label = "?";
+			 return luaValueElement;
+		 }
 
-			var keyField = container.Q<PropertyField>("keyField");
+		 private VisualElement MakeDictionaryItem()
+		{
+			var luaKeyValueElement = m_LuaKeyValueTemplate.CloneTree();
+
+			var keyField = luaKeyValueElement.Q<PropertyField>("keyField");
 			keyField.label = "";
 			keyField.RegisterValueChangeCallback(OnKeyValueChange);
 
-			EditorApplication.delayCall += () =>
-			{
-				// remove the "value" label since we're using a key TextField instead
-				var valueField = container.Q<PropertyField>("valueField");
-				var valuePropertyField = valueField.Q<PropertyField>("propertyField");
-				valuePropertyField.label = "";
-			};
+			// FIXME: delayed because query for "propertyField" would fail otherwise (not yet bound?), causes re-layout issue
+			// EditorApplication.delayCall += () =>
+			// {
+			// 	// remove the "value" label since we're using a key TextField instead
+			// 	var valueField = container.Q<PropertyField>("valueField");
+			// 	var valuePropertyField = valueField.Q<PropertyField>("propertyField");
+			// 	valuePropertyField.label = "";
+			// };
 
-			return container;
+			return luaKeyValueElement;
 		}
 
 		private void OnKeyValueChange(SerializedPropertyChangeEvent evt)
 		{
-			var dictValuesProperty = m_TableProperty.FindPropertyRelative("m_DictionaryValues");
-
 			// find any duplicate keys and highlight them
-			var uniqueKeys = new HashSet<String>(dictValuesProperty.arraySize);
+			var uniqueKeys = new HashSet<String>(m_DictionaryValues.arraySize);
 			var duplicateKeys = new HashSet<String>();
-			foreach (SerializedProperty item in dictValuesProperty)
+			foreach (SerializedProperty item in m_DictionaryValues)
 			{
-				var value = item.boxedValue as SerializedLuaKeyValue;
+				var value = (SerializedLuaKeyValue)item.boxedValue;
 				if (uniqueKeys.Add(value.Key) == false)
 					duplicateKeys.Add(value.Key);
 			}
