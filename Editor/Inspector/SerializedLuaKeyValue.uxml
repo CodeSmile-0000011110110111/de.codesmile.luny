@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement name="keyValuePair" style="flex-grow: 1; flex-direction: row;">
-        <ui:VisualElement style="flex-direction: row; flex-basis: 55%; flex-grow: 1; margin-right: 4px;">
+        <ui:VisualElement style="flex-direction: row; flex-basis: 66%; flex-grow: 1; margin-right: 4px;">
             <ui:VisualElement name="duplicateKey" tooltip="Duplicate Key!" style="background-image: url(&quot;project://database/Packages/com.unity.render-pipelines.core/Editor/Icons/RenderGraphViewer/MultipleUsage.png?fileID=2800000&amp;guid=cd47f6d5edd2c7541a0baf3774a54fdd&amp;type=3#MultipleUsage&quot;); background-size: 16px 16px; min-width: 16px; margin-top: 2px; margin-right: 0; margin-bottom: 2px; margin-left: 4px; -unity-background-image-tint-color: rgb(229, 229, 0); display: none;" />
             <uie:PropertyField name="keyField" binding-path="m_Key" style="flex-basis: 100%; flex-grow: 1;" />
         </ui:VisualElement>
