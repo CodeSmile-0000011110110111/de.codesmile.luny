@@ -4,7 +4,6 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -15,115 +14,84 @@ namespace CodeSmileEditor.Luny
 	[CustomPropertyDrawer(typeof(SerializedLuaTable))]
 	public sealed class SerializedLuaTableDrawer : PropertyDrawer
 	{
-		TemplateContainer m_Container;
+		private const String PathRoot = "Packages/de.codesmile.luny/Editor/Inspector";
+		private VisualTreeAsset m_LuaKeyValueTemplate;
+
 		private SerializedProperty m_TableProperty;
 		private ListView m_DictionaryList;
+
+		private static VisualTreeAsset LoadLuaTableTemplate()
+		{
+			var path = $"{PathRoot}/{nameof(SerializedLuaTable)}.uxml";
+			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+		}
+
+		private static VisualTreeAsset LoadLuaKeyValueTemplate()
+		{
+			var path = $"{PathRoot}/{nameof(SerializedLuaKeyValue)}.uxml";
+			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+		}
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			m_TableProperty = property;
 
-			var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-				$"Packages/de.codesmile.luny/Editor/Inspector/{nameof(SerializedLuaTable)}.uxml");
-			var container = uxml.CloneTree();
-			m_Container = container;
+			var container = LoadLuaTableTemplate().CloneTree();
+			m_LuaKeyValueTemplate = LoadLuaKeyValueTemplate();
 
 			var group = container.Q<GroupBox>("group");
 			group.text = property.displayName;
 
-			// Try find duplicate keys and mark them
 			m_DictionaryList = container.Q<ListView>("dictionaryList");
-			m_DictionaryList.RegisterCallback<InputEvent>(OnInput);
-			// m_DictionaryList.itemsAdded += DictionaryListOnitemsAdded;
-
-			// EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-			// EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+			m_DictionaryList.makeItem += MakeItem;
 
 			return container;
 		}
 
-		private void DictionaryListOnitemsAdded(IEnumerable<Int32> itemIndexes)
+		private VisualElement MakeItem()
 		{
-			Debug.Log($"added: {itemIndexes.Count()} {itemIndexes.First()}");
+			var container = m_LuaKeyValueTemplate.CloneTree();
+
+			var keyField = container.Q<PropertyField>("keyField");
+			keyField.label = "";
+			keyField.RegisterValueChangeCallback(OnKeyValueChange);
+
 			EditorApplication.delayCall += () =>
 			{
-				foreach (var index in itemIndexes)
-				{
-					var item = m_DictionaryList[index];
-					var keyField = item.Q<PropertyField>("keyField");
-					keyField.RegisterValueChangeCallback(OnKeyFieldValueChange);
-				}
-
+				// remove the "value" label since we're using a key TextField instead
+				var valueField = container.Q<PropertyField>("valueField");
+				var valuePropertyField = valueField.Q<PropertyField>("propertyField");
+				valuePropertyField.label = "";
 			};
+
+			return container;
 		}
 
-		private void OnKeyFieldValueChange(SerializedPropertyChangeEvent evt)
+		private void OnKeyValueChange(SerializedPropertyChangeEvent evt)
 		{
-			Debug.Log($"changed: {evt.changedProperty.stringValue}");
-		}
+			var dictValuesProperty = m_TableProperty.FindPropertyRelative("m_DictionaryValues");
 
-		// private void OnPlayModeStateChanged(PlayModeStateChange state)
-		// {
-		// 	if (state == PlayModeStateChange.ExitingEditMode)
-		// 	{
-		// 		m_DictionaryList = m_TemplateContainer.Q<ListView>("dictionaryList");
-		// 		m_DictionaryList.UnregisterCallback<InputEvent>(OnInput);
-		// 		Debug.LogWarning("OFF");
-		// 	}
-		// 	else if (state == PlayModeStateChange.EnteredEditMode)
-		// 	{
-		// 		Debug.LogWarning("ON");
-		// 		m_DictionaryList = m_TemplateContainer.Q<ListView>("dictionaryList");
-		// 		m_DictionaryList.RegisterCallback<InputEvent>(OnInput);
-		// 	}
-		// }
-
-		private void OnInput(InputEvent evt)
-		{
-			//EditorApplication.delayCall += () =>
+			// find any duplicate keys and highlight them
+			var uniqueKeys = new HashSet<String>(dictValuesProperty.arraySize);
+			var duplicateKeys = new HashSet<String>();
+			foreach (SerializedProperty item in dictValuesProperty)
 			{
-				if (EditorApplication.isPlayingOrWillChangePlaymode || m_TableProperty == null || m_TableProperty.serializedObject == null)
-					return;
+				var value = item.boxedValue as SerializedLuaKeyValue;
+				if (uniqueKeys.Add(value.Key) == false)
+					duplicateKeys.Add(value.Key);
+			}
 
-				// FIXME: handle this differently because of NullRefs in playmode!
+			// highlight duplicates with an icon
+			var pairs = m_DictionaryList.Query<VisualElement>("keyValuePair");
+			pairs.ForEach(keyValuePair =>
+			{
+				var keyField = keyValuePair.Q<PropertyField>("keyField");
+				var textElement = keyField.Q<TextElement>();
+				var dupeKey = keyValuePair.Q<VisualElement>("duplicateKey");
 
-				var dictValuesProperty = m_TableProperty.FindPropertyRelative("m_DictionaryValues");
-
-				Debug.Assert(m_DictionaryList != null);
-				Debug.Assert(dictValuesProperty != null);
-
-				var uniqueKeys = new HashSet<String>(dictValuesProperty.arraySize);
-				var duplicateKeys = new HashSet<String>();
-				foreach (SerializedProperty item in dictValuesProperty)
-				{
-					var value = item.boxedValue as SerializedLuaKeyValue;
-					if (uniqueKeys.Add(value.Key) == false)
-					{
-						duplicateKeys.Add(value.Key);
-						value.IsDuplicateKey = true;
-						// Debug.Log($"{value.Key} is duplicate: {value.IsDuplicateKey}");
-					}
-					else
-					{
-						value.IsDuplicateKey = false;
-					}
-				}
-
-				var pairs = m_DictionaryList.Query<VisualElement>("keyValuePair");
-				Debug.Assert(pairs != null);
-
-				pairs.ForEach(keyValuePair =>
-				{
-					var keyField = keyValuePair.Q<PropertyField>("keyField");
-					var textElement = keyField.Q<TextElement>();
-					var dupeKey = keyValuePair.Q<VisualElement>("duplicateKey");
-					Debug.Assert(dupeKey != null);
-
-					var isDuplicate = duplicateKeys.Contains(textElement.text);
-					dupeKey.style.display = isDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
-					dupeKey.style.backgroundColor = new StyleColor(isDuplicate ? new Color(.6f, 0f, 0f) : Color.white);
-				});
-			};
+				var isDuplicate = duplicateKeys.Contains(textElement.text);
+				dupeKey.style.display = isDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
+			});
 		}
 	}
 }
