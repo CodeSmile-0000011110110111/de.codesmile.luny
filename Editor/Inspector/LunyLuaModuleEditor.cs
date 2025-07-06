@@ -1,377 +1,190 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
+using CodeSmile.Luny;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Unity.Properties;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace CodeSmileEditor.Luny
 {
-	[CustomEditor(typeof(LuaModule))]
-	[CanEditMultipleObjects]
-	internal sealed class LunyLuaModuleEditor : Editor {}
-}
-/*
-// Copyright (C) 2021-2025 Steffen Itterheim
-// Refer to included LICENSE file for terms and conditions.
-
-#if UNITY_EDITOR
-using CodeSmile.CSharp;
-using CodeSmile.Extensions.System;
-using CodeSmile.Utility;
-using CodeSmileEditor.Core;
-using Lua;
-using Lua.Unity;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Unity.Profiling;
-using UnityEditor;
-using UnityEditor.Compilation;
-using UnityEngine;
-using UnityEngine.UIElements;
-using Assembly = System.Reflection.Assembly;
-
-namespace CodeSmile.Luny
-{
-	public partial class LuaModule : ISerializationCallbackReceiver // for post-compilation updates
+	public sealed class TestData
 	{
-		private const String ConfigLua = "LuaBindingsConfig";
-		private const String AuxiliaryLua = "LuaBindingsAuxiliary";
-		private const String GeneratorLua = "LuaBindingsGenerator";
-
-		[Header("Binding Choice")]
-		[SerializeField] private Boolean m_BindAll;
-		[SerializeField] private String m_BindThisTypeOnly;
-		[SerializeField] private List<String> m_BindByTypeNames = new();
-		[SerializeField] private List<BindTypeInfo> m_BoundTypes = new();
-
-		[Header("For Reference")]
-		[SerializeField] private List<String> m_NamespaceStaticClasses = new();
-		[SerializeField] private List<String> m_NamespaceClasses = new();
-		[SerializeField] private List<String> m_NamespaceStructs = new();
-		[SerializeField] private List<String> m_NamespaceEnums = new();
-		[SerializeField] private List<String> m_NamespaceUnsupportedTypes = new();
-
-		[Header("Debug")]
-		[SerializeField] [ReadOnlyField] private Boolean m_HasModuleLoader;
-		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderTypeFullName;
-		[SerializeField] [ReadOnlyField] private String m_GeneratedScriptsPathGuid;
-
-		private static LuaAsset GetScript(String scriptName) => LuaAssetRegistry.FindOrCreate().GetScript(scriptName);
-
-		private static async Task<LuaValue[]> RunLuaGenerator(ILunyLua lua, String infoKey, LuaTable info)
+		public String m_Text = "Hey ho!";
+		[CreateProperty]
+		public String Text
 		{
-			lua.State.Environment[infoKey] = info;
+			get => m_Text;
+			set => m_Text = value;
+		}
+	}
 
-			var configScript = GetScript(ConfigLua);
-			await lua.DoStringAsync(configScript.Text, configScript.name);
+	[CustomEditor(typeof(LunyLuaModule))]
+	[CanEditMultipleObjects]
+	internal sealed class LunyLuaModuleEditor : Editor
+	{
+		[SerializeField] private LunyLuaModuleEditorData m_ModuleData;
+		public List<AssemblyItem> m_AssemblyNames = new();
+		private IEnumerable<Assembly> m_BindableAssemblies;
+		private Assembly m_SelectedAssembly;
+		private IEnumerable<Type> m_BindableTypes;
 
-			var auxScript = GetScript(AuxiliaryLua);
-			await lua.DoStringAsync(auxScript.Text, auxScript.name);
+		private SerializedProperty m_AssemblyNameProperty;
+		private String m_AssemblyName;
 
-			var generatorScript = GetScript(GeneratorLua);
-			var results = await lua.DoStringAsync(generatorScript.Text, generatorScript.name);
+		private Button m_GenerateButton;
+		private IntegerField m_TypeCountField;
+		private ListView m_AssembliesListView;
 
-			lua.State.Environment[infoKey] = LuaValue.Nil;
-			return results;
+		private void OnEnable()
+		{
+			m_ModuleData = CreateInstance<LunyLuaModuleEditorData>();
+			m_ModuleData.AssemblyNames.Add("test");
+			m_ModuleData.AssemblyNames.Add("test123");
+
+			m_AssemblyNameProperty = serializedObject.FindProperty("m_AssemblyName");
+			m_AssemblyName = m_AssemblyNameProperty.stringValue;
+
+			EditorApplication.update += OnEditorUpdate;
 		}
 
-		public void OnBeforeSerialize() {}
-
-		public void OnAfterDeserialize() => EditorApplication.delayCall += () =>
+		private void OnDisable()
 		{
-			ClearMissingSerializeReferenceTypeWarning();
-			TryAssignModuleLoader();
-		};
+			EditorApplication.update -= OnEditorUpdate;
 
-		private void OnValidate()
-		{
-			m_ModuleName = name.SanitizeIdentifier();
-
-			UpdateBindTypes();
-			UpdateNamespaceTypesForReference();
+			DestroyImmediate(m_ModuleData);
+			m_ModuleData = null;
 		}
 
-		private void TryAssignModuleLoader()
+		private void OnEditorUpdate()
 		{
-			if (!String.IsNullOrEmpty(m_GeneratedScriptsPathGuid) && !String.IsNullOrEmpty(m_ModuleLoaderTypeFullName))
-				m_ModuleLoader = TryInstantiateModuleLoader(m_GeneratedScriptsPathGuid, m_ModuleLoaderTypeFullName);
-
-			m_HasModuleLoader = m_ModuleLoader != null;
-		}
-
-		private void UpdateBindTypes()
-		{
-			m_BoundTypes.Clear();
-
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-			HashSet<String> typesToBind;
-			if (String.IsNullOrWhiteSpace(m_BindThisTypeOnly) == false)
-				typesToBind = new HashSet<String> { m_BindThisTypeOnly };
-			else if (m_BindAll)
-				typesToBind = new HashSet<String>(GetTypeNamesInNamespace(m_Namespace));
-			else
-				typesToBind = new HashSet<String>(m_BindByTypeNames);
-
-			foreach (var typeName in typesToBind)
+			if (m_AssemblyName != m_AssemblyNameProperty.stringValue)
 			{
-				var typeFullName = $"{m_Namespace}.{typeName}";
+				m_AssemblyName = m_AssemblyNameProperty.stringValue;
+				UpdateUIState();
+			}
+		}
 
-				foreach (var assembly in assemblies.Reverse())
+		public override VisualElement CreateInspectorGUI()
+		{
+			var inspector = new VisualElement();
+			InspectorElement.FillDefaultInspector(inspector, serializedObject, this);
+
+			m_TypeCountField = new IntegerField("Number of Types");
+			m_TypeCountField.style.display = DisplayStyle.None;
+			inspector.Add(m_TypeCountField);
+
+			m_AssembliesListView = new ListView();
+			m_AssembliesListView.name = "AssembliesListView";
+			inspector.Add(m_AssembliesListView);
+
+			m_GenerateButton = new Button(OnGenerate);
+			m_GenerateButton.text = "Generate";
+			inspector.Add(m_GenerateButton);
+
+			//m_AssembliesListView.dataSource = m_ModuleData;
+			//m_AssembliesListView.dataSourcePath = PropertyPath.FromName(nameof(LunyLuaModuleEditorData.AssemblyNames));
+			//m_AssembliesListView.bindingPath = nameof(m_AssemblyNames);
+			//var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/de.codesmile.luny/Editor/Inspector/Test/AssemblyName.uxml");
+			//m_AssembliesListView.makeItem = uxml.CloneTree;
+
+			UpdateUIState();
+
+			// var testData = new TestData();
+			// var list = new Label { dataSource = testData };
+			// list.SetBinding(nameof(TestData.Text),
+			// 	new DataBinding { dataSourcePath = PropertyPath.FromName(nameof(TestData.Text)) });
+			// inspector.Add(list);
+
+			// var objectTypes = TypeCache.GetTypesDerivedFrom<Object>();
+			// Debug.Log($"object types: {objectTypes.Count}");
+			// var list = objectTypes.ToList();
+			// list.Sort((x, y) => x.FullName.CompareTo(y.FullName));
+			// foreach (var type in list)
+			// {
+			// 	Debug.Log($"\t{type.FullName}");
+			// }
+
+			var goType = typeof(LunyScript);
+			var baseType = goType;
+			var count = 100;
+			while (baseType != null && count > 0)
+			{
+				count--;
+
+				var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
+				var methods = baseType.GetMethods(flags);
+				var uniqueMethods = new HashSet<String>(methods.Select(m => m.Name));
+
+				Debug.LogWarning($"{baseType.AssemblyQualifiedName}, methods: {methods.Length}, {uniqueMethods.Count}");
+				foreach (var method in uniqueMethods)
 				{
-					var type = assembly.GetType(typeFullName);
-					if (type != null && type.IsInterface == false &&
-					    type.BaseType != typeof(Attribute) && type.BaseType != typeof(Exception))
-					{
-						var typeInfo = new BindTypeInfo
-						{
-							AssemblyQualifiedName = type.AssemblyQualifiedName,
-							Type = type,
-						};
-						m_BoundTypes.Add(typeInfo);
-						break;
-					}
+					//Debug.Log($"\t{method}");
 				}
+				baseType = baseType.BaseType;
 			}
 
-			m_BoundTypes.Sort((a, b) => a.AssemblyQualifiedName.CompareTo(b.AssemblyQualifiedName));
+			return inspector;
 		}
 
-		private IEnumerable<String> GetTypeNamesInNamespace(String ns)
+		private void UpdateUIState()
 		{
-			var typeNames = new List<String>();
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (var assembly in assemblies)
+			m_BindableAssemblies = GetBindableAssemblies();
+			m_SelectedAssembly = FindMatchingAssembly(m_AssemblyName);
+			m_BindableTypes = GetBindableTypes();
+
+			m_AssemblyNames = m_BindableAssemblies.Select(a => new AssemblyItem(a.GetName().Name)).ToList();
+			m_ModuleData.AssemblyNames = m_AssemblyNames.Select(item => item.Name).ToList();
+			Debug.Log($"Assemblies: {m_AssemblyNames.Count}");
+
+			// if (m_BindableTypes != null)
+			// {
+			// 	foreach (var type in m_BindableTypes)
+			// 		Debug.Log(type.Name);
+			// }
+
+			m_GenerateButton.SetEnabled(m_SelectedAssembly != null);
+			m_TypeCountField.style.display = m_SelectedAssembly != null ? DisplayStyle.Flex : DisplayStyle.None;
+			if (m_SelectedAssembly != null)
+				m_TypeCountField.value = m_BindableTypes.Count();
+		}
+
+		private void OnGenerate()
+		{
+			var assembly = FindMatchingAssembly(m_AssemblyName);
+			Debug.Log($"found: {assembly} {assembly.GetName().Name}");
+		}
+
+		private IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
+			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted);
+
+		private IEnumerable<Type> GetBindableTypes() => m_SelectedAssembly != null
+			? m_SelectedAssembly.ExportedTypes.Where(type =>
+				(type.IsClass || type.IsValueType || type.IsEnum) &&
+				!(type.IsAbstract || type.IsInterface || type.IsPrimitive || type.IsGenericType ||
+				  type.Name.EndsWith("Attribute") || type.Name.EndsWith("Exception")))
+			: null;
+
+		private Assembly FindMatchingAssembly(String assemblyName) => m_BindableAssemblies
+			.Where(assembly => assembly.GetName().Name == assemblyName)
+			.FirstOrDefault();
+
+		[Serializable] public struct AssemblyItem
+		{
+			[SerializeField] private String m_Name;
+			public String Name
 			{
-				try
-				{
-					var types = assembly.GetExportedTypes();
-					foreach (var type in types)
-					{
-						if (type.Namespace == m_Namespace)
-							typeNames.Add(type.Name);
-					}
-				}
-				catch (Exception e) {}
-			}
-			return typeNames;
-		}
-
-		private void UpdateNamespaceTypesForReference()
-		{
-			m_NamespaceStaticClasses.Clear();
-			m_NamespaceClasses.Clear();
-			m_NamespaceStructs.Clear();
-			m_NamespaceEnums.Clear();
-			m_NamespaceUnsupportedTypes.Clear();
-
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (var assembly in assemblies)
-			{
-				try
-				{
-					var types = assembly.GetExportedTypes();
-					foreach (var type in types)
-					{
-						if (type.Namespace == m_Namespace)
-						{
-							if (type.IsEnum)
-								m_NamespaceEnums.Add(type.Name);
-							else if (type.IsClass && !type.Name.EndsWith("Exception") && !type.Name.EndsWith("Attribute"))
-							{
-								if (type.IsAbstract && type.IsSealed)
-									m_NamespaceStaticClasses.Add(type.Name);
-								else
-									m_NamespaceClasses.Add(type.Name);
-							}
-							else if (type.IsValueType)
-								m_NamespaceStructs.Add(type.Name);
-							else
-								m_NamespaceUnsupportedTypes.Add(type.Name);
-						}
-					}
-				}
-				catch (Exception e) {}
+				get => m_Name;
+				set => m_Name = value;
 			}
 
-			m_NamespaceStaticClasses.Sort();
-			m_NamespaceClasses.Sort();
-			m_NamespaceStructs.Sort();
-			m_NamespaceEnums.Sort();
-			m_NamespaceUnsupportedTypes.Sort();
-		}
-
-		private void ClearMissingSerializeReferenceTypeWarning()
-		{
-			// this may occur if the user manually deletes the generated scripts
-			if (SerializationUtility.HasManagedReferencesWithMissingTypes(this))
-			{
-				SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
-				m_ModuleLoader = null;
-			}
-		}
-
-		public void DeleteBindingsFolder()
-		{
-			var generatePath = AssetDatabase.GUIDToAssetPath(m_GeneratedScriptsPathGuid);
-			if (AssetDatabase.IsValidFolder(generatePath))
-				AssetDatabase.DeleteAsset(generatePath);
-		}
-
-		internal async Task GenerateBindings(ILunyLua lua)
-		{
-			try
-			{
-				var marker = new ProfilerMarker("Lua Binding Generator");
-				marker.Begin(this);
-
-				AssetDatabase.StartAssetEditing();
-
-				var (generatePath, pathGuid) = GetOrCreatePathForGeneratedScripts(m_GeneratedScriptsPathGuid);
-				m_GeneratedScriptsPathGuid = pathGuid;
-
-				var moduleInfo = CreateModuleInfo(generatePath);
-				var results = await RunLuaGenerator(lua, "ModuleInfo", moduleInfo);
-
-				var returnInfo = results[0].Read<LuaTable>();
-				m_ModuleLoaderTypeFullName = returnInfo["ModuleLoaderTypeName"].Read<String>();
-				m_ModuleLoaderTypeFullName = $"{GetAssemblyRootNamespace(generatePath)}.{m_ModuleLoaderTypeFullName}";
-
-				TryAssignModuleLoader();
-
-				marker.End();
-			}
-			finally
-			{
-				// ensure the generated path's GUID is serialized before compiling because we will need that path right after
-				EditorUtility.SetDirty(this);
-				AssetDatabase.SaveAssetIfDirty(this);
-
-				AssetDatabase.StopAssetEditing();
-
-				// faster than calling ImportAsset() on each file when creating many files in Start/Stop 'batch' manner
-				// just pointing this out because I keep telling people to NOT use Refresh indiscriminately. ;)
-				AssetDatabase.Refresh();
-			}
-		}
-
-		private LuaTable CreateModuleInfo(String generatePath)
-		{
-			var moduleInfo = new LuaTable();
-			moduleInfo["Path"] = generatePath;
-			moduleInfo["FullPath"] = EditorIO.GetFullPathFromAssetPath(generatePath);
-			moduleInfo["ModuleName"] = m_ModuleName;
-			moduleInfo["ModuleNamespace"] = m_Namespace;
-			var asmdefNamespace = CompilationPipeline.GetAssemblyRootNamespaceFromScriptPath(generatePath);
-			Debug.Assert(!String.IsNullOrEmpty(asmdefNamespace),
-				$"Module {name} has no RootNamespace defined in Assembly Definition!");
-			moduleInfo["Namespace"] = asmdefNamespace;
-
-			var names = m_Namespace.Split('.');
-			var namespaceNames = new LuaTable();
-			for (var i = 0; i < names.Length; i++)
-				namespaceNames[i + 1] = names[i];
-			moduleInfo["NamespaceNames"] = namespaceNames;
-
-			var typesTable = new LuaTable();
-			moduleInfo["Types"] = typesTable;
-
-			var typeIndex = 0;
-			foreach (var boundType in m_BoundTypes)
-			{
-				var memberTable = boundType.Type.ToLuaTable();
-				typesTable[++typeIndex] = memberTable;
-			}
-
-			return moduleInfo;
-		}
-
-		private (String path, String guid) GetOrCreatePathForGeneratedScripts(String folderGuid)
-		{
-			var generatePath = AssetDatabase.GUIDToAssetPath(folderGuid);
-			if (AssetDatabase.AssetPathExists(generatePath))
-				return (generatePath, folderGuid);
-
-			var modulePath = AssetDatabase.GetAssetPath(this);
-			generatePath = $"{Path.GetDirectoryName(modulePath)}/GENERATED {name}".ToForwardSlashes();
-
-			EditorIO.TryCreateDirectory(generatePath);
-
-			return (generatePath, AssetDatabase.AssetPathToGUID(generatePath));
-		}
-
-		private Assembly GetAssemblyForAssetPath(String assetPath)
-		{
-			Assembly assembly = null;
-			try
-			{
-				var assemblyName = CompilationPipeline.GetAssemblyNameFromScriptPath(assetPath);
-				if (assemblyName != null)
-					assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyName));
-			}
-			catch (Exception e) {}
-
-			return assembly;
-		}
-
-		private String GetAssemblyRootNamespace(String assetPath) =>
-			CompilationPipeline.GetAssemblyRootNamespaceFromScriptPath(assetPath);
-
-		private LuaModuleLoader TryInstantiateModuleLoader(String folderGuid, String loaderTypeName)
-		{
-			var folder = AssetDatabase.GUIDToAssetPath(folderGuid);
-			if (AssetDatabase.IsValidFolder(folder) == false)
-				return null;
-
-			LuaModuleLoader loader = null;
-			var bindingsAssembly = GetAssemblyForAssetPath(folder);
-			if (bindingsAssembly != null)
-			{
-				var bindingsType = bindingsAssembly?.GetType(loaderTypeName);
-				if (bindingsType != null)
-				{
-					var instance = Activator.CreateInstance(bindingsType);
-					loader = instance as LuaModuleLoader;
-				}
-				else
-					LunyLogger.LogError($"Module loader not found for name: {loaderTypeName} ({bindingsAssembly.FullName})");
-			}
-			else
-				LunyLogger.LogError($"Assembly not found for path: {folder}");
-
-			return loader;
-		}
-
-		[Serializable]
-		private sealed class BindTypeInfo
-		{
-			[SerializeField] private String m_AssemblyQualifiedName;
-			private Type m_Type;
-			public String AssemblyQualifiedName
-			{
-				get => m_AssemblyQualifiedName;
-				set => m_AssemblyQualifiedName = value;
-			}
-			public Type Type
-			{
-				get => m_Type != null ? m_Type : m_Type = Type.GetType(AssemblyQualifiedName);
-				set => m_Type = value;
-			}
-
-			public MethodInfo[] GetPublicStaticMethods() => Type?.GetMethods(BindingFlags.Public | BindingFlags.Static);
-		}
-
-		[CustomPropertyDrawer(typeof(BindTypeInfo))]
-		public sealed class BindTypeInfoDrawer : PropertyDrawer
-		{
-			public override VisualElement CreatePropertyGUI(SerializedProperty property) => new Label(property.displayName);
+			public AssemblyItem(String name) => m_Name = name;
 		}
 	}
 }
-#endif
-*/

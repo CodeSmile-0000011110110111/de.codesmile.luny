@@ -10,16 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
-  m_Name: Default Runtime LuaContext
+  m_Name: Default Editor LuaContext
   m_EditorClassIdentifier: 
-  m_IsSandbox: 1
+  m_IsSandbox: 0
   m_ScriptSearchPaths:
-  - '%PersistentDataPath%'
-  - Assets/StreamingAssets
-  - Assets/Scripts/Luny/Runtime
+  - Assets/Scripts/Luny/Editor
   - Assets
-  m_Libraries: 605161764
+  m_Libraries: -1
   m_Modules:
-  - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
-  m_Path: Packages/de.codesmile.luny/Runtime/DefaultContext/Default Runtime LuaContext.asset
+  - {fileID: 11400000, guid: 6a7a967bbd8eb0648ac4d924d3fbd69c, type: 2}
+  m_Path: Packages/de.codesmile.luny/Editor/Contexts/Default Editor LuaContext.asset
   m_IsModdingContext: 0

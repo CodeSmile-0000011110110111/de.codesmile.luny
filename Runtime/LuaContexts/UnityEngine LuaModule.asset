@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ef0096777774146b9e7b2d74261174, type: 3}
   m_Name: UnityEngine LuaModule
   m_EditorClassIdentifier: 
-  m_ModuleName: 
-  m_Namespace: UnityEngine.CoreModule
+  m_AssemblyName: mscorlib
+  m_ExportedTypes: []
   m_ModuleLoader:
     rid: -2
   references:

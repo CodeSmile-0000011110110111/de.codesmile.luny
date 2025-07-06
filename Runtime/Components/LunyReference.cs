@@ -19,8 +19,13 @@ namespace CodeSmile.Luny
 	public sealed class LunyReference : MonoBehaviour
 	{
 		private ILunyRuntime m_LunyRuntime;
+		private LunyGameObject m_LunyGameObject;
 		private Boolean m_IsLunyRuntimeAssigned;
 		public ILunyRuntime LunyRuntime => m_IsLunyRuntimeAssigned ? m_LunyRuntime : m_LunyRuntime = GetOrAddLunyRuntime();
+		/// <summary>
+		/// The LunyGameObject instance that wraps this GameObject for use with Luny scripts.
+		/// </summary>
+		public LunyGameObject LunyGameObject => m_LunyGameObject ??= new LunyGameObject(gameObject);
 
 		private void Awake()
 		{
@@ -35,8 +40,8 @@ namespace CodeSmile.Luny
 			UnregisterLunyOnDestroyEvent();
 			InvokeAllRunnersOnBeforeDestroy();
 
-			// (m_LunyGameObject as ILunyGameObjectInternal)?.Dispose();
-			// m_LunyGameObject = null;
+			m_LunyGameObject?.Dispose();
+			m_LunyGameObject = null;
 			m_LunyRuntime = null;
 		}
 
