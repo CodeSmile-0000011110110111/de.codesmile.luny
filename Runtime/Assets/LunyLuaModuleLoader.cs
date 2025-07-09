@@ -22,7 +22,7 @@ namespace CodeSmile.Luny
 					var name = namespaceNames[i];
 					if (current[name].TryRead(out LuaTable next) == false)
 					{
-						next = new LuaTable();
+						next = new LuaTable(0, 4);
 						current[name] = next;
 					}
 
