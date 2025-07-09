@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
@@ -19,8 +20,9 @@ namespace CodeSmileEditor.Luny.Generator
 		public Assembly Assembly => m_Assembly;
 		public String[] Namespaces => m_Namespaces;
 		public Type[] Types => m_Types;
+		public String AssemblyName => m_Assembly?.GetName().Name;
 
-		private static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsEnum || type.IsValueType) &&
+		private static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
 		                                                     !(type.IsAbstract || type.IsGenericType || type.IsInterface ||
 		                                                       type.IsPrimitive ||
 		                                                       type.IsSubclassOf(typeof(Attribute)) ||
@@ -38,11 +40,19 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			if (Types != null)
 			{
-				var filteredTypes = m_Types.Where(type => namespaces.Contains(type.Namespace)).ToArray();
-				Debug.Log($"{filteredTypes.Length} filtered types from {m_Types.Length} total");
+				var filteredTypes = GetNamespaceFilteredTypes(namespaces);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
+
+				// generate:
+				// module loader
+				// assembly definition
+				// enums
+				// classes and structs
 			}
 		}
+
+		public Type[] GetNamespaceFilteredTypes(String[] namespaces) =>
+			m_Types.Where(type => namespaces.Contains(type.Namespace)).ToArray();
 
 		private Type[] GetBindableTypes() => m_Assembly != null
 			? m_Assembly.ExportedTypes.Where(type => IsSupportedType(type))
@@ -59,5 +69,47 @@ namespace CodeSmileEditor.Luny.Generator
 			Array.Sort(namespaces);
 			return namespaces;
 		}
+
+		public Type[] GetWhitelistedTypes(Type[] filteredTypes, String[] whitelistTypeNames) =>
+			filteredTypes.Where(type => whitelistTypeNames.Contains(type.FullName)).ToArray();
+
+		public MethodGroup[] GetBindableMethods(Type type)
+		{
+			var methods = type
+				.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
+				.Where(method => !(method.IsAbstract || method.IsSpecialName))
+				.OrderBy(method => method.Name);
+
+			var groups = new HashSet<MethodGroup>();
+			foreach (var method in methods)
+			{
+				var group = new MethodGroup { Name = method.Name };
+				if (groups.TryGetValue(group, out var existingGroup) == false)
+				{
+					group.Overloads = new List<MethodInfo>();
+					groups.Add(group);
+					existingGroup = group;
+				}
+
+				existingGroup.Overloads.Add(method);
+			}
+
+			return groups.OrderBy(group => group.Name).ToArray();
+		}
+	}
+
+	internal struct MethodGroup : IEquatable<MethodGroup>
+	{
+		public String Name;
+		public List<MethodInfo> Overloads;
+
+		public Boolean Equals(MethodGroup other) => Equals(Name, other.Name);
+
+		public override Boolean Equals(Object obj) => obj is MethodGroup other && Equals(other);
+
+		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
+
+		public static Boolean operator ==(MethodGroup left, MethodGroup right) => left.Equals(right);
+		public static Boolean operator !=(MethodGroup left, MethodGroup right) => !left.Equals(right);
 	}
 }

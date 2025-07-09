@@ -5,7 +5,6 @@ using Lua;
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace CodeSmile.Luny
 {
@@ -13,8 +12,9 @@ namespace CodeSmile.Luny
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaModuleIcon.png")]
 	public sealed class LunyLuaModule : ScriptableObject
 	{
-		[SerializeField] private String m_AssemblyName = "";
-		[FormerlySerializedAs("m_Namespaces")] [SerializeField] private String[] m_NamespaceWhitelist = Array.Empty<String>();
+		[SerializeField] internal String m_AssemblyName = "";
+		[SerializeField] internal String[] m_NamespaceWhitelist = Array.Empty<String>();
+		[SerializeField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 

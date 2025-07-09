@@ -5,7 +5,6 @@ using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -21,7 +20,9 @@ namespace CodeSmileEditor.Luny
 	{
 		private Assembly[] m_BindableAssemblies;
 		private SerializedProperty m_AssemblyNameProperty;
-		private SerializedProperty m_NamespacesProperty;
+		private SerializedProperty m_NamespaceWhitelistProperty;
+		private SerializedProperty m_TypeWhitelistProperty;
+
 		private String m_AssemblyName;
 
 		private Button m_GenerateButton;
@@ -39,11 +40,16 @@ namespace CodeSmileEditor.Luny
 			.Where(assembly => assembly.GetName().Name == assemblyName)
 			.FirstOrDefault();
 
+		private static String GetKindOfType(Type type) => type.IsEnum ? "enum" :
+			type.IsValueType ? "struct" :
+			type.IsClass ? "class" : "?";
+
 		private void OnEnable()
 		{
 			m_BindableAssemblies = GetBindableAssemblies();
-			m_AssemblyNameProperty = serializedObject.FindProperty("m_AssemblyName");
-			m_NamespacesProperty = serializedObject.FindProperty("m_NamespaceWhitelist");
+			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
+			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
+			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
 			m_AssemblyName = m_AssemblyNameProperty.stringValue;
 
 			EditorApplication.update += OnEditorUpdate;
@@ -85,9 +91,13 @@ namespace CodeSmileEditor.Luny
 				logTypesButton.text = "Types";
 				m_DebugElements.Add(logTypesButton);
 
-				var logFilteredTypesButton = new Button(OnLogFilteredTypes);
-				logFilteredTypesButton.text = "Whitelist Types";
+				var logFilteredTypesButton = new Button(OnLogNamespaceWhitelistedTypes);
+				logFilteredTypesButton.text = "Namespace Types";
 				m_DebugElements.Add(logFilteredTypesButton);
+
+				var logTypeMethodsButton = new Button(OnLogTypeMethods);
+				logTypeMethodsButton.text = "Type Methods";
+				m_DebugElements.Add(logTypeMethodsButton);
 			}
 
 			m_GenerateButton = new Button(OnGenerate);
@@ -106,25 +116,44 @@ namespace CodeSmileEditor.Luny
 
 			m_GenerateButton.SetEnabled(m_Generator.Types.Length > 0 && m_Generator.Namespaces.Length > 0);
 
-			UpdateSerializedNamespacesList();
+			UpdateSerializedNamespaceWhitelist();
+			UpdateSerializedTypeWhitelist();
+			serializedObject.ApplyModifiedProperties();
 		}
 
-		private void UpdateSerializedNamespacesList()
+		private void UpdateSerializedNamespaceWhitelist()
 		{
 			if (m_Generator.Types.Length == 0)
-				m_NamespacesProperty.arraySize = 0;
+				m_NamespaceWhitelistProperty.arraySize = 0;
 
-			if (m_NamespacesProperty.arraySize != 0)
+			if (m_NamespaceWhitelistProperty.arraySize != 0)
 				return;
 
 			var namespaces = m_Generator.Namespaces;
-			m_NamespacesProperty.arraySize = namespaces.Length;
-			for (int i = 0; i < namespaces.Length; i++)
+			m_NamespaceWhitelistProperty.arraySize = namespaces.Length;
+			for (var i = 0; i < namespaces.Length; i++)
 			{
-				var element = m_NamespacesProperty.GetArrayElementAtIndex(i);
+				var element = m_NamespaceWhitelistProperty.GetArrayElementAtIndex(i);
 				element.stringValue = namespaces[i];
 			}
-			m_NamespacesProperty.serializedObject.ApplyModifiedProperties();
+		}
+
+		private void UpdateSerializedTypeWhitelist()
+		{
+			if (m_Generator.Types.Length == 0)
+				m_TypeWhitelistProperty.arraySize = 0;
+
+			if (m_TypeWhitelistProperty.arraySize != 0)
+				return;
+
+			var namespaces = m_NamespaceWhitelistProperty.ToArray<String>();
+			var filteredTypes = m_Generator.GetNamespaceFilteredTypes(namespaces);
+			m_TypeWhitelistProperty.arraySize = filteredTypes.Length;
+			for (var i = 0; i < filteredTypes.Length; i++)
+			{
+				var element = m_TypeWhitelistProperty.GetArrayElementAtIndex(i);
+				element.stringValue = filteredTypes[i].FullName;
+			}
 		}
 
 		private void OnLogAssemblies()
@@ -136,7 +165,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogNamespaces()
 		{
-			Debug.Log($"{m_Generator.Namespaces.Length} Namespaces in {m_Generator.Assembly?.GetName().Name}:");
+			Debug.Log($"{m_Generator.Namespaces.Length} Namespaces in {m_Generator.AssemblyName}:");
 			foreach (var ns in m_Generator.Namespaces)
 				Debug.Log($"\t{ns}");
 		}
@@ -144,7 +173,7 @@ namespace CodeSmileEditor.Luny
 		private void OnLogAssemblyTypes()
 		{
 			var types = m_Generator.Types;
-			Debug.Log($"{types.Length} Types in Assembly {m_Generator.Assembly?.GetName().Name}:");
+			Debug.Log($"{types.Length} Types in Assembly {m_Generator.AssemblyName}:");
 
 			var currentNamespace = "";
 			foreach (var type in m_Generator.Types)
@@ -155,15 +184,15 @@ namespace CodeSmileEditor.Luny
 					Debug.Log($"\t{currentNamespace}:");
 				}
 
-				Debug.Log($"\t\t{type.Name}");
+				Debug.Log($"\t\t{GetKindOfType(type)} {type.Name}");
 			}
 		}
-		private void OnLogFilteredTypes()
+
+		private void OnLogNamespaceWhitelistedTypes()
 		{
-			var types = m_Generator.Types;
-			var namespaces = m_NamespacesProperty.ToArray<string>();
-			var filteredTypes = types.Where(type => namespaces.Contains(type.Namespace)).ToArray();
-			Debug.Log($"{filteredTypes.Length} whitelisted Types:");
+			var namespaces = m_NamespaceWhitelistProperty.ToArray<String>();
+			var filteredTypes = m_Generator.GetNamespaceFilteredTypes(namespaces);
+			Debug.Log($"{filteredTypes.Length} namespace whitelisted Types:");
 
 			var currentNamespace = "";
 			foreach (var type in filteredTypes)
@@ -171,17 +200,44 @@ namespace CodeSmileEditor.Luny
 				if (currentNamespace != type.Namespace)
 				{
 					currentNamespace = type.Namespace;
-					Debug.Log($"\t{currentNamespace}:");
+					Debug.Log($"{currentNamespace} namespace in Assembly {m_Generator.AssemblyName}:");
 				}
 
-				Debug.Log($"\t\t{type.Name}");
+				Debug.Log($"\t{GetKindOfType(type)} {type.Name}");
 			}
 		}
 
+		private void OnLogTypeMethods()
+		{
+			var namespaces = m_NamespaceWhitelistProperty.ToArray<String>();
+			var filteredTypes = m_Generator.GetNamespaceFilteredTypes(namespaces);
+			var whitelistedTypes = m_Generator.GetWhitelistedTypes(filteredTypes, m_TypeWhitelistProperty.ToArray<String>());
+			Debug.Log($"{whitelistedTypes.Length} whitelisted Types:");
+
+			foreach (var type in whitelistedTypes)
+			{
+				if (type.IsEnum)
+				{
+					Debug.Log($"\tenum {type.Name} has {type.GetEnumValues().Length} values");
+				}
+				else
+				{
+					var methods = m_Generator.GetBindableMethods(type);
+					Debug.Log($"\t{type.Name} has {methods.Length} declared methods:");
+					foreach (var method in methods)
+					{
+						var overloads = "";
+						if (method.Overloads.Count > 1)
+							overloads = $" + {method.Overloads.Count - 1} overload(s)";
+						Debug.Log($"\t\t{method.Name}{overloads}");
+					}
+				}
+			}
+		}
 
 		private void OnGenerate()
 		{
-			var namespaces = m_NamespacesProperty.ToArray<string>();
+			var namespaces = m_NamespaceWhitelistProperty.ToArray<String>();
 			m_Generator.Generate(namespaces);
 		}
 

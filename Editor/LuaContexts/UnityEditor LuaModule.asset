@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: UnityEditor LuaModule
   m_EditorClassIdentifier: 
   m_AssemblyName: UnityEngine.CoreModule
-  m_Namespaces:
+  m_NamespaceWhitelist:
   - UnityEngine
+  m_TypeWhitelist:
+  - UnityEngine.GameObject
   m_ModuleLoader:
     rid: -2
   references:
