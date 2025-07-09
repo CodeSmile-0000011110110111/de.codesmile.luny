@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ef0096777774146b9e7b2d74261174, type: 3}
   m_Name: UnityEngine LuaModule
   m_EditorClassIdentifier: 
-  m_AssemblyName: mscorlib
+  m_AssemblyName: UnityEngine.CoreModule
   m_ExportedTypes: []
   m_ModuleLoader:
     rid: -2

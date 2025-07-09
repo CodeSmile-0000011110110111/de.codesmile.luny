@@ -2,11 +2,12 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using CodeSmileEditor.Luny.Generator;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using Unity.Properties;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -14,53 +15,41 @@ using UnityEngine.UIElements;
 
 namespace CodeSmileEditor.Luny
 {
-	public sealed class TestData
-	{
-		public String m_Text = "Hey ho!";
-		[CreateProperty]
-		public String Text
-		{
-			get => m_Text;
-			set => m_Text = value;
-		}
-	}
-
 	[CustomEditor(typeof(LunyLuaModule))]
 	[CanEditMultipleObjects]
 	internal sealed class LunyLuaModuleEditor : Editor
 	{
-		[SerializeField] private LunyLuaModuleEditorData m_ModuleData;
-		public List<AssemblyItem> m_AssemblyNames = new();
-		private IEnumerable<Assembly> m_BindableAssemblies;
-		private Assembly m_SelectedAssembly;
-		private IEnumerable<Type> m_BindableTypes;
-
+		private Assembly[] m_BindableAssemblies;
 		private SerializedProperty m_AssemblyNameProperty;
+		private SerializedProperty m_NamespacesProperty;
 		private String m_AssemblyName;
 
 		private Button m_GenerateButton;
-		private IntegerField m_TypeCountField;
-		private ListView m_AssembliesListView;
+
+		private VisualElement m_DebugElements;
+
+		private LuaBindingsGenerator m_Generator;
+
+		private static Assembly[] GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
+			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
+			.OrderBy(assembly => assembly.FullName)
+			.ToArray();
+
+		private static Assembly FindMatchingAssembly(IEnumerable<Assembly> assemblies, String assemblyName) => assemblies
+			.Where(assembly => assembly.GetName().Name == assemblyName)
+			.FirstOrDefault();
 
 		private void OnEnable()
 		{
-			m_ModuleData = CreateInstance<LunyLuaModuleEditorData>();
-			m_ModuleData.AssemblyNames.Add("test");
-			m_ModuleData.AssemblyNames.Add("test123");
-
+			m_BindableAssemblies = GetBindableAssemblies();
 			m_AssemblyNameProperty = serializedObject.FindProperty("m_AssemblyName");
+			m_NamespacesProperty = serializedObject.FindProperty("m_NamespaceWhitelist");
 			m_AssemblyName = m_AssemblyNameProperty.stringValue;
 
 			EditorApplication.update += OnEditorUpdate;
 		}
 
-		private void OnDisable()
-		{
-			EditorApplication.update -= OnEditorUpdate;
-
-			DestroyImmediate(m_ModuleData);
-			m_ModuleData = null;
-		}
+		private void OnDisable() => EditorApplication.update -= OnEditorUpdate;
 
 		private void OnEditorUpdate()
 		{
@@ -74,117 +63,167 @@ namespace CodeSmileEditor.Luny
 		public override VisualElement CreateInspectorGUI()
 		{
 			var inspector = new VisualElement();
+
 			InspectorElement.FillDefaultInspector(inspector, serializedObject, this);
 
-			m_TypeCountField = new IntegerField("Number of Types");
-			m_TypeCountField.style.display = DisplayStyle.None;
-			inspector.Add(m_TypeCountField);
+			{
+				m_DebugElements = new GroupBox("Log");
+				m_DebugElements.style.flexDirection = FlexDirection.Row;
+				m_DebugElements.style.alignContent = Align.Stretch;
+				m_DebugElements.style.alignItems = Align.Stretch;
+				inspector.Add(m_DebugElements);
 
-			m_AssembliesListView = new ListView();
-			m_AssembliesListView.name = "AssembliesListView";
-			inspector.Add(m_AssembliesListView);
+				var logAssembliesButton = new Button(OnLogAssemblies);
+				logAssembliesButton.text = "Assemblies";
+				m_DebugElements.Add(logAssembliesButton);
+
+				var logNamespacesButton = new Button(OnLogNamespaces);
+				logNamespacesButton.text = "Namespaces";
+				m_DebugElements.Add(logNamespacesButton);
+
+				var logTypesButton = new Button(OnLogAssemblyTypes);
+				logTypesButton.text = "Types";
+				m_DebugElements.Add(logTypesButton);
+
+				var logFilteredTypesButton = new Button(OnLogFilteredTypes);
+				logFilteredTypesButton.text = "Whitelist Types";
+				m_DebugElements.Add(logFilteredTypesButton);
+			}
 
 			m_GenerateButton = new Button(OnGenerate);
 			m_GenerateButton.text = "Generate";
 			inspector.Add(m_GenerateButton);
 
-			//m_AssembliesListView.dataSource = m_ModuleData;
-			//m_AssembliesListView.dataSourcePath = PropertyPath.FromName(nameof(LunyLuaModuleEditorData.AssemblyNames));
-			//m_AssembliesListView.bindingPath = nameof(m_AssemblyNames);
-			//var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/de.codesmile.luny/Editor/Inspector/Test/AssemblyName.uxml");
-			//m_AssembliesListView.makeItem = uxml.CloneTree;
-
 			UpdateUIState();
-
-			// var testData = new TestData();
-			// var list = new Label { dataSource = testData };
-			// list.SetBinding(nameof(TestData.Text),
-			// 	new DataBinding { dataSourcePath = PropertyPath.FromName(nameof(TestData.Text)) });
-			// inspector.Add(list);
-
-			// var objectTypes = TypeCache.GetTypesDerivedFrom<Object>();
-			// Debug.Log($"object types: {objectTypes.Count}");
-			// var list = objectTypes.ToList();
-			// list.Sort((x, y) => x.FullName.CompareTo(y.FullName));
-			// foreach (var type in list)
-			// {
-			// 	Debug.Log($"\t{type.FullName}");
-			// }
-
-			var goType = typeof(LunyScript);
-			var baseType = goType;
-			var count = 100;
-			while (baseType != null && count > 0)
-			{
-				count--;
-
-				var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
-				var methods = baseType.GetMethods(flags);
-				var uniqueMethods = new HashSet<String>(methods.Select(m => m.Name));
-
-				Debug.LogWarning($"{baseType.AssemblyQualifiedName}, methods: {methods.Length}, {uniqueMethods.Count}");
-				foreach (var method in uniqueMethods)
-				{
-					//Debug.Log($"\t{method}");
-				}
-				baseType = baseType.BaseType;
-			}
 
 			return inspector;
 		}
 
 		private void UpdateUIState()
 		{
-			m_BindableAssemblies = GetBindableAssemblies();
-			m_SelectedAssembly = FindMatchingAssembly(m_AssemblyName);
-			m_BindableTypes = GetBindableTypes();
+			var selectedAssembly = FindMatchingAssembly(m_BindableAssemblies, m_AssemblyName);
+			m_Generator = new LuaBindingsGenerator(selectedAssembly);
 
-			m_AssemblyNames = m_BindableAssemblies.Select(a => new AssemblyItem(a.GetName().Name)).ToList();
-			m_ModuleData.AssemblyNames = m_AssemblyNames.Select(item => item.Name).ToList();
-			Debug.Log($"Assemblies: {m_AssemblyNames.Count}");
+			m_GenerateButton.SetEnabled(m_Generator.Types.Length > 0 && m_Generator.Namespaces.Length > 0);
 
-			// if (m_BindableTypes != null)
-			// {
-			// 	foreach (var type in m_BindableTypes)
-			// 		Debug.Log(type.Name);
-			// }
-
-			m_GenerateButton.SetEnabled(m_SelectedAssembly != null);
-			m_TypeCountField.style.display = m_SelectedAssembly != null ? DisplayStyle.Flex : DisplayStyle.None;
-			if (m_SelectedAssembly != null)
-				m_TypeCountField.value = m_BindableTypes.Count();
+			UpdateSerializedNamespacesList();
 		}
+
+		private void UpdateSerializedNamespacesList()
+		{
+			if (m_Generator.Types.Length == 0)
+				m_NamespacesProperty.arraySize = 0;
+
+			if (m_NamespacesProperty.arraySize != 0)
+				return;
+
+			var namespaces = m_Generator.Namespaces;
+			m_NamespacesProperty.arraySize = namespaces.Length;
+			for (int i = 0; i < namespaces.Length; i++)
+			{
+				var element = m_NamespacesProperty.GetArrayElementAtIndex(i);
+				element.stringValue = namespaces[i];
+			}
+			m_NamespacesProperty.serializedObject.ApplyModifiedProperties();
+		}
+
+		private void OnLogAssemblies()
+		{
+			Debug.Log($"{m_BindableAssemblies.Length} Assemblies:");
+			foreach (var assembly in m_BindableAssemblies)
+				Debug.Log($"\t{assembly.GetName().Name}");
+		}
+
+		private void OnLogNamespaces()
+		{
+			Debug.Log($"{m_Generator.Namespaces.Length} Namespaces in {m_Generator.Assembly?.GetName().Name}:");
+			foreach (var ns in m_Generator.Namespaces)
+				Debug.Log($"\t{ns}");
+		}
+
+		private void OnLogAssemblyTypes()
+		{
+			var types = m_Generator.Types;
+			Debug.Log($"{types.Length} Types in Assembly {m_Generator.Assembly?.GetName().Name}:");
+
+			var currentNamespace = "";
+			foreach (var type in m_Generator.Types)
+			{
+				if (currentNamespace != type.Namespace)
+				{
+					currentNamespace = type.Namespace;
+					Debug.Log($"\t{currentNamespace}:");
+				}
+
+				Debug.Log($"\t\t{type.Name}");
+			}
+		}
+		private void OnLogFilteredTypes()
+		{
+			var types = m_Generator.Types;
+			var namespaces = m_NamespacesProperty.ToArray<string>();
+			var filteredTypes = types.Where(type => namespaces.Contains(type.Namespace)).ToArray();
+			Debug.Log($"{filteredTypes.Length} whitelisted Types:");
+
+			var currentNamespace = "";
+			foreach (var type in filteredTypes)
+			{
+				if (currentNamespace != type.Namespace)
+				{
+					currentNamespace = type.Namespace;
+					Debug.Log($"\t{currentNamespace}:");
+				}
+
+				Debug.Log($"\t\t{type.Name}");
+			}
+		}
+
 
 		private void OnGenerate()
 		{
-			var assembly = FindMatchingAssembly(m_AssemblyName);
-			Debug.Log($"found: {assembly} {assembly.GetName().Name}");
+			var namespaces = m_NamespacesProperty.ToArray<string>();
+			m_Generator.Generate(namespaces);
 		}
 
-		private IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
-			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted);
-
-		private IEnumerable<Type> GetBindableTypes() => m_SelectedAssembly != null
-			? m_SelectedAssembly.ExportedTypes.Where(type =>
-				(type.IsClass || type.IsValueType || type.IsEnum) &&
-				!(type.IsAbstract || type.IsInterface || type.IsPrimitive || type.IsGenericType ||
-				  type.Name.EndsWith("Attribute") || type.Name.EndsWith("Exception")))
-			: null;
-
-		private Assembly FindMatchingAssembly(String assemblyName) => m_BindableAssemblies
-			.Where(assembly => assembly.GetName().Name == assemblyName)
-			.FirstOrDefault();
-
-		[Serializable] public struct AssemblyItem
+		/*
+		public class ExampleObject
 		{
-			[SerializeField] private String m_Name;
-			public String Name
-			{
-				get => m_Name;
-				set => m_Name = value;
-			}
-
-			public AssemblyItem(String name) => m_Name = name;
+			public String simpleLabel = "Hello World!";
+			public String vector3Label = "v3";
+			public Vector3 vector3Value = new(-1, -2, -3);
+			public Single sumOfVector3Properties = 0f;
 		}
+		private void BindingTest(VisualElement inspector)
+		{
+			var dataSource = new ExampleObject();
+
+			var root = inspector;
+			root.name = "root";
+			root.dataSource = dataSource;
+
+			var vector3Field = new Vector3Field("Vec3 Field");
+
+			vector3Field.SetBinding("label", new DataBinding
+			{
+				dataSourcePath = new PropertyPath(nameof(ExampleObject.vector3Label)),
+				bindingMode = BindingMode.ToTarget,
+			});
+
+			vector3Field.SetBinding("value", new DataBinding
+			{
+				dataSourcePath = new PropertyPath(nameof(ExampleObject.vector3Value)),
+			});
+
+			root.Add(vector3Field);
+
+			var floatField = new FloatField("Float Field") { value = 42.2f };
+
+			floatField.SetBinding("value", new DataBinding
+			{
+				dataSourcePath = new PropertyPath(nameof(ExampleObject.sumOfVector3Properties)),
+			});
+
+			root.Add(floatField);
+		}*/
 	}
 }
