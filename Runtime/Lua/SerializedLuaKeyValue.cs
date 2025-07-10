@@ -13,13 +13,14 @@ namespace CodeSmile.Luny
 	{
 		[SerializeField] private String m_Key;
 		[SerializeField] private SerializedLuaValue m_Value;
+
+		public String Key => m_Key;
+		public SerializedLuaValue Value => m_Value;
+
 		public SerializedLuaKeyValue(LuaValue key, LuaValue value)
 		{
 			m_Key = key.ToString();
 			m_Value = new SerializedLuaValue(value);
 		}
-
-		public String Key => m_Key;
-		public SerializedLuaValue Value => m_Value;
 	}
 }

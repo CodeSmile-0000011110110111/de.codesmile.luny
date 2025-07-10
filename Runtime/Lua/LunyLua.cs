@@ -48,15 +48,6 @@ namespace CodeSmile.Luny
 			InitLuaEnvironment(luaContext, fileSystemHook);
 		}
 
-		public void Dispose()
-		{
-			ClearScripts();
-			m_FileWatcher?.Dispose();
-			m_FileWatcher = null;
-			m_LuaState.Environment.Clear();
-			m_LuaState = null;
-		}
-
 		public async ValueTask AddAndRunScript(LunyLuaScript script)
 		{
 			if (script == null)
@@ -89,6 +80,32 @@ namespace CodeSmile.Luny
 
 			if (m_Scripts.Remove(script))
 				DisposeScript(script);
+		}
+
+		public void RemoveScript(LunyLuaAsset luaAsset)
+		{
+			if (luaAsset == null)
+				return;
+
+			for (var i = m_Scripts.Count - 1; i >= 0; i--)
+			{
+				var script = m_Scripts[i];
+				if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
+				{
+					m_Scripts.RemoveAt(i);
+					DisposeScript(script);
+					break;
+				}
+			}
+		}
+
+		public void Dispose()
+		{
+			ClearScripts();
+			m_FileWatcher?.Dispose();
+			m_FileWatcher = null;
+			m_LuaState.Environment.Clear();
+			m_LuaState = null;
 		}
 
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -166,23 +183,6 @@ namespace CodeSmile.Luny
 				catch (Exception ex)
 				{
 					return context.Return(LuaValue.Nil, ex.Message);
-				}
-			}
-		}
-
-		public void RemoveScript(LunyLuaAsset luaAsset)
-		{
-			if (luaAsset == null)
-				return;
-
-			for (var i = m_Scripts.Count - 1; i >= 0; i--)
-			{
-				var script = m_Scripts[i];
-				if (script is LunyLuaAssetScript assetScript && luaAsset == assetScript.LuaAsset)
-				{
-					m_Scripts.RemoveAt(i);
-					DisposeScript(script);
-					break;
 				}
 			}
 		}

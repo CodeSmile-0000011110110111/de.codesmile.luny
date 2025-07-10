@@ -62,15 +62,15 @@ namespace CodeSmileEditor.Luny
 			return container;
 		}
 
-		 private VisualElement MakeArrayItem()
-		 {
-			 var luaValueElement = m_LuaValueTemplate.CloneTree();
-			 var propertyField = luaValueElement.Q<PropertyField>("propertyField");
-			 propertyField.label = "?";
-			 return luaValueElement;
-		 }
+		private VisualElement MakeArrayItem()
+		{
+			var luaValueElement = m_LuaValueTemplate.CloneTree();
+			var propertyField = luaValueElement.Q<PropertyField>("propertyField");
+			propertyField.label = "?";
+			return luaValueElement;
+		}
 
-		 private VisualElement MakeDictionaryItem()
+		private VisualElement MakeDictionaryItem()
 		{
 			var luaKeyValueElement = m_LuaKeyValueTemplate.CloneTree();
 

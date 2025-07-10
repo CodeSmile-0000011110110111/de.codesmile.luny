@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
-using Lua;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -41,7 +40,8 @@ namespace CodeSmileEditor.Luny.Generator
 
 			if (Types != null)
 			{
-				var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
+				var filteredTypes =
+					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
 
 				// generate:

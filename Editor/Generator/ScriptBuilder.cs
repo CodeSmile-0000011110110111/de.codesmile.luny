@@ -28,12 +28,12 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     Create a new StringBuilder with indentation support.
 		/// </summary>
-		public ScriptBuilder(string value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
+		public ScriptBuilder(String value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
 		{
 			m_StringBuilder = new StringBuilder(value);
 			m_IndentChar = indentChar;
 			m_IndentCharRepeat = Mathf.Max(1, indentCharRepeat);
-			m_Indent.Add(string.Empty); // level 0: no indentation
+			m_Indent.Add(String.Empty); // level 0: no indentation
 		}
 
 		/// <summary>

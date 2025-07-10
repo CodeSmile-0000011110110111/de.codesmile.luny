@@ -15,7 +15,7 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		private readonly TreeNode<Type> m_Hierarchy = new(typeof(Object));
 		private Assembly[] m_Assemblies = Array.Empty<Assembly>();
-		private string[] m_Namespaces = Array.Empty<string>();
+		private String[] m_Namespaces = Array.Empty<String>();
 		public Assembly[] Assemblies => m_Assemblies;
 		public String[] Namespaces => m_Namespaces;
 
@@ -48,7 +48,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private void AddTypes(IEnumerable<Type> hierarchyTypes)
 		{
 			var assemblies = new HashSet<Assembly>();
-			var namespaces = new HashSet<string>();
+			var namespaces = new HashSet<String>();
 
 			var node = m_Hierarchy;
 			foreach (var type in hierarchyTypes.Reverse())

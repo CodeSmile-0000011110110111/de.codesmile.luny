@@ -12,24 +12,24 @@ namespace CodeSmileEditor.Luny
 {
 	internal static class CreateLunyAssetsMenu
 	{
-		private static readonly string s_LuaScriptContext =
+		private static readonly String s_LuaScriptContext =
 			"-- assign script's 'context' table to a local variable\n" +
 			"-- the context is where you define event functions and exchange data with C#\n" +
 			"-- the ellipsis (...) represents the arguments passed when the script is loaded\n" +
 			"local context = ...\n\n";
 
 		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
-			"-- Use these events to respond to script loading, including hot reload\n" +
-			"function context.OnWillReloadScript()\n" +
-			"\tprint(context.ScriptName .. \" was changed and will hot reload.\")\n" +
-			"end\n" +
-			"function context.OnDidLoadScript()\n" +
-			"\tprint(context.ScriptName .. \" was (re-)loaded.\")\n" +
-			"end\n\n" +
-			"-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
-			"function context.OnEnable()\n" +
-			"	print(\"Hello, \" .. context.ScriptName .. \".lua\")\n" +
-			"end\n";
+		                                                  "-- Use these events to respond to script loading, including hot reload\n" +
+		                                                  "function context.OnWillReloadScript()\n" +
+		                                                  "\tprint(context.ScriptName .. \" was changed and will hot reload.\")\n" +
+		                                                  "end\n" +
+		                                                  "function context.OnDidLoadScript()\n" +
+		                                                  "\tprint(context.ScriptName .. \" was (re-)loaded.\")\n" +
+		                                                  "end\n\n" +
+		                                                  "-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
+		                                                  "function context.OnEnable()\n" +
+		                                                  "	print(\"Hello, \" .. context.ScriptName .. \".lua\")\n" +
+		                                                  "end\n";
 
 		private static readonly String s_EmptyLunyScript = "using CodeSmile.Luny;\n" +
 		                                                   "using Lua;" +

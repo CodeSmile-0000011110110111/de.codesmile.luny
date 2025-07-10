@@ -34,6 +34,23 @@ namespace CodeSmileEditor.Luny
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
+		private static void RegisterEditorScriptByType(LunyLuaAssetScript script)
+		{
+			switch (script.EditorType)
+			{
+				case LunyLuaScript.ScriptableSingletonEditorType:
+					var instance = LunyScriptableSingletonScripts.Singleton;
+					instance.AddScript(script);
+					break;
+			}
+		}
+
+		private static void UnregisterEditorScriptByAsset(LunyLuaAsset luaAsset)
+		{
+			var lssInstance = LunyScriptableSingletonScripts.Singleton;
+			lssInstance.RemoveScriptByAsset(luaAsset);
+		}
+
 		// Reset runs when project is loaded AND the FilePath asset does not exist
 		//private void Reset() {}
 
@@ -73,22 +90,6 @@ namespace CodeSmileEditor.Luny
 
 				RegisterEditorScriptByType(script);
 			}
-		}
-
-		private static void RegisterEditorScriptByType(LunyLuaAssetScript script)
-		{
-			switch (script.EditorType)
-			{
-				case LunyLuaScript.ScriptableSingletonEditorType:
-					var instance = LunyScriptableSingletonScripts.Singleton;
-					instance.AddScript(script);
-					break;
-			}
-		}
-		private static void UnregisterEditorScriptByAsset(LunyLuaAsset luaAsset)
-		{
-			var lssInstance = LunyScriptableSingletonScripts.Singleton;
-			lssInstance.RemoveScriptByAsset(luaAsset);
 		}
 
 		private void OnEditorUpdate()

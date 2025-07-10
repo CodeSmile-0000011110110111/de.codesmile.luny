@@ -147,9 +147,6 @@ namespace CodeSmileEditor.Luny
 			lifecycleEvent.Send(luaState, (Int32)ScriptLifecycleEvent.OnEnable);
 		}
 
-		public void RemoveScriptByAsset(LunyLuaAsset luaAsset)
-		{
-			m_Scripts.Remove(luaAsset);
-		}
+		public void RemoveScriptByAsset(LunyLuaAsset luaAsset) => m_Scripts.Remove(luaAsset);
 	}
 }
