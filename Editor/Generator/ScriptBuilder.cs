@@ -18,7 +18,7 @@ namespace CodeSmileEditor.Luny.Generator
 	/// </summary>
 	public sealed class ScriptBuilder
 	{
-		private readonly StringBuilder m_StringBuilder = new();
+		private readonly StringBuilder m_StringBuilder;
 		private readonly List<String> m_Indent = new();
 		private readonly Char m_IndentChar;
 		private readonly Int32 m_IndentCharRepeat;
@@ -28,8 +28,9 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     Create a new StringBuilder with indentation support.
 		/// </summary>
-		public ScriptBuilder(Char indentChar = ' ', Int32 indentCharRepeat = 4)
+		public ScriptBuilder(string value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
 		{
+			m_StringBuilder = new StringBuilder(value);
 			m_IndentChar = indentChar;
 			m_IndentCharRepeat = Mathf.Max(1, indentCharRepeat);
 			m_Indent.Add(string.Empty); // level 0: no indentation
@@ -146,7 +147,7 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     appends an opening character with the current Indentation, then increments Indentation
 		/// </summary>
-		public void OpenIndentBlock(String openCharacters = "{")
+		public void OpenIndentBlock(String openCharacters)
 		{
 			AppendIndentation();
 			AppendLine(openCharacters);
@@ -156,7 +157,7 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     decrements Indentation, then appends a closing character
 		/// </summary>
-		public void CloseIndentBlock(String closeCharacters = "}")
+		public void CloseIndentBlock(String closeCharacters)
 		{
 			DecrementIndent();
 			AppendIndentation();

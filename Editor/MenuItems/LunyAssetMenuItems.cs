@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
-using CodeSmileEditor.Core;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -135,13 +134,13 @@ namespace CodeSmileEditor.Luny
 		{
 			private static void OnWillCreateAsset(String assetPath)
 			{
-				if (s_WillCreateLunyScript && AssetUtility.IsLuaScript(assetPath))
+				if (s_WillCreateLunyScript && EditorAssetUtility.IsLuaScript(assetPath))
 				{
 					s_WillCreateLunyScript = false;
 					CreateMatchingCSharpLunyScript(assetPath);
 				}
 
-				if (s_WillCreateAutoRunScript && AssetUtility.IsLuaScript(assetPath))
+				if (s_WillCreateAutoRunScript && EditorAssetUtility.IsLuaScript(assetPath))
 				{
 					s_WillCreateAutoRunScript = false;
 					EditorApplication.delayCall += () => AddToAutoRunScripts(assetPath); // required delay

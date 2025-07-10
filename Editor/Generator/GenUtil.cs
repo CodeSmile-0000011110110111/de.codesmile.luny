@@ -1,5 +1,4 @@
 using CodeSmile.Luny;
-using CodeSmileEditor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,13 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class GenUtil
 	{
+		public static readonly String GeneratedFileHeader = @"
+// --------------------------------------------------------------
+// GENERATED FILE ----> DO NOT EDIT <---- CHANGES WILL BE LOST !!
+// --------------------------------------------------------------
+
+";
+
 		public static Assembly[] GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
 			.OrderBy(assembly => assembly.FullName)

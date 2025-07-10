@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
-using CodeSmileEditor.Core;
 using System;
 using System.IO;
 using System.Linq;
@@ -166,7 +165,7 @@ namespace CodeSmileEditor.Luny
 		{
 			private static void OnWillCreateAsset(String assetPath)
 			{
-				if (AssetUtility.IsLuaScript(assetPath))
+				if (EditorAssetUtility.IsLuaScript(assetPath))
 				{
 					// NOTE: creating auto-run scripts is handled by LunyAssetMenuItems
 
@@ -200,7 +199,7 @@ namespace CodeSmileEditor.Luny
 
 			private static AssetDeleteResult OnWillDeleteAsset(String assetPath, RemoveAssetOptions options)
 			{
-				if (AssetUtility.IsLuaScript(assetPath))
+				if (EditorAssetUtility.IsLuaScript(assetPath))
 				{
 					var settings = LunyProjectSettings.Singleton;
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
@@ -234,7 +233,7 @@ namespace CodeSmileEditor.Luny
 
 			private static AssetMoveResult OnWillMoveAsset(String sourcePath, String destinationPath)
 			{
-				if (AssetUtility.IsLuaScript(sourcePath))
+				if (EditorAssetUtility.IsLuaScript(sourcePath))
 				{
 					// delay to ensure asset is already moved/renamed
 					EditorApplication.delayCall += () =>

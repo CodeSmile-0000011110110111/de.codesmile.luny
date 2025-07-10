@@ -40,16 +40,19 @@ namespace CodeSmileEditor.Luny.Generator
 
 			if (Types != null)
 			{
-				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
 				var filteredTypes =
 					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
 
 				// generate:
-				// module loader
+				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
+				ModuleLoaderGenerator.Generate(m_Module, contentFolderPath);
 				// assembly definition
 				// enums
 				// classes and structs
+
+				EditorUtility.SetDirty(m_Module);
+				AssetDatabase.SaveAssetIfDirty(m_Module);
 			}
 		}
 	}

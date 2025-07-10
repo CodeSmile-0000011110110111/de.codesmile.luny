@@ -30,6 +30,7 @@ namespace CodeSmile.Luny
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
 		ValueTask RunScript(LunyLuaScript script);
 		void RemoveScript(LunyLuaScript script);
+		void RemoveScript(LunyLuaAsset asset);
 	}
 
 	public sealed class LunyLua : ILunyLua
@@ -169,7 +170,7 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		internal void RemoveScript(LunyLuaAsset luaAsset)
+		public void RemoveScript(LunyLuaAsset luaAsset)
 		{
 			if (luaAsset == null)
 				return;

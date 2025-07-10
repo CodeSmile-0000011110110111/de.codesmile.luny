@@ -222,7 +222,14 @@ namespace CodeSmileEditor.Luny
 			}
 		}
 
-		private void OnGenerate() => m_Generator.Generate();
+		private void OnGenerate()
+		{
+			m_Generator.Generate();
+
+			// here Refresh makes sense as it will avoid compilation if there weren't any changes
+			// importing the content folder recursively always causes a compilation for some reason
+			AssetDatabase.Refresh();
+		}
 
 		/*
 		public class ExampleObject
