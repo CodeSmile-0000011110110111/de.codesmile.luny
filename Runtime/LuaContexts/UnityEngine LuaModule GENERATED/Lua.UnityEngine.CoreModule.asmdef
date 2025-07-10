@@ -1,0 +1,17 @@
+{
+    "name": "Lua.UnityEngine.CoreModule",
+    "rootNamespace": "Lua.UnityEngine.CoreModule",
+    "references": [
+        "GUID:f2ddabe9e0aaa1c499a086b54a197337"
+    ],
+    "includePlatforms": [
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

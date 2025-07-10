@@ -147,7 +147,7 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     appends an opening character with the current Indentation, then increments Indentation
 		/// </summary>
-		public void OpenIndentBlock(String openCharacters)
+		public void OpenIndentedBlock(String openCharacters)
 		{
 			AppendIndentation();
 			AppendLine(openCharacters);
@@ -157,7 +157,7 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     decrements Indentation, then appends a closing character
 		/// </summary>
-		public void CloseIndentBlock(String closeCharacters)
+		public void CloseIndentedBlock(String closeCharacters)
 		{
 			DecrementIndent();
 			AppendIndentation();

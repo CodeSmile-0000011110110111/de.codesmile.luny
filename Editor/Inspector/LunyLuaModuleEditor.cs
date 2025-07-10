@@ -22,6 +22,7 @@ namespace CodeSmileEditor.Luny
 		private SerializedProperty m_NamespaceWhitelistProperty;
 		private SerializedProperty m_TypeWhitelistProperty;
 
+		private AssemblyDefinitionAssets m_AssemblyDefinitionAssets;
 		private String m_AssemblyName;
 		private LuaBindingsGenerator m_Generator;
 
@@ -36,6 +37,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnEnable()
 		{
+			m_AssemblyDefinitionAssets = new();
 			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
 			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
 			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
@@ -45,6 +47,14 @@ namespace CodeSmileEditor.Luny
 		}
 
 		private void OnDisable() => EditorApplication.update -= OnEditorUpdate;
+		private void OnGenerate()
+		{
+			m_Generator.Generate(m_AssemblyDefinitionAssets);
+
+			// here Refresh makes sense as it will avoid compilation if there weren't any changes
+			// importing the content folder recursively instead will alway causes a compilation for some reason
+			AssetDatabase.Refresh();
+		}
 
 		private void OnEditorUpdate()
 		{
@@ -100,7 +110,6 @@ namespace CodeSmileEditor.Luny
 
 		private void UpdateUIState()
 		{
-			//var selectedAssembly = FindMatchingAssembly(m_BindableAssemblies, m_AssemblyName);
 			m_Generator = new LuaBindingsGenerator(Module);
 
 			m_GenerateButton.SetEnabled(m_Generator.Types.Length > 0 && m_Generator.Namespaces.Length > 0);
@@ -222,14 +231,6 @@ namespace CodeSmileEditor.Luny
 			}
 		}
 
-		private void OnGenerate()
-		{
-			m_Generator.Generate();
-
-			// here Refresh makes sense as it will avoid compilation if there weren't any changes
-			// importing the content folder recursively always causes a compilation for some reason
-			AssetDatabase.Refresh();
-		}
 
 		/*
 		public class ExampleObject

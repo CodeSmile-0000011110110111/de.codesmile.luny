@@ -45,10 +45,10 @@ namespace CodeSmile.Luny
 				if (loaderType != null)
 					moduleLoader = Activator.CreateInstance(loaderType) as LunyLuaModuleLoader;
 				else
-					LunyLogger.LogError($"Module loader type '{loaderTypeName}' not found in {loaderAssembly.FullName}");
+					LunyLogger.LogWarn($"Module loader type '{loaderTypeName}' not found in {loaderAssembly.FullName}");
 			}
 			else
-				LunyLogger.LogError($"Assembly not found for path: {folder}");
+				LunyLogger.LogWarn($"Assembly not found for path: {folder}");
 
 			return moduleLoader;
 		}

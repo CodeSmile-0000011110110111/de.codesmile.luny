@@ -33,21 +33,20 @@ namespace CodeSmileEditor.Luny.Generator
 			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 		}
 
-		public void Generate()
+		public void Generate(AssemblyDefinitionAssets asmdefAssets)
 		{
 			Debug.Assert(m_Module != null, "missing module");
 			Debug.Assert(m_Assembly != null, "missing assembly");
 
 			if (Types != null)
 			{
-				var filteredTypes =
-					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
+				var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
 
 				// generate:
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
+				AssemblyDefinitionGenerator.Generate(m_Module, contentFolderPath, typeHierarchy, asmdefAssets);
 				ModuleLoaderGenerator.Generate(m_Module, contentFolderPath);
-				// assembly definition
 				// enums
 				// classes and structs
 

@@ -21,6 +21,7 @@ namespace CodeSmile.Luny
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
+		internal String BindingsAssemblyNamespace => $"Lua.{m_AssemblyName}";
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 

@@ -14,7 +14,10 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class TypeHierarchy
 	{
 		private readonly TreeNode<Type> m_Hierarchy = new(typeof(Object));
-		private readonly HashSet<Assembly> m_Dependencies = new();
+		private Assembly[] m_Assemblies = Array.Empty<Assembly>();
+		private string[] m_Namespaces = Array.Empty<string>();
+		public Assembly[] Assemblies => m_Assemblies;
+		public String[] Namespaces => m_Namespaces;
 
 		public TypeHierarchy(IEnumerable<Type> types)
 		{
@@ -22,16 +25,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			foreach (var type in types)
 				AddToHierarchy(type);
-
-
-			// m_Hierarchy.VisitDepthFirst((node, level) =>
-			// 	Debug.Log($"{new String('\t', level)}{node?.Value?.FullName} " +
-			// 	          $"{(node?.ChildCount > 0 ? node.ChildCount.ToString() : "")}"));
-			//
-			// foreach (var dependency in m_Dependencies)
-			// {
-			// 	Debug.Log($"Dependency: {dependency.GetName().Name}");
-			// }
 		}
 
 		private void AddToHierarchy(Type type)
@@ -54,12 +47,19 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private void AddTypes(IEnumerable<Type> hierarchyTypes)
 		{
+			var assemblies = new HashSet<Assembly>();
+			var namespaces = new HashSet<string>();
+
 			var node = m_Hierarchy;
 			foreach (var type in hierarchyTypes.Reverse())
 			{
-				m_Dependencies.Add(type.Assembly);
+				assemblies.Add(type.Assembly);
+				namespaces.Add(type.Namespace);
 				node = node.GetOrAddChild(type);
 			}
+
+			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName).ToArray();
+			m_Namespaces = namespaces.OrderBy(ns => ns).ToArray();
 		}
 
 		internal class TreeNode<T>

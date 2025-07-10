@@ -7,7 +7,7 @@ using CodeSmile.Luny;
 using Lua;
 using System;
 
-namespace CodeSmile.Luny.Generated
+namespace Lua.UnityEngine.CoreModule
 {
     [Serializable]
     public sealed class UnityEngine_LuaModule_Loader : LunyLuaModuleLoader

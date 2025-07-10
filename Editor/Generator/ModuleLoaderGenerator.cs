@@ -14,32 +14,31 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public static void Generate(LunyLuaModule module, String contentFolderPath)
 		{
-			var @namespace = $"Lua.{module.AssemblyName}";
+			var @namespace = module.BindingsAssemblyNamespace;
 			var typeName = module.name.SanitizeIdentifier();
 			var loaderClassName = typeName + "_Loader";
-			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
+			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 
+			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
 			sb.AppendLine("using System;");
 			sb.AppendLine();
 			sb.AppendLine($"namespace {@namespace}");
-			sb.OpenIndentBlock("{");
+			sb.OpenIndentedBlock("{");
 			sb.AppendIndentedLine("[Serializable]");
 			sb.AppendIndentedLine($"public sealed class {loaderClassName} : {nameof(LunyLuaModuleLoader)}");
-			sb.OpenIndentBlock("{");
+			sb.OpenIndentedBlock("{");
 			sb.AppendIndentedLine("public override void Load(LuaTable env)");
-			sb.OpenIndentBlock("{");
+			sb.OpenIndentedBlock("{");
 			sb.AppendIndentedLine("base.Load(env);");
-			sb.CloseIndentBlock("}");
-			sb.CloseIndentBlock("}");
-			sb.CloseIndentBlock("}");
+			sb.CloseIndentedBlock("}");
+			sb.CloseIndentedBlock("}");
+			sb.CloseIndentedBlock("}");
 
 			var assetPath = $"{contentFolderPath}/{loaderClassName}.cs";
 			var fullPath = Path.GetFullPath(assetPath);
 			File.WriteAllText(fullPath, sb.ToString());
-
-			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 		}
 	}
 }

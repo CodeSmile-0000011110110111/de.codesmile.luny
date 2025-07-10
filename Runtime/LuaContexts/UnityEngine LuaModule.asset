@@ -18,12 +18,11 @@ MonoBehaviour:
   m_TypeWhitelist:
   - UnityEngine.GameObject
   m_ContentFolderGuid: b2655c00ff6f9d845af9914af0e23157
-  m_ModuleLoaderTypeName: CodeSmile.Luny.Generated.UnityEngine_LuaModule_Loader
+  m_ModuleLoaderTypeName: Lua.UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
   m_ModuleLoader:
-    rid: 2561253200102424834
+    rid: -2
   references:
     version: 2
     RefIds:
-    - rid: 2561253200102424834
-      type: {class: UnityEngine_LuaModule_Loader, ns: CodeSmile.Luny.Generated, asm: NewAssembly}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }
