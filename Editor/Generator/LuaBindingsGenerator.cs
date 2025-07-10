@@ -33,7 +33,7 @@ namespace CodeSmileEditor.Luny.Generator
 			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 		}
 
-		public void Generate(AssemblyDefinitionAssets asmdefAssets)
+		public void Generate(AssemblyDefinitionCollection asmdefAssets)
 		{
 			Debug.Assert(m_Module != null, "missing module");
 			Debug.Assert(m_Assembly != null, "missing assembly");

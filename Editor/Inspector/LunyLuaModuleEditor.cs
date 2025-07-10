@@ -4,9 +4,6 @@
 using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -22,7 +19,7 @@ namespace CodeSmileEditor.Luny
 		private SerializedProperty m_NamespaceWhitelistProperty;
 		private SerializedProperty m_TypeWhitelistProperty;
 
-		private AssemblyDefinitionAssets m_AssemblyDefinitionAssets;
+		private AssemblyDefinitionCollection m_AsmDefCollection;
 		private String m_AssemblyName;
 		private LuaBindingsGenerator m_Generator;
 
@@ -37,7 +34,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnEnable()
 		{
-			m_AssemblyDefinitionAssets = new();
+			m_AsmDefCollection = new AssemblyDefinitionCollection();
 			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
 			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
 			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
@@ -47,9 +44,10 @@ namespace CodeSmileEditor.Luny
 		}
 
 		private void OnDisable() => EditorApplication.update -= OnEditorUpdate;
+
 		private void OnGenerate()
 		{
-			m_Generator.Generate(m_AssemblyDefinitionAssets);
+			m_Generator.Generate(m_AsmDefCollection);
 
 			// here Refresh makes sense as it will avoid compilation if there weren't any changes
 			// importing the content folder recursively instead will alway causes a compilation for some reason
@@ -230,7 +228,6 @@ namespace CodeSmileEditor.Luny
 				}
 			}
 		}
-
 
 		/*
 		public class ExampleObject

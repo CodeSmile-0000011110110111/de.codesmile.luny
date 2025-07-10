@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using System;
 using System.IO;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -12,7 +13,7 @@ namespace CodeSmileEditor.Luny.Generator
 	internal static class AssemblyDefinitionGenerator
 	{
 		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
-			AssemblyDefinitionAssets asmdefAssets)
+			AssemblyDefinitionCollection asmdefAssets)
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
 			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
@@ -42,7 +43,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy, AssemblyDefinitionAssets asmdefAssets,
+		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy, AssemblyDefinitionCollection asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentedLine("\"references\": [");
@@ -91,7 +92,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("\"noEngineReferences\": false");
 		}
 
-		private static String GetGuidForNamespace(AssemblyDefinitionAssets asmdefAssets, String ns)
+		private static String GetGuidForNamespace(AssemblyDefinitionCollection asmdefAssets, String ns)
 		{
 			var guid = String.Empty;
 			var asmdef = asmdefAssets[ns];
