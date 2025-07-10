@@ -5,7 +5,6 @@ using CodeSmile.Luny;
 using System;
 using System.IO;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -18,14 +17,13 @@ namespace CodeSmileEditor.Luny.Generator
 			var modulePath = AssetDatabase.GetAssetPath(module);
 			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
 			var asmDefName = module.BindingsAssemblyNamespace;
+
 			var sb = new ScriptBuilder();
 			sb.OpenIndentedBlock("{");
-
 			AddNameAndNamespace(sb, asmDefName);
 			AddReferences(sb, typeHierarchy, asmdefAssets, isEditorModule);
 			AddIncludedPlatforms(sb, modulePath);
-			AddDefaults(sb);
-
+			AddDefaultSettings(sb);
 			sb.CloseIndentedBlock("}");
 
 			var assetPath = $"{contentFolderPath}/{asmDefName}.asmdef";
@@ -38,28 +36,30 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndented("\"name\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
+
 			sb.AppendIndented("\"rootNamespace\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy, AssemblyDefinitionCollection asmdefAssets,
+		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy,
+			AssemblyDefinitionCollection asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentedLine("\"references\": [");
 			sb.IncrementIndent();
 
-			sb.AppendIndented($"\"GUID:{GetGuidForNamespace(asmdefAssets, "CodeSmile.Luny")}\"");
+			sb.AppendIndented($"\"GUID:{GetGuidForReference(asmdefAssets, "CodeSmile.Luny")}\"");
 			if (isEditorModule)
 			{
 				sb.AppendLine(",");
-				sb.AppendIndented($"\"GUID:{GetGuidForNamespace(asmdefAssets, "CodeSmileEditor.Luny")}\"");
+				sb.AppendIndented($"\"GUID:{GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny")}\"");
 			}
 
-			foreach (var ns in typeHierarchy.Namespaces)
+			foreach (var reference in typeHierarchy.Namespaces)
 			{
-				Debug.Log($"ref: {ns}");
-				var asmdefGuid = GetGuidForNamespace(asmdefAssets, ns);
+				Debug.Log($"ref: {reference}");
+				var asmdefGuid = GetGuidForReference(asmdefAssets, reference);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
 					sb.AppendLine(",");
@@ -80,7 +80,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentedBlock("],");
 		}
 
-		private static void AddDefaults(ScriptBuilder sb)
+		private static void AddDefaultSettings(ScriptBuilder sb)
 		{
 			sb.AppendIndentedLine("\"excludePlatforms\": [],");
 			sb.AppendIndentedLine("\"allowUnsafeCode\": false,");
@@ -92,7 +92,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("\"noEngineReferences\": false");
 		}
 
-		private static String GetGuidForNamespace(AssemblyDefinitionCollection asmdefAssets, String ns)
+		private static String GetGuidForReference(AssemblyDefinitionCollection asmdefAssets, String ns)
 		{
 			var guid = String.Empty;
 			var asmdef = asmdefAssets[ns];
