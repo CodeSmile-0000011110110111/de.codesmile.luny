@@ -103,7 +103,11 @@ namespace CodeSmileEditor.Luny
 			}
 		}
 
-		private void OnEditorContextChanged(LunyLuaContext luaContext) => m_Lua = CreateLuaState();
+		private void OnEditorContextChanged(LunyLuaContext luaContext)
+		{
+			m_Lua = CreateLuaState();
+			DoAutoRunScripts().Preserve().GetAwaiter().GetResult();
+		}
 
 		private LunyLua CreateLuaState()
 		{
