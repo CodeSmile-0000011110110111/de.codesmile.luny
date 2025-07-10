@@ -62,7 +62,9 @@ namespace CodeSmileEditor.Luny
 		{
 			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
 			var scripts = LunyLuaAssetScript.CreateAll(autorunScripts);
-			await Lua.AddAndRunScripts(scripts);
+
+			if (Lua != null)
+				await Lua.AddAndRunScripts(scripts);
 
 			foreach (var script in scripts)
 			{

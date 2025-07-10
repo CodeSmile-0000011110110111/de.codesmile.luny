@@ -24,8 +24,6 @@ namespace CodeSmileEditor.Luny
 			if (editorContext != null && runtimeContext != null && moddingContext != null)
 				return;
 
-			Debug.Log("GetOrFindDefaultLuaContexts");
-
 			var filter = $"t:{nameof(LunyLuaContext)} l:{LunyAssetLabel.DefaultLuaContext}";
 			var contextGuids = AssetDatabase.FindAssets(filter, new[] { "Packages/de.codesmile.luny" });
 
