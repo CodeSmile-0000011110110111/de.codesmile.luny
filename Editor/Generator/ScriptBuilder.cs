@@ -7,7 +7,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.CSharp
+namespace CodeSmileEditor.Luny.Generator
 {
 	/// <summary>
 	///     Wrapper for StringBuilder that makes it easy to create indent formatted text files, like scripts.
@@ -18,28 +18,21 @@ namespace CodeSmile.CSharp
 	/// </summary>
 	public sealed class ScriptBuilder
 	{
-		private readonly List<String> m_Indent;
-
 		private readonly StringBuilder m_StringBuilder = new();
+		private readonly List<String> m_Indent = new();
 		private readonly Char m_IndentChar;
-		private readonly Int32 m_IndentRepeat;
+		private readonly Int32 m_IndentCharRepeat;
 
 		public Int32 IndentLevel { get; private set; }
 
 		/// <summary>
 		///     Create a new StringBuilder with indentation support.
 		/// </summary>
-		public ScriptBuilder(Char indentCharacter = ' ', Int32 indentRepeat = 4)
+		public ScriptBuilder(Char indentChar = ' ', Int32 indentCharRepeat = 4)
 		{
-			m_IndentChar = indentCharacter;
-			m_IndentRepeat = indentRepeat;
-			m_Indent = new List<String>();
-
-			for (var i = 0; i < 4; i++)
-			{
-				m_Indent.Add(new String(m_IndentChar, i * m_IndentRepeat));
-				Debug.Log($"indent {i} = '{m_Indent[i]}'");
-			}
+			m_IndentChar = indentChar;
+			m_IndentCharRepeat = Mathf.Max(1, indentCharRepeat);
+			m_Indent.Add(string.Empty); // level 0: no indentation
 		}
 
 		/// <summary>
@@ -141,15 +134,13 @@ namespace CodeSmile.CSharp
 			AppendLine(texts);
 		}
 
-		private void AppendIndentation() => m_StringBuilder.Append(GetIndentString());
-
 		public void IncrementIndent() => ++IndentLevel;
 
 		public void DecrementIndent()
 		{
 			--IndentLevel;
 			if (IndentLevel < 0)
-				throw new ArgumentOutOfRangeException("indent level must not be negative, unbalanced code blocks?");
+				throw new ArgumentOutOfRangeException("indent level must not be negative");
 		}
 
 		/// <summary>
@@ -172,11 +163,13 @@ namespace CodeSmile.CSharp
 			AppendLine(closeCharacters);
 		}
 
+		private void AppendIndentation() => m_StringBuilder.Append(GetIndentString());
+
 		private String GetIndentString()
 		{
 			while (IndentLevel >= m_Indent.Count)
 			{
-				m_Indent.Add(new String(m_IndentChar, m_Indent.Count * m_IndentRepeat));
+				m_Indent.Add(new String(m_IndentChar, m_Indent.Count * m_IndentCharRepeat));
 			}
 
 			return m_Indent[IndentLevel];

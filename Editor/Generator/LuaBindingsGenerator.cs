@@ -1,9 +1,9 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -16,31 +16,33 @@ namespace CodeSmileEditor.Luny.Generator
 		private readonly Assembly m_Assembly;
 		private readonly String[] m_Namespaces;
 		private readonly Type[] m_Types;
+		private readonly LunyLuaModule m_Module;
+		private readonly Assembly[] m_BindableAssemblies;
 
-		public Assembly Assembly => m_Assembly;
+		public Assembly[] BindableAssemblies => m_BindableAssemblies;
 		public String[] Namespaces => m_Namespaces;
 		public Type[] Types => m_Types;
 		public String AssemblyName => m_Assembly?.GetName().Name;
 
-		private static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
-		                                                     !(type.IsAbstract || type.IsGenericType || type.IsInterface ||
-		                                                       type.IsPrimitive ||
-		                                                       type.IsSubclassOf(typeof(Attribute)) ||
-		                                                       type.IsSubclassOf(typeof(Delegate)) ||
-		                                                       type.IsSubclassOf(typeof(Exception)));
-
-		public LuaBindingsGenerator(Assembly assembly)
+		public LuaBindingsGenerator(LunyLuaModule module)
 		{
-			m_Assembly = assembly;
-			m_Types = GetBindableTypes();
-			m_Namespaces = GetNamespacesFromTypes(m_Types);
+			m_Module = module;
+			m_BindableAssemblies = GenUtil.GetBindableAssemblies();
+			m_Assembly = GenUtil.FindMatchingAssembly(BindableAssemblies, m_Module.AssemblyName);
+			m_Types = GenUtil.GetBindableTypes(m_Assembly);
+			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 		}
 
-		public void Generate(String[] namespaces)
+		public void Generate()
 		{
+			Debug.Assert(m_Module != null, "missing module");
+			Debug.Assert(m_Assembly != null, "missing assembly");
+
 			if (Types != null)
 			{
-				var filteredTypes = GetNamespaceFilteredTypes(namespaces);
+				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
+				var filteredTypes =
+					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
 
 				// generate:
@@ -49,52 +51,6 @@ namespace CodeSmileEditor.Luny.Generator
 				// enums
 				// classes and structs
 			}
-		}
-
-		public Type[] GetNamespaceFilteredTypes(String[] namespaces) =>
-			m_Types.Where(type => namespaces.Contains(type.Namespace)).ToArray();
-
-		private Type[] GetBindableTypes() => m_Assembly != null
-			? m_Assembly.ExportedTypes.Where(type => IsSupportedType(type))
-				.OrderBy(type => $"{type.Namespace} {type.Name}")
-				.ToArray()
-			: Array.Empty<Type>();
-
-		private String[] GetNamespacesFromTypes(Type[] types)
-		{
-			var ns = new HashSet<String>();
-			types.Select(type => type.Namespace).ToList().ForEach(n => ns.Add(n));
-
-			var namespaces = ns.ToArray();
-			Array.Sort(namespaces);
-			return namespaces;
-		}
-
-		public Type[] GetWhitelistedTypes(Type[] filteredTypes, String[] whitelistTypeNames) =>
-			filteredTypes.Where(type => whitelistTypeNames.Contains(type.FullName)).ToArray();
-
-		public MethodGroup[] GetBindableMethods(Type type)
-		{
-			var methods = type
-				.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
-				.Where(method => !(method.IsAbstract || method.IsSpecialName))
-				.OrderBy(method => method.Name);
-
-			var groups = new HashSet<MethodGroup>();
-			foreach (var method in methods)
-			{
-				var group = new MethodGroup { Name = method.Name };
-				if (groups.TryGetValue(group, out var existingGroup) == false)
-				{
-					group.Overloads = new List<MethodInfo>();
-					groups.Add(group);
-					existingGroup = group;
-				}
-
-				existingGroup.Overloads.Add(method);
-			}
-
-			return groups.OrderBy(group => group.Name).ToArray();
 		}
 	}
 

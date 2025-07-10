@@ -16,15 +16,23 @@ namespace CodeSmile.Luny
 		[SerializeField] internal String[] m_NamespaceWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 
+		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
+
+		internal String AssemblyName => m_AssemblyName;
+		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
+		internal String[] TypeWhitelist => m_TypeWhitelist;
+
+		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
+		internal LunyLuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
 
 		public void Load(LuaState luaState)
 		{
-			if (m_ModuleLoader != null)
+			if (ModuleLoader != null)
 				Debug.LogWarning($"Missing loader for LuaModule '{name}'");
 			//Debug.Assert(m_ModuleLoader != null, $"Missing loader for LuaModule '{name}'");
 
-			m_ModuleLoader?.Load(luaState.Environment);
+			ModuleLoader?.Load(luaState.Environment);
 		}
 	}
 }

@@ -17,6 +17,7 @@ MonoBehaviour:
   - UnityEngine
   m_TypeWhitelist:
   - UnityEngine.GameObject
+  m_ContentFolderGuid: 2d459da7d81ad654b987ea8aac1efa20
   m_ModuleLoader:
     rid: -2
   references:
