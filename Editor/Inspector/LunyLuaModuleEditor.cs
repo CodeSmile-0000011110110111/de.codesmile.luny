@@ -19,7 +19,7 @@ namespace CodeSmileEditor.Luny
 		private SerializedProperty m_NamespaceWhitelistProperty;
 		private SerializedProperty m_TypeWhitelistProperty;
 
-		private AssemblyDefinitionCollection m_AsmDefCollection;
+		private AllAssemblyDefinitionAssets m_AsmDefCollection;
 		private String m_AssemblyName;
 		private LuaBindingsGenerator m_Generator;
 
@@ -34,7 +34,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnEnable()
 		{
-			m_AsmDefCollection = new AssemblyDefinitionCollection();
+			m_AsmDefCollection = new AllAssemblyDefinitionAssets();
 			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
 			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
 			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));

@@ -2,9 +2,12 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using Lua;
+using Lua.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -33,7 +36,7 @@ namespace CodeSmileEditor.Luny.Generator
 			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 		}
 
-		public void Generate(AssemblyDefinitionCollection asmdefAssets)
+		public void Generate(AllAssemblyDefinitionAssets asmdefAssets)
 		{
 			Debug.Assert(m_Module != null, "missing module");
 			Debug.Assert(m_Assembly != null, "missing assembly");
@@ -44,12 +47,12 @@ namespace CodeSmileEditor.Luny.Generator
 					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
 				var typeHierarchy = new TypeHierarchy(filteredTypes);
 
-				// generate:
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
 				AssemblyDefinitionGenerator.Generate(m_Module, contentFolderPath, typeHierarchy, asmdefAssets);
 				ModuleLoaderGenerator.Generate(m_Module, contentFolderPath);
-				// enums
-				// classes and structs
+
+				// TODO enums
+				// TODO classes and structs
 
 				EditorUtility.SetDirty(m_Module);
 				AssetDatabase.SaveAssetIfDirty(m_Module);

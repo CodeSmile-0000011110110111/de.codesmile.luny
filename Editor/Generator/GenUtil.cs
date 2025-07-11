@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal static class GenUtil
+	internal static partial class GenUtil
 	{
 		public static readonly String GeneratedFileHeader = @"
 // --------------------------------------------------------------
@@ -16,6 +16,8 @@ namespace CodeSmileEditor.Luny.Generator
 // --------------------------------------------------------------
 
 ";
+
+		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
 
 		public static Assembly[] GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
@@ -25,13 +27,6 @@ namespace CodeSmileEditor.Luny.Generator
 		public static Assembly FindMatchingAssembly(IEnumerable<Assembly> assemblies, String assemblyName) => assemblies
 			.Where(assembly => assembly.GetName().Name == assemblyName)
 			.FirstOrDefault();
-
-		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
-		                                                    !(type.IsAbstract || type.IsGenericType || type.IsInterface ||
-		                                                      type.IsPrimitive ||
-		                                                      type.IsSubclassOf(typeof(Attribute)) ||
-		                                                      type.IsSubclassOf(typeof(Delegate)) ||
-		                                                      type.IsSubclassOf(typeof(Exception)));
 
 		public static Type[] GetNamespaceFilteredTypes(Type[] types, String[] namespaces, String[] typeNames = null) => types
 			.Where(type => namespaces.Contains(type.Namespace) && (typeNames == null || typeNames.Contains(type.FullName)))
@@ -58,7 +53,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var methods = type
 				.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
-				.Where(method => !(method.IsAbstract || method.IsSpecialName))
+				.Where(method => IsSupportedMethod(method))
 				.OrderBy(method => method.Name);
 
 			var groups = new HashSet<MethodGroup>();
@@ -91,5 +86,19 @@ namespace CodeSmileEditor.Luny.Generator
 
 			return contentFolderPath;
 		}
+
+		private static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
+		                                                     !(type.IsAbstract || type.IsGenericType || type.IsInterface ||
+		                                                       type.IsPrimitive ||
+		                                                       type.IsSubclassOf(typeof(Attribute)) ||
+		                                                       type.IsSubclassOf(typeof(Delegate)) ||
+		                                                       type.IsSubclassOf(typeof(Exception)) ||
+		                                                       IsObsolete(type));
+
+		private static Boolean IsSupportedMethod(MethodInfo method) =>
+			!(method.IsAbstract || method.IsSpecialName || IsObsolete(method));
+
+		private static Boolean IsObsolete(Type type) => type.GetCustomAttributes(Obsolete, true).Length > 0;
+		private static Boolean IsObsolete(MethodInfo method) => method.GetCustomAttributes(Obsolete, true).Length > 0;
 	}
 }

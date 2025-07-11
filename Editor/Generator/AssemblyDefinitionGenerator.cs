@@ -12,7 +12,7 @@ namespace CodeSmileEditor.Luny.Generator
 	internal static class AssemblyDefinitionGenerator
 	{
 		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
-			AssemblyDefinitionCollection asmdefAssets)
+			AllAssemblyDefinitionAssets asmdefAssets)
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
 			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
@@ -43,7 +43,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy,
-			AssemblyDefinitionCollection asmdefAssets,
+			AllAssemblyDefinitionAssets asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentedLine("\"references\": [");
@@ -58,7 +58,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			foreach (var reference in typeHierarchy.Namespaces)
 			{
-				Debug.Log($"ref: {reference}");
 				var asmdefGuid = GetGuidForReference(asmdefAssets, reference);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
@@ -92,7 +91,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("\"noEngineReferences\": false");
 		}
 
-		private static String GetGuidForReference(AssemblyDefinitionCollection asmdefAssets, String ns)
+		private static String GetGuidForReference(AllAssemblyDefinitionAssets asmdefAssets, String ns)
 		{
 			var guid = String.Empty;
 			var asmdef = asmdefAssets[ns];

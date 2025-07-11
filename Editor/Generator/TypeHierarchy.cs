@@ -14,20 +14,31 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class TypeHierarchy
 	{
 		private readonly TreeNode<Type> m_Hierarchy = new(typeof(Object));
-		private Assembly[] m_Assemblies = Array.Empty<Assembly>();
-		private String[] m_Namespaces = Array.Empty<String>();
+		private readonly List<Type> m_Enums = new();
+		private Assembly[] m_Assemblies;
+		private String[] m_Namespaces;
+
 		public Assembly[] Assemblies => m_Assemblies;
 		public String[] Namespaces => m_Namespaces;
+		public List<Type> Enums => m_Enums;
 
 		public TypeHierarchy(IEnumerable<Type> types)
 		{
 			Debug.Assert(types != null);
 
+			var assemblies = new HashSet<Assembly>();
+			var namespaces = new HashSet<String>();
+
 			foreach (var type in types)
-				AddToHierarchy(type);
+				AddTypeAndBaseTypes(type, assemblies, namespaces);
+
+			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName).ToArray();
+			m_Namespaces = namespaces.OrderBy(ns => ns).ToArray();
+			m_Enums.Sort((t1, t2) => t1.FullName.CompareTo(t2.FullName));
+			//Debug.Log($"Counts: Assemblies={m_Assemblies.Length}, Namespaces={m_Namespaces.Length}, Enums={m_Enums.Count}");
 		}
 
-		private void AddToHierarchy(Type type)
+		private void AddTypeAndBaseTypes(Type type, HashSet<Assembly> assemblies, HashSet<String> namespaces)
 		{
 			List<Type> hierarchyTypes = new();
 			hierarchyTypes.Add(type);
@@ -42,24 +53,20 @@ namespace CodeSmileEditor.Luny.Generator
 				type = type.BaseType;
 			}
 
-			AddTypes(hierarchyTypes);
+			AddTypes(hierarchyTypes, assemblies, namespaces);
 		}
 
-		private void AddTypes(IEnumerable<Type> hierarchyTypes)
+		private void AddTypes(IEnumerable<Type> hierarchyTypes, HashSet<Assembly> assemblies, HashSet<String> namespaces)
 		{
-			var assemblies = new HashSet<Assembly>();
-			var namespaces = new HashSet<String>();
-
 			var node = m_Hierarchy;
 			foreach (var type in hierarchyTypes.Reverse())
 			{
 				assemblies.Add(type.Assembly);
 				namespaces.Add(type.Namespace);
+				if (type.IsEnum)
+					m_Enums.Add(type);
 				node = node.GetOrAddChild(type);
 			}
-
-			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName).ToArray();
-			m_Namespaces = namespaces.OrderBy(ns => ns).ToArray();
 		}
 
 		internal class TreeNode<T>
