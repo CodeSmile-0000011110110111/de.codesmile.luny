@@ -14,12 +14,12 @@ namespace CodeSmileEditor.Luny.Generator
 	internal static partial class GenUtil
 	{
 		private const String EnumValuesKey = "values";
+		private const String EnumValuesCountKey = "valuesCount";
 
 		private static readonly LuaFunction _enumLenFunc = new("enum.__len", (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
-			var values = table.Metatable[EnumValuesKey].Read<LuaTable>();
-			return new ValueTask<Int32>(context.Return(values.HashMapCount));
+			return new ValueTask<Int32>(context.Return(table.Metatable[EnumValuesCountKey]));
 		});
 
 		private static readonly LuaFunction _enumNewIndexFunc = new("enum.__newindex", (context, token) =>
@@ -28,17 +28,17 @@ namespace CodeSmileEditor.Luny.Generator
 		private static readonly LuaFunction _enumIndexFunc = new("enum.__index", (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
-			var values = table.Metatable[EnumValuesKey].Read<LuaTable>();
 			var key = context.GetArgument(1);
+			var values = table.Metatable[EnumValuesKey].Read<LuaTable>();
 			return new ValueTask<Int32>(context.Return(values[key]));
 		});
 
+		private static readonly LuaFunction _nextFunc = new("next", BasicLibrary.Instance.Next);
 		private static readonly LuaFunction _enumPairsFunc = new("enum.__pairs", (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
 			var values = table.Metatable[EnumValuesKey];
-			var nextFunc = new LuaFunction("next", BasicLibrary.Instance.Next);
-			return new ValueTask<Int32>(context.Return(nextFunc, values, LuaValue.Nil));
+			return new ValueTask<Int32>(context.Return(_nextFunc, values, LuaValue.Nil));
 		});
 
 		public static LuaTable CreateEnumTable(Type enumType)
@@ -52,8 +52,9 @@ namespace CodeSmileEditor.Luny.Generator
 			for (var i = 0; i < valueCount; i++)
 				values[enumNames[i]] = (Double)enumValues.GetValue(i);
 
-			var metatable = new LuaTable(0, 5);
+			var metatable = new LuaTable(0, 6);
 			metatable[EnumValuesKey] = values;
+			metatable[EnumValuesCountKey] = valueCount;
 			metatable[Metamethods.Index] = _enumIndexFunc;
 			metatable[Metamethods.NewIndex] = _enumNewIndexFunc;
 			metatable[Metamethods.Len] = _enumLenFunc;
