@@ -56,8 +56,9 @@ namespace CodeSmile.Luny
 		{
 			// FIXME: I lost that callback code in the LuaCSharp framework since I hadn't committed it, dang!
 
-			var msg = Traceback.CreateTracebackMessage(context.Thread, context.ArgumentsToString(), 1
-				/*,(String chunkName, Int32 line, out String openTag, out String closeTag) =>
+			var contextMsg = context.ArgumentsToString();
+			var msg = Traceback.CreateTracebackMessage(context.Thread, contextMsg, 1,
+				(String chunkName, Int32 line, out String openTag, out String closeTag) =>
 				{
 					openTag = closeTag = null;
 					var relativePath = chunkName[0] == '@' ? chunkName.Substring(1) : chunkName;
@@ -68,13 +69,12 @@ namespace CodeSmile.Luny
 					// HTML <a ..> tag
 					openTag = $"<a href=\"{relativePath}\" line=\"{line}\">";
 					closeTag = "</a>";
-				}
-				 */
-				);
-			return $"{msg}\n";
+				});
+			return $"{msg}\nC# stack traceback:";
 		}
 
+
 		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>
-			luaRunEx.LuaTraceback.ToString().Replace("stack traceback:\n", "").Trim();
+			luaRunEx.LuaTraceback.ToString().Replace("Lua stack traceback:\n", "").Trim();
 	}
 }

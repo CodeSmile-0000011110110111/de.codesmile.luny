@@ -20,9 +20,10 @@ MonoBehaviour:
   m_ContentFolderGuid: b2655c00ff6f9d845af9914af0e23157
   m_ModuleLoaderTypeName: Lua.UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
   m_ModuleLoader:
-    rid: -2
+    rid: 2561253220921376769
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253220921376769
+      type: {class: UnityEngine_LuaModule_Loader, ns: Lua.UnityEngine.CoreModule, asm: Lua.UnityEngine.CoreModule}
+      data: 
