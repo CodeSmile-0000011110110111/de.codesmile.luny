@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal static partial class GenUtil
+	internal static class GenUtil
 	{
 		public static readonly String GeneratedFileHeader = @"
 // --------------------------------------------------------------
@@ -19,37 +19,34 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
 
-		public static Assembly[] GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
+		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
-			.OrderBy(assembly => assembly.FullName)
-			.ToArray();
+			.OrderBy(assembly => assembly.FullName);
 
 		public static Assembly FindMatchingAssembly(IEnumerable<Assembly> assemblies, String assemblyName) => assemblies
 			.Where(assembly => assembly.GetName().Name == assemblyName)
 			.FirstOrDefault();
 
-		public static Type[] GetNamespaceFilteredTypes(Type[] types, String[] namespaces, String[] typeNames = null) => types
-			.Where(type => namespaces.Contains(type.Namespace) && (typeNames == null || typeNames.Contains(type.FullName)))
-			.OrderBy(type => type.FullName)
-			.ToArray();
-
-		public static Type[] GetBindableTypes(Assembly assembly) => assembly != null
-			? assembly.ExportedTypes.Where(type => IsSupportedType(type))
-				.OrderBy(type => $"{type.Namespace} {type.Name}")
-				.ToArray()
-			: Array.Empty<Type>();
-
-		public static String[] GetNamespacesFromTypes(Type[] types)
+		public static IEnumerable<Type> GetNamespaceFilteredTypes(IEnumerable<Type> types, IEnumerable<String> namespaces,
+			IEnumerable<String> typeNames = null)
 		{
-			var ns = new HashSet<String>();
-			types.Select(type => type.Namespace).ToList().ForEach(n => ns.Add(n));
-
-			var namespaces = ns.ToArray();
-			Array.Sort(namespaces);
-			return namespaces;
+			// using HashSets is significantly faster
+			var nsHash = new HashSet<String>(namespaces);
+			var typeHash = new HashSet<String>(typeNames ?? new String[] {});
+			return types
+				.Where(type => nsHash.Contains(type.Namespace) && (typeNames == null || typeHash.Contains(type.FullName)))
+				.OrderBy(type => type.FullName);
 		}
 
-		public static MethodGroup[] GetBindableMethods(Type type)
+		public static IEnumerable<Type> GetBindableTypes(Assembly assembly) => assembly != null
+			? assembly.ExportedTypes.Where(type => IsSupportedType(type))
+				.OrderBy(type => $"{type.Namespace} {type.Name}")
+			: Array.Empty<Type>();
+
+		public static IEnumerable<String> GetNamespacesFromTypes(IEnumerable<Type> types) =>
+			types.Select(type => type.Namespace).Distinct().OrderBy(s => s);
+
+		public static IEnumerable<MethodGroup> GetBindableMethods(Type type)
 		{
 			var methods = type
 				.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
@@ -70,7 +67,7 @@ namespace CodeSmileEditor.Luny.Generator
 				existingGroup.Overloads.Add(method);
 			}
 
-			return groups.OrderBy(group => group.Name).ToArray();
+			return groups.OrderBy(group => group.Name);
 		}
 
 		public static String GetOrCreateContentFolderPath(LunyLuaModule module)
@@ -87,18 +84,71 @@ namespace CodeSmileEditor.Luny.Generator
 			return contentFolderPath;
 		}
 
-		private static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
-		                                                     !(type.IsAbstract || type.IsGenericType || type.IsInterface ||
-		                                                       type.IsPrimitive ||
-		                                                       type.IsSubclassOf(typeof(Attribute)) ||
-		                                                       type.IsSubclassOf(typeof(Delegate)) ||
-		                                                       type.IsSubclassOf(typeof(Exception)) ||
-		                                                       IsObsolete(type));
+		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
+		                                                    false == (type.IsAbstract || type.IsGenericType ||
+		                                                              type.IsInterface ||
+		                                                              type.IsPrimitive ||
+		                                                              type.IsSubclassOf(typeof(Attribute)) ||
+		                                                              type.IsSubclassOf(typeof(Delegate)) ||
+		                                                              type.IsSubclassOf(typeof(Exception)) ||
+		                                                              IsObsolete(type));
 
-		private static Boolean IsSupportedMethod(MethodInfo method) =>
+		public static Boolean IsSupportedMethod(MethodInfo method) =>
 			!(method.IsAbstract || method.IsSpecialName || IsObsolete(method));
 
-		private static Boolean IsObsolete(Type type) => type.GetCustomAttributes(Obsolete, true).Length > 0;
-		private static Boolean IsObsolete(MethodInfo method) => method.GetCustomAttributes(Obsolete, true).Length > 0;
+		public static IEnumerable<String> GetNamespacesExcept(IEnumerable<String> namespaces, IEnumerable<String> blacklist)
+		{
+			var startsWith = blacklist.Where(s => s.EndsWith('*')).Select(s =>
+				s.Substring(0, s.Length - 1));
+
+			var filtered = new List<String>();
+			foreach (var ns in namespaces.Except(blacklist))
+			{
+				var shouldAdd = true;
+				foreach (var str in startsWith)
+				{
+					if (ns.StartsWith(str))
+					{
+						shouldAdd = false;
+						break;
+					}
+				}
+
+				if (shouldAdd)
+					filtered.Add(ns);
+			}
+
+			return filtered;
+		}
+
+		public static IEnumerable<Type> GetTypesExcept(IEnumerable<Type> types, IEnumerable<String> blacklist)
+		{
+			var startsWith = blacklist.Where(s => s.EndsWith('*')).Select(s =>
+				s.Substring(0, s.Length - 1));
+
+			var filtered = new List<Type>();
+			foreach (var type in types)
+			{
+				var shouldAdd = true;
+				foreach (var str in startsWith)
+				{
+					if (type.FullName.StartsWith(str))
+					{
+						shouldAdd = false;
+						break;
+					}
+				}
+
+				if (shouldAdd)
+					filtered.Add(type);
+			}
+
+			return filtered;
+		}
+
+		public static Boolean IsObsolete(Type type) => type.GetCustomAttributes(Obsolete, true).Length > 0 ||
+		                                               type.IsNested && IsObsolete(type.DeclaringType);
+
+		public static Boolean IsObsolete(MethodInfo method) => method.GetCustomAttributes(Obsolete, true).Length > 0;
 	}
 }

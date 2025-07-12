@@ -6,72 +6,32 @@ using Lua;
 using Lua.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal sealed class LuaBindingsGenerator
+	internal static class LuaBindingsGenerator
 	{
-		private readonly Assembly m_Assembly;
-		private readonly String[] m_Namespaces;
-		private readonly Type[] m_Types;
-		private readonly LunyLuaModule m_Module;
-		private readonly Assembly[] m_BindableAssemblies;
-
-		public Assembly[] BindableAssemblies => m_BindableAssemblies;
-		public String[] Namespaces => m_Namespaces;
-		public Type[] Types => m_Types;
-		public String AssemblyName => m_Assembly?.GetName().Name;
-
-		public LuaBindingsGenerator(LunyLuaModule module)
+		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, IEnumerable<Type> types)
 		{
-			m_Module = module;
-			m_BindableAssemblies = GenUtil.GetBindableAssemblies();
-			m_Assembly = GenUtil.FindMatchingAssembly(BindableAssemblies, m_Module.AssemblyName);
-			m_Types = GenUtil.GetBindableTypes(m_Assembly);
-			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
-		}
+			Debug.Assert(module != null, "missing module");
 
-		public void Generate(AllAssemblyDefinitionAssets asmdefAssets)
-		{
-			Debug.Assert(m_Module != null, "missing module");
-			Debug.Assert(m_Assembly != null, "missing assembly");
-
-			if (Types != null)
+			if (types != null && types.Count() > 0)
 			{
-				var filteredTypes =
-					GenUtil.GetNamespaceFilteredTypes(m_Types, m_Module.NamespaceWhitelist, m_Module.TypeWhitelist);
-				var typeHierarchy = new TypeHierarchy(filteredTypes);
-
-				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(m_Module);
-				AssemblyDefinitionGenerator.Generate(m_Module, contentFolderPath, typeHierarchy, asmdefAssets);
-				ModuleLoaderGenerator.Generate(m_Module, contentFolderPath);
+				var typeHierarchy = new TypeHierarchy(types);
+				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
+				AssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
+				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy);
 
 				// TODO enums
 				// TODO classes and structs
 
-				EditorUtility.SetDirty(m_Module);
-				AssetDatabase.SaveAssetIfDirty(m_Module);
+				EditorUtility.SetDirty(module);
+				AssetDatabase.SaveAssetIfDirty(module);
 			}
 		}
-	}
-
-	internal struct MethodGroup : IEquatable<MethodGroup>
-	{
-		public String Name;
-		public List<MethodInfo> Overloads;
-
-		public Boolean Equals(MethodGroup other) => Equals(Name, other.Name);
-
-		public override Boolean Equals(Object obj) => obj is MethodGroup other && Equals(other);
-
-		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-
-		public static Boolean operator ==(MethodGroup left, MethodGroup right) => left.Equals(right);
-		public static Boolean operator !=(MethodGroup left, MethodGroup right) => !left.Equals(right);
 	}
 }

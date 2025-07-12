@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace CodeSmile.Luny
 {
-	internal static partial class GenUtil
+	public static class LuaUtil
 	{
 		private const String EnumValuesKey = "values";
 		private const String EnumValuesCountKey = "valuesCount";

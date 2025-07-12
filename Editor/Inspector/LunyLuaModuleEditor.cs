@@ -4,6 +4,9 @@
 using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -19,9 +22,16 @@ namespace CodeSmileEditor.Luny
 		private SerializedProperty m_NamespaceWhitelistProperty;
 		private SerializedProperty m_TypeWhitelistProperty;
 
-		private AllAssemblyDefinitionAssets m_AsmDefCollection;
+		private AssemblyDefinitionAssets m_AsmDefCollection;
+		private IEnumerable<Assembly> m_BindableAssemblies;
+		private IEnumerable<string> m_BindableTypeNames;
 		private String m_AssemblyName;
-		private LuaBindingsGenerator m_Generator;
+		Assembly m_Assembly;
+		private IEnumerable<String> m_Namespaces;
+		private IEnumerable<String> m_NamespacesFiltered;
+		private IEnumerable<Type> m_Types;
+		private IEnumerable<Type> m_TypesFiltered;
+		private string[] m_TypeNamesFiltered; // faster to use an array for this
 
 		private Button m_GenerateButton;
 		private VisualElement m_DebugElements;
@@ -34,7 +44,9 @@ namespace CodeSmileEditor.Luny
 
 		private void OnEnable()
 		{
-			m_AsmDefCollection = new AllAssemblyDefinitionAssets();
+			m_AsmDefCollection = new AssemblyDefinitionAssets();
+			m_BindableAssemblies = GenUtil.GetBindableAssemblies();
+
 			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
 			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
 			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
@@ -47,10 +59,10 @@ namespace CodeSmileEditor.Luny
 
 		private void OnGenerate()
 		{
-			m_Generator.Generate(m_AsmDefCollection);
+			LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
 
-			// here Refresh makes sense as it will avoid compilation if there weren't any changes
-			// importing the content folder recursively instead will alway causes a compilation for some reason
+			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
+			// ImportAsset on the content folder (recursively) which always recompiles for some reason
 			AssetDatabase.Refresh();
 		}
 
@@ -108,9 +120,15 @@ namespace CodeSmileEditor.Luny
 
 		private void UpdateUIState()
 		{
-			m_Generator = new LuaBindingsGenerator(Module);
+			m_Assembly = GenUtil.FindMatchingAssembly(m_BindableAssemblies, Module.AssemblyName);
+			m_Types = GenUtil.GetBindableTypes(m_Assembly);
+			m_BindableTypeNames = m_Types.Select(t => t.FullName);
+			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
+			m_NamespacesFiltered = GenUtil.GetNamespacesExcept(m_Namespaces, Module.NamespaceBlacklist);
+			m_TypesFiltered = GenUtil.GetTypesExcept(GenUtil.GetNamespaceFilteredTypes(m_Types, m_NamespacesFiltered), Module.TypeBlacklist);
+			m_TypeNamesFiltered = m_TypesFiltered.Select(t => t.FullName).ToArray();
 
-			m_GenerateButton.SetEnabled(m_Generator.Types.Length > 0 && m_Generator.Namespaces.Length > 0);
+			m_GenerateButton.SetEnabled(m_TypeNamesFiltered.Length > 0);
 
 			UpdateSerializedNamespaceWhitelist();
 			UpdateSerializedTypeWhitelist();
@@ -119,15 +137,10 @@ namespace CodeSmileEditor.Luny
 
 		private void UpdateSerializedNamespaceWhitelist()
 		{
-			if (m_Generator.Types.Length == 0)
-				m_NamespaceWhitelistProperty.arraySize = 0;
-
-			if (m_NamespaceWhitelistProperty.arraySize != 0)
-				return;
-
-			var namespaces = m_Generator.Namespaces;
-			m_NamespaceWhitelistProperty.arraySize = namespaces.Length;
-			for (var i = 0; i < namespaces.Length; i++)
+			var namespaces = m_NamespacesFiltered.ToArray();
+			var namespaceCount = namespaces.Length;
+			m_NamespaceWhitelistProperty.arraySize = namespaceCount;
+			for (var i = 0; i < namespaceCount; i++)
 			{
 				var element = m_NamespaceWhitelistProperty.GetArrayElementAtIndex(i);
 				element.stringValue = namespaces[i];
@@ -136,43 +149,35 @@ namespace CodeSmileEditor.Luny
 
 		private void UpdateSerializedTypeWhitelist()
 		{
-			if (m_Generator.Types.Length == 0)
-				m_TypeWhitelistProperty.arraySize = 0;
-
-			if (m_TypeWhitelistProperty.arraySize != 0)
-				return;
-
-			var namespaces = m_NamespaceWhitelistProperty.ToArray<String>();
-			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Generator.Types, namespaces);
-			m_TypeWhitelistProperty.arraySize = filteredTypes.Length;
-			for (var i = 0; i < filteredTypes.Length; i++)
+			var typeCount = m_TypeNamesFiltered.Length;
+			m_TypeWhitelistProperty.arraySize = typeCount;
+			for (var i = 0; i <typeCount; i++)
 			{
 				var element = m_TypeWhitelistProperty.GetArrayElementAtIndex(i);
-				element.stringValue = filteredTypes[i].FullName;
+				element.stringValue = m_TypeNamesFiltered[i];
 			}
 		}
 
 		private void OnLogAssemblies()
 		{
-			Debug.Log($"{m_Generator.BindableAssemblies.Length} Assemblies:");
-			foreach (var assembly in m_Generator.BindableAssemblies)
+			Debug.Log($"{m_BindableAssemblies.Count()} Assemblies:");
+			foreach (var assembly in m_BindableAssemblies)
 				Debug.Log($"\t{assembly.GetName().Name}");
 		}
 
 		private void OnLogNamespaces()
 		{
-			Debug.Log($"{m_Generator.Namespaces.Length} Namespaces in {m_Generator.AssemblyName}:");
-			foreach (var ns in m_Generator.Namespaces)
+			Debug.Log($"{m_Namespaces.Count()} Namespaces in {m_Assembly.GetName().Name}:");
+			foreach (var ns in m_Namespaces)
 				Debug.Log($"\t{ns}");
 		}
 
 		private void OnLogAssemblyTypes()
 		{
-			var types = m_Generator.Types;
-			Debug.Log($"{types.Length} Types in Assembly {m_Generator.AssemblyName}:");
+			Debug.Log($"{m_Types.Count()} Types in Assembly {m_Assembly.GetName().Name}:");
 
 			var currentNamespace = "";
-			foreach (var type in m_Generator.Types)
+			foreach (var type in m_Types)
 			{
 				if (currentNamespace != type.Namespace)
 				{
@@ -186,9 +191,9 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogNamespaceWhitelistedTypes()
 		{
-			var namespaces = Module.m_NamespaceWhitelist;
-			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Generator.Types, namespaces);
-			Debug.Log($"{filteredTypes.Length} namespace whitelisted Types:");
+			var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
+			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces);
+			Debug.Log($"{filteredTypes.Count()} namespace whitelisted Types:");
 
 			var currentNamespace = "";
 			foreach (var type in filteredTypes)
@@ -196,7 +201,7 @@ namespace CodeSmileEditor.Luny
 				if (currentNamespace != type.Namespace)
 				{
 					currentNamespace = type.Namespace;
-					Debug.Log($"{currentNamespace} namespace in Assembly {m_Generator.AssemblyName}:");
+					Debug.Log($"{currentNamespace} namespace in Assembly {m_Assembly.GetName().Name}:");
 				}
 
 				Debug.Log($"\t{GetKindOfType(type)} {type.Name}");
@@ -205,10 +210,10 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogTypeMethods()
 		{
-			var namespaces = Module.m_NamespaceWhitelist;
-			var typeWhitelist = Module.TypeWhitelist;
-			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Generator.Types, namespaces, typeWhitelist);
-			Debug.Log($"{filteredTypes.Length} whitelisted Types:");
+			var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
+			var typeNames = Module.TypeWhitelist.Except(Module.TypeBlacklist);
+			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces, typeNames);
+			Debug.Log($"{filteredTypes.Count()} whitelisted Types:");
 
 			foreach (var type in filteredTypes)
 			{
@@ -217,7 +222,7 @@ namespace CodeSmileEditor.Luny
 				else
 				{
 					var methods = GenUtil.GetBindableMethods(type);
-					Debug.Log($"\t{type.Name} has {methods.Length} declared methods:");
+					Debug.Log($"\t{type.Name} has {methods.Count()} declared methods:");
 					foreach (var method in methods)
 					{
 						var overloads = "";

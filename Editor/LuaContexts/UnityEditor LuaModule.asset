@@ -15,6 +15,7 @@ MonoBehaviour:
   m_AssemblyName: UnityEditor.CoreModule
   m_NamespaceWhitelist:
   - UnityEditor
+  m_NamespaceBlacklist: []
   m_TypeWhitelist:
   - UnityEditor.ActionOnDotNetUnhandledException
   - UnityEditor.ActiveEditorTracker
@@ -505,13 +506,14 @@ MonoBehaviour:
   - UnityEditor.XboxOneLoggingLevel
   - UnityEditor.XboxOnePackageUpdateGranularity
   - UnityEditor.XcodeBuildConfig
+  m_TypeBlacklist: []
   m_ContentFolderGuid: e7cc82fc655740243a07ab56211e3a40
   m_ModuleLoaderTypeName: Lua.UnityEditor.CoreModule.UnityEditor_LuaModule_Loader
   m_ModuleLoader:
-    rid: 2561253226069622880
+    rid: 2561253250471035430
   references:
     version: 2
     RefIds:
-    - rid: 2561253226069622880
+    - rid: 2561253250471035430
       type: {class: UnityEditor_LuaModule_Loader, ns: Lua.UnityEditor.CoreModule, asm: Lua.UnityEditor.CoreModule}
       data: 

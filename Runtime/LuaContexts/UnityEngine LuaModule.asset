@@ -15,9 +15,40 @@ MonoBehaviour:
   m_AssemblyName: UnityEngine.CoreModule
   m_NamespaceWhitelist:
   - UnityEngine
+  - UnityEngine.Analytics
+  - UnityEngine.Diagnostics
+  - UnityEngine.Events
+  - UnityEngine.Profiling
+  - UnityEngine.Rendering
+  - UnityEngine.SceneManagement
+  - UnityEngine.Scripting
+  - UnityEngine.Search
+  - UnityEngine.Serialization
+  - UnityEngine.Sprites
+  - UnityEngine.U2D
+  m_NamespaceBlacklist:
+  - JetBrains.Annotations
+  - Unity.*
+  - UnityEditor*
+  - UnityEngine.Apple
+  - UnityEngine.Assertions.*
+  - UnityEngine.DedicatedServer
+  - UnityEngine.iOS
+  - UnityEngine.Jobs
+  - UnityEngine.Experimental.*
+  - UnityEngine.LowLevel
+  - UnityEngine.Networking.*
+  - UnityEngine.Playables
+  - UnityEngine.PlayerLoop
+  - UnityEngine.Rendering.*
+  - UnityEngine.TestTools
+  - UnityEngine.tvOS
+  - UnityEngine.Windows.*
+  - UnityEngine.WSA
+  - UnityEngineInternal
   m_TypeWhitelist:
-  - UnityEngine.ADBannerView+Layout
-  - UnityEngine.ADBannerView+Type
+  - UnityEngine.Analytics.AnalyticsEventBase
+  - UnityEngine.Analytics.SendEventOptions
   - UnityEngine.AndroidActivityIndicatorStyle
   - UnityEngine.AnimationCurve
   - UnityEngine.AnisotropicFiltering
@@ -92,12 +123,16 @@ MonoBehaviour:
   - UnityEngine.Debug+StartupLog
   - UnityEngine.DepthTextureMode
   - UnityEngine.DeviceType
+  - UnityEngine.Diagnostics.ForcedCrashCategory
   - UnityEngine.Display
   - UnityEngine.DisplayInfo
   - UnityEngine.DrivenRectTransformTracker
   - UnityEngine.DrivenTransformProperties
   - UnityEngine.DynamicGI
   - UnityEngine.EventProvider
+  - UnityEngine.Events.PersistentListenerMode
+  - UnityEngine.Events.UnityEvent
+  - UnityEngine.Events.UnityEventCallState
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
@@ -209,6 +244,11 @@ MonoBehaviour:
   - UnityEngine.PlayerPrefs
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
+  - UnityEngine.Profiling.CustomSampler
+  - UnityEngine.Profiling.Profiler
+  - UnityEngine.Profiling.ProfilerArea
+  - UnityEngine.Profiling.Recorder
+  - UnityEngine.Profiling.Sampler
   - UnityEngine.Projector
   - UnityEngine.PropertyName
   - UnityEngine.QualitySettings
@@ -247,12 +287,24 @@ MonoBehaviour:
   - UnityEngine.ResourcesAPI
   - UnityEngine.RuntimeInitializeLoadType
   - UnityEngine.RuntimePlatform
+  - UnityEngine.SceneManagement.CreateSceneParameters
+  - UnityEngine.SceneManagement.LoadSceneMode
+  - UnityEngine.SceneManagement.LoadSceneParameters
+  - UnityEngine.SceneManagement.LocalPhysicsMode
+  - UnityEngine.SceneManagement.Scene
+  - UnityEngine.SceneManagement.SceneManager
+  - UnityEngine.SceneManagement.SceneManagerAPI
+  - UnityEngine.SceneManagement.UnloadSceneOptions
   - UnityEngine.Screen
   - UnityEngine.ScreenOrientation
   - UnityEngine.ScriptableObject
+  - UnityEngine.Scripting.GarbageCollector+Mode
+  - UnityEngine.Search.SearchViewFlags
   - UnityEngine.SecondarySpriteTexture
   - UnityEngine.Security
   - UnityEngine.SendMessageOptions
+  - UnityEngine.Serialization.ManagedReferenceUtility
+  - UnityEngine.Serialization.UnitySurrogateSelector
   - UnityEngine.Shader
   - UnityEngine.ShaderVariantCollection
   - UnityEngine.ShaderVariantCollection+ShaderVariant
@@ -278,6 +330,7 @@ MonoBehaviour:
   - UnityEngine.SpritePackingMode
   - UnityEngine.SpritePackingRotation
   - UnityEngine.SpriteRenderer
+  - UnityEngine.Sprites.DataUtility
   - UnityEngine.SpriteSortPoint
   - UnityEngine.SpriteTileMode
   - UnityEngine.StackTraceLogType
@@ -310,6 +363,9 @@ MonoBehaviour:
   - UnityEngine.TransferFunction
   - UnityEngine.Transform
   - UnityEngine.TransparencySortMode
+  - UnityEngine.U2D.SpriteAtlas
+  - UnityEngine.U2D.SpriteAtlasManager
+  - UnityEngine.U2D.SpriteBone
   - UnityEngine.UnityEventQueueSystem
   - UnityEngine.UserAuthorization
   - UnityEngine.ValidationLevel
@@ -330,13 +386,15 @@ MonoBehaviour:
   - UnityEngine.WhitePoint
   - UnityEngine.WrapMode
   - UnityEngine.YieldInstruction
+  m_TypeBlacklist:
+  - UnityEngine.Rendering.*
   m_ContentFolderGuid: b2655c00ff6f9d845af9914af0e23157
   m_ModuleLoaderTypeName: Lua.UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
   m_ModuleLoader:
-    rid: 2561253226069622881
+    rid: 2561253250471035471
   references:
     version: 2
     RefIds:
-    - rid: 2561253226069622881
+    - rid: 2561253250471035471
       type: {class: UnityEngine_LuaModule_Loader, ns: Lua.UnityEngine.CoreModule, asm: Lua.UnityEngine.CoreModule}
       data: 

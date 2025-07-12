@@ -73,7 +73,6 @@ namespace CodeSmile.Luny
 			return $"{msg}\nC# stack traceback:";
 		}
 
-
 		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>
 			luaRunEx.LuaTraceback.ToString().Replace("Lua stack traceback:\n", "").Trim();
 	}

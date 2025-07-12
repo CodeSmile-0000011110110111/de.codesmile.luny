@@ -118,7 +118,7 @@ namespace CodeSmileEditor.Luny
 				if (loadedRegistry != null)
 				{
 					// delete extraneous registry assets, no matter how they came to be (they would all be the same)
-					Debug.Log($"Deleting extraneous {nameof(LunyRuntimeAssetRegistry)}: {path}");
+					//Debug.Log($"Deleting extraneous {nameof(LunyRuntimeAssetRegistry)}: {path}");
 					AssetDatabase.DeleteAsset(path);
 				}
 			}

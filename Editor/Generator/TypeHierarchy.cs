@@ -69,37 +69,9 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		internal class TreeNode<T>
+		public void Visit(Action<TreeNode<Type>, Int32> callback)
 		{
-			private readonly T m_Value;
-			private readonly Dictionary<T, TreeNode<T>> m_Children = new();
-
-			public TreeNode<T> this[T t] => m_Children[t];
-			public TreeNode<T> Parent { get; private set; }
-			public TreeNode<T>[] Children => m_Children.Values.ToArray();
-			public Int32 ChildCount => m_Children.Count;
-			public T Value => m_Value;
-			public TreeNode(T value) => m_Value = value;
-
-			public TreeNode<T> GetOrAddChild(T value)
-			{
-				if (value.Equals(m_Value))
-					return this;
-
-				if (m_Children.TryGetValue(value, out var node))
-					return node;
-
-				node = new TreeNode<T>(value) { Parent = this };
-				m_Children.Add(value, node);
-				return node;
-			}
-
-			public void VisitDepthFirst(Action<TreeNode<T>, Int32> callback, Int32 level = 0)
-			{
-				callback(this, level++);
-				foreach (var child in m_Children.Values)
-					child.VisitDepthFirst(callback, level);
-			}
+			m_Hierarchy?.VisitDepthFirst(callback);
 		}
 	}
 }
