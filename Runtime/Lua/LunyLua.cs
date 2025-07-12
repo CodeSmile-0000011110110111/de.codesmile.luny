@@ -155,61 +155,6 @@ namespace CodeSmile.Luny
 
 			foreach (var module in luaContext.Modules)
 				module.Load(m_LuaState);
-
-
-
-
-			Debug.LogWarning("enum test");
-			var enumNames = Enum.GetNames(typeof(Camera.GateFitMode));
-			var enumValues = Enum.GetValues(typeof(Camera.GateFitMode));
-			var enumTable = new LuaTable(0,0);
-			for (int i = 0; i < enumNames.Length; i++)
-			{
-				//enumTable[names[i]] = (int)values.GetValue(i);
-			}
-
-
-			var indexFunc = new LuaFunction("enum.__index", (context, token) =>
-			{
-				var table = context.GetArgument<LuaTable>(0);
-				var key = context.GetArgument(1).ToString();
-				Debug.Log($"index called with key: {key}");
-
-				switch (key)
-				{
-					case "None": return new ValueTask<Int32>(context.Return((double)Camera.GateFitMode.None));
-					case nameof(Camera.GateFitMode.Fill): return new ValueTask<Int32>(context.Return((double)Camera.GateFitMode.Fill));
-					case "Overscan": return new ValueTask<Int32>(context.Return((double)Camera.GateFitMode.Overscan));
-					default: throw new ArgumentException($"{key} not found in Camera.GateFitMode");
-				}
-			});
-			var newindexFunc = new LuaFunction("enum.__newindex", (context, token) =>
-				throw new LuaRuntimeException(context.Thread, "attempt to modify an enumeration table"));
-			var lenFunc = new LuaFunction("enum.__len", (context, token) =>
-			{
-				var table = context.GetArgument<LuaTable>(0);
-				return new ValueTask<Int32>(context.Return(table.Metatable["values"].Read<LuaTable>().HashMapCount));
-
-			});
-			var pairsFunc = new LuaFunction("enum.__pairs", (context, token) =>
-			{
-				var table = context.GetArgument<LuaTable>(0);
-				var nextFunc = new LuaFunction("next", BasicLibrary.Instance.Next);
-				return new ValueTask<Int32>(context.Return(nextFunc, table.Metatable["values"], LuaValue.Nil));
-
-			});
-			var values = new LuaTable(0, 0);
-			values["one"] = 111;
-			values["two"] = 222;
-			values["three"] = 333;
-			var metatable = new LuaTable(0, 0);
-			metatable["values"] = values;
-			metatable[Metamethods.Index] = indexFunc;
-			metatable[Metamethods.NewIndex] = newindexFunc;
-			metatable[Metamethods.Len] = lenFunc;
-			metatable[Metamethods.Pairs] = pairsFunc;
-			enumTable.Metatable = metatable;
-			m_LuaState.Environment["testEnum"] = enumTable;
 		}
 
 		private void InstallBasicLibraryOverrides()

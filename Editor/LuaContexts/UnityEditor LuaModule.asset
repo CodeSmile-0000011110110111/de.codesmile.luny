@@ -508,10 +508,10 @@ MonoBehaviour:
   m_ContentFolderGuid: e7cc82fc655740243a07ab56211e3a40
   m_ModuleLoaderTypeName: Lua.UnityEditor.CoreModule.UnityEditor_LuaModule_Loader
   m_ModuleLoader:
-    rid: 2561253226069622864
+    rid: 2561253226069622880
   references:
     version: 2
     RefIds:
-    - rid: 2561253226069622864
+    - rid: 2561253226069622880
       type: {class: UnityEditor_LuaModule_Loader, ns: Lua.UnityEditor.CoreModule, asm: Lua.UnityEditor.CoreModule}
       data: 
