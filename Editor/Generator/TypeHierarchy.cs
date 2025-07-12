@@ -15,16 +15,19 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		private readonly TreeNode<Type> m_Hierarchy = new(typeof(Object));
 		private readonly List<Type> m_Enums = new();
-		private Assembly[] m_Assemblies;
-		private String[] m_Namespaces;
+		private readonly IEnumerable<Assembly> m_Assemblies;
+		private readonly IEnumerable<String> m_Namespaces;
+		private readonly IEnumerable<Type> m_Types;
 
-		public Assembly[] Assemblies => m_Assemblies;
-		public String[] Namespaces => m_Namespaces;
-		public List<Type> Enums => m_Enums;
+		public IEnumerable<Assembly> Assemblies => m_Assemblies;
+		public IEnumerable<String> Namespaces => m_Namespaces;
+		public IEnumerable<Type> Types => m_Types;
+		public IEnumerable<Type> Enums => m_Enums;
 
 		public TypeHierarchy(IEnumerable<Type> types)
 		{
 			Debug.Assert(types != null);
+			m_Types = types;
 
 			var assemblies = new HashSet<Assembly>();
 			var namespaces = new HashSet<String>();
@@ -32,8 +35,8 @@ namespace CodeSmileEditor.Luny.Generator
 			foreach (var type in types)
 				AddTypeAndBaseTypes(type, assemblies, namespaces);
 
-			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName).ToArray();
-			m_Namespaces = namespaces.OrderBy(ns => ns).ToArray();
+			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName);
+			m_Namespaces = namespaces.OrderBy(ns => ns);
 			m_Enums.Sort((t1, t2) => t1.FullName.CompareTo(t2.FullName));
 			//Debug.Log($"Counts: Assemblies={m_Assemblies.Length}, Namespaces={m_Namespaces.Length}, Enums={m_Enums.Count}");
 		}
@@ -69,9 +72,6 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		public void Visit(Action<TreeNode<Type>, Int32> callback)
-		{
-			m_Hierarchy?.VisitDepthFirst(callback);
-		}
+		public void Visit(Action<TreeNode<Type>, Int32> callback) => m_Hierarchy?.VisitDepthFirst(callback);
 	}
 }

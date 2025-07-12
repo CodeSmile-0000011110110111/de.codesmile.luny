@@ -22,9 +22,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 			sb.AppendLine("using CodeSmile.Luny;");
-			//sb.AppendLine("using Lua;");
-			sb.AppendLine("using System;");
+			foreach (var ns in typeHierarchy.Namespaces)
+			{
+				sb.Append("using ");
+				sb.Append(ns);
+				sb.AppendLine(";");
+			}
 			sb.AppendLine();
+
 			sb.AppendLine($"namespace {@namespace}");
 			sb.OpenIndentedBlock("{"); // namespace
 			sb.AppendIndentedLine("[Serializable]");
@@ -77,32 +82,29 @@ namespace CodeSmileEditor.Luny.Generator
 				var type = node.Value;
 				if (type.IsAbstract == false && type != systemObjectType)
 				{
-					if (GenUtil.IsObsolete(type.BaseType))
-						Debug.LogWarning($"OBSOLETE: {type} ({type.BaseType})");
-
-					if (type.FullName == "UnityEngine.ADBannerView+Layout")
-					{
-						Debug.Log("..");
-					}
-
-					sb.AppendIndented("//");
 					if (type.IsEnum)
 					{
-						sb.Append($"LuaUtil.CreateEnumTable(typeof(");
-						sb.Append(type.FullName);
-						sb.AppendLine(");");
+						sb.AppendIndented($"LuaUtil.CreateEnumTable(typeof(");
+						if (type.IsNested)
+						{
+							sb.Append(type.DeclaringType.Name);
+							sb.Append(".");
+						}
+						sb.Append(type.Name);
+						sb.AppendLine("));");
 					}
 					else
 					{
 						var namespaceTableName = namespaceTables[type.Namespace];
-						sb.Append(namespaceTableName);
+						sb.Append("//");
+						sb.AppendIndented(namespaceTableName);
 						sb.Append(" = new Lua_");
 						sb.Append(type.FullName.Replace('.', '_'));
 						sb.AppendLine("_API();");
 					}
 
 					var indent = new String('\t', level);
-					Debug.Log($"[{level}] {indent}{type.Namespace}|{type}");
+					Debug.Log($"[{level}] {indent}{type}");
 				}
 			});
 		}

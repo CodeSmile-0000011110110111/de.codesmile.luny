@@ -56,11 +56,12 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendIndented($"\"GUID:{GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny")}\"");
 			}
 
-			foreach (var reference in typeHierarchy.Namespaces)
+			foreach (var ns in typeHierarchy.Namespaces)
 			{
-				var asmdefGuid = GetGuidForReference(asmdefAssets, reference);
+				var asmdefGuid = GetGuidForReference(asmdefAssets, ns);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
+					Debug.LogWarning($"add asmdef reference: {ns} => {AssetDatabase.GUIDToAssetPath(asmdefGuid)}");
 					sb.AppendLine(",");
 					sb.AppendIndented($"\"GUID:{asmdefGuid}\"");
 				}
