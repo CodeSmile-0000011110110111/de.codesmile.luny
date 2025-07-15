@@ -22,8 +22,8 @@ namespace CodeSmileEditor.Luny.Generator
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
 
 				AssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
-				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy);
-				TypeGenerator.Generate(module, contentFolderPath, typeHierarchy);
+				var boundTypes = TypeGenerator.Generate(module, contentFolderPath, typeHierarchy);
+				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy, boundTypes);
 			}
 		}
 	}

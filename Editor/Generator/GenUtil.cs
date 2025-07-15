@@ -85,7 +85,8 @@ namespace CodeSmileEditor.Luny.Generator
 			var contentFolderPath = AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid);
 			if (AssetDatabase.AssetPathExists(contentFolderPath) == false)
 			{
-				contentFolderPath = AssetDatabase.GetAssetPath(module).Replace(".asset", " GENERATED");
+				var modulePath = AssetDatabase.GetAssetPath(module);
+				contentFolderPath = modulePath.Replace($"{module.name}.asset", $"{module.AssemblyName} Bindings");
 				EditorIO.TryCreateAndImportPath(contentFolderPath);
 				module.ContentFolderGuid = AssetDatabase.AssetPathToGUID(contentFolderPath);
 				EditorUtility.SetDirty(module);

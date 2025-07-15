@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9ef0096777774146b9e7b2d74261174, type: 3}
-  m_Name: UnityEngine LuaModule
+  m_Name: UnityEngine.CoreModule LuaModule
   m_EditorClassIdentifier: 
   m_AssemblyName: UnityEngine.CoreModule
   m_NamespaceWhitelist:
@@ -643,13 +643,13 @@ MonoBehaviour:
   - UnityEngine.WrapMode
   - UnityEngine.YieldInstruction
   m_TypeBlacklist: []
-  m_ContentFolderGuid: b2655c00ff6f9d845af9914af0e23157
-  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
+  m_ContentFolderGuid: d44148cecd649a54589a17ee67c97451
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
   m_ModuleLoader:
-    rid: 2561253311093932150
+    rid: 2561253311093932165
   references:
     version: 2
     RefIds:
-    - rid: 2561253311093932150
-      type: {class: UnityEngine_LuaModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+    - rid: 2561253311093932165
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 

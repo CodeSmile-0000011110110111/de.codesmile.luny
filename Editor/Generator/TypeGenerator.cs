@@ -3,7 +3,9 @@
 
 using CodeSmile.Luny;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -13,45 +15,42 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class TypeGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
+		public static IEnumerable<TypeInfo> Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
 		{
+			var boundTypes = new List<TypeInfo>();
+
 			var generatableCount = 0;
 			var generatedCount = 0;
-			typeHierarchy.Visit(async (node, level) =>
+			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
-				if (GenUtil.IsBindableType(type) == false)
+				if (type.IsEnum)
+				{
+					// enums are handled by module loader
+					boundTypes.Add(new TypeInfo(type));
+					return;
+				}
+				if (type.IsEnum || GenUtil.IsBindableType(type) == false)
 					return;
 
 				generatableCount++;
 
 				// TODO filter out types we currently don't support
+				if (type.IsValueType == false)
+					return;
 
 				generatedCount++;
 
-				var instanceTypeName = $"Lua_{type.Name}";
-				var staticTypeName = $"{instanceTypeName}_static";
-				var typeFullName = type.FullName.Replace('+', '.');
-				var isStatic = type.IsAbstract && type.IsSealed;
-				if (isStatic)
-					Debug.LogWarning($"Static: {typeFullName}");
+				var typeInfo = new TypeInfo(type);
+				boundTypes.Add(typeInfo);
+
+				if (typeInfo.IsStatic)
+					Debug.LogWarning($"Static: {typeInfo.BindTypeFullName}");
 				else if (type.IsAbstract)
-					Debug.Log($"Abstract: {typeFullName}");
+					Debug.LogWarning($"Abstract: {typeInfo.BindTypeFullName}");
 
-				var publicInstanceFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-				var instanceCtors = type.GetConstructors(publicInstanceFlags);
-				var instanceEvents = type.GetEvents(publicInstanceFlags);
-				var instanceFields = type.GetFields(publicInstanceFlags);
-				var instanceProperties = type.GetProperties(publicInstanceFlags);
-				var instanceMethods = type.GetMethods(publicInstanceFlags);
-				if (instanceEvents.Length > 0 || instanceFields.Length > 0 || instanceProperties.Length > 0 || instanceMethods.Length > 0)
-					Debug.Log($"{typeFullName}: ctors={instanceCtors.Length}, events={instanceEvents.Length}, fields={instanceFields.Length}, properties={instanceProperties.Length}, methods={instanceMethods.Length}");
-				else
-				{
-					Debug.LogWarning($"{typeFullName} has no public members!");
-				}
-
-				var publicStaticFlags = BindingFlags.Public | BindingFlags.Static;
+				if (type.IsNested)
+					Debug.Log($"{type.FullName} nested in {type.DeclaringType?.FullName}");
 
 				// var members = type.GetMembers();
 				// foreach (var member in members)
@@ -60,56 +59,58 @@ namespace CodeSmileEditor.Luny.Generator
 				// }
 
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
-				sb.AppendLine("using CodeSmile.Luny;");
-				sb.AppendLine("using Lua;");
-				sb.AppendLine("using Lua.Runtime;");
-				sb.AppendLine("using System.Threading.Tasks;");
-				sb.Append("using ");
-				sb.Append(type.Namespace);
-				sb.AppendLine(";\n");
+				AddUsingStatements(sb, typeInfo.Type.Namespace);
+				AddNamespaceBlock(sb, module.BindingsAssemblyNamespace);
+				if (typeInfo.IsStatic == false)
+					GenerateInstanceType(sb, typeInfo);
+				GenerateStaticType(sb, typeInfo);
+				EndNamespaceBlock(sb);
 
-				sb.Append("namespace ");
-				sb.AppendLine(module.BindingsAssemblyNamespace);
-				sb.OpenIndentedBlock("{"); // { namespace
-
-				if (isStatic == false)
-					GenerateInstanceType(sb, type, instanceTypeName, typeFullName);
-				GenerateStaticType(sb, type, staticTypeName, typeFullName);
-
-				sb.CloseIndentedBlock("}"); // namespace }
-
-				await WriteFile(sb, contentFolderPath, instanceTypeName);
+				WriteFile(sb, contentFolderPath, typeInfo.InstanceTypeName);
 			});
 
 			EditorApplication.delayCall += () => Debug.Log($"{generatedCount} of {generatableCount} " +
 			                                               $"({(Int32)(generatedCount / (Single)generatableCount * 100f)}%) " +
 			                                               "types generated");
+
+			return boundTypes;
 		}
 
-		private static async Task WriteFile(ScriptBuilder sb, String contentFolderPath, String typeName)
+		private static void AddUsingStatements(ScriptBuilder sb, String @namespace)
 		{
-			var assetPath = $"{contentFolderPath}/{typeName}.cs";
-			try
-			{
-				var fullPath = Path.GetFullPath(assetPath);
-				await File.WriteAllTextAsync(fullPath, sb.ToString()).ConfigureAwait(false);
-			}
-			catch (Exception e)
-			{
-				Debug.LogError($"Failed to write file: {assetPath}\n{e}");
-			}
+			sb.AppendLine("using CodeSmile.Luny;");
+			sb.AppendLine("using Lua;");
+			sb.AppendLine("using Lua.Runtime;");
+			sb.AppendLine("using System.Threading.Tasks;");
+			sb.Append("using ");
+			sb.Append(@namespace);
+			sb.AppendLine(";\n");
 		}
 
-		private static void GenerateInstanceType(ScriptBuilder sb, Type type, String typeName, String typeFullName)
+		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
-			var instanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
-			AddTypeDeclaration(sb, typeName, false);
-			AddInstanceFieldAndProperty(sb, instanceFieldName, typeFullName);
+			sb.AppendLine("#pragma warning disable CS0162 // Unreachable code detected");
+			sb.Append("namespace ");
+			sb.AppendLine(@namespace);
+			sb.OpenIndentedBlock("{"); // { namespace
+		}
+
+		private static void EndNamespaceBlock(ScriptBuilder sb)
+		{
+			sb.CloseIndentedBlock("}"); // namespace }
+			sb.AppendLine("#pragma warning restore CS0162 // Unreachable code detected");
+		}
+
+		private static void GenerateInstanceType(ScriptBuilder sb, TypeInfo typeInfo)
+		{
+			var instanceFieldName = typeInfo.Type.IsValueType ? "m_Value" : "m_Instance";
+			AddTypeDeclaration(sb, typeInfo.InstanceTypeName, false);
+			AddInstanceFieldAndProperty(sb, instanceFieldName, typeInfo.BindTypeFullName);
 			AddToStringOverride(sb, instanceFieldName);
-			AddImplicitOperator(sb, typeName);
+			AddImplicitOperator(sb, typeInfo.InstanceTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddIndexMetamethod(sb, typeName);
-			AddNewIndexMetamethod(sb, typeName);
+			AddIndexMetamethod(sb, typeInfo.InstanceTypeName);
+			AddNewIndexMetamethod(sb, typeInfo.InstanceTypeName);
 			EndTypeDeclaration(sb);
 		}
 
@@ -120,15 +121,15 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(".ToString();");
 		}
 
-		private static void GenerateStaticType(ScriptBuilder sb, Type type, String typeName, String typeFullName)
+		private static void GenerateStaticType(ScriptBuilder sb, TypeInfo typeInfo)
 		{
-			AddTypeDeclaration(sb, typeName, true);
-			AddBindType(sb, typeFullName);
+			AddTypeDeclaration(sb, typeInfo.StaticTypeName, true);
+			AddBindType(sb, typeInfo.BindTypeFullName);
 			sb.AppendIndentedLine("public override string ToString() => BindType.FullName;");
-			AddImplicitOperator(sb, typeName);
+			AddImplicitOperator(sb, typeInfo.StaticTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddIndexMetamethod(sb, typeName);
-			AddNewIndexMetamethod(sb, typeName);
+			AddIndexMetamethod(sb, typeInfo.StaticTypeName);
+			AddNewIndexMetamethod(sb, typeInfo.StaticTypeName);
 			EndTypeDeclaration(sb);
 		}
 
@@ -140,14 +141,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(typeName);
 			sb.AppendLine(" : ILuaUserData");
 			sb.OpenIndentedBlock("{"); // { class
-			sb.AppendLine("#pragma warning disable CS0162 // Unreachable code detected");
 		}
 
-		private static void EndTypeDeclaration(ScriptBuilder sb)
-		{
-			sb.AppendLine("#pragma warning restore CS0162 // Unreachable code detected");
-			sb.CloseIndentedBlock("}"); // class }
-		}
+		private static void EndTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentedBlock("}"); // class }
 
 		private static void AddInstanceFieldAndProperty(ScriptBuilder sb, String fieldName, String typeFullName)
 		{
@@ -260,6 +256,68 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentedBlock("}");
 			sb.AppendIndentedLine("return new ValueTask<int>(context.Return(0));");
 			sb.CloseIndentedBlock("});");
+		}
+
+		private static void WriteFile(ScriptBuilder sb, String contentFolderPath, String typeName)
+		{
+			var assetPath = $"{contentFolderPath}/{typeName}.cs";
+			try
+			{
+				var fullPath = Path.GetFullPath(assetPath);
+				File.WriteAllText(fullPath, sb.ToString());
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Failed to write file: {assetPath}\n{e}");
+			}
+		}
+
+		internal class MemberInfo
+		{
+			public ConstructorInfo[] Ctors;
+			public EventInfo[] Events;
+			public FieldInfo[] Fields;
+			public PropertyInfo[] Properties;
+			public MethodInfo[] Methods;
+
+			public MemberInfo(Type type, BindingFlags bindingFlags)
+			{
+				Ctors = type.GetConstructors(bindingFlags);
+				Events = type.GetEvents(bindingFlags);
+				Fields = type.GetFields(bindingFlags);
+				Properties = type.GetProperties(bindingFlags);
+				Methods = type.GetMethods(bindingFlags);
+			}
+		}
+
+		internal class TypeInfo
+		{
+			public readonly Type Type;
+			public readonly String InstanceTypeName;
+			public readonly String StaticTypeName;
+			public readonly String BindTypeFullName;
+			public String InstanceFieldName;
+			public readonly Boolean IsStatic;
+			public MemberInfo InstanceMembers;
+			public MemberInfo StaticMembers;
+
+			public TypeInfo(Type type)
+			{
+				Type = type;
+				var typeFullNameNoPlus = type.FullName.Replace('+', '.');
+				var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
+				InstanceTypeName = $"Lua_{typeFullNameNoDots}";
+				StaticTypeName = $"{InstanceTypeName}_static";
+				BindTypeFullName = typeFullNameNoPlus;
+
+				if (type.IsEnum == false)
+				{
+					IsStatic = type.IsAbstract && type.IsSealed;
+					InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
+					InstanceMembers = new MemberInfo(type, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+					StaticMembers = new MemberInfo(type, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+				}
+			}
 		}
 	}
 }

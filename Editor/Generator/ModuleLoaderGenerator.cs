@@ -1,11 +1,11 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile;
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,11 +13,11 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
+		public static async Task Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
+			IEnumerable<TypeGenerator.TypeInfo> typeInfos)
 		{
 			var @namespace = module.BindingsAssemblyNamespace;
-			var typeName = module.name.SanitizeIdentifier();
-			var loaderClassName = typeName + "_Loader";
+			var loaderClassName = $"Lua_{module.AssemblyName.Replace('.', '_')}_Loader";
 			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
@@ -39,17 +39,18 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("public override void Load(LuaTable env)");
 			sb.OpenIndentedBlock("{"); // Load(..)
 			sb.AppendIndentedLine("base.Load(env);");
-			GenerateTypeInitialization(sb, module, typeHierarchy);
+			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
 			sb.CloseIndentedBlock("}"); // Load(..)
 			sb.CloseIndentedBlock("}"); // class
 			sb.CloseIndentedBlock("}"); // namespace
 
-			var assetPath = $"{contentFolderPath}/{loaderClassName}.cs";
+			var assetPath = $"{contentFolderPath}/Lua_{module.AssemblyName}_Loader.cs";
 			var fullPath = Path.GetFullPath(assetPath);
-			File.WriteAllText(fullPath, sb.ToString());
+			await File.WriteAllTextAsync(fullPath, sb.ToString());
 		}
 
-		private static void GenerateTypeInitialization(ScriptBuilder sb, LunyLuaModule module, TypeHierarchy typeHierarchy)
+		private static void GenerateTypeInitialization(ScriptBuilder sb, TypeHierarchy typeHierarchy,
+			IEnumerable<TypeGenerator.TypeInfo> typeInfos)
 		{
 			var namespaceTables = new Dictionary<String, String>();
 
@@ -77,35 +78,28 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendLine(" });");
 			}
 
-			typeHierarchy.Visit((node, level) =>
+			foreach (var typeInfo in typeInfos)
 			{
-				var type = node.Value;
-				if (GenUtil.IsBindableType(type) == false)
-					return;
-
+				var type = typeInfo.Type;
 				if (type.IsEnum)
 				{
 					sb.AppendIndented("LuaUtil.CreateEnumTable(typeof(");
-					if (type.IsNested)
-					{
-						sb.Append(type.DeclaringType.Name);
-						sb.Append(".");
-					}
-					sb.Append(type.Name);
+					sb.Append(typeInfo.BindTypeFullName);
 					sb.AppendLine("));");
 				}
 				else
 				{
 					var namespaceTableName = namespaceTables[type.Namespace];
-					sb.Append("//");
 					sb.AppendIndented(namespaceTableName);
-					sb.Append(" = new Lua_");
-					sb.Append(type.FullName.Replace('.', '_'));
-					sb.AppendLine("_static();");
+					sb.Append("[\"");
+					sb.Append(typeInfo.Type.Name);
+					sb.Append("\"] = new ");
+					sb.Append(typeInfo.StaticTypeName);
+					sb.AppendLine("();");
 				}
 
 				// Debug.Log($"[{level}] {new String('\t', level)}{type}");
-			});
+			}
 		}
 	}
 }
