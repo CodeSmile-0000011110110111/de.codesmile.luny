@@ -2,12 +2,9 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
-using Lua;
-using Lua.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,14 +20,10 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				var typeHierarchy = new TypeHierarchy(types);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
+
 				AssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy);
-
-				// TODO enums
-				// TODO classes and structs
-
-				EditorUtility.SetDirty(module);
-				AssetDatabase.SaveAssetIfDirty(module);
+				TypeGenerator.Generate(module, contentFolderPath, typeHierarchy);
 			}
 		}
 	}

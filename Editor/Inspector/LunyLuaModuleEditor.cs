@@ -34,6 +34,7 @@ namespace CodeSmileEditor.Luny
 		private string[] m_TypeNamesFiltered; // faster to use an array for this
 
 		private Button m_GenerateButton;
+		private Button m_DeleteButton;
 		private VisualElement m_DebugElements;
 
 		private LunyLuaModule Module => target as LunyLuaModule;
@@ -57,6 +58,12 @@ namespace CodeSmileEditor.Luny
 
 		private void OnDisable() => EditorApplication.update -= OnEditorUpdate;
 
+
+		private void OnDeleteGeneratedContent()
+		{
+			GenUtil.TryDeleteContentFolderPath(Module);
+			//OnGenerate();
+		}
 		private void OnGenerate()
 		{
 			LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
@@ -84,8 +91,6 @@ namespace CodeSmileEditor.Luny
 			{
 				m_DebugElements = new GroupBox("Log");
 				m_DebugElements.style.flexDirection = FlexDirection.Row;
-				m_DebugElements.style.alignContent = Align.Stretch;
-				m_DebugElements.style.alignItems = Align.Stretch;
 				inspector.Add(m_DebugElements);
 
 				var logAssembliesButton = new Button(OnLogAssemblies);
@@ -109,9 +114,19 @@ namespace CodeSmileEditor.Luny
 				m_DebugElements.Add(logTypeMethodsButton);
 			}
 
+			var generateGroup = new VisualElement();
+			generateGroup.style.flexDirection = FlexDirection.Row;
+			inspector.Add(generateGroup);
+
+			m_DeleteButton = new Button(OnDeleteGeneratedContent);
+			m_DeleteButton.text = "Delete Generated";
+			m_DeleteButton.style.flexGrow = new StyleFloat(1f);
+			generateGroup.Add(m_DeleteButton);
+
 			m_GenerateButton = new Button(OnGenerate);
 			m_GenerateButton.text = "Generate";
-			inspector.Add(m_GenerateButton);
+			m_GenerateButton.style.flexGrow = new StyleFloat(1f);
+			generateGroup.Add(m_GenerateButton);
 
 			UpdateUIState();
 

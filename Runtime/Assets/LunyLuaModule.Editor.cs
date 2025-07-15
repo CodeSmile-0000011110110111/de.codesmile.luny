@@ -16,18 +16,22 @@ namespace CodeSmile.Luny
 		public void OnBeforeSerialize() {}
 
 		public void OnAfterDeserialize() =>
-			// must delay because AssetDatabase cannot be used during serialization
+			// must delay because SerializationUtility & AssetDatabase cannot be used during serialization
 			EditorApplication.delayCall += () => UpdateModuleLoaderReference();
 
 		private void UpdateModuleLoaderReference()
 		{
 			ClearMissingSerializeReferenceTypeWarning();
 
-			var loader = TryInstantiateModuleLoader(m_ContentFolderGuid, m_ModuleLoaderTypeName);
-			if (m_ModuleLoader != loader)
+			if (m_ModuleLoader == null)
 			{
-				m_ModuleLoader = loader;
-				EditorUtility.SetDirty(this);
+				m_ModuleLoader = TryInstantiateModuleLoader(m_ContentFolderGuid, m_ModuleLoaderTypeName);
+				if (m_ModuleLoader != null) // loader script may not exist
+				{
+					Debug.Log($"{name} ({GetInstanceID()}) assigned new module loader: {m_ModuleLoader} ({m_ModuleLoader.GetHashCode()})");
+					EditorUtility.SetDirty(this);
+					AssetDatabase.SaveAssetIfDirty(this);
+				}
 			}
 		}
 

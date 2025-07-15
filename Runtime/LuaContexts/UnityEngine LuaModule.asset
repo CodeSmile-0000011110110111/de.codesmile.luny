@@ -16,16 +16,22 @@ MonoBehaviour:
   m_NamespaceWhitelist:
   - UnityEngine
   - UnityEngine.Analytics
+  - UnityEngine.Assertions
+  - UnityEngine.Device
   - UnityEngine.Diagnostics
   - UnityEngine.Events
+  - UnityEngine.Playables
   - UnityEngine.Profiling
   - UnityEngine.Rendering
+  - UnityEngine.Rendering.RendererUtils
   - UnityEngine.SceneManagement
   - UnityEngine.Scripting
   - UnityEngine.Search
   - UnityEngine.Serialization
   - UnityEngine.Sprites
+  - UnityEngine.TestTools
   - UnityEngine.U2D
+  - UnityEngine.Windows
   m_NamespaceBlacklist:
   - JetBrains.Annotations
   - Unity.*
@@ -38,10 +44,7 @@ MonoBehaviour:
   - UnityEngine.Experimental.*
   - UnityEngine.LowLevel
   - UnityEngine.Networking.*
-  - UnityEngine.Playables
   - UnityEngine.PlayerLoop
-  - UnityEngine.Rendering.*
-  - UnityEngine.TestTools
   - UnityEngine.tvOS
   - UnityEngine.Windows.*
   - UnityEngine.WSA
@@ -57,8 +60,10 @@ MonoBehaviour:
   - UnityEngine.ApplicationMemoryUsage
   - UnityEngine.ApplicationMemoryUsageChange
   - UnityEngine.ApplicationSandboxType
+  - UnityEngine.Assertions.Assert
   - UnityEngine.AsyncInstantiateOperation
   - UnityEngine.AsyncOperation
+  - UnityEngine.AsyncOperationAwaitableExtensions
   - UnityEngine.AudioType
   - UnityEngine.Awaitable
   - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder
@@ -116,14 +121,21 @@ MonoBehaviour:
   - UnityEngine.CursorMode
   - UnityEngine.CustomRenderTexture
   - UnityEngine.CustomRenderTextureInitializationSource
+  - UnityEngine.CustomRenderTextureManager
   - UnityEngine.CustomRenderTextureUpdateMode
   - UnityEngine.CustomRenderTextureUpdateZone
   - UnityEngine.CustomRenderTextureUpdateZoneSpace
+  - UnityEngine.CustomYieldInstruction
   - UnityEngine.Debug
   - UnityEngine.Debug+StartupLog
   - UnityEngine.DepthTextureMode
+  - UnityEngine.Device.Application
+  - UnityEngine.Device.Screen
+  - UnityEngine.Device.SystemInfo
   - UnityEngine.DeviceType
   - UnityEngine.Diagnostics.ForcedCrashCategory
+  - UnityEngine.Diagnostics.PlayerConnection
+  - UnityEngine.Diagnostics.Utils
   - UnityEngine.Display
   - UnityEngine.DisplayInfo
   - UnityEngine.DrivenRectTransformTracker
@@ -132,6 +144,7 @@ MonoBehaviour:
   - UnityEngine.EventProvider
   - UnityEngine.Events.PersistentListenerMode
   - UnityEngine.Events.UnityEvent
+  - UnityEngine.Events.UnityEventBase
   - UnityEngine.Events.UnityEventCallState
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.ExpressionEvaluator
@@ -141,7 +154,9 @@ MonoBehaviour:
   - UnityEngine.Flare
   - UnityEngine.FlareLayer
   - UnityEngine.FogMode
+  - UnityEngine.FrameDebugger
   - UnityEngine.FrameTiming
+  - UnityEngine.FrameTimingManager
   - UnityEngine.FrustumPlanes
   - UnityEngine.FullScreenMode
   - UnityEngine.FullScreenMovieControlMode
@@ -163,6 +178,8 @@ MonoBehaviour:
   - UnityEngine.GraphicsBufferHandle
   - UnityEngine.Handheld
   - UnityEngine.Hash128
+  - UnityEngine.HashUnsafeUtilities
+  - UnityEngine.HashUtilities
   - UnityEngine.HDRDisplayBitDepth
   - UnityEngine.HDRDisplaySupportFlags
   - UnityEngine.HDROutputSettings
@@ -241,6 +258,25 @@ MonoBehaviour:
   - UnityEngine.OperatingSystemFamily
   - UnityEngine.Ping
   - UnityEngine.Plane
+  - UnityEngine.Playables.DirectorUpdateMode
+  - UnityEngine.Playables.DirectorWrapMode
+  - UnityEngine.Playables.FrameData
+  - UnityEngine.Playables.FrameData+EvaluationType
+  - UnityEngine.Playables.Notification
+  - UnityEngine.Playables.Playable
+  - UnityEngine.Playables.PlayableAsset
+  - UnityEngine.Playables.PlayableBehaviour
+  - UnityEngine.Playables.PlayableBinding
+  - UnityEngine.Playables.PlayableExtensions
+  - UnityEngine.Playables.PlayableGraph
+  - UnityEngine.Playables.PlayableHandle
+  - UnityEngine.Playables.PlayableOutput
+  - UnityEngine.Playables.PlayableOutputExtensions
+  - UnityEngine.Playables.PlayableOutputHandle
+  - UnityEngine.Playables.PlayableTraversalMode
+  - UnityEngine.Playables.PlayState
+  - UnityEngine.Playables.ScriptPlayableBinding
+  - UnityEngine.Playables.ScriptPlayableOutput
   - UnityEngine.PlayerPrefs
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
@@ -253,6 +289,7 @@ MonoBehaviour:
   - UnityEngine.PropertyName
   - UnityEngine.QualitySettings
   - UnityEngine.Quaternion
+  - UnityEngine.Random
   - UnityEngine.Random+State
   - UnityEngine.RangeInt
   - UnityEngine.Ray
@@ -270,6 +307,204 @@ MonoBehaviour:
   - UnityEngine.RefreshRate
   - UnityEngine.RenderBuffer
   - UnityEngine.Renderer
+  - UnityEngine.RendererExtensions
+  - UnityEngine.Rendering.AmbientMode
+  - UnityEngine.Rendering.AsyncGPUReadback
+  - UnityEngine.Rendering.AsyncGPUReadbackRequest
+  - UnityEngine.Rendering.AttachmentDescriptor
+  - UnityEngine.Rendering.AttachmentIndexArray
+  - UnityEngine.Rendering.BatchBufferTarget
+  - UnityEngine.Rendering.BatchCullingContext
+  - UnityEngine.Rendering.BatchCullingFlags
+  - UnityEngine.Rendering.BatchCullingOutput
+  - UnityEngine.Rendering.BatchCullingOutputDrawCommands
+  - UnityEngine.Rendering.BatchCullingProjectionType
+  - UnityEngine.Rendering.BatchCullingViewType
+  - UnityEngine.Rendering.BatchDrawCommand
+  - UnityEngine.Rendering.BatchDrawCommandFlags
+  - UnityEngine.Rendering.BatchDrawCommandIndirect
+  - UnityEngine.Rendering.BatchDrawCommandProcedural
+  - UnityEngine.Rendering.BatchDrawCommandProceduralIndirect
+  - UnityEngine.Rendering.BatchDrawCommandType
+  - UnityEngine.Rendering.BatchDrawRange
+  - UnityEngine.Rendering.BatchFilterSettings
+  - UnityEngine.Rendering.BatchID
+  - UnityEngine.Rendering.BatchMaterialID
+  - UnityEngine.Rendering.BatchMeshID
+  - UnityEngine.Rendering.BatchPackedCullingViewID
+  - UnityEngine.Rendering.BatchRendererGroup
+  - UnityEngine.Rendering.BatchRendererGroupCreateInfo
+  - UnityEngine.Rendering.BlendMode
+  - UnityEngine.Rendering.BlendOp
+  - UnityEngine.Rendering.BlendShapeBufferLayout
+  - UnityEngine.Rendering.BlendState
+  - UnityEngine.Rendering.BuiltinRenderTextureType
+  - UnityEngine.Rendering.BuiltinShaderDefine
+  - UnityEngine.Rendering.BuiltinShaderMode
+  - UnityEngine.Rendering.BuiltinShaderType
+  - UnityEngine.Rendering.CameraEvent
+  - UnityEngine.Rendering.CameraHDRMode
+  - UnityEngine.Rendering.CameraLateLatchMatrixType
+  - UnityEngine.Rendering.CameraProperties
+  - UnityEngine.Rendering.ColorWriteMask
+  - UnityEngine.Rendering.CommandBuffer
+  - UnityEngine.Rendering.CommandBufferExecutionFlags
+  - UnityEngine.Rendering.CommandBufferExtensions
+  - UnityEngine.Rendering.CompareFunction
+  - UnityEngine.Rendering.ComputeQueueType
+  - UnityEngine.Rendering.CopyTextureSupport
+  - UnityEngine.Rendering.CullingOptions
+  - UnityEngine.Rendering.CullingResults
+  - UnityEngine.Rendering.CullingSplit
+  - UnityEngine.Rendering.CullMode
+  - UnityEngine.Rendering.CustomMarkerCallbackFlags
+  - UnityEngine.Rendering.DefaultReflectionMode
+  - UnityEngine.Rendering.DepthState
+  - UnityEngine.Rendering.DistanceMetric
+  - UnityEngine.Rendering.DrawingSettings
+  - UnityEngine.Rendering.FastMemoryFlags
+  - UnityEngine.Rendering.FilteringSettings
+  - UnityEngine.Rendering.FormatSwizzle
+  - UnityEngine.Rendering.FoveatedRenderingCaps
+  - UnityEngine.Rendering.FoveatedRenderingMode
+  - UnityEngine.Rendering.GizmoSubset
+  - UnityEngine.Rendering.GlobalKeyword
+  - UnityEngine.Rendering.GraphicsDeviceType
+  - UnityEngine.Rendering.GraphicsFence
+  - UnityEngine.Rendering.GraphicsFenceType
+  - UnityEngine.Rendering.GraphicsSettings
+  - UnityEngine.Rendering.GraphicsTexture
+  - UnityEngine.Rendering.GraphicsTextureDescriptor
+  - UnityEngine.Rendering.GraphicsTextureDescriptorFlags
+  - UnityEngine.Rendering.GraphicsTextureState
+  - UnityEngine.Rendering.GraphicsTier
+  - UnityEngine.Rendering.IndexFormat
+  - UnityEngine.Rendering.LightEvent
+  - UnityEngine.Rendering.LightProbeOutsideHullStrategy
+  - UnityEngine.Rendering.LightProbeUsage
+  - UnityEngine.Rendering.LightShadowCasterCullingInfo
+  - UnityEngine.Rendering.LightShadowResolution
+  - UnityEngine.Rendering.LightUnit
+  - UnityEngine.Rendering.LoadStoreActionDebugModeSettings
+  - UnityEngine.Rendering.LocalKeyword
+  - UnityEngine.Rendering.LocalKeywordSpace
+  - UnityEngine.Rendering.LODParameters
+  - UnityEngine.Rendering.MeshUpdateFlags
+  - UnityEngine.Rendering.MetadataValue
+  - UnityEngine.Rendering.ObjectIdRequest
+  - UnityEngine.Rendering.ObjectIdResult
+  - UnityEngine.Rendering.OnDemandRendering
+  - UnityEngine.Rendering.OpaqueSortMode
+  - UnityEngine.Rendering.OpenGLESVersion
+  - UnityEngine.Rendering.PassIdentifier
+  - UnityEngine.Rendering.PassType
+  - UnityEngine.Rendering.PerObjectData
+  - UnityEngine.Rendering.PIX
+  - UnityEngine.Rendering.PlatformKeywordSet
+  - UnityEngine.Rendering.RasterState
+  - UnityEngine.Rendering.RayTracingAABBsInstanceConfig
+  - UnityEngine.Rendering.RayTracingAccelerationStructure
+  - UnityEngine.Rendering.RayTracingAccelerationStructure+BuildSettings
+  - UnityEngine.Rendering.RayTracingAccelerationStructure+ManagementMode
+  - UnityEngine.Rendering.RayTracingAccelerationStructure+RayTracingModeMask
+  - UnityEngine.Rendering.RayTracingAccelerationStructure+Settings
+  - UnityEngine.Rendering.RayTracingAccelerationStructureBuildFlags
+  - UnityEngine.Rendering.RayTracingGeometryInstanceConfig
+  - UnityEngine.Rendering.RayTracingInstanceCullingConfig
+  - UnityEngine.Rendering.RayTracingInstanceCullingFlags
+  - UnityEngine.Rendering.RayTracingInstanceCullingMaterialTest
+  - UnityEngine.Rendering.RayTracingInstanceCullingResults
+  - UnityEngine.Rendering.RayTracingInstanceCullingShaderTagConfig
+  - UnityEngine.Rendering.RayTracingInstanceCullingTest
+  - UnityEngine.Rendering.RayTracingInstanceMaterialConfig
+  - UnityEngine.Rendering.RayTracingInstanceMaterialCRC
+  - UnityEngine.Rendering.RayTracingInstanceTriangleCullingConfig
+  - UnityEngine.Rendering.RayTracingMeshInstanceConfig
+  - UnityEngine.Rendering.RayTracingShader
+  - UnityEngine.Rendering.RayTracingSubMeshFlags
+  - UnityEngine.Rendering.RayTracingSubMeshFlagsConfig
+  - UnityEngine.Rendering.RealtimeGICPUUsage
+  - UnityEngine.Rendering.ReflectionCubemapCompression
+  - UnityEngine.Rendering.ReflectionProbeBlendInfo
+  - UnityEngine.Rendering.ReflectionProbeClearFlags
+  - UnityEngine.Rendering.ReflectionProbeMode
+  - UnityEngine.Rendering.ReflectionProbeRefreshMode
+  - UnityEngine.Rendering.ReflectionProbeSortingCriteria
+  - UnityEngine.Rendering.ReflectionProbeTimeSlicingMode
+  - UnityEngine.Rendering.ReflectionProbeType
+  - UnityEngine.Rendering.ReflectionProbeUsage
+  - UnityEngine.Rendering.RenderBufferLoadAction
+  - UnityEngine.Rendering.RenderBufferStoreAction
+  - UnityEngine.Rendering.RendererList
+  - UnityEngine.Rendering.RendererListParams
+  - UnityEngine.Rendering.RendererListStatus
+  - UnityEngine.Rendering.RendererUtils.RendererListDesc
+  - UnityEngine.Rendering.RenderingThreadingMode
+  - UnityEngine.Rendering.RenderPipeline
+  - UnityEngine.Rendering.RenderPipeline+StandardRequest
+  - UnityEngine.Rendering.RenderPipelineAsset
+  - UnityEngine.Rendering.RenderPipelineGlobalSettings
+  - UnityEngine.Rendering.RenderPipelineGraphicsSettingsCollection
+  - UnityEngine.Rendering.RenderPipelineGraphicsSettingsExtensions
+  - UnityEngine.Rendering.RenderPipelineManager
+  - UnityEngine.Rendering.RenderQueue
+  - UnityEngine.Rendering.RenderQueueRange
+  - UnityEngine.Rendering.RenderStateBlock
+  - UnityEngine.Rendering.RenderStateMask
+  - UnityEngine.Rendering.RenderTargetBinding
+  - UnityEngine.Rendering.RenderTargetBlendState
+  - UnityEngine.Rendering.RenderTargetFlags
+  - UnityEngine.Rendering.RenderTargetIdentifier
+  - UnityEngine.Rendering.RenderTextureSubElement
+  - UnityEngine.Rendering.RTClearFlags
+  - UnityEngine.Rendering.ScopedRenderPass
+  - UnityEngine.Rendering.ScopedSubPass
+  - UnityEngine.Rendering.ScriptableCullingParameters
+  - UnityEngine.Rendering.ScriptableRenderContext
+  - UnityEngine.Rendering.SearchType
+  - UnityEngine.Rendering.ShaderConstantType
+  - UnityEngine.Rendering.ShaderKeyword
+  - UnityEngine.Rendering.ShaderKeywordSet
+  - UnityEngine.Rendering.ShaderKeywordType
+  - UnityEngine.Rendering.ShaderParamType
+  - UnityEngine.Rendering.ShaderPropertyFlags
+  - UnityEngine.Rendering.ShaderPropertyType
+  - UnityEngine.Rendering.ShaderTagId
+  - UnityEngine.Rendering.ShadowCastersCullingInfos
+  - UnityEngine.Rendering.ShadowCastingMode
+  - UnityEngine.Rendering.ShadowDrawingSettings
+  - UnityEngine.Rendering.ShadowMapPass
+  - UnityEngine.Rendering.ShadowSamplingMode
+  - UnityEngine.Rendering.ShadowSplitData
+  - UnityEngine.Rendering.SinglePassStereoMode
+  - UnityEngine.Rendering.SortingCriteria
+  - UnityEngine.Rendering.SortingGroup
+  - UnityEngine.Rendering.SortingLayerRange
+  - UnityEngine.Rendering.SortingSettings
+  - UnityEngine.Rendering.SphericalHarmonicsL2
+  - UnityEngine.Rendering.SplashScreen
+  - UnityEngine.Rendering.SplashScreen+StopBehavior
+  - UnityEngine.Rendering.StencilOp
+  - UnityEngine.Rendering.StencilState
+  - UnityEngine.Rendering.SubMeshDescriptor
+  - UnityEngine.Rendering.SubPassDescriptor
+  - UnityEngine.Rendering.SubPassFlags
+  - UnityEngine.Rendering.SupportedOnRenderPipelineAttribute+SupportedMode
+  - UnityEngine.Rendering.SupportedRenderingFeatures
+  - UnityEngine.Rendering.SupportedRenderingFeatures+LightmapMixedBakeModes
+  - UnityEngine.Rendering.SupportedRenderingFeatures+ReflectionProbeModes
+  - UnityEngine.Rendering.SynchronisationStage
+  - UnityEngine.Rendering.SynchronisationStageFlags
+  - UnityEngine.Rendering.TextureDimension
+  - UnityEngine.Rendering.ThreadedBatchContext
+  - UnityEngine.Rendering.UISubset
+  - UnityEngine.Rendering.VertexAttribute
+  - UnityEngine.Rendering.VertexAttributeDescriptor
+  - UnityEngine.Rendering.VertexAttributeFormat
+  - UnityEngine.Rendering.VideoShadersIncludeMode
+  - UnityEngine.Rendering.VisibleLight
+  - UnityEngine.Rendering.VisibleReflectionProbe
+  - UnityEngine.Rendering.Watermark
   - UnityEngine.RenderingLayerMask
   - UnityEngine.RenderingPath
   - UnityEngine.RenderParams
@@ -287,6 +522,7 @@ MonoBehaviour:
   - UnityEngine.ResourcesAPI
   - UnityEngine.RuntimeInitializeLoadType
   - UnityEngine.RuntimePlatform
+  - UnityEngine.ScalableBufferManager
   - UnityEngine.SceneManagement.CreateSceneParameters
   - UnityEngine.SceneManagement.LoadSceneMode
   - UnityEngine.SceneManagement.LoadSceneParameters
@@ -294,10 +530,12 @@ MonoBehaviour:
   - UnityEngine.SceneManagement.Scene
   - UnityEngine.SceneManagement.SceneManager
   - UnityEngine.SceneManagement.SceneManagerAPI
+  - UnityEngine.SceneManagement.SceneUtility
   - UnityEngine.SceneManagement.UnloadSceneOptions
   - UnityEngine.Screen
   - UnityEngine.ScreenOrientation
   - UnityEngine.ScriptableObject
+  - UnityEngine.Scripting.GarbageCollector
   - UnityEngine.Scripting.GarbageCollector+Mode
   - UnityEngine.Search.SearchViewFlags
   - UnityEngine.SecondarySpriteTexture
@@ -319,6 +557,7 @@ MonoBehaviour:
   - UnityEngine.Skybox
   - UnityEngine.SleepTimeout
   - UnityEngine.SnapAxis
+  - UnityEngine.Snapping
   - UnityEngine.SortingLayer
   - UnityEngine.Space
   - UnityEngine.SparseTexture
@@ -334,12 +573,16 @@ MonoBehaviour:
   - UnityEngine.SpriteSortPoint
   - UnityEngine.SpriteTileMode
   - UnityEngine.StackTraceLogType
+  - UnityEngine.StackTraceUtility
   - UnityEngine.StaticBatchingUtility
   - UnityEngine.StereoTargetEyeMask
   - UnityEngine.SystemInfo
   - UnityEngine.SystemLanguage
   - UnityEngine.TagHandle
   - UnityEngine.TerrainQualityOverrides
+  - UnityEngine.TestTools.Coverage
+  - UnityEngine.TestTools.CoveredMethodStats
+  - UnityEngine.TestTools.CoveredSequencePoint
   - UnityEngine.TexGenMode
   - UnityEngine.TextAsset
   - UnityEngine.Texture
@@ -349,6 +592,7 @@ MonoBehaviour:
   - UnityEngine.Texture3D
   - UnityEngine.TextureFormat
   - UnityEngine.TextureMipmapLimitBiasMode
+  - UnityEngine.TextureMipmapLimitGroups
   - UnityEngine.TextureMipmapLimitSettings
   - UnityEngine.TextureWrapMode
   - UnityEngine.ThreadPriority
@@ -363,9 +607,15 @@ MonoBehaviour:
   - UnityEngine.TransferFunction
   - UnityEngine.Transform
   - UnityEngine.TransparencySortMode
+  - UnityEngine.Types
+  - UnityEngine.U2D.Light2DBase
+  - UnityEngine.U2D.PixelPerfectRendering
   - UnityEngine.U2D.SpriteAtlas
   - UnityEngine.U2D.SpriteAtlasManager
   - UnityEngine.U2D.SpriteBone
+  - UnityEngine.U2D.SpriteDataAccessExtensions
+  - UnityEngine.U2D.SpriteRendererDataAccessExtensions
+  - UnityEngine.UnityEventAwaitableExtensions
   - UnityEngine.UnityEventQueueSystem
   - UnityEngine.UserAuthorization
   - UnityEngine.ValidationLevel
@@ -384,17 +634,22 @@ MonoBehaviour:
   - UnityEngine.WaitWhile
   - UnityEngine.WeightedMode
   - UnityEngine.WhitePoint
+  - UnityEngine.Windows.CrashReporting
+  - UnityEngine.Windows.Crypto
+  - UnityEngine.Windows.Directory
+  - UnityEngine.Windows.File
+  - UnityEngine.Windows.Input
+  - UnityEngine.Windows.LicenseInformation
   - UnityEngine.WrapMode
   - UnityEngine.YieldInstruction
-  m_TypeBlacklist:
-  - UnityEngine.Rendering.*
+  m_TypeBlacklist: []
   m_ContentFolderGuid: b2655c00ff6f9d845af9914af0e23157
-  m_ModuleLoaderTypeName: Lua.UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.UnityEngine_LuaModule_Loader
   m_ModuleLoader:
-    rid: 2561253250471035507
+    rid: 2561253311093932150
   references:
     version: 2
     RefIds:
-    - rid: 2561253250471035507
-      type: {class: UnityEngine_LuaModule_Loader, ns: Lua.UnityEngine.CoreModule, asm: Lua.UnityEngine.CoreModule}
+    - rid: 2561253311093932150
+      type: {class: UnityEngine_LuaModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 

@@ -22,6 +22,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 			sb.AppendLine("using CodeSmile.Luny;");
+			sb.AppendLine("using Lua;");
 			foreach (var ns in typeHierarchy.Namespaces)
 			{
 				sb.Append("using ");
@@ -38,7 +39,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("public override void Load(LuaTable env)");
 			sb.OpenIndentedBlock("{"); // Load(..)
 			sb.AppendIndentedLine("base.Load(env);");
-			GenerateTypes(sb, module, typeHierarchy);
+			GenerateTypeInitialization(sb, module, typeHierarchy);
 			sb.CloseIndentedBlock("}"); // Load(..)
 			sb.CloseIndentedBlock("}"); // class
 			sb.CloseIndentedBlock("}"); // namespace
@@ -48,7 +49,7 @@ namespace CodeSmileEditor.Luny.Generator
 			File.WriteAllText(fullPath, sb.ToString());
 		}
 
-		private static void GenerateTypes(ScriptBuilder sb, LunyLuaModule module, TypeHierarchy typeHierarchy)
+		private static void GenerateTypeInitialization(ScriptBuilder sb, LunyLuaModule module, TypeHierarchy typeHierarchy)
 		{
 			var namespaceTables = new Dictionary<String, String>();
 
@@ -76,36 +77,34 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendLine(" });");
 			}
 
-			var systemObjectType = typeof(object);
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
-				if (type.IsAbstract == false && type != systemObjectType)
-				{
-					if (type.IsEnum)
-					{
-						sb.AppendIndented($"LuaUtil.CreateEnumTable(typeof(");
-						if (type.IsNested)
-						{
-							sb.Append(type.DeclaringType.Name);
-							sb.Append(".");
-						}
-						sb.Append(type.Name);
-						sb.AppendLine("));");
-					}
-					else
-					{
-						var namespaceTableName = namespaceTables[type.Namespace];
-						sb.Append("//");
-						sb.AppendIndented(namespaceTableName);
-						sb.Append(" = new Lua_");
-						sb.Append(type.FullName.Replace('.', '_'));
-						sb.AppendLine("_API();");
-					}
+				if (GenUtil.IsBindableType(type) == false)
+					return;
 
-					var indent = new String('\t', level);
-					Debug.Log($"[{level}] {indent}{type}");
+				if (type.IsEnum)
+				{
+					sb.AppendIndented("LuaUtil.CreateEnumTable(typeof(");
+					if (type.IsNested)
+					{
+						sb.Append(type.DeclaringType.Name);
+						sb.Append(".");
+					}
+					sb.Append(type.Name);
+					sb.AppendLine("));");
 				}
+				else
+				{
+					var namespaceTableName = namespaceTables[type.Namespace];
+					sb.Append("//");
+					sb.AppendIndented(namespaceTableName);
+					sb.Append(" = new Lua_");
+					sb.Append(type.FullName.Replace('.', '_'));
+					sb.AppendLine("_static();");
+				}
+
+				// Debug.Log($"[{level}] {new String('\t', level)}{type}");
 			});
 		}
 	}
