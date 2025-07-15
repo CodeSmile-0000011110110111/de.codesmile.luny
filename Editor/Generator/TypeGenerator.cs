@@ -7,15 +7,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class TypeGenerator
 	{
-		public static IEnumerable<TypeInfo> Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
+		public static IEnumerable<TypeInfo> Generate(LunyLuaModule module, String contentFolderPath,
+			TypeHierarchy typeHierarchy)
 		{
 			var boundTypes = new List<TypeInfo>();
 
@@ -30,27 +31,28 @@ namespace CodeSmileEditor.Luny.Generator
 					boundTypes.Add(new TypeInfo(type));
 					return;
 				}
-				if (type.IsEnum || GenUtil.IsBindableType(type) == false)
+
+				// skip the inevitable System types
+				if (GenUtil.IsBindableType(type) == false)
 					return;
 
 				generatableCount++;
 
 				// TODO filter out types we currently don't support
-				if (type.IsValueType == false)
-					return;
-
-				generatedCount++;
+				// if (type.IsValueType == false)
+				// 	return;
 
 				var typeInfo = new TypeInfo(type);
+				if (typeInfo.InstanceMembers.HasMembers == false && typeInfo.StaticMembers.HasMembers == false)
+					Debug.LogError($"{typeInfo.Type.FullName} has no members.");
+
+				generatedCount++;
 				boundTypes.Add(typeInfo);
 
 				if (typeInfo.IsStatic)
 					Debug.LogWarning($"Static: {typeInfo.BindTypeFullName}");
 				else if (type.IsAbstract)
 					Debug.LogWarning($"Abstract: {typeInfo.BindTypeFullName}");
-
-				if (type.IsNested)
-					Debug.Log($"{type.FullName} nested in {type.DeclaringType?.FullName}");
 
 				// var members = type.GetMembers();
 				// foreach (var member in members)
@@ -272,32 +274,14 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		internal class MemberInfo
-		{
-			public ConstructorInfo[] Ctors;
-			public EventInfo[] Events;
-			public FieldInfo[] Fields;
-			public PropertyInfo[] Properties;
-			public MethodInfo[] Methods;
-
-			public MemberInfo(Type type, BindingFlags bindingFlags)
-			{
-				Ctors = type.GetConstructors(bindingFlags);
-				Events = type.GetEvents(bindingFlags);
-				Fields = type.GetFields(bindingFlags);
-				Properties = type.GetProperties(bindingFlags);
-				Methods = type.GetMethods(bindingFlags);
-			}
-		}
-
 		internal class TypeInfo
 		{
 			public readonly Type Type;
 			public readonly String InstanceTypeName;
 			public readonly String StaticTypeName;
 			public readonly String BindTypeFullName;
-			public String InstanceFieldName;
 			public readonly Boolean IsStatic;
+			public String InstanceFieldName;
 			public MemberInfo InstanceMembers;
 			public MemberInfo StaticMembers;
 
@@ -305,18 +289,41 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				Type = type;
 				var typeFullNameNoPlus = type.FullName.Replace('+', '.');
+				BindTypeFullName = typeFullNameNoPlus;
+
 				var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
 				InstanceTypeName = $"Lua_{typeFullNameNoDots}";
 				StaticTypeName = $"{InstanceTypeName}_static";
-				BindTypeFullName = typeFullNameNoPlus;
 
 				if (type.IsEnum == false)
 				{
 					IsStatic = type.IsAbstract && type.IsSealed;
 					InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
-					InstanceMembers = new MemberInfo(type, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-					StaticMembers = new MemberInfo(type, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+					var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
+					InstanceMembers = new MemberInfo(type, flags | BindingFlags.Instance);
+					StaticMembers = new MemberInfo(type, flags | BindingFlags.Static);
 				}
+			}
+		}
+
+		internal class MemberInfo
+		{
+			public IEnumerable<ConstructorInfo> Ctors;
+			public IEnumerable<EventInfo> Events;
+			public IEnumerable<FieldInfo> Fields;
+			public IEnumerable<PropertyInfo> Properties;
+			public IEnumerable<MethodInfo> Methods;
+			public Boolean HasMembers;
+
+			public MemberInfo(Type type, BindingFlags bindingFlags)
+			{
+				var obsolete = typeof(ObsoleteAttribute);
+				Ctors = type.GetConstructors(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
+				Events = type.GetEvents(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
+				Fields = type.GetFields(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
+				Properties = type.GetProperties(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
+				Methods = type.GetMethods(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
+				HasMembers = Ctors.Count() > 0 || Events.Count() > 0 || Fields.Count() > 0 || Properties.Count() > 0 || Methods.Count() > 0;
 			}
 		}
 	}

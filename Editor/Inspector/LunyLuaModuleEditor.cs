@@ -66,6 +66,9 @@ namespace CodeSmileEditor.Luny
 		}
 		private void OnGenerate()
 		{
+			UpdateUIState(); // pick up any recent changes and save them just in case
+			AssetDatabase.SaveAssetIfDirty(Module);
+
 			LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
 
 			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
@@ -140,7 +143,8 @@ namespace CodeSmileEditor.Luny
 			m_BindableTypeNames = m_Types.Select(t => t.FullName);
 			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 			m_NamespacesFiltered = GenUtil.GetNamespacesExcept(m_Namespaces, Module.NamespaceBlacklist);
-			m_TypesFiltered = GenUtil.GetTypesExcept(GenUtil.GetNamespaceFilteredTypes(m_Types, m_NamespacesFiltered), Module.TypeBlacklist);
+			var namespaceTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, m_NamespacesFiltered);
+			m_TypesFiltered = GenUtil.GetTypesExcept(namespaceTypes, Module.TypeBlacklist);
 			m_TypeNamesFiltered = m_TypesFiltered.Select(t => t.FullName).ToArray();
 
 			m_GenerateButton.SetEnabled(m_TypeNamesFiltered.Length > 0);

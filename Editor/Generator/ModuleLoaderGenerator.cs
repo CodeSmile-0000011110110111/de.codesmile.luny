@@ -5,7 +5,6 @@ using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
-		public static async Task Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
 			IEnumerable<TypeGenerator.TypeInfo> typeInfos)
 		{
 			var @namespace = module.BindingsAssemblyNamespace;
@@ -21,6 +20,18 @@ namespace CodeSmileEditor.Luny.Generator
 			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
+			AddUsingStatements(typeHierarchy, sb);
+			AddNamespaceBlock(sb, @namespace);
+			AddClassBlock(sb, loaderClassName);
+			AddLoadMethod(typeHierarchy, typeInfos, sb);
+			EndClassBlock(sb);
+			EndNamespaceBlock(sb);
+
+			WriteFile(module, contentFolderPath, sb);
+		}
+
+		private static void AddUsingStatements(TypeHierarchy typeHierarchy, ScriptBuilder sb)
+		{
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
 			foreach (var ns in typeHierarchy.Namespaces)
@@ -30,23 +41,32 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendLine(";");
 			}
 			sb.AppendLine();
+		}
 
+		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
+		{
 			sb.AppendLine($"namespace {@namespace}");
 			sb.OpenIndentedBlock("{"); // namespace
+		}
+
+		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentedBlock("}"); // namespace
+
+		private static void AddClassBlock(ScriptBuilder sb, String loaderClassName)
+		{
 			sb.AppendIndentedLine("[Serializable]");
 			sb.AppendIndentedLine($"public sealed class {loaderClassName} : {nameof(LunyLuaModuleLoader)}");
 			sb.OpenIndentedBlock("{"); // class
+		}
+
+		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentedBlock("}"); // class
+
+		private static void AddLoadMethod(TypeHierarchy typeHierarchy, IEnumerable<TypeGenerator.TypeInfo> typeInfos, ScriptBuilder sb)
+		{
 			sb.AppendIndentedLine("public override void Load(LuaTable env)");
 			sb.OpenIndentedBlock("{"); // Load(..)
 			sb.AppendIndentedLine("base.Load(env);");
 			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
 			sb.CloseIndentedBlock("}"); // Load(..)
-			sb.CloseIndentedBlock("}"); // class
-			sb.CloseIndentedBlock("}"); // namespace
-
-			var assetPath = $"{contentFolderPath}/Lua_{module.AssemblyName}_Loader.cs";
-			var fullPath = Path.GetFullPath(assetPath);
-			await File.WriteAllTextAsync(fullPath, sb.ToString());
 		}
 
 		private static void GenerateTypeInitialization(ScriptBuilder sb, TypeHierarchy typeHierarchy,
@@ -59,12 +79,12 @@ namespace CodeSmileEditor.Luny.Generator
 				var namespaceTableName = $"{@namespace.Replace(".", "")}Table";
 				namespaceTables.Add(@namespace, namespaceTableName);
 
-				var namespaceParts = @namespace.Split('.');
-
 				sb.AppendIndented("var ");
 				sb.Append(namespaceTableName);
 				sb.Append(" = GetOrCreateNamespaceTable(env, new[] { ");
+
 				var firstPart = true;
+				var namespaceParts = @namespace.Split('.');
 				foreach (var part in namespaceParts)
 				{
 					if (!firstPart)
@@ -95,11 +115,19 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(typeInfo.Type.Name);
 					sb.Append("\"] = new ");
 					sb.Append(typeInfo.StaticTypeName);
-					sb.AppendLine("();");
+					sb.Append("(); // ");
+					sb.AppendLine(typeInfo.Type.FullName);
+					// sb.Append(" in ");
+					// sb.AppendLine(typeInfo.Type.Assembly.GetName().Name);
 				}
-
-				// Debug.Log($"[{level}] {new String('\t', level)}{type}");
 			}
+		}
+
+		private static void WriteFile(LunyLuaModule module, String contentFolderPath, ScriptBuilder sb)
+		{
+			var assetPath = $"{contentFolderPath}/Lua_{module.AssemblyName}_Loader.cs";
+			var fullPath = Path.GetFullPath(assetPath);
+			File.WriteAllText(fullPath, sb.ToString());
 		}
 	}
 }

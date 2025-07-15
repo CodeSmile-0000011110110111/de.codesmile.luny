@@ -18,9 +18,9 @@ namespace CodeSmileEditor.Luny.Generator
 
 			if (types != null && types.Count() > 0)
 			{
-				var typeHierarchy = new TypeHierarchy(types);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
 
+				var typeHierarchy = new TypeHierarchy(types);
 				AssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
 				var boundTypes = TypeGenerator.Generate(module, contentFolderPath, typeHierarchy);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy, boundTypes);
