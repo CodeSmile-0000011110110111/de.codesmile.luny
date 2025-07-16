@@ -32,7 +32,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var assemblies = new HashSet<Assembly>();
 			var namespaces = new HashSet<String>();
 
-			foreach (var type in types)
+			foreach (var type in m_Types)
 				AddTypeAndBaseTypes(type, assemblies, namespaces);
 
 			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName);

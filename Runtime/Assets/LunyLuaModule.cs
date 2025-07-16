@@ -19,11 +19,11 @@ namespace CodeSmile.Luny
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
 
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
-		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
+		[SerializeField] [HideInInspector] internal String m_ModuleLoaderTypeName;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
-		internal String BindingsAssemblyNamespace => $"Lua_{m_AssemblyName}";
+		internal String BindingsNamespace => $"Lua_{m_AssemblyName}";
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 		internal String[] NamespaceBlacklist => m_NamespaceBlacklist;

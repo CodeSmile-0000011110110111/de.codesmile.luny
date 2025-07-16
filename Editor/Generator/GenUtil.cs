@@ -1,6 +1,7 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -19,6 +20,18 @@ namespace CodeSmileEditor.Luny.Generator
 ";
 
 		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
+
+		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
+		                                                    false == (type.IsPrimitive || type.IsInterface ||
+		                                                              type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
+		                                                              type.IsSubclassOf(typeof(Attribute)) ||
+		                                                              type.IsSubclassOf(typeof(Delegate)) ||
+		                                                              type.IsSubclassOf(typeof(Exception)) ||
+		                                                              IsObsolete(type));
+
+		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
+
+		public static Boolean IsSupportedMember(MemberInfo member) => !IsObsolete(member);
 
 		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
@@ -47,37 +60,35 @@ namespace CodeSmileEditor.Luny.Generator
 		public static IEnumerable<String> GetNamespacesFromTypes(IEnumerable<Type> types) =>
 			types.Select(type => type.Namespace).Distinct().OrderBy(s => s);
 
-		public static IEnumerable<MethodGroup> GetBindableMethods(Type type)
+		public static IEnumerable<MemberGroup> GetBindableMembers(Type type)
 		{
-			var methods = type
-				.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
-				.Where(method => IsSupportedMethod(method))
-				.OrderBy(method => method.Name);
+			var members = type
+				.GetMembers(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
+				.Where(member => IsSupportedMember(member))
+				.OrderBy(member => member.Name);
 
-			var groups = new HashSet<MethodGroup>();
-			foreach (var method in methods)
+			var groups = new HashSet<MemberGroup>();
+			foreach (var member in members)
 			{
-				var group = new MethodGroup { Name = method.Name };
+				var group = new MemberGroup { Name = member.Name };
 				if (groups.TryGetValue(group, out var existingGroup) == false)
 				{
-					group.Overloads = new List<MethodInfo>();
+					group.Overloads = new List<MemberInfo>();
 					groups.Add(group);
 					existingGroup = group;
 				}
 
-				existingGroup.Overloads.Add(method);
+				existingGroup.Overloads.Add(member);
 			}
 
 			return groups.OrderBy(group => group.Name);
 		}
 
-		public static String TryDeleteContentFolderPath(LunyLuaModule module)
+		public static void TryDeleteContentFolderPath(LunyLuaModule module)
 		{
 			var contentFolderPath = AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid);
 			if (AssetDatabase.AssetPathExists(contentFolderPath))
 				AssetDatabase.DeleteAsset(contentFolderPath);
-
-			return contentFolderPath;
 		}
 
 		public static String GetOrCreateContentFolderPath(LunyLuaModule module)
@@ -94,19 +105,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			return contentFolderPath;
 		}
-
-		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
-		                                                    false == (type.IsPrimitive || type.IsGenericType ||
-		                                                              type.IsInterface || type.IsNested &&
-		                                                              type.FullName.Contains("e__FixedBuffer") ||
-		                                                              type.IsSubclassOf(typeof(Attribute)) ||
-		                                                              type.IsSubclassOf(typeof(Delegate)) ||
-		                                                              type.IsSubclassOf(typeof(Exception)) ||
-		                                                              IsObsolete(type));
-
-		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
-
-		public static Boolean IsSupportedMethod(MethodInfo method) => !(method.IsAbstract || method.IsSpecialName || IsObsolete(method));
 
 		public static IEnumerable<String> GetNamespacesExcept(IEnumerable<String> namespaces, IEnumerable<String> blacklist)
 		{
@@ -161,6 +159,19 @@ namespace CodeSmileEditor.Luny.Generator
 		public static Boolean IsObsolete(Type type) => type.GetCustomAttributes(Obsolete, true).Length > 0 ||
 		                                               type.IsNested && IsObsolete(type.DeclaringType);
 
-		public static Boolean IsObsolete(MethodInfo method) => method.GetCustomAttributes(Obsolete, true).Length > 0;
+		public static Boolean IsObsolete(MemberInfo member) => member.GetCustomAttributes(Obsolete, true).Length > 0;
+
+		public static void WriteFile(String assetPath, String contents)
+		{
+			try
+			{
+				var fullPath = Path.GetFullPath(assetPath);
+				File.WriteAllText(fullPath, contents);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Failed to write file: {assetPath}\n{e}");
+			}
+		}
 	}
 }

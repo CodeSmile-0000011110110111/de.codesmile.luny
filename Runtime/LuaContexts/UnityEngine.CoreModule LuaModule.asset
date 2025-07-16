@@ -25,6 +25,7 @@ MonoBehaviour:
   - UnityEngine.Events
   - UnityEngine.iOS
   - UnityEngine.Playables
+  - UnityEngine.Pool
   - UnityEngine.Profiling
   - UnityEngine.SceneManagement
   - UnityEngine.Sprites
@@ -93,13 +94,19 @@ MonoBehaviour:
   - UnityEngine.ApplicationMemoryUsageChange
   - UnityEngine.ApplicationSandboxType
   - UnityEngine.AsyncInstantiateOperation
+  - UnityEngine.AsyncInstantiateOperation`1
+  - UnityEngine.AsyncInstantiateOperation`1+Awaiter
   - UnityEngine.AsyncOperation
   - UnityEngine.AsyncOperationAwaitableExtensions
   - UnityEngine.AudioType
   - UnityEngine.Awaitable
+  - UnityEngine.Awaitable`1
+  - UnityEngine.Awaitable`1+Awaiter
   - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder
+  - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder`1
   - UnityEngine.Awaitable+Awaiter
   - UnityEngine.AwaitableCompletionSource
+  - UnityEngine.AwaitableCompletionSource`1
   - UnityEngine.BackgroundThreadAwaitable
   - UnityEngine.BatteryStatus
   - UnityEngine.Behaviour
@@ -172,8 +179,13 @@ MonoBehaviour:
   - UnityEngine.EventProvider
   - UnityEngine.Events.PersistentListenerMode
   - UnityEngine.Events.UnityEvent
+  - UnityEngine.Events.UnityEvent`1
+  - UnityEngine.Events.UnityEvent`2
+  - UnityEngine.Events.UnityEvent`3
+  - UnityEngine.Events.UnityEvent`4
   - UnityEngine.Events.UnityEventBase
   - UnityEngine.Events.UnityEventCallState
+  - UnityEngine.ExposedReference`1
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
   - UnityEngine.FindObjectsInactive
@@ -227,6 +239,7 @@ MonoBehaviour:
   - UnityEngine.KeyCode
   - UnityEngine.Keyframe
   - UnityEngine.LayerMask
+  - UnityEngine.LazyLoadReference`1
   - UnityEngine.LensFlare
   - UnityEngine.Light
   - UnityEngine.LightBakingOutput
@@ -308,9 +321,19 @@ MonoBehaviour:
   - UnityEngine.Playables.PlayableOutputHandle
   - UnityEngine.Playables.PlayableTraversalMode
   - UnityEngine.Playables.PlayState
+  - UnityEngine.Playables.ScriptPlayable`1
   - UnityEngine.Playables.ScriptPlayableBinding
   - UnityEngine.Playables.ScriptPlayableOutput
   - UnityEngine.PlayerPrefs
+  - UnityEngine.Pool.CollectionPool`2
+  - UnityEngine.Pool.DictionaryPool`2
+  - UnityEngine.Pool.GenericPool`1
+  - UnityEngine.Pool.HashSetPool`1
+  - UnityEngine.Pool.LinkedPool`1
+  - UnityEngine.Pool.ListPool`1
+  - UnityEngine.Pool.ObjectPool`1
+  - UnityEngine.Pool.PooledObject`1
+  - UnityEngine.Pool.UnsafeGenericPool`1
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
   - UnityEngine.Profiling.CustomSampler
@@ -512,12 +535,11 @@ MonoBehaviour:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
   m_ContentFolderGuid: d44148cecd649a54589a17ee67c97451
-  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
+  m_ModuleLoaderTypeName: 
   m_ModuleLoader:
-    rid: 2561253311093932165
+    rid: -2
   references:
     version: 2
     RefIds:
-    - rid: 2561253311093932165
-      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }

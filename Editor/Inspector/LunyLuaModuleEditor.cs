@@ -3,10 +3,13 @@
 
 using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator;
+using Lua;
+using Lua.Unity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -24,24 +27,22 @@ namespace CodeSmileEditor.Luny
 
 		private AssemblyDefinitionAssets m_AsmDefCollection;
 		private IEnumerable<Assembly> m_BindableAssemblies;
-		private IEnumerable<string> m_BindableTypeNames;
 		private String m_AssemblyName;
-		Assembly m_Assembly;
+		private Assembly m_Assembly;
 		private IEnumerable<String> m_Namespaces;
 		private IEnumerable<String> m_NamespacesFiltered;
 		private IEnumerable<Type> m_Types;
 		private IEnumerable<Type> m_TypesFiltered;
-		private string[] m_TypeNamesFiltered; // faster to use an array for this
+		private String[] m_TypeNamesFiltered; // faster to use an array for this
 
-		private Button m_GenerateButton;
 		private Button m_DeleteButton;
+		private Button m_LogModuleButton;
+		private Button m_GenerateButton;
 		private VisualElement m_DebugElements;
 
 		private LunyLuaModule Module => target as LunyLuaModule;
 
-		private static String GetKindOfType(Type type) => type.IsEnum ? "enum" :
-			type.IsValueType ? "struct" :
-			type.IsClass ? "class" : "?";
+		private static String GetKindOfType(Type type) => type.IsEnum ? "enum" : type.IsValueType ? "struct" : type.IsClass ? "class" : "?";
 
 		private void OnEnable()
 		{
@@ -58,12 +59,16 @@ namespace CodeSmileEditor.Luny
 
 		private void OnDisable() => EditorApplication.update -= OnEditorUpdate;
 
-
 		private void OnDeleteGeneratedContent()
 		{
 			GenUtil.TryDeleteContentFolderPath(Module);
-			//OnGenerate();
+			Module.ModuleLoader = null;
+			Module.ModuleLoaderTypeName = null;
+			EditorUtility.SetDirty(Module);
+			AssetDatabase.SaveAssetIfDirty(Module);
 		}
+
+		//OnGenerate();
 		private void OnGenerate()
 		{
 			UpdateUIState(); // pick up any recent changes and save them just in case
@@ -74,6 +79,16 @@ namespace CodeSmileEditor.Luny
 			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
 			// ImportAsset on the content folder (recursively) which always recompiles for some reason
 			AssetDatabase.Refresh();
+		}
+
+		private void OnLogModuleTable()
+		{
+			if (Module.ModuleLoader != null)
+			{
+				var module = new LuaTable();
+				Module.ModuleLoader.Load(module);
+				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoaderTypeName}"));
+			}
 		}
 
 		private void OnEditorUpdate()
@@ -93,28 +108,44 @@ namespace CodeSmileEditor.Luny
 
 			{
 				m_DebugElements = new GroupBox("Log");
-				m_DebugElements.style.flexDirection = FlexDirection.Row;
 				inspector.Add(m_DebugElements);
+
+				var row0 = new VisualElement();
+				var row1 = new VisualElement();
+				row0.style.flexDirection = row1.style.flexDirection = FlexDirection.Row;
+				m_DebugElements.Add(row0);
+				m_DebugElements.Add(row1);
 
 				var logAssembliesButton = new Button(OnLogAssemblies);
 				logAssembliesButton.text = "Assemblies";
-				m_DebugElements.Add(logAssembliesButton);
-
+				row0.Add(logAssembliesButton);
 				var logNamespacesButton = new Button(OnLogNamespaces);
 				logNamespacesButton.text = "Namespaces";
-				m_DebugElements.Add(logNamespacesButton);
-
+				row0.Add(logNamespacesButton);
 				var logTypesButton = new Button(OnLogAssemblyTypes);
 				logTypesButton.text = "Types";
-				m_DebugElements.Add(logTypesButton);
-
+				row0.Add(logTypesButton);
 				var logFilteredTypesButton = new Button(OnLogNamespaceWhitelistedTypes);
-				logFilteredTypesButton.text = "Namespace Types";
-				m_DebugElements.Add(logFilteredTypesButton);
-
-				var logTypeMethodsButton = new Button(OnLogTypeMethods);
-				logTypeMethodsButton.text = "Type Methods";
-				m_DebugElements.Add(logTypeMethodsButton);
+				logFilteredTypesButton.text = "Whitelist Types";
+				row0.Add(logFilteredTypesButton);
+				var logTypeMembersButton = new Button(OnLogTypeMembers);
+				logTypeMembersButton.text = "Members";
+				row0.Add(logTypeMembersButton);
+				var logCtorsButton = new Button(OnLogCtors);
+				logCtorsButton.text = "Ctors";
+				row1.Add(logCtorsButton);
+				var logFieldsButton = new Button(OnLogFields);
+				logFieldsButton.text = "Fields";
+				row1.Add(logFieldsButton);
+				var logPropertiesButton = new Button(OnLogProperties);
+				logPropertiesButton.text = "Properties";
+				row1.Add(logPropertiesButton);
+				var logMethodsButton = new Button(OnLogMethods);
+				logMethodsButton.text = "Methods";
+				row1.Add(logMethodsButton);
+				var logEventsButton = new Button(OnLogEvents);
+				logEventsButton.text = "Events";
+				row1.Add(logEventsButton);
 			}
 
 			var generateGroup = new VisualElement();
@@ -125,6 +156,11 @@ namespace CodeSmileEditor.Luny
 			m_DeleteButton.text = "Delete Generated";
 			m_DeleteButton.style.flexGrow = new StyleFloat(1f);
 			generateGroup.Add(m_DeleteButton);
+
+			m_LogModuleButton = new Button(OnLogModuleTable);
+			m_LogModuleButton.text = "Log Module";
+			m_LogModuleButton.style.flexGrow = new StyleFloat(1f);
+			generateGroup.Add(m_LogModuleButton);
 
 			m_GenerateButton = new Button(OnGenerate);
 			m_GenerateButton.text = "Generate";
@@ -140,14 +176,15 @@ namespace CodeSmileEditor.Luny
 		{
 			m_Assembly = GenUtil.FindMatchingAssembly(m_BindableAssemblies, Module.AssemblyName);
 			m_Types = GenUtil.GetBindableTypes(m_Assembly);
-			m_BindableTypeNames = m_Types.Select(t => t.FullName);
 			m_Namespaces = GenUtil.GetNamespacesFromTypes(m_Types);
 			m_NamespacesFiltered = GenUtil.GetNamespacesExcept(m_Namespaces, Module.NamespaceBlacklist);
 			var namespaceTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, m_NamespacesFiltered);
 			m_TypesFiltered = GenUtil.GetTypesExcept(namespaceTypes, Module.TypeBlacklist);
 			m_TypeNamesFiltered = m_TypesFiltered.Select(t => t.FullName).ToArray();
 
+			m_DeleteButton.SetEnabled(Module.ModuleLoader != null);
 			m_GenerateButton.SetEnabled(m_TypeNamesFiltered.Length > 0);
+			m_LogModuleButton.SetEnabled(Module.ModuleLoader != null);
 
 			UpdateSerializedNamespaceWhitelist();
 			UpdateSerializedTypeWhitelist();
@@ -170,7 +207,7 @@ namespace CodeSmileEditor.Luny
 		{
 			var typeCount = m_TypeNamesFiltered.Length;
 			m_TypeWhitelistProperty.arraySize = typeCount;
-			for (var i = 0; i <typeCount; i++)
+			for (var i = 0; i < typeCount; i++)
 			{
 				var element = m_TypeWhitelistProperty.GetArrayElementAtIndex(i);
 				element.stringValue = m_TypeNamesFiltered[i];
@@ -179,7 +216,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogAssemblies()
 		{
-			Debug.Log($"{m_BindableAssemblies.Count()} Assemblies:");
+			Debug.Log($"{m_BindableAssemblies.Count()} bindable Assemblies:");
 			foreach (var assembly in m_BindableAssemblies)
 				Debug.Log($"\t{assembly.GetName().Name}");
 		}
@@ -211,8 +248,9 @@ namespace CodeSmileEditor.Luny
 		private void OnLogNamespaceWhitelistedTypes()
 		{
 			var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
-			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces);
-			Debug.Log($"{filteredTypes.Count()} namespace whitelisted Types:");
+			var typeNames = Module.TypeWhitelist.Except(Module.TypeBlacklist);
+			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces, typeNames);
+			Debug.Log($"{filteredTypes.Count()} whitelisted Types:");
 
 			var currentNamespace = "";
 			foreach (var type in filteredTypes)
@@ -227,12 +265,12 @@ namespace CodeSmileEditor.Luny
 			}
 		}
 
-		private void OnLogTypeMethods()
+		private void OnLogTypeMembers()
 		{
 			var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
 			var typeNames = Module.TypeWhitelist.Except(Module.TypeBlacklist);
 			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces, typeNames);
-			Debug.Log($"{filteredTypes.Count()} whitelisted Types:");
+			Debug.Log($"{filteredTypes.Count()} whitelisted Types' members:");
 
 			foreach (var type in filteredTypes)
 			{
@@ -240,17 +278,171 @@ namespace CodeSmileEditor.Luny
 					Debug.Log($"\tenum {type.Name} has {type.GetEnumValues().Length} values");
 				else
 				{
-					var methods = GenUtil.GetBindableMethods(type);
-					Debug.Log($"\t{type.Name} has {methods.Count()} declared methods:");
-					foreach (var method in methods)
+					var members = GenUtil.GetBindableMembers(type);
+					Debug.Log($"\t{type.Name} has {members.Count()} members:");
+					foreach (var member in members)
 					{
 						var overloads = "";
-						if (method.Overloads.Count > 1)
-							overloads = $" + {method.Overloads.Count - 1} overload(s)";
-						Debug.Log($"\t\t{method.Name}{overloads}");
+						if (member.Overloads.Count > 1)
+							overloads = $" + {member.Overloads.Count - 1} overload(s)";
+						Debug.Log($"\t\t{member.Name}{overloads}");
 					}
 				}
 			}
+		}
+
+		private void OnLogCtors()
+		{
+			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+				var typeInfo = new GenTypeInfo(type);
+				var staticCtors = typeInfo.StaticMembers.Ctors;
+				var ctors = typeInfo.InstanceMembers.Ctors;
+				var indent = new String('\t', level);
+				Debug.Log($"{indent}{type.FullName} has {staticCtors.Count()} static & {ctors.Count()} instance public Ctors:");
+
+				foreach (var staticCtor in staticCtors)
+					LogMember(staticCtor, level, true);
+				foreach (var ctor in ctors)
+					LogMember(ctor, level);
+			});
+		}
+
+		private void OnLogFields()
+		{
+			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+				var typeInfo = new GenTypeInfo(type);
+				var staticFields = typeInfo.StaticMembers.Fields;
+				var fields = typeInfo.InstanceMembers.Fields;
+				var indent = new String('\t', level);
+				Debug.Log($"{indent}{type.FullName} has {staticFields.Count()} static & {fields.Count()} instance public Fields:");
+
+				foreach (var staticField in staticFields)
+					LogMember(staticField, level, true);
+				foreach (var field in fields)
+					LogMember(field, level);
+			});
+		}
+
+		private void OnLogProperties()
+		{
+			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+				var typeInfo = new GenTypeInfo(type);
+				var staticProps = typeInfo.StaticMembers.Properties;
+				var props = typeInfo.InstanceMembers.Properties;
+				var indent = new String('\t', level);
+				Debug.Log($"{indent}{type.FullName} has {staticProps.Count()} static & {props.Count()} instance public Properties:");
+
+				foreach (var staticProp in staticProps)
+					LogMember(staticProp, level, true);
+				foreach (var prop in props)
+					LogMember(prop, level);
+			});
+		}
+
+		private void OnLogMethods()
+		{
+			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+				var typeInfo = new GenTypeInfo(type);
+				var staticMethods = typeInfo.StaticMembers.Methods;
+				var methods = typeInfo.InstanceMembers.Methods;
+				var indent = new String('\t', level);
+				Debug.Log($"{indent}{type.FullName} has {staticMethods.Count()} static & {methods.Count()} instance public Methods:");
+
+				foreach (var staticMethod in staticMethods)
+					LogMember(staticMethod, level, true);
+				foreach (var method in methods)
+					LogMember(method, level);
+			});
+		}
+
+		private void OnLogEvents()
+		{
+			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+				var typeInfo = new GenTypeInfo(type);
+				var staticEvents = typeInfo.StaticMembers.Events;
+				var events = typeInfo.InstanceMembers.Events;
+				var indent = new String('\t', level);
+				Debug.Log($"{indent}{type.FullName} has {staticEvents.Count()} static & {events.Count()} instance public Events:");
+
+				foreach (var staticEvent in staticEvents)
+					LogMember(staticEvent, level, true);
+				foreach (var evt in events)
+					LogMember(evt, level);
+			});
+		}
+
+		private void LogMember(MemberInfo member, Int32 level, Boolean isStatic = false)
+		{
+			var first = true;
+			var sb = new StringBuilder(new String('\t', level + 1));
+
+			if (isStatic)
+				sb.Append("static ");
+
+			if (member is MethodBase methodInfo)
+			{
+				sb.Append(methodInfo.Name);
+				sb.Append("(");
+				foreach (var param in methodInfo.GetParameters())
+				{
+					if (!first)
+						sb.Append(", ");
+					if (param.ParameterType.IsGenericParameter)
+						sb.Append("T");
+					else
+						sb.Append(param.ParameterType.Name);
+					sb.Append(" ");
+					sb.Append(param.Name);
+					first = false;
+				}
+				sb.AppendLine(")");
+			}
+			else if (member is FieldInfo fieldInfo)
+			{
+				sb.Append(fieldInfo.FieldType.Name);
+				sb.Append(" ");
+				sb.Append(fieldInfo.Name);
+			}
+			else if (member is PropertyInfo propertyInfo)
+			{
+				sb.Append(propertyInfo.PropertyType.Name);
+				sb.Append(" ");
+				sb.Append(propertyInfo.Name);
+				sb.Append(" { ");
+				if (propertyInfo.CanRead)
+					sb.Append("get; ");
+				if (propertyInfo.CanWrite)
+					sb.Append("set; ");
+				sb.Append("}");
+			}
+			else if (member is EventInfo eventInfo)
+			{
+				sb.Append(eventInfo.EventHandlerType);
+				sb.Append(" ");
+				sb.Append(eventInfo.Name);
+			}
+
+			Debug.Log(sb.ToString());
 		}
 
 		/*

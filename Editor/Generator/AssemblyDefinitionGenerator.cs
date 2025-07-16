@@ -3,7 +3,6 @@
 
 using CodeSmile.Luny;
 using System;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
 			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
-			var asmDefName = module.BindingsAssemblyNamespace;
+			var asmDefName = module.BindingsNamespace;
 
 			var sb = new ScriptBuilder();
 			sb.OpenIndentedBlock("{");
@@ -27,8 +26,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentedBlock("}");
 
 			var assetPath = $"{contentFolderPath}/{asmDefName}.asmdef";
-			var fullPath = Path.GetFullPath(assetPath);
-			File.WriteAllText(fullPath, sb.ToString());
+			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
 		private static void AddNameAndNamespace(ScriptBuilder sb, String asmDefName)
@@ -49,11 +47,15 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("\"references\": [");
 			sb.IncrementIndent();
 
-			sb.AppendIndented($"\"GUID:{GetGuidForReference(asmdefAssets, "CodeSmile.Luny")}\"");
+			sb.AppendIndented("\"GUID:");
+			sb.Append(GetGuidForReference(asmdefAssets, "CodeSmile.Luny"));
+			sb.Append("\"");
 			if (isEditorModule)
 			{
 				sb.AppendLine(",");
-				sb.AppendIndented($"\"GUID:{GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny")}\"");
+				sb.AppendIndented("\"GUID:");
+				sb.Append(GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny"));
+				sb.Append("\"");
 			}
 
 			foreach (var ns in typeHierarchy.Namespaces)
@@ -61,9 +63,10 @@ namespace CodeSmileEditor.Luny.Generator
 				var asmdefGuid = GetGuidForReference(asmdefAssets, ns);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
-					Debug.LogWarning($"add asmdef reference: {ns} => {AssetDatabase.GUIDToAssetPath(asmdefGuid)}");
 					sb.AppendLine(",");
-					sb.AppendIndented($"\"GUID:{asmdefGuid}\"");
+					sb.AppendIndented("\"GUID:");
+					sb.Append(asmdefGuid);
+					sb.Append("\"");
 				}
 			}
 

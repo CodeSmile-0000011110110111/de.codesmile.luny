@@ -4,21 +4,16 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.U2D;
 
 namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class TypeGenerator
 	{
-		public static IEnumerable<TypeInfo> Generate(LunyLuaModule module, String contentFolderPath,
-			TypeHierarchy typeHierarchy)
+		public static IEnumerable<GenTypeInfo> Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
 		{
-			var boundTypes = new List<TypeInfo>();
+			var boundTypes = new List<GenTypeInfo>();
 
 			var generatableCount = 0;
 			var generatedCount = 0;
@@ -28,7 +23,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (type.IsEnum)
 				{
 					// enums are handled by module loader
-					boundTypes.Add(new TypeInfo(type));
+					boundTypes.Add(new GenTypeInfo(type));
 					return;
 				}
 
@@ -39,20 +34,23 @@ namespace CodeSmileEditor.Luny.Generator
 				generatableCount++;
 
 				// TODO filter out types we currently don't support
-				// if (type.IsValueType == false)
-				// 	return;
+				if (type.IsGenericType)
+				{
+					Debug.Log($"Skip generic type: {type}");
+					return;
+				}
 
-				var typeInfo = new TypeInfo(type);
+				var typeInfo = new GenTypeInfo(type);
 				if (typeInfo.InstanceMembers.HasMembers == false && typeInfo.StaticMembers.HasMembers == false)
-					Debug.LogError($"{typeInfo.Type.FullName} has no members.");
+					Debug.LogWarning($"{typeInfo.Type.FullName} has no members.");
 
 				generatedCount++;
 				boundTypes.Add(typeInfo);
 
-				if (typeInfo.IsStatic)
-					Debug.LogWarning($"Static: {typeInfo.BindTypeFullName}");
-				else if (type.IsAbstract)
-					Debug.LogWarning($"Abstract: {typeInfo.BindTypeFullName}");
+				// if (typeInfo.IsStatic)
+				// 	Debug.LogWarning($"Static: {typeInfo.BindTypeFullName}");
+				// else if (type.IsAbstract)
+				// 	Debug.LogWarning($"Abstract: {typeInfo.BindTypeFullName}");
 
 				// var members = type.GetMembers();
 				// foreach (var member in members)
@@ -62,13 +60,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
-				AddNamespaceBlock(sb, module.BindingsAssemblyNamespace);
+				AddNamespaceBlock(sb, module.BindingsNamespace);
 				if (typeInfo.IsStatic == false)
 					GenerateInstanceType(sb, typeInfo);
 				GenerateStaticType(sb, typeInfo);
 				EndNamespaceBlock(sb);
 
-				WriteFile(sb, contentFolderPath, typeInfo.InstanceTypeName);
+				var assetPath = $"{contentFolderPath}/{typeInfo.InstanceTypeName}.cs";
+				GenUtil.WriteFile(assetPath, sb.ToString());
 			});
 
 			EditorApplication.delayCall += () => Debug.Log($"{generatedCount} of {generatableCount} " +
@@ -103,36 +102,64 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("#pragma warning restore CS0162 // Unreachable code detected");
 		}
 
-		private static void GenerateInstanceType(ScriptBuilder sb, TypeInfo typeInfo)
+		private static void GenerateInstanceType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			var instanceFieldName = typeInfo.Type.IsValueType ? "m_Value" : "m_Instance";
 			AddTypeDeclaration(sb, typeInfo.InstanceTypeName, false);
-			AddInstanceFieldAndProperty(sb, instanceFieldName, typeInfo.BindTypeFullName);
-			AddToStringOverride(sb, instanceFieldName);
+			AddInstanceFieldAndProperty(sb, typeInfo.InstanceFieldName, typeInfo.BindTypeFullName);
+			AddToStringOverride(sb, typeInfo.InstanceFieldName);
 			AddImplicitOperator(sb, typeInfo.InstanceTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddIndexMetamethod(sb, typeInfo.InstanceTypeName);
-			AddNewIndexMetamethod(sb, typeInfo.InstanceTypeName);
+			AddLuaBindings(sb, typeInfo, typeInfo.InstanceMembers, out var getters, out var setters);
+			AddIndexMetamethod(sb, typeInfo.InstanceTypeName, getters);
+			AddNewIndexMetamethod(sb, typeInfo.InstanceTypeName, setters);
 			EndTypeDeclaration(sb);
 		}
 
-		private static void AddToStringOverride(ScriptBuilder sb, String fieldName)
-		{
-			sb.AppendIndented("public override string ToString() => ");
-			sb.Append(fieldName);
-			sb.AppendLine(".ToString();");
-		}
-
-		private static void GenerateStaticType(ScriptBuilder sb, TypeInfo typeInfo)
+		private static void GenerateStaticType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			AddTypeDeclaration(sb, typeInfo.StaticTypeName, true);
 			AddBindType(sb, typeInfo.BindTypeFullName);
 			sb.AppendIndentedLine("public override string ToString() => BindType.FullName;");
 			AddImplicitOperator(sb, typeInfo.StaticTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddIndexMetamethod(sb, typeInfo.StaticTypeName);
-			AddNewIndexMetamethod(sb, typeInfo.StaticTypeName);
+			AddLuaBindings(sb, typeInfo, typeInfo.StaticMembers, out var getters, out var setters);
+			AddIndexMetamethod(sb, typeInfo.StaticTypeName, getters);
+			AddNewIndexMetamethod(sb, typeInfo.StaticTypeName, setters);
 			EndTypeDeclaration(sb);
+		}
+
+		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IEnumerable<String> getters,
+			out IEnumerable<String> setters)
+		{
+			getters = new List<String>();
+			foreach (var ctor in members.Ctors)
+			{
+				// AddLuaFunction(sb, "new");
+				// EndLuaFunction(sb);
+			}
+			setters = null;
+		}
+
+
+
+		private static void AddLuaFunction(ScriptBuilder sb, string name)
+		{
+			sb.AppendIndented("private static readonly LuaFunction _");
+			sb.Append(name);
+			sb.Append(" = new(\"");
+			sb.Append(name);
+			sb.AppendLine("\", (context, _) =>");
+			sb.OpenIndentedBlock("{");
+		}
+		private static void EndLuaFunction(ScriptBuilder sb)
+		{
+			sb.CloseIndentedBlock("});");
+		}
+		private static void AddToStringOverride(ScriptBuilder sb, String fieldName)
+		{
+			sb.AppendIndented("public override string ToString() => ");
+			sb.Append(fieldName);
+			sb.AppendLine(".ToString();");
 		}
 
 		private static void AddTypeDeclaration(ScriptBuilder sb, String typeName, Boolean isSealed)
@@ -186,12 +213,11 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("public LuaTable Metatable");
 			sb.OpenIndentedBlock("{"); // { Metatable
 			sb.AppendIndentedLine("get => s_Metatable ??= LunyUserdataMetatable.Create(__index, __newindex);");
-			sb.AppendIndentedLine(
-				"set => throw new System.NotSupportedException(\"Metatable of bound types not assignable\");");
+			sb.AppendIndentedLine("set => throw new System.NotSupportedException(\"Metatable of bound types not assignable\");");
 			sb.CloseIndentedBlock("}"); // Metatable }
 		}
 
-		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
+		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName, IEnumerable<String> getters)
 		{
 			sb.AppendIndentedLine("private static readonly LuaFunction __index = new(Metamethods.Index, (context, _) =>");
 			sb.OpenIndentedBlock("{");
@@ -202,47 +228,15 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("var value = LuaValue.Nil;");
 			sb.AppendIndentedLine("switch (key)");
 			sb.OpenIndentedBlock("{");
-			// TODO insert cases here ...
+			foreach (var getter in getters)
+				sb.AppendIndentedLine(getter);
 			sb.AppendIndentedLine("default: throw new LuaRuntimeException(context.Thread, instance, 2);");
 			sb.CloseIndentedBlock("}");
-
-			// internal static LuaValue TryGetValue(Lua_UnityEngine_Component instance, String key,
-			// 	LuaFunctionExecutionContext context) => key switch
-			// {
-			// 	"BroadcastMessage" => _BroadcastMessage,
-			// 	"CompareTag" => _CompareTag,
-			// 	"GetComponent" => _GetComponent,
-			// 	"GetComponentIndex" => _GetComponentIndex,
-			// 	"GetHashCode" => _GetHashCode,
-			// 	"GetInstanceID" => _GetInstanceID,
-			// 	"SendMessage" => _SendMessage,
-			// 	"SendMessageUpwards" => _SendMessageUpwards,
-			// 	"ToString" => _ToString,
-			// 	var _ => throw new LunyBindingException(instance, key, context, BindingType.Getter),
-			// };
-
-			// internal static LuaValue TryGetValue(Lua_UnityEngine_GameObject instance, String key, LuaFunctionExecutionContext context)
-			// {
-			// 	switch (key)
-			// 	{
-			// 		case "BroadcastMessage": return _BroadcastMessage;
-			// 		case "CompareTag": return _CompareTag;
-			// 		case "GetComponentCount": return _GetComponentCount;
-			// 		case "GetHashCode": return _GetHashCode;
-			// 		case "GetInstanceID": return _GetInstanceID;
-			// 		case "SendMessage": return _SendMessage;
-			// 		case "SendMessageUpwards": return _SendMessageUpwards;
-			// 		case "SetActive": return _SetActive;
-			// 		case "ToString": return _ToString;
-			// 		default: throw new LunyBindingException(instance, key, context, BindingType.Getter);
-			// 	}
-			// }
-
 			sb.AppendIndentedLine("return new ValueTask<int>(context.Return(value));");
 			sb.CloseIndentedBlock("});");
 		}
 
-		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName)
+		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName, IEnumerable<String> setters)
 		{
 			sb.AppendIndentedLine("private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (context, _) =>");
 			sb.OpenIndentedBlock("{");
@@ -253,78 +247,15 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentedLine("var value = context.GetArgument(2);");
 			sb.AppendIndentedLine("switch (key)");
 			sb.OpenIndentedBlock("{");
-			// TODO insert cases here ...
+			if (setters != null)
+			{
+				foreach (var setter in setters)
+					sb.AppendIndentedLine(setter);
+			}
 			sb.AppendIndentedLine("default: throw new LuaRuntimeException(context.Thread, instance, 2);");
 			sb.CloseIndentedBlock("}");
 			sb.AppendIndentedLine("return new ValueTask<int>(context.Return(0));");
 			sb.CloseIndentedBlock("});");
-		}
-
-		private static void WriteFile(ScriptBuilder sb, String contentFolderPath, String typeName)
-		{
-			var assetPath = $"{contentFolderPath}/{typeName}.cs";
-			try
-			{
-				var fullPath = Path.GetFullPath(assetPath);
-				File.WriteAllText(fullPath, sb.ToString());
-			}
-			catch (Exception e)
-			{
-				Debug.LogError($"Failed to write file: {assetPath}\n{e}");
-			}
-		}
-
-		internal class TypeInfo
-		{
-			public readonly Type Type;
-			public readonly String InstanceTypeName;
-			public readonly String StaticTypeName;
-			public readonly String BindTypeFullName;
-			public readonly Boolean IsStatic;
-			public String InstanceFieldName;
-			public MemberInfo InstanceMembers;
-			public MemberInfo StaticMembers;
-
-			public TypeInfo(Type type)
-			{
-				Type = type;
-				var typeFullNameNoPlus = type.FullName.Replace('+', '.');
-				BindTypeFullName = typeFullNameNoPlus;
-
-				var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
-				InstanceTypeName = $"Lua_{typeFullNameNoDots}";
-				StaticTypeName = $"{InstanceTypeName}_static";
-
-				if (type.IsEnum == false)
-				{
-					IsStatic = type.IsAbstract && type.IsSealed;
-					InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
-					var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
-					InstanceMembers = new MemberInfo(type, flags | BindingFlags.Instance);
-					StaticMembers = new MemberInfo(type, flags | BindingFlags.Static);
-				}
-			}
-		}
-
-		internal class MemberInfo
-		{
-			public IEnumerable<ConstructorInfo> Ctors;
-			public IEnumerable<EventInfo> Events;
-			public IEnumerable<FieldInfo> Fields;
-			public IEnumerable<PropertyInfo> Properties;
-			public IEnumerable<MethodInfo> Methods;
-			public Boolean HasMembers;
-
-			public MemberInfo(Type type, BindingFlags bindingFlags)
-			{
-				var obsolete = typeof(ObsoleteAttribute);
-				Ctors = type.GetConstructors(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
-				Events = type.GetEvents(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
-				Fields = type.GetFields(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
-				Properties = type.GetProperties(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
-				Methods = type.GetMethods(bindingFlags).Where(ctor => !ctor.GetCustomAttributes(obsolete).Any());
-				HasMembers = Ctors.Count() > 0 || Events.Count() > 0 || Fields.Count() > 0 || Properties.Count() > 0 || Methods.Count() > 0;
-			}
 		}
 	}
 }

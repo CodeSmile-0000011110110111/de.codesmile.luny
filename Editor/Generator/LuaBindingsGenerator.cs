@@ -14,9 +14,10 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, IEnumerable<Type> types)
 		{
-			Debug.Assert(module != null, "missing module");
+			Debug.Assert(module != null);
+			Debug.Assert(types != null);
 
-			if (types != null && types.Count() > 0)
+			if (types.Any())
 			{
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
 

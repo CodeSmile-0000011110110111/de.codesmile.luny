@@ -50,7 +50,7 @@ namespace CodeSmile.Luny
 			var valueCount = enumNames.Length;
 			var values = new LuaTable(0, valueCount);
 			for (var i = 0; i < valueCount; i++)
-				values[enumNames[i]] = (Double)enumValues.GetValue(i);
+				values[enumNames[i]] = Convert.ToDouble(enumValues.GetValue(i));
 
 			var metatable = new LuaTable(0, 6);
 			metatable[EnumValuesKey] = values;
