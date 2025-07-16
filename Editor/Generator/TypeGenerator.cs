@@ -140,9 +140,9 @@ namespace CodeSmileEditor.Luny.Generator
 			getters = new List<String>();
 
 			// Constructor
-			foreach (var ctor in members.CtorGroups)
+			foreach (var ctorGroup in members.CtorGroups)
 			{
-				if (ctor.Params == null || ctor.Params.Any() == false)
+				if (ctorGroup.Params == null || ctorGroup.Params.Any() == false)
 					continue;
 
 				var ctorFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
@@ -151,8 +151,31 @@ namespace CodeSmileEditor.Luny.Generator
 				var usedArgNames = new HashSet<String>();
 				var duplicateArgNameCount = 0;
 
+				sb.AppendIndentedLine("var _argCount = _context.ArgumentCount;");
+				sb.AppendIndentedLine("switch (_argCount)");
+				sb.OpenIndentedBlock("{");
+				foreach (var overload in ctorGroup.Overloads)
+				{
+
+				}
+				for (var i = ctorGroup.MinArgCount; i <= ctorGroup.MaxArgCount; i++)
+				{
+					sb.AppendIndented("case ");
+					sb.Append(i.ToString());
+					sb.AppendLine(":");
+					if (i < ctorGroup.MinDeclaredArgCount)
+						continue;
+
+					sb.OpenIndentedBlock("{");
+					sb.AppendIndentedLine("break;");
+					sb.CloseIndentedBlock("}");
+				}
+
+				sb.CloseIndentedBlock("}");
+
 				// Variable Declarations
-				foreach (var ctorParam in ctor.Params.OrderBy(p => p.Position))
+				var sortedParams = ctorGroup.Params.OrderBy(p => p.Position);
+				foreach (var ctorParam in sortedParams)
 				{
 					sb.AppendIndented(ctorParam.TypeFullName);
 					sb.Append(" ");
@@ -183,17 +206,16 @@ namespace CodeSmileEditor.Luny.Generator
 
 				// Get & read arguments
 				sb.AppendLine();
-				sb.AppendIndentedLine("var _argCount = _context.ArgumentCount;");
 				sb.AppendIndentedLine("var _arg0 = _context.GetArgument(0);");
-				var isStaticCtor = members.IsStatic;
-				if (isStaticCtor == false)
-				{
-					sb.AppendIndented("var _this = _arg0.Read<");
-					sb.Append(typeInfo.BindTypeFullName);
-					sb.AppendLine(">();");
-				}
+				// var isStaticCtor = members.IsStatic;
+				// if (isStaticCtor == false)
+				// {
+				// 	sb.AppendIndented("var _this = _arg0.Read<");
+				// 	sb.Append(typeInfo.BindTypeFullName);
+				// 	sb.AppendLine(">();");
+				// }
 
-				var argCount = ctor.Params.Count;
+				var argCount = ctorGroup.Params.Count;
 				for (var i = 1; i < argCount; i++)
 				{
 					var iStr = i.ToString();

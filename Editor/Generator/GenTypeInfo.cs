@@ -11,7 +11,7 @@ using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal class GenTypeInfo
+	internal sealed class GenTypeInfo
 	{
 		public readonly Type Type;
 		public readonly String InstanceTypeName;
@@ -44,7 +44,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 	}
 
-	internal class GenMemberInfo
+	internal sealed class GenMemberInfo
 	{
 		public IEnumerable<ConstructorInfo> Ctors;
 		public IEnumerable<FieldInfo> Fields;
@@ -74,32 +74,36 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private IEnumerable<GenMethodGroup> GetMethodGroups(IEnumerable<MethodBase> methods)
 		{
-			var methodGroups = new HashSet<GenMethodGroup>();
+			var methodGroups = new Dictionary<String, GenMethodGroup>();
 			foreach (var method in methods)
 			{
-				var group = new GenMethodGroup { Name = method.Name };
-				if (methodGroups.TryGetValue(group, out var existingGroup))
-				{
+				if (methodGroups.TryGetValue(method.Name, out var existingGroup))
 					existingGroup.AddOverload(method);
-					continue;
+				else
+				{
+					var group = new GenMethodGroup { Name = method.Name, MinArgCount = Int32.MaxValue, MinDeclaredArgCount = Int32.MaxValue };
+					group.AddOverload(method);
+					methodGroups.Add(method.Name, group);
 				}
-
-				group.AddOverload(method);
-				methodGroups.Add(group);
 			}
-			return methodGroups.OrderBy(group => group.Name);
+			return methodGroups.Values.OrderBy(group => group.Name);
 		}
 	}
 
-	internal struct GenMethodGroup : IEquatable<GenMethodGroup>
+	internal sealed class GenMethodGroup : IEquatable<GenMethodGroup>
 	{
 		public String Name;
 		public IList<MethodBase> Overloads;
 		public ISet<GenParamInfo> Params;
+		public Int32 MinArgCount;
+		public Int32 MinDeclaredArgCount;
+		public Int32 MaxArgCount;
 
 		public void AddOverload(MethodBase method)
 		{
-			foreach (var parameter in method.GetParameters())
+			var minArgCount = 0;
+			var parameters = method.GetParameters();
+			foreach (var parameter in parameters)
 			{
 				var paramType = parameter.ParameterType;
 				if (paramType.IsPointer || paramType.IsGenericType)
@@ -108,7 +112,17 @@ namespace CodeSmileEditor.Luny.Generator
 					          $"'{parameter.ParameterType.Name} {parameter.Name}'");
 					return;
 				}
+
+				if (parameter.IsOptional == false)
+					minArgCount++;
 			}
+
+			if (MinArgCount > minArgCount)
+				MinArgCount = minArgCount;
+			if (MinDeclaredArgCount > parameters.Length)
+				MinDeclaredArgCount = parameters.Length;
+			if (MaxArgCount < parameters.Length)
+				MaxArgCount = parameters.Length;
 
 			Params ??= new HashSet<GenParamInfo>();
 			foreach (var parameter in method.GetParameters())
