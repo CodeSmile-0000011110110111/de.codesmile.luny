@@ -85,6 +85,9 @@ namespace CodeSmileEditor.Luny.Generator
 			return groups.OrderBy(group => group.Name);
 		}
 
+		public static Boolean ContentFolderPathExists(LunyLuaModule module) =>
+			AssetDatabase.AssetPathExists(AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid));
+
 		public static void TryDeleteContentFolderPath(LunyLuaModule module)
 		{
 			var contentFolderPath = AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid);

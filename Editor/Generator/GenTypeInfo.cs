@@ -54,6 +54,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public IEnumerable<GenMethodGroup> CtorGroups;
 		public IEnumerable<GenMethodGroup> MethodGroups;
 		public Boolean HasMembers;
+		public Boolean IsStatic;
 
 		public GenMemberInfo(Type type, BindingFlags bindingFlags)
 		{
@@ -68,6 +69,7 @@ namespace CodeSmileEditor.Luny.Generator
 			CtorGroups = GetMethodGroups(Ctors);
 			MethodGroups = GetMethodGroups(Methods);
 			HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
+			IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
 		}
 
 		private IEnumerable<GenMethodGroup> GetMethodGroups(IEnumerable<MethodBase> methods)
@@ -92,19 +94,28 @@ namespace CodeSmileEditor.Luny.Generator
 	internal struct GenMethodGroup : IEquatable<GenMethodGroup>
 	{
 		public String Name;
-		public IEnumerable<MethodBase> Overloads;
-		public IEnumerable<GenParamInfo> Params;
+		public IList<MethodBase> Overloads;
+		public ISet<GenParamInfo> Params;
 
 		public void AddOverload(MethodBase method)
 		{
-			var overloads = (List<MethodBase>)Overloads ?? new List<MethodBase>();
-			overloads.Add(method);
-			Overloads = overloads;
-
-			var parameters = (HashSet<GenParamInfo>)Params ?? new HashSet<GenParamInfo>();
 			foreach (var parameter in method.GetParameters())
-				parameters.Add(new GenParamInfo { ParamInfo = parameter });
-			Params = parameters.OrderBy(p => p.Position);
+			{
+				var paramType = parameter.ParameterType;
+				if (paramType.IsPointer || paramType.IsGenericType)
+				{
+					Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to param " +
+					          $"'{parameter.ParameterType.Name} {parameter.Name}'");
+					return;
+				}
+			}
+
+			Params ??= new HashSet<GenParamInfo>();
+			foreach (var parameter in method.GetParameters())
+				Params.Add(new GenParamInfo { ParamInfo = parameter });
+
+			Overloads ??= new List<MethodBase>();
+			Overloads.Add(method);
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
@@ -114,12 +125,18 @@ namespace CodeSmileEditor.Luny.Generator
 		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
 	}
 
-	internal struct GenParamInfo : IEquatable<GenParamInfo>
+	internal sealed class GenParamInfo : IEquatable<GenParamInfo>
 	{
+		private String m_ModifiedName;
 		public ParameterInfo ParamInfo;
-		public String Name => ParamInfo.Name;
+		public String Name { get => m_ModifiedName != null ? m_ModifiedName : ParamInfo.Name; set => m_ModifiedName = value; }
 		public Type Type => ParamInfo.ParameterType;
+		public String TypeFullName => ParamInfo.ParameterType.FullName.Replace('+', '.');
 		public Int32 Position => ParamInfo.Position;
+		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) => left.Equals(right);
+		public static Boolean operator !=(GenParamInfo left, GenParamInfo right) => !left.Equals(right);
+
+		public Boolean Equals(GenParamInfo other) => Name == other.Name && Equals(Type, other.Type);
 
 		public override Int32 GetHashCode()
 		{
@@ -127,15 +144,12 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				var hashCode = Name != null ? Name.GetHashCode() : 0;
 				hashCode = hashCode * 397 ^ (Type != null ? Type.GetHashCode() : 0);
-				hashCode = hashCode * 397 ^ Position;
+				//hashCode = hashCode * 397 ^ Position;
 				return hashCode;
 			}
 		}
 
-		public Boolean Equals(GenParamInfo other) => Name == other.Name && Equals(Type, other.Type) && Position == other.Position;
 		public override Boolean Equals(Object obj) => obj is GenParamInfo other && Equals(other);
-		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) => left.Equals(right);
-		public static Boolean operator !=(GenParamInfo left, GenParamInfo right) => !left.Equals(right);
 	}
 
 	[Obsolete]

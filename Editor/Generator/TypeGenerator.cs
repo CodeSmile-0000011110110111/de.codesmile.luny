@@ -4,6 +4,7 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class TypeGenerator
 	{
+		private const String DisabledWarningCodes = "0162, 0168, 0219"; // Unreachable code, declared / assigned but never used
+
 		public static IEnumerable<GenTypeInfo> Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy)
 		{
 			var boundTypes = new List<GenTypeInfo>();
@@ -90,7 +93,9 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
-			sb.AppendLine("#pragma warning disable CS0162 // Unreachable code detected");
+			sb.Append("#pragma warning disable ");
+			sb.AppendLine(DisabledWarningCodes);
+			sb.AppendLine();
 			sb.Append("namespace ");
 			sb.AppendLine(@namespace);
 			sb.OpenIndentedBlock("{"); // { namespace
@@ -99,7 +104,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void EndNamespaceBlock(ScriptBuilder sb)
 		{
 			sb.CloseIndentedBlock("}"); // namespace }
-			sb.AppendLine("#pragma warning restore CS0162 // Unreachable code detected");
+			sb.Append("#pragma warning restore ");
+			sb.AppendLine(DisabledWarningCodes);
 		}
 
 		private static void GenerateInstanceType(ScriptBuilder sb, GenTypeInfo typeInfo)
@@ -128,33 +134,97 @@ namespace CodeSmileEditor.Luny.Generator
 			EndTypeDeclaration(sb);
 		}
 
-		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IEnumerable<String> getters,
-			out IEnumerable<String> setters)
+		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters,
+			out IList<String> setters)
 		{
 			getters = new List<String>();
-			foreach (var ctor in members.Ctors)
+
+			// Constructor
+			foreach (var ctor in members.CtorGroups)
 			{
-				// AddLuaFunction(sb, "new");
-				// EndLuaFunction(sb);
+				if (ctor.Params == null || ctor.Params.Any() == false)
+					continue;
+
+				var ctorFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
+				getters.Add($"case \"new\": value = {ctorFuncName}; break;");
+				AddLuaFunction(sb, ctorFuncName, "new");
+				var usedArgNames = new HashSet<String>();
+				var duplicateArgNameCount = 0;
+
+				// Variable Declarations
+				foreach (var ctorParam in ctor.Params.OrderBy(p => p.Position))
+				{
+					sb.AppendIndented(ctorParam.TypeFullName);
+					sb.Append(" ");
+
+					var argName = ctorParam.Name;
+					if (usedArgNames.Add(argName) == false)
+					{
+						duplicateArgNameCount++;
+						argName += duplicateArgNameCount;
+						ctorParam.Name = argName;
+					}
+
+					sb.Append(argName);
+					if (ctorParam.ParamInfo.HasDefaultValue)
+					{
+						sb.Append(" = ");
+						if (ctorParam.Type.IsEnum)
+						{
+							sb.Append(ctorParam.Type.FullName);
+							sb.Append(".");
+							sb.Append(ctorParam.ParamInfo.DefaultValue.ToString());
+						}
+						else
+							sb.Append(ctorParam.ParamInfo.RawDefaultValue.ToString());
+					}
+					sb.AppendLine(";");
+				}
+
+				// Get & read arguments
+				sb.AppendLine();
+				sb.AppendIndentedLine("var _argCount = _context.ArgumentCount;");
+				sb.AppendIndentedLine("var _arg0 = _context.GetArgument(0);");
+				var isStaticCtor = members.IsStatic;
+				if (isStaticCtor == false)
+				{
+					sb.AppendIndented("var _this = _arg0.Read<");
+					sb.Append(typeInfo.BindTypeFullName);
+					sb.AppendLine(">();");
+				}
+
+				var argCount = ctor.Params.Count;
+				for (var i = 1; i < argCount; i++)
+				{
+					var iStr = i.ToString();
+					sb.AppendIndented("var _arg");
+					sb.Append(iStr);
+					sb.Append(" = _argCount > ");
+					sb.Append(iStr);
+					sb.Append(" ? _context.GetArgument(");
+					sb.Append(iStr);
+					sb.AppendLine(") : LuaValue.Nil;");
+				}
+
+				sb.AppendIndentedLine("return new ValueTask<int>(_context.Return());");
+				EndLuaFunction(sb);
 			}
+
 			setters = null;
 		}
 
-
-
-		private static void AddLuaFunction(ScriptBuilder sb, string name)
+		private static void AddLuaFunction(ScriptBuilder sb, String funcName, String luaFuncName)
 		{
-			sb.AppendIndented("private static readonly LuaFunction _");
-			sb.Append(name);
+			sb.AppendIndented("private static readonly LuaFunction ");
+			sb.Append(funcName);
 			sb.Append(" = new(\"");
-			sb.Append(name);
-			sb.AppendLine("\", (context, _) =>");
+			sb.Append(luaFuncName);
+			sb.AppendLine("\", (_context, _) =>");
 			sb.OpenIndentedBlock("{");
 		}
-		private static void EndLuaFunction(ScriptBuilder sb)
-		{
-			sb.CloseIndentedBlock("});");
-		}
+
+		private static void EndLuaFunction(ScriptBuilder sb) => sb.CloseIndentedBlock("});");
+
 		private static void AddToStringOverride(ScriptBuilder sb, String fieldName)
 		{
 			sb.AppendIndented("public override string ToString() => ");

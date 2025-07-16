@@ -79,6 +79,7 @@ namespace CodeSmileEditor.Luny
 			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
 			// ImportAsset on the content folder (recursively) which always recompiles for some reason
 			AssetDatabase.Refresh();
+			UpdateUIState(); // pick up any changes made during generation
 		}
 
 		private void OnLogModuleTable()
@@ -182,9 +183,9 @@ namespace CodeSmileEditor.Luny
 			m_TypesFiltered = GenUtil.GetTypesExcept(namespaceTypes, Module.TypeBlacklist);
 			m_TypeNamesFiltered = m_TypesFiltered.Select(t => t.FullName).ToArray();
 
-			m_DeleteButton.SetEnabled(Module.ModuleLoader != null);
-			m_GenerateButton.SetEnabled(m_TypeNamesFiltered.Length > 0);
+			m_DeleteButton.SetEnabled(GenUtil.ContentFolderPathExists(Module));
 			m_LogModuleButton.SetEnabled(Module.ModuleLoader != null);
+			m_GenerateButton.SetEnabled(m_TypeNamesFiltered.Length > 0);
 
 			UpdateSerializedNamespaceWhitelist();
 			UpdateSerializedTypeWhitelist();
