@@ -4,6 +4,7 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -142,97 +143,224 @@ namespace CodeSmileEditor.Luny.Generator
 			// Constructor
 			foreach (var ctorGroup in members.CtorGroups)
 			{
-				if (ctorGroup.Params == null || ctorGroup.Params.Any() == false)
+				if (ctorGroup.UniqueParams == null)
 					continue;
 
 				var ctorFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
 				getters.Add($"case \"new\": value = {ctorFuncName}; break;");
 				AddLuaFunction(sb, ctorFuncName, "new");
-				var usedArgNames = new HashSet<String>();
-				var duplicateArgNameCount = 0;
+				AddVariableDeclarations(sb, ctorGroup);
 
+				// switch over argument count
 				sb.AppendIndentedLine("var _argCount = _context.ArgumentCount;");
 				sb.AppendIndentedLine("switch (_argCount)");
 				sb.OpenIndentedBlock("{");
-				foreach (var overload in ctorGroup.Overloads)
-				{
 
-				}
-				for (var i = ctorGroup.MinArgCount; i <= ctorGroup.MaxArgCount; i++)
+				var maxParamCount = ctorGroup.OverloadsBySignature.Count;
+				AddSignatureTypeChecksAndMakeCall(sb, ctorGroup, 0);
+				for (int pos = 0; pos < maxParamCount; pos++)
 				{
-					sb.AppendIndented("case ");
-					sb.Append(i.ToString());
-					sb.AppendLine(":");
-					if (i < ctorGroup.MinDeclaredArgCount)
+				}
+
+				/*for (int paramCount = 0; paramCount < ctorGroup.MethodsByParamCount.Count; paramCount++)
+				{
+					var overloads = ctorGroup.MethodsByParamCount[paramCount];
+					if (overloads == null)
 						continue;
 
-					sb.OpenIndentedBlock("{");
-					sb.AppendIndentedLine("break;");
-					sb.CloseIndentedBlock("}");
-				}
+					var luaArgCount = members.IsStatic ? paramCount : paramCount + 1;
+					var minArgCount = ctorGroup.MinArgCountByParamCount[paramCount];
 
-				sb.CloseIndentedBlock("}");
-
-				// Variable Declarations
-				var sortedParams = ctorGroup.Params.OrderBy(p => p.Position);
-				foreach (var ctorParam in sortedParams)
-				{
-					sb.AppendIndented(ctorParam.TypeFullName);
-					sb.Append(" ");
-
-					var argName = ctorParam.Name;
-					if (usedArgNames.Add(argName) == false)
+					for (int caseNum = minArgCount; caseNum <= paramCount; caseNum++)
 					{
-						duplicateArgNameCount++;
-						argName += duplicateArgNameCount;
-						ctorParam.Name = argName;
-					}
+						sb.AppendIndented("case ");
+						sb.Append(caseNum.ToString());
+						sb.AppendLine(":");
 
-					sb.Append(argName);
-					if (ctorParam.ParamInfo.HasDefaultValue)
-					{
-						sb.Append(" = ");
-						if (ctorParam.Type.IsEnum)
+						if (caseNum == paramCount)
 						{
-							sb.Append(ctorParam.Type.FullName);
-							sb.Append(".");
-							sb.Append(ctorParam.ParamInfo.DefaultValue.ToString());
+							sb.OpenIndentedBlock("{");
+
+							// Get arguments
+							for (var argNum = 0; argNum < luaArgCount; argNum++)
+							{
+								var argNumStr = argNum.ToString();
+								sb.AppendIndented("var _arg");
+								sb.Append(argNumStr);
+								sb.Append(" = _argCount > ");
+								sb.Append(argNumStr);
+								sb.Append(" ? _context.GetArgument(");
+								sb.Append(argNumStr);
+								sb.AppendLine(") : LuaValue.Nil;");
+							}
 						}
-						else
-							sb.Append(ctorParam.ParamInfo.RawDefaultValue.ToString());
 					}
-					sb.AppendLine(";");
-				}
 
-				// Get & read arguments
-				sb.AppendLine();
-				sb.AppendIndentedLine("var _arg0 = _context.GetArgument(0);");
-				// var isStaticCtor = members.IsStatic;
-				// if (isStaticCtor == false)
-				// {
-				// 	sb.AppendIndented("var _this = _arg0.Read<");
-				// 	sb.Append(typeInfo.BindTypeFullName);
-				// 	sb.AppendLine(">();");
-				// }
+					sb.AppendIndentedLine($"// {minArgCount} to {paramCount}");
 
-				var argCount = ctorGroup.Params.Count;
-				for (var i = 1; i < argCount; i++)
+					// var isLastOverload = overloadIndex == overloadCount - 1;
+					// if (isLastOverload || ctorGroup.Overloads[overloadIndex + 1].GetParameters().Length > paramCount)
+					{
+						sb.AppendIndentedLine("throw new LuaRuntimeException(_context.Thread, new LuaValue(), 2);");
+						sb.CloseIndentedBlock("}");
+					}
+				}*/
+				
+
+				/*
+				var caseIndex = ctorGroup.MinArgCount;
+				var currentParamCount = ctorGroup.MinArgCount;
+				var overloadCount = ctorGroup.Overloads.Count;
+				for (var overloadIndex = 0; overloadIndex < overloadCount; overloadIndex--)
 				{
-					var iStr = i.ToString();
-					sb.AppendIndented("var _arg");
-					sb.Append(iStr);
-					sb.Append(" = _argCount > ");
-					sb.Append(iStr);
-					sb.Append(" ? _context.GetArgument(");
-					sb.Append(iStr);
-					sb.AppendLine(") : LuaValue.Nil;");
-				}
+					var overload = ctorGroup.Overloads[overloadIndex];
+					var methodParams = overload.GetParameters();
+					var paramCount = methodParams.Length;
+					var argCount = members.IsStatic ? paramCount : paramCount + 1;
 
-				sb.AppendIndentedLine("return new ValueTask<int>(_context.Return());");
+					for (; caseIndex <= paramCount; caseIndex++)
+					{
+						sb.AppendIndented("case ");
+						sb.Append(caseIndex.ToString());
+						sb.AppendLine(":");
+						if (caseIndex == paramCount)
+						{
+							sb.OpenIndentedBlock("{");
+
+							// Get arguments
+							for (var argNum = 0; argNum < argCount; argNum++)
+							{
+								var argNumStr = argNum.ToString();
+								sb.AppendIndented("var _arg");
+								sb.Append(argNumStr);
+								sb.Append(" = _argCount > ");
+								sb.Append(argNumStr);
+								sb.Append(" ? _context.GetArgument(");
+								sb.Append(argNumStr);
+								sb.AppendLine(") : LuaValue.Nil;");
+							}
+						}
+					}
+
+					sb.AppendIndentedLine($"// {paramCount}");
+
+					// // Read arguments
+					// for (var argNum = 0; argNum < argCount; argNum++)
+					// {
+					// 	var argNumStr = argNum.ToString();
+					// 	var parameter = methodParams[argNum];
+					//
+					// 	sb.AppendIndented(argNum == 0 ? "if (_arg" : "_arg");
+					// 	sb.Append(argNumStr);
+					// 	sb.Append(".TryRead<");
+					// 	sb.Append(parameter.ParameterType.FullName);
+					// 	sb.Append(">(out ");
+					// 	sb.Append(argNumStr);
+					// 	sb.AppendLine(argNum < argCount - 1 ? ") &&" : "))");
+					// 	sb.OpenIndentedBlock("{");
+					//
+					// 	sb.AppendIndentedLine("return new ValueTask<int>(_context.Return());");
+					// 	sb.CloseIndentedBlock("}");
+					// }
+
+
+					var isLastOverload = overloadIndex == overloadCount - 1;
+					if (isLastOverload || ctorGroup.Overloads[overloadIndex + 1].GetParameters().Length > paramCount)
+					{
+						sb.AppendIndentedLine("throw new LuaRuntimeException(_context.Thread, new LuaValue(), 2);");
+						sb.CloseIndentedBlock("}");
+					}
+				}*/
+
+				sb.CloseIndentedBlock("}"); // switch
+				sb.AppendIndentedLine("throw new System.NotImplementedException();");
+
 				EndLuaFunction(sb);
 			}
 
 			setters = null;
+		}
+
+		private static void AddSignatureTypeChecksAndMakeCall(ScriptBuilder sb, GenMethodGroup methodGroup, Int32 pos)
+		{
+			if (methodGroup.OverloadsBySignature.Count == 0)
+				return;
+
+			var indent = new String('\t', pos);
+			var signatureTypesAtPos = methodGroup.OverloadsBySignature[pos];
+			if (signatureTypesAtPos.Count > 1)
+			{
+				int typeCheckCount = 0;
+				foreach (var paramTypeAtPos in signatureTypesAtPos.Keys)
+				{
+					if (typeCheckCount == 0)
+						sb.AppendIndentedLine($"// {pos}{indent} if (type == {paramTypeAtPos.FullName})");
+					else
+						sb.AppendIndentedLine($"// {pos}{indent} else if (type == {paramTypeAtPos.FullName})");
+
+					typeCheckCount++;
+
+					var nextPos = pos + 1;
+					if (methodGroup.OverloadsBySignature.Count > nextPos)
+						AddSignatureTypeChecksAndMakeCall(sb, methodGroup, nextPos);
+				}
+
+				sb.AppendIndentedLine($"// {pos}{indent} else throw new Exception();");
+			}
+			else
+			{
+				// make the call
+				sb.AppendIndentedLine($"// {indent} has {signatureTypesAtPos.Values.First().Count().ToString()} overloads");
+				foreach (var overload in signatureTypesAtPos.Values.First())
+				{
+					sb.AppendIndented($"// {pos}{indent} make call to {overload.MethodInfo.Name}: ");
+
+					foreach (var paramInfo in overload.ParamInfos)
+					{
+						sb.Append(paramInfo.Type.Name);
+						sb.Append(" ");
+						sb.Append(paramInfo.Name);
+						sb.Append(", ");
+					}
+					sb.AppendLine();
+				}
+			}
+		}
+
+		private static void AddVariableDeclarations(ScriptBuilder sb, GenMethodGroup methodGroup)
+		{
+			var duplicateArgNameCount = 0;
+			var usedArgNames = new HashSet<String>();
+
+			foreach (var parameter in methodGroup.UniqueParams)
+			{
+				sb.AppendIndented(parameter.TypeFullName);
+				sb.Append(" ");
+
+				var argName = parameter.Name;
+				if (usedArgNames.Add(argName) == false)
+				{
+					duplicateArgNameCount++;
+					argName += duplicateArgNameCount;
+					parameter.Name = argName;
+				}
+
+				sb.Append(argName);
+				if (parameter.ParamInfo.HasDefaultValue)
+				{
+					sb.Append(" = ");
+					if (parameter.Type.IsEnum)
+					{
+						sb.Append(parameter.Type.FullName);
+						sb.Append(".");
+						sb.Append(parameter.ParamInfo.DefaultValue.ToString());
+					}
+					else
+						sb.Append(parameter.ParamInfo.RawDefaultValue.ToString());
+				}
+				sb.AppendLine(";");
+			}
+			sb.AppendLine();
 		}
 
 		private static void AddLuaFunction(ScriptBuilder sb, String funcName, String luaFuncName)

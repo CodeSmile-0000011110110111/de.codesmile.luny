@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
@@ -81,11 +82,13 @@ namespace CodeSmileEditor.Luny.Generator
 					existingGroup.AddOverload(method);
 				else
 				{
-					var group = new GenMethodGroup { Name = method.Name, MinArgCount = Int32.MaxValue, MinDeclaredArgCount = Int32.MaxValue };
+					var group = new GenMethodGroup { Name = method.Name, MinArgCount = Int32.MaxValue };
 					group.AddOverload(method);
 					methodGroups.Add(method.Name, group);
 				}
 			}
+			foreach (var group in methodGroups.Values)
+				group.Postprocess();
 			return methodGroups.Values.OrderBy(group => group.Name);
 		}
 	}
@@ -93,63 +96,174 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class GenMethodGroup : IEquatable<GenMethodGroup>
 	{
 		public String Name;
-		public IList<MethodBase> Overloads;
-		public ISet<GenParamInfo> Params;
+		public IEnumerable<GenParamInfo> UniqueParams;
 		public Int32 MinArgCount;
-		public Int32 MinDeclaredArgCount;
-		public Int32 MaxArgCount;
+		//public Dictionary<Int32, List<GenMethodInfo>> MethodsByParamCount;
+		public List<Dictionary<Type, List<GenMethodInfo>>> OverloadsBySignature;
+		/* List = Position (index)
+		 *	Dict = List of Methods with same parameter type at this position
+		 */
+
+		private List<MethodBase> AllOverloads;
+
+
+		public static Boolean operator ==(GenMethodGroup left, GenMethodGroup right) => left.Equals(right);
+		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
+		public Boolean Equals(GenMethodGroup other) => Equals(Name, other.Name);
 
 		public void AddOverload(MethodBase method)
 		{
-			var minArgCount = 0;
-			var parameters = method.GetParameters();
-			foreach (var parameter in parameters)
+			foreach (var parameter in method.GetParameters())
 			{
 				var paramType = parameter.ParameterType;
-				if (paramType.IsPointer || paramType.IsGenericType)
+				if (paramType.IsPointer)
 				{
-					Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to param " +
-					          $"'{parameter.ParameterType.Name} {parameter.Name}'");
+					// Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to pointer param " +
+					//           $"'{parameter.ParameterType.Name} {parameter.Name}'");
 					return;
 				}
-
-				if (parameter.IsOptional == false)
-					minArgCount++;
+				if (paramType.IsGenericType)
+				{
+					// Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to generic param " +
+					//           $"'{parameter.ParameterType.Name} {parameter.Name}'");
+					return;
+				}
 			}
 
-			if (MinArgCount > minArgCount)
-				MinArgCount = minArgCount;
-			if (MinDeclaredArgCount > parameters.Length)
-				MinDeclaredArgCount = parameters.Length;
-			if (MaxArgCount < parameters.Length)
-				MaxArgCount = parameters.Length;
+			AllOverloads ??= new List<MethodBase>();
+			AllOverloads.Add(method);
+		}
 
-			Params ??= new HashSet<GenParamInfo>();
-			foreach (var parameter in method.GetParameters())
-				Params.Add(new GenParamInfo { ParamInfo = parameter });
+		public void Postprocess()
+		{
+			if (AllOverloads == null)
+				return;
 
-			Overloads ??= new List<MethodBase>();
-			Overloads.Add(method);
+			MinArgCount = Int32.MaxValue;
+			AllOverloads.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
+			OverloadsBySignature = new List<Dictionary<Type, List<GenMethodInfo>>>();
+
+			//MethodsByParamCount = new Dictionary<Int32, List<GenMethodInfo>>();
+			// var maxParamCount = AllOverloads.Last().GetParameters().Length;
+			// for (var i = 0; i <= maxParamCount; i++)
+			// 	MethodsByParamCount.Add(i, null);
+
+			var uniqueParamsSet = new HashSet<GenParamInfo>();
+			var overloadCount = AllOverloads.Count;
+
+			for (var overloadIndex = 0; overloadIndex < overloadCount; overloadIndex++)
+			{
+				var overloadMinArgCount = 0;
+				var overload = AllOverloads[overloadIndex];
+				var parameters = overload.GetParameters();
+				var paramCount = parameters.Length;
+
+				var paramInfos = new GenParamInfo[paramCount];
+				var methodInfo = new GenMethodInfo { MethodInfo = overload, ParamInfos = paramInfos };
+
+				for (var pos = 0; pos < paramCount; pos++)
+				{
+					var parameter = parameters[pos];
+					if (parameter.IsOptional == false)
+						overloadMinArgCount++;
+
+					var paramType = parameter.ParameterType;
+					if (OverloadsBySignature.Count <= pos)
+						OverloadsBySignature.Add(new Dictionary<Type, List<GenMethodInfo>>());
+					if (OverloadsBySignature[pos].ContainsKey(paramType) == false)
+						OverloadsBySignature[pos][paramType] = new List<GenMethodInfo>();
+
+					if (pos == 0)
+						OverloadsBySignature[pos][paramType].Add(methodInfo);
+					else
+					{
+						var prevSignatures = OverloadsBySignature[pos - 1][parameters[pos - 1].ParameterType];
+						if (prevSignatures.Count > 1 || prevSignatures[0] == methodInfo)
+							OverloadsBySignature[pos][paramType].Add(methodInfo);
+					}
+
+					var paramInfo = new GenParamInfo { Name = parameter.Name, ParamInfo = parameter };
+					paramInfos[pos] = paramInfo;
+					uniqueParamsSet.Add(paramInfo);
+				}
+
+				//var methodInfo = new GenMethodInfo { MethodInfo = overload, ParamInfos = paramInfos };
+				// MethodsByParamCount[paramCount] ??= new List<GenMethodInfo>();
+				// MethodsByParamCount[paramCount].Add(methodInfo);
+
+				if (MinArgCount > overloadMinArgCount)
+					MinArgCount = overloadMinArgCount;
+			}
+
+			var maxParamCount = AllOverloads.Last().GetParameters().Length;
+			for (int pos = 0; pos < maxParamCount; pos++)
+			{
+				var sig = OverloadsBySignature[pos];
+				foreach (var kvp in sig)
+				{
+					foreach (var method in kvp.Value)
+						Debug.Log($"[{pos}] {kvp.Key} = {method}");
+				}
+			}
+			
+			UniqueParams = uniqueParamsSet.OrderBy(p => p.Position);
+			AllOverloads = null; // not needed anymore
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-		public Boolean Equals(GenMethodGroup other) => Equals(Name, other.Name);
 		public override Boolean Equals(Object obj) => obj is GenMethodGroup other && Equals(other);
-		public static Boolean operator ==(GenMethodGroup left, GenMethodGroup right) => left.Equals(right);
-		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
+	}
+
+	internal sealed class GenMethodInfo : IEquatable<GenMethodInfo>
+	{
+		public MethodBase MethodInfo;
+		public GenParamInfo[] ParamInfos;
+
+		public static Boolean operator ==(GenMethodInfo left, GenMethodInfo right) => Equals(left, right);
+		public static Boolean operator !=(GenMethodInfo left, GenMethodInfo right) => !Equals(left, right);
+
+		public Boolean Equals(GenMethodInfo other)
+		{
+			if (other is null)
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return Equals(MethodInfo, other.MethodInfo) && Equals(ParamInfos, other.ParamInfos);
+		}
+
+		public override Boolean Equals(Object obj) => ReferenceEquals(this, obj) || obj is GenMethodInfo other && Equals(other);
+
+		public override Int32 GetHashCode()
+		{
+			unchecked { return (MethodInfo != null ? MethodInfo.GetHashCode() : 0) * 397 ^ (ParamInfos != null ? ParamInfos.GetHashCode() : 0); }
+		}
+
+		public override String ToString()
+		{
+			var sb = new StringBuilder(MethodInfo.Name);
+			foreach (var paramInfo in ParamInfos)
+			{
+				sb.Append(paramInfo.Type);
+				sb.Append(" ");
+				sb.Append(paramInfo.Name);
+				sb.Append(", ");
+			}
+			return sb.ToString();
+		}
 	}
 
 	internal sealed class GenParamInfo : IEquatable<GenParamInfo>
 	{
-		private String m_ModifiedName;
 		public ParameterInfo ParamInfo;
-		public String Name { get => m_ModifiedName != null ? m_ModifiedName : ParamInfo.Name; set => m_ModifiedName = value; }
+		public String Name { get; set; }
 		public Type Type => ParamInfo.ParameterType;
 		public String TypeFullName => ParamInfo.ParameterType.FullName.Replace('+', '.');
 		public Int32 Position => ParamInfo.Position;
+		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
+
 		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) => left.Equals(right);
 		public static Boolean operator !=(GenParamInfo left, GenParamInfo right) => !left.Equals(right);
-
 		public Boolean Equals(GenParamInfo other) => Name == other.Name && Equals(Type, other.Type);
 
 		public override Int32 GetHashCode()
@@ -158,7 +272,6 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				var hashCode = Name != null ? Name.GetHashCode() : 0;
 				hashCode = hashCode * 397 ^ (Type != null ? Type.GetHashCode() : 0);
-				//hashCode = hashCode * 397 ^ Position;
 				return hashCode;
 			}
 		}
