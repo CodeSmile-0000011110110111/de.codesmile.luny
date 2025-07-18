@@ -98,14 +98,14 @@ namespace CodeSmileEditor.Luny.Generator
 		public String Name;
 		public IEnumerable<GenParamInfo> UniqueParams;
 		public Int32 MinArgCount;
-		//public Dictionary<Int32, List<GenMethodInfo>> MethodsByParamCount;
-		public List<Dictionary<Type, List<GenMethodInfo>>> OverloadsBySignature;
+		public Int32 MaxArgCount;
+		public List<Dictionary<GenParamInfo, List<GenMethodInfo>>> OverloadsByParamType;
+		public List<HashSet<GenParamInfo>> ParamsByPosition;
 		/* List = Position (index)
 		 *	Dict = List of Methods with same parameter type at this position
 		 */
 
-		private List<MethodBase> AllOverloads;
-
+		private List<MethodBase> m_Overloads;
 
 		public static Boolean operator ==(GenMethodGroup left, GenMethodGroup right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
@@ -130,31 +130,29 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			AllOverloads ??= new List<MethodBase>();
-			AllOverloads.Add(method);
+			m_Overloads ??= new List<MethodBase>();
+			m_Overloads.Add(method);
 		}
 
 		public void Postprocess()
 		{
-			if (AllOverloads == null)
+			if (m_Overloads == null)
 				return;
 
 			MinArgCount = Int32.MaxValue;
-			AllOverloads.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
-			OverloadsBySignature = new List<Dictionary<Type, List<GenMethodInfo>>>();
-
-			//MethodsByParamCount = new Dictionary<Int32, List<GenMethodInfo>>();
-			// var maxParamCount = AllOverloads.Last().GetParameters().Length;
-			// for (var i = 0; i <= maxParamCount; i++)
-			// 	MethodsByParamCount.Add(i, null);
+			MaxArgCount = 0;
+			m_Overloads.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
+			OverloadsByParamType = new List<Dictionary<GenParamInfo, List<GenMethodInfo>>>();
+			ParamsByPosition = new List<HashSet<GenParamInfo>>();
 
 			var uniqueParamsSet = new HashSet<GenParamInfo>();
-			var overloadCount = AllOverloads.Count;
+			var overloadCount = m_Overloads.Count;
 
+			var methodsByParamPosition = new List<List<GenMethodInfo>>();
 			for (var overloadIndex = 0; overloadIndex < overloadCount; overloadIndex++)
 			{
 				var overloadMinArgCount = 0;
-				var overload = AllOverloads[overloadIndex];
+				var overload = m_Overloads[overloadIndex];
 				var parameters = overload.GetParameters();
 				var paramCount = parameters.Length;
 
@@ -167,47 +165,64 @@ namespace CodeSmileEditor.Luny.Generator
 					if (parameter.IsOptional == false)
 						overloadMinArgCount++;
 
-					var paramType = parameter.ParameterType;
-					if (OverloadsBySignature.Count <= pos)
-						OverloadsBySignature.Add(new Dictionary<Type, List<GenMethodInfo>>());
-					if (OverloadsBySignature[pos].ContainsKey(paramType) == false)
-						OverloadsBySignature[pos][paramType] = new List<GenMethodInfo>();
-
-					if (pos == 0)
-						OverloadsBySignature[pos][paramType].Add(methodInfo);
-					else
-					{
-						var prevSignatures = OverloadsBySignature[pos - 1][parameters[pos - 1].ParameterType];
-						if (prevSignatures.Count > 1 || prevSignatures[0] == methodInfo)
-							OverloadsBySignature[pos][paramType].Add(methodInfo);
-					}
+					if (methodsByParamPosition.Count <= pos)
+						methodsByParamPosition.Add(new List<GenMethodInfo>());
+					methodsByParamPosition[pos].Add(methodInfo);
 
 					var paramInfo = new GenParamInfo { Name = parameter.Name, ParamInfo = parameter };
 					paramInfos[pos] = paramInfo;
 					uniqueParamsSet.Add(paramInfo);
-				}
 
-				//var methodInfo = new GenMethodInfo { MethodInfo = overload, ParamInfos = paramInfos };
-				// MethodsByParamCount[paramCount] ??= new List<GenMethodInfo>();
-				// MethodsByParamCount[paramCount].Add(methodInfo);
+					if (ParamsByPosition.Count <= pos)
+						ParamsByPosition.Add(new HashSet<GenParamInfo>());
+					ParamsByPosition[pos].Add(paramInfo);
+				}
 
 				if (MinArgCount > overloadMinArgCount)
 					MinArgCount = overloadMinArgCount;
+				if (MaxArgCount < paramCount)
+					MaxArgCount = paramCount;
 			}
 
-			var maxParamCount = AllOverloads.Last().GetParameters().Length;
-			for (int pos = 0; pos < maxParamCount; pos++)
+			for (var pos = 0; pos < methodsByParamPosition.Count; pos++)
 			{
-				var sig = OverloadsBySignature[pos];
-				foreach (var kvp in sig)
+				var methodsAtPos = methodsByParamPosition[pos];
+				for (var i = 0; i < methodsAtPos.Count; i++)
 				{
-					foreach (var method in kvp.Value)
-						Debug.Log($"[{pos}] {kvp.Key} = {method}");
+					var method = methodsAtPos[i];
+					var parameter = method.ParamInfos[pos];
+
+					if (OverloadsByParamType.Count <= pos)
+						OverloadsByParamType.Add(new Dictionary<GenParamInfo, List<GenMethodInfo>>());
+					if (OverloadsByParamType[pos].ContainsKey(parameter) == false)
+						OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
+
+					if (pos == 0)
+					{
+						var msg = $"{pos}: {parameter.Type.Name} {parameter.Name} => {method}";
+						if (OverloadsByParamType[pos][parameter].Count > 0)
+							Debug.LogWarning(msg + " MULTIPLE overloads");
+						else
+							Debug.Log(msg);
+
+						OverloadsByParamType[pos][parameter].Add(method);
+					}
+					else
+					{
+						var prevParameters = OverloadsByParamType[pos - 1];
+						var prevParameter = method.ParamInfos[pos - 1];
+						var methodsWithSamePrevParam = prevParameters[prevParameter];
+						if (methodsWithSamePrevParam.Count() > 1)
+						{
+							Debug.Log($"{pos}: {parameter.Type.Name} {parameter.Name} (prev: {prevParameter.Name}) => {method}");
+							OverloadsByParamType[pos][parameter].Add(method);
+						}
+					}
 				}
 			}
-			
+
 			UniqueParams = uniqueParamsSet.OrderBy(p => p.Position);
-			AllOverloads = null; // not needed anymore
+			m_Overloads = null; // not needed anymore
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
@@ -236,18 +251,27 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public override Int32 GetHashCode()
 		{
-			unchecked { return (MethodInfo != null ? MethodInfo.GetHashCode() : 0) * 397 ^ (ParamInfos != null ? ParamInfos.GetHashCode() : 0); }
+			unchecked
+			{
+				return (MethodInfo != null ? MethodInfo.GetHashCode() : 0) * 397 ^ (ParamInfos != null ? ParamInfos.GetHashCode() : 0);
+			}
 		}
 
 		public override String ToString()
 		{
 			var sb = new StringBuilder(MethodInfo.Name);
-			foreach (var paramInfo in ParamInfos)
+			if (ParamInfos != null)
 			{
-				sb.Append(paramInfo.Type);
-				sb.Append(" ");
-				sb.Append(paramInfo.Name);
-				sb.Append(", ");
+				foreach (var paramInfo in ParamInfos)
+				{
+					if (paramInfo != null)
+					{
+						sb.Append(paramInfo.Type);
+						sb.Append(" ");
+						sb.Append(paramInfo.Name);
+						sb.Append(", ");
+					}
+				}
 			}
 			return sb.ToString();
 		}
@@ -261,17 +285,27 @@ namespace CodeSmileEditor.Luny.Generator
 		public String TypeFullName => ParamInfo.ParameterType.FullName.Replace('+', '.');
 		public Int32 Position => ParamInfo.Position;
 		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
+		public String VariableName { get; set; }
 
-		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) => left.Equals(right);
-		public static Boolean operator !=(GenParamInfo left, GenParamInfo right) => !left.Equals(right);
-		public Boolean Equals(GenParamInfo other) => Name == other.Name && Equals(Type, other.Type);
+		public override String ToString()
+		{
+			return $"{Type.Name} {Name}";
+		}
+
+		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) =>
+			left is null && right is null || left is not null && left.Equals(right);
+
+		public static Boolean operator !=(GenParamInfo left, GenParamInfo right) =>
+			left is null && right is not null || left is not null && !left.Equals(right);
+
+		public Boolean Equals(GenParamInfo other) => other is not null /*&& Name == other.Name*/ && Equals(Type, other.Type);
 
 		public override Int32 GetHashCode()
 		{
 			unchecked
 			{
-				var hashCode = Name != null ? Name.GetHashCode() : 0;
-				hashCode = hashCode * 397 ^ (Type != null ? Type.GetHashCode() : 0);
+				var hashCode = /*Name != null ? Name.GetHashCode() : 0;
+				hashCode = hashCode * 397 ^*/ (Type != null ? Type.GetHashCode() : 0);
 				return hashCode;
 			}
 		}

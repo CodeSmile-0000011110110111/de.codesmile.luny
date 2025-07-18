@@ -12,7 +12,7 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class LuaBindingsGenerator
 	{
-		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, IEnumerable<Type> types)
+		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, IEnumerable<Type> types, String methodName = null)
 		{
 			Debug.Assert(module != null);
 			Debug.Assert(types != null);
@@ -23,7 +23,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 				var typeHierarchy = new TypeHierarchy(types);
 				AssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
-				var boundTypes = TypeGenerator.Generate(module, contentFolderPath, typeHierarchy);
+				var boundTypes = TypeGenerator.Generate(module, contentFolderPath, typeHierarchy, methodName);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy, boundTypes);
 			}
 		}

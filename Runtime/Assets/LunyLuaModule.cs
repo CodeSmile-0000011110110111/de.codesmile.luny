@@ -19,8 +19,16 @@ namespace CodeSmile.Luny
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
 
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
-		[SerializeField] [HideInInspector] internal String m_ModuleLoaderTypeName;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
+		[SerializeField] [HideInInspector] internal String m_ModuleLoaderTypeName;
+
+#if UNITY_EDITOR
+		[Header("Debug")]
+		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
+		[SerializeField] internal string m_GenerateOnlyThisType;
+		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
+		[SerializeField] internal string m_GenerateOnlyThisMethod;
+#endif
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String BindingsNamespace => $"Lua_{m_AssemblyName}";
