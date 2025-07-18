@@ -76,12 +76,12 @@ namespace CodeSmileEditor.Luny
 			// I kept losing the latest changes in case of freezes/crashes caused by the generator, so better save than sorry
 			AssetDatabase.SaveAssetIfDirty(Module);
 
-			var onlyThisType = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
-			if (String.IsNullOrEmpty(onlyThisType) == false)
+			var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
+			if (String.IsNullOrEmpty(onlyThisTypeStr) == false)
 			{
-				var methodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
-				var type = m_Types.Where(type => type.FullName.Equals(onlyThisType));
-				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, type, methodName);
+				var onlyThisType = m_Types.Where(type => type.FullName.Equals(onlyThisTypeStr));
+				var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
+				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
 			}
 			else
 				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);

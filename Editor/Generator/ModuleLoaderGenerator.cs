@@ -46,7 +46,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
-			sb.AppendIndented("namespace ");
+			sb.AppendIndent("namespace ");
 			sb.AppendLine(@namespace);
 			sb.OpenIndentedBlock("{"); // namespace
 		}
@@ -55,8 +55,8 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddClassBlock(ScriptBuilder sb, String loaderClassName)
 		{
-			sb.AppendIndentedLine("[Serializable]");
-			sb.AppendIndented("public sealed class ");
+			sb.AppendIndentLine("[Serializable]");
+			sb.AppendIndent("public sealed class ");
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
 			sb.AppendLine(nameof(LunyLuaModuleLoader));
@@ -68,15 +68,15 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddLoadMethod(ScriptBuilder sb, TypeHierarchy typeHierarchy, IEnumerable<GenTypeInfo> typeInfos,
 			String className)
 		{
-			sb.AppendIndentedLine("public override void Load(LuaTable env)");
+			sb.AppendIndentLine("public override void Load(LuaTable env)");
 			sb.OpenIndentedBlock("{"); // Load(..)
-			sb.AppendIndented("var marker = new ProfilerMarker(ProfilerCategory.Scripts, nameof(");
+			sb.AppendIndent("var marker = new ProfilerMarker(ProfilerCategory.Scripts, nameof(");
 			sb.Append(className);
 			sb.AppendLine("));");
-			sb.AppendIndentedLine("marker.Begin();");
-			sb.AppendIndentedLine("base.Load(env);");
+			sb.AppendIndentLine("marker.Begin();");
+			sb.AppendIndentLine("base.Load(env);");
 			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
-			sb.AppendIndentedLine("marker.End();");
+			sb.AppendIndentLine("marker.End();");
 			sb.CloseIndentedBlock("}"); // Load(..)
 		}
 
@@ -90,7 +90,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var namespaceTableName = $"{@namespace.Replace(".", "")}Table";
 				namespaceTables.Add(@namespace, namespaceTableName);
 
-				sb.AppendIndented("var ");
+				sb.AppendIndent("var ");
 				sb.Append(namespaceTableName);
 				sb.Append(" = GetOrCreateNamespaceTable(env, new[] { ");
 
@@ -114,14 +114,14 @@ namespace CodeSmileEditor.Luny.Generator
 				var type = typeInfo.Type;
 				if (type.IsEnum)
 				{
-					sb.AppendIndented("LuaUtil.CreateEnumTable(typeof(");
+					sb.AppendIndent("LuaUtil.CreateEnumTable(typeof(");
 					sb.Append(typeInfo.BindTypeFullName);
 					sb.AppendLine("));");
 				}
 				else
 				{
 					var namespaceTableName = namespaceTables[type.Namespace];
-					sb.AppendIndented(namespaceTableName);
+					sb.AppendIndent(namespaceTableName);
 					sb.Append("[\"");
 					sb.Append(typeInfo.Type.Name);
 					sb.Append("\"] = new ");

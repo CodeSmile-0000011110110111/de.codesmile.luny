@@ -31,7 +31,9 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
 
-		public static Boolean IsSupportedMember(MemberInfo member) => !IsObsolete(member);
+		public static Boolean IsSupportedMember(MemberInfo member) =>
+			!(member is MethodInfo mi && mi.IsStatic && mi.MemberType == MemberTypes.Constructor || // exclude static constructors
+			  IsObsolete(member));
 
 		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)

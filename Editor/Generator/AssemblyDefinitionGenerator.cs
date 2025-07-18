@@ -31,29 +31,31 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddNameAndNamespace(ScriptBuilder sb, String asmDefName)
 		{
-			sb.AppendIndented("\"name\": \"");
+			sb.AppendIndent("\"name\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
 
-			sb.AppendIndented("\"rootNamespace\": \"");
+			sb.AppendIndent("\"rootNamespace\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy,
-			AssemblyDefinitionAssets asmdefAssets,
+		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy, AssemblyDefinitionAssets asmdefAssets,
 			Boolean isEditorModule)
 		{
-			sb.AppendIndentedLine("\"references\": [");
+			sb.AppendIndentLine("\"references\": [");
 			sb.IncrementIndent();
 
-			sb.AppendIndented("\"GUID:");
+			sb.AppendIndent("\"GUID:");
 			sb.Append(GetGuidForReference(asmdefAssets, "CodeSmile.Luny"));
+			sb.AppendLine("\",");
+			sb.AppendIndent("\"GUID:");
+			sb.Append(GetGuidForReference(asmdefAssets, "Lua.Unity"));
 			sb.Append("\"");
 			if (isEditorModule)
 			{
 				sb.AppendLine(",");
-				sb.AppendIndented("\"GUID:");
+				sb.AppendIndent("\"GUID:");
 				sb.Append(GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny"));
 				sb.Append("\"");
 			}
@@ -64,7 +66,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
 					sb.AppendLine(",");
-					sb.AppendIndented("\"GUID:");
+					sb.AppendIndent("\"GUID:");
 					sb.Append(asmdefGuid);
 					sb.Append("\"");
 				}
@@ -76,23 +78,23 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddIncludedPlatforms(ScriptBuilder sb, String modulePath)
 		{
-			sb.AppendIndentedLine("\"includePlatforms\": [");
+			sb.AppendIndentLine("\"includePlatforms\": [");
 			sb.IncrementIndent();
 			if (EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath))
-				sb.AppendIndentedLine("\"Editor\"");
+				sb.AppendIndentLine("\"Editor\"");
 			sb.CloseIndentedBlock("],");
 		}
 
 		private static void AddDefaultSettings(ScriptBuilder sb)
 		{
-			sb.AppendIndentedLine("\"excludePlatforms\": [],");
-			sb.AppendIndentedLine("\"allowUnsafeCode\": false,");
-			sb.AppendIndentedLine("\"overrideReferences\": false,");
-			sb.AppendIndentedLine("\"precompiledReferences\": [],");
-			sb.AppendIndentedLine("\"autoReferenced\": true,");
-			sb.AppendIndentedLine("\"defineConstraints\": [],");
-			sb.AppendIndentedLine("\"versionDefines\": [],");
-			sb.AppendIndentedLine("\"noEngineReferences\": false");
+			sb.AppendIndentLine("\"excludePlatforms\": [],");
+			sb.AppendIndentLine("\"allowUnsafeCode\": false,");
+			sb.AppendIndentLine("\"overrideReferences\": false,");
+			sb.AppendIndentLine("\"precompiledReferences\": [],");
+			sb.AppendIndentLine("\"autoReferenced\": true,");
+			sb.AppendIndentLine("\"defineConstraints\": [],");
+			sb.AppendIndentLine("\"versionDefines\": [],");
+			sb.AppendIndentLine("\"noEngineReferences\": false");
 		}
 
 		private static String GetGuidForReference(AssemblyDefinitionAssets asmdefAssets, String ns)

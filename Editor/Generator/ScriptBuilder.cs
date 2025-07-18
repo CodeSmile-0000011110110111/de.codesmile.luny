@@ -68,7 +68,7 @@ namespace CodeSmileEditor.Luny.Generator
 		///     appends text with leading indentation based on current indent level
 		/// </summary>
 		/// <param name="text"></param>
-		public void AppendIndented(String text)
+		public void AppendIndent(String text = "")
 		{
 			AppendIndentation();
 			Append(text);
@@ -78,7 +78,7 @@ namespace CodeSmileEditor.Luny.Generator
 		///     adds and indent, then appends each string in the array
 		/// </summary>
 		/// <param name="texts"></param>
-		public void AppendIndented(IEnumerable<String> texts)
+		public void AppendIndent(IEnumerable<String> texts)
 		{
 			AppendIndentation();
 			Append(texts);
@@ -119,7 +119,7 @@ namespace CodeSmileEditor.Luny.Generator
 		///     appends text with leading indentation based on current Indentation value, ends with newline
 		/// </summary>
 		/// <param name="text"></param>
-		public void AppendIndentedLine(String text)
+		public void AppendIndentLine(String text)
 		{
 			AppendIndentation();
 			AppendLine(text);
@@ -129,7 +129,7 @@ namespace CodeSmileEditor.Luny.Generator
 		///     Appends indentation, then appends each text and at the end appends a newline
 		/// </summary>
 		/// <param name="texts"></param>
-		public void AppendIndentedLine(IEnumerable<String> texts)
+		public void AppendIndentLine(IEnumerable<String> texts)
 		{
 			AppendIndentation();
 			AppendLine(texts);

@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -96,11 +97,9 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class GenMethodGroup : IEquatable<GenMethodGroup>
 	{
 		public String Name;
-		public IEnumerable<GenParamInfo> UniqueParams;
 		public Int32 MinArgCount;
 		public Int32 MaxArgCount;
-		public List<Dictionary<GenParamInfo, List<GenMethodInfo>>> OverloadsByParamType;
-		public List<HashSet<GenParamInfo>> ParamsByPosition;
+		public List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> OverloadsByParamType;
 		/* List = Position (index)
 		 *	Dict = List of Methods with same parameter type at this position
 		 */
@@ -142,8 +141,8 @@ namespace CodeSmileEditor.Luny.Generator
 			MinArgCount = Int32.MaxValue;
 			MaxArgCount = 0;
 			m_Overloads.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
-			OverloadsByParamType = new List<Dictionary<GenParamInfo, List<GenMethodInfo>>>();
-			ParamsByPosition = new List<HashSet<GenParamInfo>>();
+			OverloadsByParamType = new List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>>();
+			// ParamsByPosition = new List<SortedSet<GenParamInfo>>();
 
 			var uniqueParamsSet = new HashSet<GenParamInfo>();
 			var overloadCount = m_Overloads.Count;
@@ -169,13 +168,14 @@ namespace CodeSmileEditor.Luny.Generator
 						methodsByParamPosition.Add(new List<GenMethodInfo>());
 					methodsByParamPosition[pos].Add(methodInfo);
 
-					var paramInfo = new GenParamInfo { Name = parameter.Name, ParamInfo = parameter };
+					var paramInfo = new GenParamInfo
+					{
+						Name = parameter.Name,
+						ParamInfo = parameter,
+						VariableName = $"_p{pos}_{parameter.ParameterType.Name}",
+					};
 					paramInfos[pos] = paramInfo;
 					uniqueParamsSet.Add(paramInfo);
-
-					if (ParamsByPosition.Count <= pos)
-						ParamsByPosition.Add(new HashSet<GenParamInfo>());
-					ParamsByPosition[pos].Add(paramInfo);
 				}
 
 				if (MinArgCount > overloadMinArgCount)
@@ -193,7 +193,7 @@ namespace CodeSmileEditor.Luny.Generator
 					var parameter = method.ParamInfos[pos];
 
 					if (OverloadsByParamType.Count <= pos)
-						OverloadsByParamType.Add(new Dictionary<GenParamInfo, List<GenMethodInfo>>());
+						OverloadsByParamType.Add(new SortedDictionary<GenParamInfo, List<GenMethodInfo>>(new ParameterComparer()));
 					if (OverloadsByParamType[pos].ContainsKey(parameter) == false)
 						OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
 
@@ -221,12 +221,52 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			UniqueParams = uniqueParamsSet.OrderBy(p => p.Position);
 			m_Overloads = null; // not needed anymore
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
 		public override Boolean Equals(Object obj) => obj is GenMethodGroup other && Equals(other);
+	}
+
+	internal sealed class ParameterComparer : IComparer<GenParamInfo>
+	{
+		public int Compare(GenParamInfo x, GenParamInfo y)
+		{
+			if (ReferenceEquals(x, y))
+				return 0;
+			if (y is null)
+				return 1;
+			if (x is null)
+				return -1;
+
+			var xParamInfo = x.ParamInfo;
+			var yParamInfo = y.ParamInfo;
+			var xHasDefaultValue = xParamInfo.HasDefaultValue;
+			var yHasDefaultValue = yParamInfo.HasDefaultValue;
+
+			// parameters with default values are rated less because they will never fail to "read"
+			if (xHasDefaultValue && yHasDefaultValue == false)
+				return 1;
+			if (yHasDefaultValue && xHasDefaultValue == false)
+				return -1;
+
+			// value type parameters take precedence
+			var xParamType = xParamInfo.ParameterType;
+			var yParamType = yParamInfo.ParameterType;
+			if (xParamType.IsValueType && yParamType.IsValueType == false)
+				return 1;
+			if (yParamType.IsValueType && xParamType.IsValueType == false)
+				return -1;
+
+			// string types take precedence
+			if (xParamType.Equals(typeof(string)) && yParamType.Equals(typeof(string)) == false)
+				return 1;
+			if (yParamType.Equals(typeof(string)) && xParamType.Equals(typeof(string)) == false)
+				return -1;
+
+			// sort by type name
+			return string.Compare(xParamType.FullName, yParamType.FullName, StringComparison.Ordinal);
+		}
 	}
 
 	internal sealed class GenMethodInfo : IEquatable<GenMethodInfo>
@@ -287,11 +327,6 @@ namespace CodeSmileEditor.Luny.Generator
 		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
 		public String VariableName { get; set; }
 
-		public override String ToString()
-		{
-			return $"{Type.Name} {Name}";
-		}
-
 		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) =>
 			left is null && right is null || left is not null && left.Equals(right);
 
@@ -300,12 +335,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public Boolean Equals(GenParamInfo other) => other is not null /*&& Name == other.Name*/ && Equals(Type, other.Type);
 
+		public override String ToString() => $"{Type.Name} {Name}";
+
 		public override Int32 GetHashCode()
 		{
 			unchecked
 			{
 				var hashCode = /*Name != null ? Name.GetHashCode() : 0;
-				hashCode = hashCode * 397 ^*/ (Type != null ? Type.GetHashCode() : 0);
+				hashCode = hashCode * 397 ^*/ Type != null ? Type.GetHashCode() : 0;
 				return hashCode;
 			}
 		}
