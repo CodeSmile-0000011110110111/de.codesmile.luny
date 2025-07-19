@@ -536,12 +536,13 @@ MonoBehaviour:
   - UnityEngine.Types
   m_ContentFolderGuid: 2ddea41692ab0af42bc0e743dcc43693
   m_ModuleLoader:
-    rid: -2
-  m_ModuleLoaderTypeName: 
-  m_GenerateOnlyThisType: UnityEngine.GameObject
+    rid: 2561253402712473673
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
+  m_GenerateOnlyThisType: UnityEngine.Cubemap
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253402712473673
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+      data: 

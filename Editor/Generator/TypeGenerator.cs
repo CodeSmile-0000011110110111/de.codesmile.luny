@@ -219,9 +219,10 @@ namespace CodeSmileEditor.Luny.Generator
 				var method = methodGroup.Methods.FirstOrDefault();
 				if (method != null)
 				{
-					sb.AppendIndentLine($"// CALL parameterless method: {method}");
+					sb.OpenIndentedBlock("{");
 					var methodInfo = new GenMethodInfo { MethodInfo = method, ParamInfos = new GenParamInfo[0] };
 					AddMethodCallAndReturn(sb, typeInfo, methodInfo);
+					sb.CloseIndentedBlock("}");
 				}
 			}
 		}
@@ -270,7 +271,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var isCtor = ctorInfo != null;
 
 			var returnCount = isCtor || methodInfo.ReturnType != typeof(void) ? 1 : 0;
-			var methodName = isCtor ? ctorInfo.DeclaringType.FullName : methodInfo.Name;
+			var methodName = isCtor ? ctorInfo.DeclaringType.FullName.Replace('+', '.') : methodInfo.Name;
 
 			sb.AppendIndent();
 			if (returnCount > 0)
@@ -345,7 +346,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("_arg");
 				sb.Append(posStr);
 				sb.Append(".TryRead<");
-				sb.Append(parameter.Type.FullName);
+				sb.Append(parameter.TypeFullName);
 				sb.Append(">(out var ");
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
 				sb.Append(")");
