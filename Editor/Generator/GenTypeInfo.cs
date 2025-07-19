@@ -108,7 +108,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public String Name;
 		public Int32 MinArgCount;
 		public Int32 MaxArgCount;
-		public List<MethodBase> Methods;
+		public List<MethodBase> Methods = new();
 		public List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> OverloadsByParamType;
 		/* List = Position (index)
 		 *	Dict = List of Methods with same parameter type at this position
@@ -137,19 +137,15 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			Methods ??= new List<MethodBase>();
 			Methods.Add(method);
 		}
 
 		public void Postprocess()
 		{
-			if (Methods == null)
-				return;
-
 			MinArgCount = Int32.MaxValue;
 			MaxArgCount = 0;
 			Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
-			OverloadsByParamType = new List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>>();
+			OverloadsByParamType = new();
 
 			var uniqueParamsSet = new HashSet<GenParamInfo>();
 			var overloadCount = Methods.Count;
@@ -197,9 +193,9 @@ namespace CodeSmileEditor.Luny.Generator
 			for (var pos = 0; pos < methodsByParamPosition.Count; pos++)
 			{
 				var methodsAtPos = methodsByParamPosition[pos];
-				for (var i = 0; i < methodsAtPos.Count; i++)
+
+				foreach (var method in methodsAtPos)
 				{
-					var method = methodsAtPos[i];
 					var parameter = method.ParamInfos[pos];
 
 					if (OverloadsByParamType.Count <= pos)
@@ -211,9 +207,25 @@ namespace CodeSmileEditor.Luny.Generator
 						OverloadsByParamType[pos][parameter].Add(method);
 					else
 					{
-						var prevParameters = OverloadsByParamType[pos - 1];
+						// check if our parameters match so far
+						// var paramToMatch = method.ParamInfos[0];
+						// var methods = OverloadsByParamType[0][paramToMatch];
+						/*
+						for (int i = 0; i < pos; i++)
+						{
+							var paramToMatch = method.ParamInfos[i];
+							var methods = OverloadsByParamType[i][paramToMatch];
+							if (methods.Contains(method) == false)
+							{
+								Debug.Log($"{method} doesn't match parameters (checked: {paramToMatch} at pos: {i})");
+								break;
+							}
+						}
+						*/
+
+						var prevParamsOverloads = OverloadsByParamType[pos - 1];
 						var prevParameter = method.ParamInfos[pos - 1];
-						var methodsWithSamePrevParam = prevParameters[prevParameter];
+						var methodsWithSamePrevParam = prevParamsOverloads[prevParameter];
 						if (methodsWithSamePrevParam.Count > 1)
 						{
 							//Debug.Log($"{pos}: {parameter.Type.Name} {parameter.Name} (prev: {prevParameter.Name}) => {method}");
@@ -222,6 +234,39 @@ namespace CodeSmileEditor.Luny.Generator
 					}
 				}
 			}
+
+
+			// List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> NEWOverloadsByParamType = new();
+			// for (var pos = 0; pos < methodsByParamPosition.Count; pos++)
+			// {
+			// 	var methodsAtPos = methodsByParamPosition[pos];
+			//
+			// 	if (NEWOverloadsByParamType.Count <= pos)
+			// 		NEWOverloadsByParamType.Add(new SortedDictionary<GenParamInfo, List<GenMethodInfo>>(new ParameterComparer()));
+			//
+			// 	foreach (var method in methodsAtPos)
+			// 	{
+			// 		var parameter = method.ParamInfos[pos];
+			// 		if (NEWOverloadsByParamType[pos].ContainsKey(parameter) == false)
+			// 			NEWOverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
+			//
+			// 		if (pos == 0)
+			// 			OverloadsByParamType[pos][parameter].Add(method);
+			// 		else
+			// 		{
+			// 			for (int i = 0; i < pos; i++)
+			// 			{
+			// 				var prevParam = method.ParamInfos[i];
+			// 				if (NEWOverloadsByParamType[pos].ContainsKey(prevParam) == false)
+			// 					break;
+			// 			}
+			//
+			// 		}
+			// 	}
+			// }
+
+
+			Debug.Log("");
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
