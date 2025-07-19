@@ -35,6 +35,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
+			sb.AppendLine("using Unity.Profiling;");
 			foreach (var ns in typeHierarchy.Namespaces)
 			{
 				sb.Append("using ");

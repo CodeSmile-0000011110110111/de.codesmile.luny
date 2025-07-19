@@ -534,11 +534,11 @@ MonoBehaviour:
   m_TypeBlacklist:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
-  m_ContentFolderGuid: a257c267e766bb549817030e91509b59
+  m_ContentFolderGuid: 2ddea41692ab0af42bc0e743dcc43693
   m_ModuleLoader:
     rid: -2
   m_ModuleLoaderTypeName: 
-  m_GenerateOnlyThisType: Unity.Profiling.ProfilerRecorder
+  m_GenerateOnlyThisType: UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2

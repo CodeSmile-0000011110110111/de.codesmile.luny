@@ -45,7 +45,7 @@ namespace CodeSmileEditor.Luny.Generator
 					return;
 				}
 
-				var typeInfo = new GenTypeInfo(type);
+				var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
 				if (typeInfo.InstanceMembers.HasMembers == false && typeInfo.StaticMembers.HasMembers == false)
 					Debug.LogWarning($"{typeInfo.Type.FullName} has no members.");
 
@@ -67,8 +67,8 @@ namespace CodeSmileEditor.Luny.Generator
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
 				AddNamespaceBlock(sb, module.BindingsNamespace);
 				if (typeInfo.IsStatic == false)
-					GenerateInstanceType(sb, typeInfo, onlyThisMethodName);
-				GenerateStaticType(sb, typeInfo, onlyThisMethodName);
+					GenerateInstanceType(sb, typeInfo);
+				GenerateStaticType(sb, typeInfo);
 				EndNamespaceBlock(sb);
 
 				var assetPath = $"{contentFolderPath}/{typeInfo.InstanceTypeName}.cs";
@@ -111,66 +111,61 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(DisabledWarningCodes);
 		}
 
-		private static void GenerateInstanceType(ScriptBuilder sb, GenTypeInfo typeInfo, String methodName = null)
+		private static void GenerateInstanceType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			AddTypeDeclaration(sb, typeInfo.InstanceTypeName, false);
 			AddInstanceFieldAndProperty(sb, typeInfo.InstanceFieldName, typeInfo.BindTypeFullName);
-			AddToStringOverride(sb, typeInfo.InstanceFieldName);
-			AddImplicitOperator(sb, typeInfo.InstanceTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddLuaBindings(sb, typeInfo, typeInfo.InstanceMembers, out var getters, out var setters, methodName);
+			AddConstructor(sb, typeInfo);
+			AddImplicitOperator(sb, typeInfo.InstanceTypeName);
+			AddToStringOverride(sb, typeInfo.InstanceFieldName);
+			AddLuaBindings(sb, typeInfo, typeInfo.InstanceMembers, out var getters, out var setters);
 			AddIndexMetamethod(sb, typeInfo.InstanceTypeName, getters);
 			AddNewIndexMetamethod(sb, typeInfo.InstanceTypeName, setters);
 			EndTypeDeclaration(sb);
 		}
 
-		private static void GenerateStaticType(ScriptBuilder sb, GenTypeInfo typeInfo, String onlyThisMethodName = null)
+		private static void GenerateStaticType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			AddTypeDeclaration(sb, typeInfo.StaticTypeName, true);
 			AddBindType(sb, typeInfo.BindTypeFullName);
 			sb.AppendIndentLine("public override string ToString() => BindType.FullName;");
 			AddImplicitOperator(sb, typeInfo.StaticTypeName);
 			AddMetatableFieldAndProperty(sb);
-			AddLuaBindings(sb, typeInfo, typeInfo.StaticMembers, out var getters, out var setters, onlyThisMethodName);
+			AddLuaBindings(sb, typeInfo, typeInfo.StaticMembers, out var getters, out var setters);
 			AddIndexMetamethod(sb, typeInfo.StaticTypeName, getters);
 			AddNewIndexMetamethod(sb, typeInfo.StaticTypeName, setters);
 			EndTypeDeclaration(sb);
 		}
 
 		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters,
-			out IList<String> setters, String onlyThisMethodName = null)
+			out IList<String> setters)
 		{
 			getters = new List<String>();
 
-			// Constructor
+			// Constructors
 			var isCtor = true;
 			foreach (var methodGroup in members.CtorGroups)
 			{
-				if (onlyThisMethodName != null && onlyThisMethodName != methodGroup.Name)
-					continue;
-
 				var bindFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
 				getters.Add($"case \"new\": value = {bindFuncName}; break;");
 				AddLuaFunction(sb, bindFuncName, "new");
 
 				var isInstanceMethod = !(members.IsStatic || isCtor);
 				var luaArgCount = methodGroup.MaxArgCount + (isInstanceMethod ? 1 : 0);
-				AddSignatureTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, 0, AddMethodCall);
-
+				AddParamTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, 0);
 				sb.AppendIndentLine("throw new System.ArgumentException();");
-
 				EndLuaFunction(sb);
 			}
 
 			setters = null;
 		}
 
-
-		private static void AddSignatureTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodGroup methodGroup,
-			Int32 luaArgCount, Int32 pos, Action<ScriptBuilder, GenTypeInfo, GenMethodInfo, Int32> makeCall)
+		private static void AddParamTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodGroup methodGroup, Int32 luaArgCount,
+			Int32 pos)
 		{
 			var isInstanceMethod = luaArgCount > methodGroup.MaxArgCount;
-			var luaArgOffset = (luaArgCount - methodGroup.MaxArgCount);
+			var luaArgOffset = luaArgCount - methodGroup.MaxArgCount;
 			var posStr = pos.ToString();
 			if (pos == 0)
 			{
@@ -180,67 +175,94 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			var isFirstOverload = true;
-			var overloadsAtPos = methodGroup.OverloadsByParamType[pos];
-			foreach (var overloadsByParamType in overloadsAtPos)
+			var hasParams = methodGroup.OverloadsByParamType?.Count > pos;
+			if (hasParams)
 			{
-				if (isFirstOverload)
+				var overloadsAtPos = methodGroup.OverloadsByParamType[pos];
+
+				foreach (var overloadsByParamType in overloadsAtPos)
 				{
-					isFirstOverload = false;
-					AddGetArgumentFromLuaContext(sb, posStr, (pos + luaArgOffset).ToString());
-
-				}
-
-
-				var paramAtPos = overloadsByParamType.Key;
-				var overloads = overloadsByParamType.Value;
-
-				// ReadValue type checks
-				var hasDefaultValue = paramAtPos.ParamInfo.HasDefaultValue;
-				if (hasDefaultValue)
-					sb.OpenIndentedBlock("{");
-				sb.AppendIndent(hasDefaultValue ? "var " : "if (");
-				AddReadLuaValueStatement(sb, posStr, paramAtPos);
-				sb.AppendLine(hasDefaultValue ? ";" : ")");
-				if (hasDefaultValue == false)
-					sb.OpenIndentedBlock("{");
-
-				if (overloads.Count == 1)
-				{
-					var overload = overloads.First();
-
-					// read remaining arguments
-					var parameters = overload.ParamInfos;
-					for (var i = 0; i < parameters.Length; i++)
+					var paramAtPos = overloadsByParamType.Key;
+					var overloadsWithSameParamType = overloadsByParamType.Value;
+					if (isFirstOverload)
 					{
-						if (i <= pos)
+						isFirstOverload = false;
+						AddGetArgumentFromLuaContext(sb, posStr, (pos + luaArgOffset).ToString());
+					}
+
+					AddReadValueConditional(sb, paramAtPos, posStr);
+					if (overloadsWithSameParamType.Count > 1)
+						AddParamTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, pos + 1);
+
+					foreach (var overload in overloadsWithSameParamType)
+					{
+						var paramCount = overload.ParamInfos.Length;
+						var paramCountMatches = paramCount == pos + 1;
+						var needsExtraBlock = paramCountMatches && overloadsWithSameParamType.Count > 1;
+
+						// if we only have one left or the param count matches
+						if (overloadsWithSameParamType.Count == 1 || paramCountMatches)
 						{
-							// re-assign variable for clarity in method signature
-							sb.AppendIndent("var ");
-							sb.Append(parameters[i].Name);
-							sb.Append(" = ");
-							sb.Append(parameters[i].VariableName);
-							sb.AppendLine(";");
-						}
-						else
-						{
-							AddGetArgumentFromLuaContext(sb, i.ToString(), (i + luaArgOffset).ToString());
-							sb.AppendIndent(parameters[i].ParamInfo.HasDefaultValue ? "var " : "");
-							AddReadLuaValueStatement(sb, i.ToString(), parameters[i], true);
-							sb.AppendLine(";");
+							if (needsExtraBlock) sb.OpenIndentedBlock("{");
+							AddRemainingParametersReadsAndAssignments(sb, overload, luaArgOffset, pos);
+							AddMethodCallAndReturn(sb, typeInfo, overload);
+							if (needsExtraBlock) sb.CloseIndentedBlock("}");
 						}
 					}
 
-					makeCall.Invoke(sb, typeInfo, overload, pos);
+					sb.CloseIndentedBlock("}");
 				}
-				else if (overloads.Count > 1)
-					AddSignatureTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, pos + 1, makeCall);
-				else
-					throw new InvalidOperationException();
+			}
 
-				sb.CloseIndentedBlock("}");
+			if (pos == 0 && (typeInfo.Type.IsValueType || hasParams == false) && methodGroup.Methods != null)
+			{
+				var method = methodGroup.Methods.FirstOrDefault();
+				if (method != null)
+				{
+					sb.AppendIndentLine($"// CALL parameterless method: {method}");
+					var methodInfo = new GenMethodInfo { MethodInfo = method, ParamInfos = new GenParamInfo[0] };
+					AddMethodCallAndReturn(sb, typeInfo, methodInfo);
+				}
 			}
 		}
-		private static void AddMethodCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodInfo overload, Int32 pos)
+
+		private static void AddReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String posStr)
+		{
+			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
+			sb.AppendIndent(hasDefaultValue ? "var " : "if (");
+			AddReadLuaValueStatement(sb, posStr, parameter);
+			sb.AppendLine(hasDefaultValue ? ";" : ")");
+			sb.OpenIndentedBlock("{");
+		}
+
+		private static void AddRemainingParametersReadsAndAssignments(ScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
+		{
+			// get remaining arguments
+			var parameters = overload.ParamInfos;
+			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
+				AddGetArgumentFromLuaContext(sb, paramIndex.ToString(), (paramIndex + luaArgOffset).ToString());
+
+			// re-assign variables for readability in method call
+			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
+			{
+				if (paramIndex <= pos)
+				{
+					sb.AppendIndent("var ");
+					sb.Append(parameters[paramIndex].Name);
+					sb.Append(" = ");
+					sb.Append(parameters[paramIndex].VariableName);
+					sb.AppendLine(";");
+				}
+				else
+				{
+					sb.AppendIndent(parameters[paramIndex].ParamInfo.HasDefaultValue ? "var " : "");
+					AddReadLuaValueStatement(sb, paramIndex.ToString(), parameters[paramIndex], true);
+					sb.AppendLine(";");
+				}
+			}
+		}
+
+		private static void AddMethodCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodInfo overload)
 		{
 			// make the call
 			var methodInfo = overload.MethodInfo as MethodInfo;
@@ -248,14 +270,11 @@ namespace CodeSmileEditor.Luny.Generator
 			var isCtor = ctorInfo != null;
 
 			var returnCount = isCtor || methodInfo.ReturnType != typeof(void) ? 1 : 0;
-			var methodName = isCtor ? ctorInfo.DeclaringType.FullName:  methodInfo.Name;
+			var methodName = isCtor ? ctorInfo.DeclaringType.FullName : methodInfo.Name;
 
-			sb.AppendLine();
 			sb.AppendIndent();
 			if (returnCount > 0)
-			{
 				sb.Append("var _retval0 = ");
-			}
 			if (isCtor)
 			{
 				sb.Append("new ");
@@ -272,10 +291,10 @@ namespace CodeSmileEditor.Luny.Generator
 
 				sb.Append(overload.ParamInfos[i].Name);
 			}
-			sb.AppendLine(isCtor?"));":");");
+			sb.AppendLine(isCtor ? "));" : ");");
 
 			sb.AppendIndent("return new ValueTask<int>(_context.Return(");
-			for (int i = 0; i < returnCount; i++)
+			for (var i = 0; i < returnCount; i++)
 			{
 				if (i > 0)
 					sb.Append(", ");
@@ -285,12 +304,10 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("));");
 		}
 
-		private static void AddGetInstanceFromLuaContext(ScriptBuilder sb)
-		{
+		private static void AddGetInstanceFromLuaContext(ScriptBuilder sb) =>
 			sb.AppendIndentLine("var _instance = _context.GetArgument<ILuaUserData>(0);");
-		}
 
-		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, string posStr, string luaArgPosStr)
+		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String posStr, String luaArgPosStr)
 		{
 			sb.AppendIndent("var _arg");
 			sb.Append(posStr);
@@ -301,7 +318,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(") : LuaValue.Nil;");
 		}
 
-		private static void AddReadLuaValueStatement(ScriptBuilder sb, String posStr, GenParamInfo parameter, bool useSignatureName = false)
+		private static void AddReadLuaValueStatement(ScriptBuilder sb, String posStr, GenParamInfo parameter, Boolean useSignatureName = false)
 		{
 			// FIXME: optimize to read specific value types when possible
 			if (parameter.ParamInfo.HasDefaultValue)
@@ -408,6 +425,22 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public static System.Type BindType => typeof(");
 			sb.Append(typeName);
 			sb.AppendLine(");");
+		}
+
+		private static void AddConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			sb.AppendIndent("public ");
+			sb.Append(typeInfo.InstanceTypeName);
+			sb.Append("(");
+			sb.Append(typeInfo.BindTypeFullName);
+			sb.Append(" ");
+			var paramName = typeInfo.InstanceFieldName.Substring(2).ToLower();
+			sb.Append(paramName);
+			sb.Append(") => ");
+			sb.Append(typeInfo.InstanceFieldName);
+			sb.Append(" = ");
+			sb.Append(paramName);
+			sb.AppendLine(";");
 		}
 
 		private static void AddImplicitOperator(ScriptBuilder sb, String typeName)

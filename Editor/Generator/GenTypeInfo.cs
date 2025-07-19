@@ -2,13 +2,13 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -24,7 +24,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
 
-		public GenTypeInfo(Type type)
+		public GenTypeInfo(Type type, String onlyThisMethodName = null)
 		{
 			Type = type;
 			var typeFullName = type.FullName ?? type.Name;
@@ -40,8 +40,8 @@ namespace CodeSmileEditor.Luny.Generator
 				IsStatic = type.IsAbstract && type.IsSealed;
 				InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
-				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance);
-				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static);
+				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
+				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, onlyThisMethodName);
 			}
 		}
 	}
@@ -58,27 +58,34 @@ namespace CodeSmileEditor.Luny.Generator
 		public Boolean HasMembers;
 		public Boolean IsStatic;
 
-		public GenMemberInfo(Type type, BindingFlags bindingFlags)
+		public GenMemberInfo(Type type, BindingFlags bindingFlags, String onlyThisMethodName)
 		{
 			var obsolete = typeof(ObsoleteAttribute);
+			// FIXME: missing parameterless Ctor (assume always present for value types)
 			Ctors = type.GetConstructors(bindingFlags)
-				.Where(ctor => !ctor.GetCustomAttributes(obsolete).Any())
-				.OrderBy(ctor => ctor.GetParameters().Length);
-			Fields = type.GetFields(bindingFlags).Where(field => !field.GetCustomAttributes(obsolete).Any()).OrderBy(field => field.Name);
-			Properties = type.GetProperties(bindingFlags).Where(prop => !prop.GetCustomAttributes(obsolete).Any()).OrderBy(prop => prop.Name);
-			Methods = type.GetMethods(bindingFlags).Where(method => !method.GetCustomAttributes(obsolete).Any()).OrderBy(method => method.Name);
-			Events = type.GetEvents(bindingFlags).Where(evt => !evt.GetCustomAttributes(obsolete).Any()).OrderBy(evt => evt.Name);
-			CtorGroups = GetMethodGroups(Ctors);
-			MethodGroups = GetMethodGroups(Methods);
+				.Where(c => !c.GetCustomAttributes(obsolete).Any())
+				.OrderBy(c => c.GetParameters().Length);
+			Fields = type.GetFields(bindingFlags).Where(f => !f.GetCustomAttributes(obsolete).Any()).OrderBy(f => f.Name);
+			Properties = type.GetProperties(bindingFlags).Where(p => !p.GetCustomAttributes(obsolete).Any()).OrderBy(p => p.Name);
+			Methods = type.GetMethods(bindingFlags)
+				.Where(m => !(m.IsSpecialName || m.GetCustomAttributes(obsolete).Any()))
+				.OrderBy(m => m.Name);
+			Events = type.GetEvents(bindingFlags).Where(e => !e.GetCustomAttributes(obsolete).Any()).OrderBy(e => e.Name);
+			CtorGroups = GetMethodGroups(Ctors, onlyThisMethodName);
+			MethodGroups = GetMethodGroups(Methods, onlyThisMethodName);
 			HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
 			IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
 		}
 
-		private IEnumerable<GenMethodGroup> GetMethodGroups(IEnumerable<MethodBase> methods)
+		private IEnumerable<GenMethodGroup> GetMethodGroups(IEnumerable<MethodBase> methods, String onlyThisMethodName)
 		{
 			var methodGroups = new Dictionary<String, GenMethodGroup>();
 			foreach (var method in methods)
 			{
+				if (onlyThisMethodName != null && onlyThisMethodName != method.Name)
+					continue;
+
+				Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");
 				if (methodGroups.TryGetValue(method.Name, out var existingGroup))
 					existingGroup.AddOverload(method);
 				else
@@ -88,8 +95,10 @@ namespace CodeSmileEditor.Luny.Generator
 					methodGroups.Add(method.Name, group);
 				}
 			}
+
 			foreach (var group in methodGroups.Values)
 				group.Postprocess();
+
 			return methodGroups.Values.OrderBy(group => group.Name);
 		}
 	}
@@ -99,12 +108,11 @@ namespace CodeSmileEditor.Luny.Generator
 		public String Name;
 		public Int32 MinArgCount;
 		public Int32 MaxArgCount;
+		public List<MethodBase> Methods;
 		public List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> OverloadsByParamType;
 		/* List = Position (index)
 		 *	Dict = List of Methods with same parameter type at this position
 		 */
-
-		private List<MethodBase> m_Overloads;
 
 		public static Boolean operator ==(GenMethodGroup left, GenMethodGroup right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
@@ -129,29 +137,28 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			m_Overloads ??= new List<MethodBase>();
-			m_Overloads.Add(method);
+			Methods ??= new List<MethodBase>();
+			Methods.Add(method);
 		}
 
 		public void Postprocess()
 		{
-			if (m_Overloads == null)
+			if (Methods == null)
 				return;
 
 			MinArgCount = Int32.MaxValue;
 			MaxArgCount = 0;
-			m_Overloads.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
+			Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
 			OverloadsByParamType = new List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>>();
-			// ParamsByPosition = new List<SortedSet<GenParamInfo>>();
 
 			var uniqueParamsSet = new HashSet<GenParamInfo>();
-			var overloadCount = m_Overloads.Count;
+			var overloadCount = Methods.Count;
 
 			var methodsByParamPosition = new List<List<GenMethodInfo>>();
 			for (var overloadIndex = 0; overloadIndex < overloadCount; overloadIndex++)
 			{
 				var overloadMinArgCount = 0;
-				var overload = m_Overloads[overloadIndex];
+				var overload = Methods[overloadIndex];
 				var parameters = overload.GetParameters();
 				var paramCount = parameters.Length;
 
@@ -168,11 +175,14 @@ namespace CodeSmileEditor.Luny.Generator
 						methodsByParamPosition.Add(new List<GenMethodInfo>());
 					methodsByParamPosition[pos].Add(methodInfo);
 
+					var paramType = parameter.ParameterType;
+					var paramName = paramType.Name;
+					var varName = $"_p{pos}_{(paramType.IsArray ? paramName.Substring(0, paramName.Length - 2) : paramName)}";
 					var paramInfo = new GenParamInfo
 					{
 						Name = parameter.Name,
 						ParamInfo = parameter,
-						VariableName = $"_p{pos}_{parameter.ParameterType.Name}",
+						VariableName = varName,
 					};
 					paramInfos[pos] = paramInfo;
 					uniqueParamsSet.Add(paramInfo);
@@ -198,30 +208,20 @@ namespace CodeSmileEditor.Luny.Generator
 						OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
 
 					if (pos == 0)
-					{
-						var msg = $"{pos}: {parameter.Type.Name} {parameter.Name} => {method}";
-						if (OverloadsByParamType[pos][parameter].Count > 0)
-							Debug.LogWarning(msg + " MULTIPLE overloads");
-						else
-							Debug.Log(msg);
-
 						OverloadsByParamType[pos][parameter].Add(method);
-					}
 					else
 					{
 						var prevParameters = OverloadsByParamType[pos - 1];
 						var prevParameter = method.ParamInfos[pos - 1];
 						var methodsWithSamePrevParam = prevParameters[prevParameter];
-						if (methodsWithSamePrevParam.Count() > 1)
+						if (methodsWithSamePrevParam.Count > 1)
 						{
-							Debug.Log($"{pos}: {parameter.Type.Name} {parameter.Name} (prev: {prevParameter.Name}) => {method}");
+							//Debug.Log($"{pos}: {parameter.Type.Name} {parameter.Name} (prev: {prevParameter.Name}) => {method}");
 							OverloadsByParamType[pos][parameter].Add(method);
 						}
 					}
 				}
 			}
-
-			m_Overloads = null; // not needed anymore
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
@@ -230,7 +230,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 	internal sealed class ParameterComparer : IComparer<GenParamInfo>
 	{
-		public int Compare(GenParamInfo x, GenParamInfo y)
+		public Int32 Compare(GenParamInfo x, GenParamInfo y)
 		{
 			if (ReferenceEquals(x, y))
 				return 0;
@@ -259,13 +259,13 @@ namespace CodeSmileEditor.Luny.Generator
 				return -1;
 
 			// string types take precedence
-			if (xParamType.Equals(typeof(string)) && yParamType.Equals(typeof(string)) == false)
+			if (xParamType.Equals(typeof(String)) && yParamType.Equals(typeof(String)) == false)
 				return 1;
-			if (yParamType.Equals(typeof(string)) && xParamType.Equals(typeof(string)) == false)
+			if (yParamType.Equals(typeof(String)) && xParamType.Equals(typeof(String)) == false)
 				return -1;
 
 			// sort by type name
-			return string.Compare(xParamType.FullName, yParamType.FullName, StringComparison.Ordinal);
+			return String.Compare(xParamType.FullName, yParamType.FullName, StringComparison.Ordinal);
 		}
 	}
 

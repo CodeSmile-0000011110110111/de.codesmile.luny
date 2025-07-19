@@ -141,7 +141,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			--IndentLevel;
 			if (IndentLevel < 0)
-				throw new ArgumentOutOfRangeException("indent level must not be negative");
+				throw new ArgumentOutOfRangeException("indent", "indent level must not be negative");
 		}
 
 		/// <summary>
