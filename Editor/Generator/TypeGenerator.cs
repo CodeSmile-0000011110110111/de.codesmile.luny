@@ -152,7 +152,7 @@ namespace CodeSmileEditor.Luny.Generator
 				AddLuaFunction(sb, bindFuncName, "new");
 
 				var isInstanceMethod = !(members.IsStatic || isCtor);
-				var luaArgCount = overloads.MaxArgCount + (isInstanceMethod ? 1 : 0);
+				var luaArgCount = overloads.MaxParamCount + (isInstanceMethod ? 1 : 0);
 				AddParamTypeChecksAndMakeCall(sb, typeInfo, overloads, luaArgCount, 0);
 				sb.AppendIndentLine("throw new System.ArgumentException();");
 				EndLuaFunction(sb);
@@ -164,8 +164,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddParamTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodOverloads methodOverloads, Int32 luaArgCount,
 			Int32 pos)
 		{
-			var isInstanceMethod = luaArgCount > methodOverloads.MaxArgCount;
-			var luaArgOffset = luaArgCount - methodOverloads.MaxArgCount;
+			var isInstanceMethod = luaArgCount > methodOverloads.MaxParamCount;
+			var luaArgOffset = luaArgCount - methodOverloads.MaxParamCount;
 			var posStr = pos.ToString();
 			if (pos == 0)
 			{
@@ -175,10 +175,10 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			var isFirstOverload = true;
-			var hasParams = methodOverloads.OverloadsByParamType?.Count > pos;
+			var hasParams = methodOverloads.OLD_OverloadsByParamType?.Count > pos;
 			if (hasParams)
 			{
-				var overloadsAtPos = methodOverloads.OverloadsByParamType[pos];
+				var overloadsAtPos = methodOverloads.OLD_OverloadsByParamType[pos];
 
 				foreach (var overloadsByParamType in overloadsAtPos)
 				{
@@ -356,7 +356,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetLuaArguments(ScriptBuilder sb, GenMemberInfo members, GenMethodOverloads methodOverloads)
 		{
 			// FIXME: move these inline with reading values to avoid always reading the max # of args
-			var luaArgCount = methodOverloads.MaxArgCount + (members.IsStatic ? 0 : 1);
+			var luaArgCount = methodOverloads.MaxParamCount + (members.IsStatic ? 0 : 1);
 			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 			for (var argNum = 0; argNum < luaArgCount; argNum++)
 			{

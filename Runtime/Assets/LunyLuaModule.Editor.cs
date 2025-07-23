@@ -51,8 +51,8 @@ namespace CodeSmile.Luny
 				else
 					LunyLogger.LogWarn($"Module loader type '{loaderTypeName}' not found in {loaderAssembly.FullName}");
 			}
-			else
-				LunyLogger.LogWarn($"Assembly not found for path: {folder}");
+			// else
+			// 	LunyLogger.LogWarn($"Assembly not found for path: {folder}");
 
 			return moduleLoader;
 		}

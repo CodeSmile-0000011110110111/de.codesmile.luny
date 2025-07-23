@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Internal;
 using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -20,20 +22,43 @@ namespace CodeSmileEditor.Luny.Generator
 ";
 
 		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
+		private static Type[] AttributeBlacklist = new Type[] { typeof(ObsoleteAttribute), typeof(ExcludeFromDocsAttribute) };
 
+		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
 		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
 		                                                    false == (type.IsPrimitive || type.IsInterface ||
 		                                                              type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
 		                                                              type.IsSubclassOf(typeof(Attribute)) ||
 		                                                              type.IsSubclassOf(typeof(Delegate)) ||
 		                                                              type.IsSubclassOf(typeof(Exception)) ||
-		                                                              IsObsolete(type));
-
-		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
-
+		                                                              type.HasAttribute(AttributeBlacklist));
 		public static Boolean IsSupportedMember(MemberInfo member) =>
 			!(member is MethodInfo mi && mi.IsStatic && mi.MemberType == MemberTypes.Constructor || // exclude static constructors
-			  IsObsolete(member));
+			  HasAttribute(member, AttributeBlacklist));
+
+		private static bool HasAttribute(this Type type, Type[] attributes)
+		{
+			foreach (var attribute in attributes)
+			{
+				if (type.GetCustomAttributes(attribute, true).Length > 0)
+					return true;
+			}
+
+			if (type.IsNested)
+				return HasAttribute(type.DeclaringType, attributes);
+
+			return false;
+		}
+		private static bool HasAttribute(this MemberInfo member, Type[] attributes)
+		{
+			//return member.CustomAttributes.Where(attr => attributes.Contains(attr.AttributeType)).Any();
+			foreach (var attribute in attributes)
+			{
+				if (member.GetCustomAttributes(attribute, true).Length > 0)
+					return true;
+			}
+			return false;
+		}
 
 		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
