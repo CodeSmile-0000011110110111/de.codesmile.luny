@@ -53,8 +53,8 @@ namespace CodeSmileEditor.Luny.Generator
 		public IEnumerable<PropertyInfo> Properties;
 		public IEnumerable<MethodInfo> Methods;
 		public IEnumerable<EventInfo> Events;
-		public IEnumerable<GenMethodGroup> CtorGroups;
-		public IEnumerable<GenMethodGroup> MethodGroups;
+		public IEnumerable<GenMethodOverloads> CtorOverloads;
+		public IEnumerable<GenMethodOverloads> MethodOverloads;
 		public Boolean HasMembers;
 		public Boolean IsStatic;
 
@@ -71,39 +71,39 @@ namespace CodeSmileEditor.Luny.Generator
 				.Where(m => !(m.IsSpecialName || m.GetCustomAttributes(obsolete).Any()))
 				.OrderBy(m => m.Name);
 			Events = type.GetEvents(bindingFlags).Where(e => !e.GetCustomAttributes(obsolete).Any()).OrderBy(e => e.Name);
-			CtorGroups = GetMethodGroups(Ctors, onlyThisMethodName);
-			MethodGroups = GetMethodGroups(Methods, onlyThisMethodName);
+			CtorOverloads = GetMethodOverloads(Ctors, onlyThisMethodName);
+			MethodOverloads = GetMethodOverloads(Methods, onlyThisMethodName);
 			HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
 			IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
 		}
 
-		private IEnumerable<GenMethodGroup> GetMethodGroups(IEnumerable<MethodBase> methods, String onlyThisMethodName)
+		private IEnumerable<GenMethodOverloads> GetMethodOverloads(IEnumerable<MethodBase> methods, String onlyThisMethodName)
 		{
-			var methodGroups = new Dictionary<String, GenMethodGroup>();
+			var methodOverloads = new Dictionary<String, GenMethodOverloads>();
 			foreach (var method in methods)
 			{
 				if (onlyThisMethodName != null && onlyThisMethodName != method.Name)
 					continue;
 
 				Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");
-				if (methodGroups.TryGetValue(method.Name, out var existingGroup))
-					existingGroup.AddOverload(method);
+				if (methodOverloads.TryGetValue(method.Name, out var existingOverloads))
+					existingOverloads.AddOverload(method);
 				else
 				{
-					var group = new GenMethodGroup { Name = method.Name, MinArgCount = Int32.MaxValue };
-					group.AddOverload(method);
-					methodGroups.Add(method.Name, group);
+					var overload = new GenMethodOverloads { Name = method.Name, MinArgCount = Int32.MaxValue };
+					overload.AddOverload(method);
+					methodOverloads.Add(method.Name, overload);
 				}
 			}
 
-			foreach (var group in methodGroups.Values)
-				group.Postprocess();
+			foreach (var overload in methodOverloads.Values)
+				overload.Postprocess();
 
-			return methodGroups.Values.OrderBy(group => group.Name);
+			return methodOverloads.Values.OrderBy(overload => overload.Name);
 		}
 	}
 
-	internal sealed class GenMethodGroup : IEquatable<GenMethodGroup>
+	internal sealed class GenMethodOverloads : IEquatable<GenMethodOverloads>
 	{
 		public String Name;
 		public Int32 MinArgCount;
@@ -114,9 +114,24 @@ namespace CodeSmileEditor.Luny.Generator
 		 *	Dict = List of Methods with same parameter type at this position
 		 */
 
-		public static Boolean operator ==(GenMethodGroup left, GenMethodGroup right) => left.Equals(right);
-		public static Boolean operator !=(GenMethodGroup left, GenMethodGroup right) => !left.Equals(right);
-		public Boolean Equals(GenMethodGroup other) => Equals(Name, other.Name);
+		// sorted by min param count (not counting trailing optional params), then by total param count (incl. optional)
+		public Dictionary<int, List<GenMethodInfo>> MethodsByParamCount = new();
+		// methods sorted by param position, keyed by param type
+
+		// algo:
+		// TODO: solve the tree nodes coming back together
+		//		fill a list of param types (signature) we're currently enumerating, only recurse if method param types match thus far
+		// for every parameter position
+		//		for every parameter type at that position
+		//			read param with type
+		//			if current method has more required params => recurse into
+		//			else generate method call
+		//				Note: generate multiple method calls for each trailing optional param is expected
+
+
+		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
+		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
+		public Boolean Equals(GenMethodOverloads other) => Equals(Name, other.Name);
 
 		public void AddOverload(MethodBase method)
 		{
@@ -144,8 +159,9 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			MinArgCount = Int32.MaxValue;
 			MaxArgCount = 0;
+			// sort by total parameter count
 			Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
-			OverloadsByParamType = new();
+			OverloadsByParamType = new List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>>();
 
 			var uniqueParamsSet = new HashSet<GenParamInfo>();
 			var overloadCount = Methods.Count;
@@ -179,6 +195,7 @@ namespace CodeSmileEditor.Luny.Generator
 						Name = parameter.Name,
 						ParamInfo = parameter,
 						VariableName = varName,
+						MethodInfo = methodInfo,
 					};
 					paramInfos[pos] = paramInfo;
 					uniqueParamsSet.Add(paramInfo);
@@ -190,88 +207,159 @@ namespace CodeSmileEditor.Luny.Generator
 					MaxArgCount = paramCount;
 			}
 
+
+
+			{
+				foreach (var method in Methods)
+				{
+					var parameters = method.GetParameters();
+					var minParamCount = parameters.Length;
+					for (var i = parameters.Length - 1; i >= 0; i--)
+					{
+						var parameter = parameters[i];
+						if (parameter.IsOptional)
+						{
+							minParamCount--;
+							continue;
+						}
+
+						break;
+					}
+
+					// sort methods by min parameter count (ignore trailing optional parameters)
+					// Note: Methods is already sorted by max param count
+					if (MethodsByParamCount.ContainsKey(minParamCount) == false)
+						MethodsByParamCount.Add(minParamCount, new List<GenMethodInfo>());
+					var methodInfo = new GenMethodInfo
+					{
+						MethodInfo = method,
+						//ParamInfos = parameters
+						MinParamCount = minParamCount,
+					};
+					MethodsByParamCount[minParamCount].Add(methodInfo);
+				}
+			}
+
+
+
+
+
+			var methodHierarchy = new TreeNode<GenParamInfo>(new GenParamInfo(){Name = "()", VariableName = "/* none */"});
+			var prevNodeChildren = methodHierarchy.Children;
+
 			for (var pos = 0; pos < methodsByParamPosition.Count; pos++)
 			{
-				var methodsAtPos = methodsByParamPosition[pos];
-
-				foreach (var method in methodsAtPos)
+				var methodsByParamPos = methodsByParamPosition[pos];
+				foreach (var method in methodsByParamPos)
 				{
 					var parameter = method.ParamInfos[pos];
 
+					/*
+					if (pos == 0)
+					{
+						methodHierarchy.AddChild(parameter);
+						continue;
+					}
+
+					methodHierarchy.VisitDepthFirst((node, level) =>
+					{
+						Debug.Log($"Visit node at level {level} (pos {pos}): {node.Value} => {node.Value.MethodInfo}");
+
+						// tree level starts at 0 for "parameterless"
+						var nodePos = level - 1;
+						if (nodePos == pos && node.Value == parameter)
+						{
+							var prevPos = pos - 1;
+							var parent = node;
+							do
+							{
+								parent = parent.Parent;
+								Debug.Log($"prev parent: {parent.Value}, param match: {parent?.Value == method.ParamInfos[prevPos]}");
+							} while (parent != null && parent.Value == method.ParamInfos[prevPos]);
+
+							Debug.Log($"parent is: {parent} {parent?.Value}");
+						}
+
+
+						// var nodeParamType = node.Value.ParamInfos[level].Type;
+						// var paramAtLevel = method.ParamInfos[level];
+						//if (nodeParamType == paramAtLevel)
+					});
+					*/
+
+
+
+
+
 					if (OverloadsByParamType.Count <= pos)
 						OverloadsByParamType.Add(new SortedDictionary<GenParamInfo, List<GenMethodInfo>>(new ParameterComparer()));
-					if (OverloadsByParamType[pos].ContainsKey(parameter) == false)
-						OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
 
 					if (pos == 0)
-						OverloadsByParamType[pos][parameter].Add(method);
-					else
 					{
-						// check if our parameters match so far
-						// var paramToMatch = method.ParamInfos[0];
-						// var methods = OverloadsByParamType[0][paramToMatch];
-						/*
-						for (int i = 0; i < pos; i++)
-						{
-							var paramToMatch = method.ParamInfos[i];
-							var methods = OverloadsByParamType[i][paramToMatch];
-							if (methods.Contains(method) == false)
-							{
-								Debug.Log($"{method} doesn't match parameters (checked: {paramToMatch} at pos: {i})");
-								break;
-							}
-						}
-						*/
+						if (OverloadsByParamType[pos].ContainsKey(parameter) == false)
+							OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
 
-						var prevParamsOverloads = OverloadsByParamType[pos - 1];
-						var prevParameter = method.ParamInfos[pos - 1];
-						var methodsWithSamePrevParam = prevParamsOverloads[prevParameter];
-						if (methodsWithSamePrevParam.Count > 1)
+						OverloadsByParamType[pos][parameter].Add(method);
+						continue;
+					}
+
+					// check if the method exists in the previous methods list for its previous parameter type
+					var prevPos = pos - 1;
+					var prevParameter = method.ParamInfos[prevPos];
+					var prevMethodsByParamType = OverloadsByParamType[prevPos];
+					if (prevMethodsByParamType.TryGetValue(prevParameter, out var prevMethods) && prevMethods.Contains(method))
+					{
+						// only add method if we haven't already narrowed down that part of the hierarchy to a single one
+						if (prevMethods.Count > 1)
 						{
 							//Debug.Log($"{pos}: {parameter.Type.Name} {parameter.Name} (prev: {prevParameter.Name}) => {method}");
+							if (OverloadsByParamType[pos].ContainsKey(parameter) == false)
+								OverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
+
 							OverloadsByParamType[pos][parameter].Add(method);
 						}
 					}
 				}
 			}
 
-
-			// List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> NEWOverloadsByParamType = new();
-			// for (var pos = 0; pos < methodsByParamPosition.Count; pos++)
-			// {
-			// 	var methodsAtPos = methodsByParamPosition[pos];
-			//
-			// 	if (NEWOverloadsByParamType.Count <= pos)
-			// 		NEWOverloadsByParamType.Add(new SortedDictionary<GenParamInfo, List<GenMethodInfo>>(new ParameterComparer()));
-			//
-			// 	foreach (var method in methodsAtPos)
-			// 	{
-			// 		var parameter = method.ParamInfos[pos];
-			// 		if (NEWOverloadsByParamType[pos].ContainsKey(parameter) == false)
-			// 			NEWOverloadsByParamType[pos][parameter] = new List<GenMethodInfo>();
-			//
-			// 		if (pos == 0)
-			// 			OverloadsByParamType[pos][parameter].Add(method);
-			// 		else
-			// 		{
-			// 			for (int i = 0; i < pos; i++)
-			// 			{
-			// 				var prevParam = method.ParamInfos[i];
-			// 				if (NEWOverloadsByParamType[pos].ContainsKey(prevParam) == false)
-			// 					break;
-			// 			}
-			//
-			// 		}
-			// 	}
-			// }
-
+			methodHierarchy.VisitDepthFirst((node, level) =>
+			{
+				Debug.Log($"[{level}]: {node.Value} => {node.Value.MethodInfo}");
+			});
 
 			Debug.Log("");
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-		public override Boolean Equals(Object obj) => obj is GenMethodGroup other && Equals(other);
+		public override Boolean Equals(Object obj) => obj is GenMethodOverloads other && Equals(other);
 	}
+
+	/*
+	internal sealed class OverloadsNode : TreeNode<GenParamInfo>
+	{
+		List<GenMethodInfo> m_Methods = new List<GenMethodInfo>();
+		public IEnumerable<GenMethodInfo> Methods => m_Methods;
+
+		public IEnumerable<GenParamInfo> GetOverloadsSortedByParamCount()
+		{
+			// get the children
+			foreach (var child in Children)
+			{
+				var methods = (child as OverloadsNode).Methods;
+			}
+			// sort them
+
+
+			return null;
+		}
+
+		public OverloadsNode(GenParamInfo value, GenMethodInfo overload)
+			: base(value)
+		{
+			m_Methods.Add(overload);
+		}
+	}
+	*/
 
 	internal sealed class ParameterComparer : IComparer<GenParamInfo>
 	{
@@ -318,6 +406,8 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public MethodBase MethodInfo;
 		public GenParamInfo[] ParamInfos;
+		public Int32 MinParamCount;
+		public Int32 ParamCount => ParamInfos?.Length ?? 0;
 
 		public static Boolean operator ==(GenMethodInfo left, GenMethodInfo right) => Equals(left, right);
 		public static Boolean operator !=(GenMethodInfo left, GenMethodInfo right) => !Equals(left, right);
@@ -366,11 +456,12 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public ParameterInfo ParamInfo;
 		public String Name { get; set; }
-		public Type Type => ParamInfo.ParameterType;
+		public Type Type => ParamInfo?.ParameterType;
 		public String TypeFullName => ParamInfo.ParameterType.FullName.Replace('+', '.');
 		public Int32 Position => ParamInfo.Position;
 		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
 		public String VariableName { get; set; }
+		public GenMethodInfo MethodInfo { get; set; }
 
 		public static Boolean operator ==(GenParamInfo left, GenParamInfo right) =>
 			left is null && right is null || left is not null && left.Equals(right);
@@ -380,7 +471,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public Boolean Equals(GenParamInfo other) => other is not null /*&& Name == other.Name*/ && Equals(Type, other.Type);
 
-		public override String ToString() => $"{Type.Name} {Name}";
+		public override String ToString() => $"{Type?.Name} {Name}";
 
 		public override Int32 GetHashCode()
 		{
@@ -396,15 +487,15 @@ namespace CodeSmileEditor.Luny.Generator
 	}
 
 	[Obsolete]
-	internal struct GenMemberGroup : IEquatable<GenMemberGroup>
+	internal struct OBSOLETE_GenMemberGroup : IEquatable<OBSOLETE_GenMemberGroup>
 	{
 		public String Name;
 		public List<MemberInfo> Overloads;
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-		public Boolean Equals(GenMemberGroup other) => Equals(Name, other.Name);
-		public override Boolean Equals(Object obj) => obj is GenMemberGroup other && Equals(other);
-		public static Boolean operator ==(GenMemberGroup left, GenMemberGroup right) => left.Equals(right);
-		public static Boolean operator !=(GenMemberGroup left, GenMemberGroup right) => !left.Equals(right);
+		public Boolean Equals(OBSOLETE_GenMemberGroup other) => Equals(Name, other.Name);
+		public override Boolean Equals(Object obj) => obj is OBSOLETE_GenMemberGroup other && Equals(other);
+		public static Boolean operator ==(OBSOLETE_GenMemberGroup left, OBSOLETE_GenMemberGroup right) => left.Equals(right);
+		public static Boolean operator !=(OBSOLETE_GenMemberGroup left, OBSOLETE_GenMemberGroup right) => !left.Equals(right);
 	}
 }

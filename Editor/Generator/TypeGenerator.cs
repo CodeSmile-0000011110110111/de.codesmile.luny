@@ -145,15 +145,15 @@ namespace CodeSmileEditor.Luny.Generator
 
 			// Constructors
 			var isCtor = true;
-			foreach (var methodGroup in members.CtorGroups)
+			foreach (var overloads in members.CtorOverloads)
 			{
 				var bindFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
 				getters.Add($"case \"new\": value = {bindFuncName}; break;");
 				AddLuaFunction(sb, bindFuncName, "new");
 
 				var isInstanceMethod = !(members.IsStatic || isCtor);
-				var luaArgCount = methodGroup.MaxArgCount + (isInstanceMethod ? 1 : 0);
-				AddParamTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, 0);
+				var luaArgCount = overloads.MaxArgCount + (isInstanceMethod ? 1 : 0);
+				AddParamTypeChecksAndMakeCall(sb, typeInfo, overloads, luaArgCount, 0);
 				sb.AppendIndentLine("throw new System.ArgumentException();");
 				EndLuaFunction(sb);
 			}
@@ -161,11 +161,11 @@ namespace CodeSmileEditor.Luny.Generator
 			setters = null;
 		}
 
-		private static void AddParamTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodGroup methodGroup, Int32 luaArgCount,
+		private static void AddParamTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodOverloads methodOverloads, Int32 luaArgCount,
 			Int32 pos)
 		{
-			var isInstanceMethod = luaArgCount > methodGroup.MaxArgCount;
-			var luaArgOffset = luaArgCount - methodGroup.MaxArgCount;
+			var isInstanceMethod = luaArgCount > methodOverloads.MaxArgCount;
+			var luaArgOffset = luaArgCount - methodOverloads.MaxArgCount;
 			var posStr = pos.ToString();
 			if (pos == 0)
 			{
@@ -175,10 +175,10 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			var isFirstOverload = true;
-			var hasParams = methodGroup.OverloadsByParamType?.Count > pos;
+			var hasParams = methodOverloads.OverloadsByParamType?.Count > pos;
 			if (hasParams)
 			{
-				var overloadsAtPos = methodGroup.OverloadsByParamType[pos];
+				var overloadsAtPos = methodOverloads.OverloadsByParamType[pos];
 
 				foreach (var overloadsByParamType in overloadsAtPos)
 				{
@@ -192,7 +192,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 					AddReadValueConditional(sb, paramAtPos, posStr);
 					if (overloadsWithSameParamType.Count > 1)
-						AddParamTypeChecksAndMakeCall(sb, typeInfo, methodGroup, luaArgCount, pos + 1);
+						AddParamTypeChecksAndMakeCall(sb, typeInfo, methodOverloads, luaArgCount, pos + 1);
 
 					foreach (var overload in overloadsWithSameParamType)
 					{
@@ -214,9 +214,9 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			if (pos == 0 && (typeInfo.Type.IsValueType || hasParams == false) && methodGroup.Methods != null)
+			if (pos == 0 && (typeInfo.Type.IsValueType || hasParams == false) && methodOverloads.Methods != null)
 			{
-				var method = methodGroup.Methods.FirstOrDefault();
+				var method = methodOverloads.Methods.FirstOrDefault();
 				if (method != null)
 				{
 					sb.OpenIndentedBlock("{");
@@ -353,10 +353,10 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		private static void AddGetLuaArguments(ScriptBuilder sb, GenMemberInfo members, GenMethodGroup methodGroup)
+		private static void AddGetLuaArguments(ScriptBuilder sb, GenMemberInfo members, GenMethodOverloads methodOverloads)
 		{
 			// FIXME: move these inline with reading values to avoid always reading the max # of args
-			var luaArgCount = methodGroup.MaxArgCount + (members.IsStatic ? 0 : 1);
+			var luaArgCount = methodOverloads.MaxArgCount + (members.IsStatic ? 0 : 1);
 			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 			for (var argNum = 0; argNum < luaArgCount; argNum++)
 			{

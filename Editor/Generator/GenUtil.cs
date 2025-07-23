@@ -63,17 +63,17 @@ namespace CodeSmileEditor.Luny.Generator
 			types.Select(type => type.Namespace).Distinct().OrderBy(s => s);
 
 		[Obsolete]
-		public static IEnumerable<GenMemberGroup> GetBindableMembers(Type type)
+		public static IEnumerable<OBSOLETE_GenMemberGroup> GetBindableMembers(Type type)
 		{
 			var members = type
 				.GetMembers(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
 				.Where(member => IsSupportedMember(member))
 				.OrderBy(member => member.Name);
 
-			var groups = new HashSet<GenMemberGroup>();
+			var groups = new HashSet<OBSOLETE_GenMemberGroup>();
 			foreach (var member in members)
 			{
-				var group = new GenMemberGroup { Name = member.Name };
+				var group = new OBSOLETE_GenMemberGroup { Name = member.Name };
 				if (groups.TryGetValue(group, out var existingGroup) == false)
 				{
 					group.Overloads = new List<MemberInfo>();
