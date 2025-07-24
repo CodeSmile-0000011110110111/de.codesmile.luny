@@ -49,10 +49,10 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("namespace ");
 			sb.AppendLine(@namespace);
-			sb.OpenIndentedBlock("{"); // namespace
+			sb.OpenIndentBlock("{"); // namespace
 		}
 
-		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentedBlock("}"); // namespace
+		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}"); // namespace
 
 		private static void AddClassBlock(ScriptBuilder sb, String loaderClassName)
 		{
@@ -61,16 +61,16 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
 			sb.AppendLine(nameof(LunyLuaModuleLoader));
-			sb.OpenIndentedBlock("{"); // class
+			sb.OpenIndentBlock("{"); // class
 		}
 
-		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentedBlock("}"); // class
+		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}"); // class
 
 		private static void AddLoadMethod(ScriptBuilder sb, TypeHierarchy typeHierarchy, IEnumerable<GenTypeInfo> typeInfos,
 			String className)
 		{
 			sb.AppendIndentLine("public override void Load(LuaTable env)");
-			sb.OpenIndentedBlock("{"); // Load(..)
+			sb.OpenIndentBlock("{"); // Load(..)
 			sb.AppendIndent("var marker = new ProfilerMarker(ProfilerCategory.Scripts, nameof(");
 			sb.Append(className);
 			sb.AppendLine("));");
@@ -78,7 +78,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("base.Load(env);");
 			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
 			sb.AppendIndentLine("marker.End();");
-			sb.CloseIndentedBlock("}"); // Load(..)
+			sb.CloseIndentBlock("}"); // Load(..)
 		}
 
 		private static void GenerateTypeInitialization(ScriptBuilder sb, TypeHierarchy typeHierarchy,

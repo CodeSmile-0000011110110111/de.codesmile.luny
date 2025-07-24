@@ -141,13 +141,16 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			--IndentLevel;
 			if (IndentLevel < 0)
-				throw new ArgumentOutOfRangeException("indent", "indent level must not be negative");
+			{
+				IndentLevel = 0;
+				Debug.LogWarning("decremented indententation too much");
+			}
 		}
 
 		/// <summary>
 		///     appends an opening character with the current Indentation, then increments Indentation
 		/// </summary>
-		public void OpenIndentedBlock(String openCharacters)
+		public void OpenIndentBlock(String openCharacters)
 		{
 			AppendIndentation();
 			AppendLine(openCharacters);
@@ -157,7 +160,7 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     decrements Indentation, then appends a closing character
 		/// </summary>
-		public void CloseIndentedBlock(String closeCharacters)
+		public void CloseIndentBlock(String closeCharacters)
 		{
 			DecrementIndent();
 			AppendIndentation();

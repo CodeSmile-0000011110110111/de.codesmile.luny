@@ -18,12 +18,12 @@ namespace CodeSmileEditor.Luny.Generator
 			var asmDefName = module.BindingsNamespace;
 
 			var sb = new ScriptBuilder();
-			sb.OpenIndentedBlock("{");
+			sb.OpenIndentBlock("{");
 			AddNameAndNamespace(sb, asmDefName);
 			AddReferences(sb, typeHierarchy, asmdefAssets, isEditorModule);
 			AddIncludedPlatforms(sb, modulePath);
 			AddDefaultSettings(sb);
-			sb.CloseIndentedBlock("}");
+			sb.CloseIndentBlock("}");
 
 			var assetPath = $"{contentFolderPath}/{asmDefName}.asmdef";
 			GenUtil.WriteFile(assetPath, sb.ToString());
@@ -73,7 +73,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			sb.AppendLine();
-			sb.CloseIndentedBlock("],");
+			sb.CloseIndentBlock("],");
 		}
 
 		private static void AddIncludedPlatforms(ScriptBuilder sb, String modulePath)
@@ -82,7 +82,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.IncrementIndent();
 			if (EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath))
 				sb.AppendIndentLine("\"Editor\"");
-			sb.CloseIndentedBlock("],");
+			sb.CloseIndentBlock("],");
 		}
 
 		private static void AddDefaultSettings(ScriptBuilder sb)

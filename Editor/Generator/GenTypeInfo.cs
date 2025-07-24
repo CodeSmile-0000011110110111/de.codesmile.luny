@@ -105,38 +105,21 @@ namespace CodeSmileEditor.Luny.Generator
 
 	internal sealed class GenMethodOverloads : IEquatable<GenMethodOverloads>
 	{
-		private readonly List<MethodBase> m_Methods = new();
+		private List<MethodBase> m_Methods = new();
 
 		public String Name;
 		public Int32 MinParamCount;
 		public Int32 MaxParamCount;
-		public List<SortedDictionary<GenParamInfo, List<GenMethodInfo>>> OLD_OverloadsByParamType;
-		/* List = Position (index)
-		 *	Dict = List of Methods with same parameter type at this position
-		 */
 
-		public List<GenMethodInfo> MethodsInGenerateOrder = new();
-
-		public List<GenMethodInfo> Methods = new();
-		public List<HashSet<GenParamInfo>> ParamsByPosition = new();
+		public List<GenMethodInfo> SortedMethods { get; } = new();
 		// sorted by min param count (not counting trailing optional params), then by total param count (incl. optional)
 		// List => param count (NOT: position!) - Note: can have empty lists at any position
 		// inner List => methods that required this number of parameters (not counting trailing optional params!)
-		public List<List<GenMethodInfo>> MethodsByParamCount;
+		public List<List<GenMethodInfo>> MethodsByParamCount { get; private set; }
 		// methods sorted by param position, keyed by param type
 		// List => param position
 		// inner Dictionary => key = param type, value = methods with that type at that position
-		public List<Dictionary<GenParamInfo, List<GenMethodInfo>>> MethodsByParamType;
-
-		// algo:
-		// TODO: solve the tree nodes coming back together
-		//		fill a list of param types (signature) we're currently enumerating, only recurse if method param types match thus far
-		// for every parameter position
-		//		for every parameter type at that position
-		//			read param with type
-		//			if current method has more required params => recurse into
-		//			else generate method call
-		//				Note: generate multiple method calls for each trailing optional param is expected
+		public List<Dictionary<GenParamInfo, List<GenMethodInfo>>> MethodsByParamType { get; private set; }
 
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
@@ -170,14 +153,17 @@ namespace CodeSmileEditor.Luny.Generator
 			// sort by total parameter count first (this becomes the secondary sort order)
 			// Note: may be superfluous, but docs state that prior to .NET 7 there is no guaranteed method order
 			m_Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
+
+			var paramsByPosition = new List<HashSet<GenParamInfo>>();
+			var unsortedMethods = new List<GenMethodInfo>();
 			MethodsByParamCount = new List<List<GenMethodInfo>>();
 			MethodsByParamType = new List<Dictionary<GenParamInfo, List<GenMethodInfo>>>();
 			MinParamCount = Int32.MaxValue;
 			MaxParamCount = 0;
 
-			foreach (var overloadInfo in m_Methods)
+			foreach (var overload in m_Methods)
 			{
-				var overloadParams = overloadInfo.GetParameters();
+				var overloadParams = overload.GetParameters();
 				var overloadParamCount = overloadParams.Length;
 				var overloadMinParamCount = overloadParamCount;
 
@@ -211,7 +197,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var paramInfos = new GenParamInfo[overloadParamCount];
 				var methodInfo = new GenMethodInfo
 				{
-					MethodInfo = overloadInfo,
+					MethodInfo = overload,
 					ParamInfos = paramInfos,
 					MinParamCount = overloadMinParamCount,
 				};
@@ -237,13 +223,13 @@ namespace CodeSmileEditor.Luny.Generator
 						MethodsByParamType[pos].Add(paramInfo, new List<GenMethodInfo>());
 					MethodsByParamType[pos][paramInfo].Add(methodInfo);
 
-					if (ParamsByPosition.Count <= pos)
-						ParamsByPosition.Add(new HashSet<GenParamInfo>());
-					ParamsByPosition[pos].Add(paramInfo);
+					if (paramsByPosition.Count <= pos)
+						paramsByPosition.Add(new HashSet<GenParamInfo>());
+					paramsByPosition[pos].Add(paramInfo);
 				}
 
 				MethodsByParamCount[overloadMinParamCount].Add(methodInfo);
-				Methods.Add(methodInfo);
+				unsortedMethods.Add(methodInfo);
 			}
 
 			// sort by min param count first, total param count second
@@ -259,34 +245,38 @@ namespace CodeSmileEditor.Luny.Generator
 				});
 			}
 
-			if (ParamsByPosition.Count > 0)
+			if (paramsByPosition.Count > 0)
 			{
 				var signature = new List<GenParamInfo>();
-				FindOverloadsByTypeRecursive(0, signature);
+				FindOverloadsByTypeRecursive(unsortedMethods, 0, paramsByPosition, signature);
 			}
 
 			Debug.Log("Methods to generate, in this order:");
-			for (var i = 0; i < MethodsInGenerateOrder.Count; i++)
-				Debug.Log($"\t[{i}] {MethodsInGenerateOrder[i]}");
+			for (var i = 0; i < SortedMethods.Count; i++)
+				Debug.Log($"\t[{i}] {SortedMethods[i]}");
+
+			m_Methods = null;
 		}
 
-		private void FindOverloadsByTypeRecursive(Int32 pos, List<GenParamInfo> signature)
+		private void FindOverloadsByTypeRecursive(List<GenMethodInfo> methods, Int32 pos, List<HashSet<GenParamInfo>> paramsByPosition,
+			List<GenParamInfo> signature)
 		{
-			Debug.Log($"[{pos}] {signature.Count}/{MaxParamCount} {ParamsByPosition.Count} => ({DebugSignatureToString(signature)})");
-			for (var i = 0; i < Methods.Count; i++)
+			//Debug.Log($"[{pos}] {signature.Count}/{MaxParamCount} {paramsByPosition.Count} => ({DebugSignatureToString(signature)})");
+			for (var i = 0; i < methods.Count; i++)
 			{
-				var method = Methods[i];
+				var method = methods[i];
 				if (pos >= method.MinParamCount && method.HasMatchingSignature(signature))
-					MethodsInGenerateOrder.Add(method);
+					SortedMethods.Add(method);
 			}
-			if (pos < ParamsByPosition.Count)
+
+			if (pos < paramsByPosition.Count)
 			{
-				var parameters = ParamsByPosition[pos];
+				var parameters = paramsByPosition[pos];
 				foreach (var parameter in parameters)
 				{
 					var nextSignature = new List<GenParamInfo>(signature);
 					nextSignature.Add(parameter);
-					FindOverloadsByTypeRecursive(pos + 1, nextSignature);
+					FindOverloadsByTypeRecursive(methods, pos + 1, paramsByPosition, nextSignature);
 				}
 			}
 		}
