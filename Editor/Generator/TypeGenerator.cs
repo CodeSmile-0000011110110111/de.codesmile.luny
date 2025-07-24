@@ -162,7 +162,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddParamTypeChecksAndMakeCall(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodOverloads methodOverloads, Int32 luaArgCount,
-			Int32 pos)
+			Int32 pos, List<GenParamInfo> signature = null)
 		{
 			var isInstanceMethod = luaArgCount > methodOverloads.MaxParamCount;
 			var luaArgOffset = luaArgCount - methodOverloads.MaxParamCount;
@@ -171,57 +171,84 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 				if (isInstanceMethod)
-					AddGetInstanceFromLuaContext(sb);
+					AddGetInstanceFromLuaArguments(sb);
+
+				signature = new List<GenParamInfo>();
 			}
 
-			var isFirstOverload = true;
-			var hasParams = methodOverloads.OLD_OverloadsByParamType?.Count > pos;
-			if (hasParams)
+			var isAtCallLevel = pos >= methodOverloads.MaxParamCount;
+			if (isAtCallLevel == false)
 			{
-				var overloadsAtPos = methodOverloads.OLD_OverloadsByParamType[pos];
+				// Adds: "var _arg# = _argCount > # ? _context.GetArgument(#) : LuaValue.Nil;"
+				AddGetArgumentFromLuaContext(sb, posStr, (pos + luaArgOffset).ToString());
 
-				foreach (var overloadsByParamType in overloadsAtPos)
+				foreach (var overloadsByParamType in methodOverloads.MethodsByParamType[pos])
 				{
-					var paramAtPos = overloadsByParamType.Key;
-					var overloadsWithSameParamType = overloadsByParamType.Value;
-					if (isFirstOverload)
+					var parameter = overloadsByParamType.Key;
+					var overloads = overloadsByParamType.Value;
+
+					// update signature with param type
+					if (signature.Count <= pos)
+						signature.Add(parameter);
+					else
+						signature[pos] = parameter;
+
+					var matchingSignatureOverloadCount = 0;
+					foreach (var overload in methodOverloads.Methods)
 					{
-						isFirstOverload = false;
-						AddGetArgumentFromLuaContext(sb, posStr, (pos + luaArgOffset).ToString());
+						if (overload.HasMatchingSignature(signature))
+							matchingSignatureOverloadCount++;
 					}
 
-					AddReadValueConditional(sb, paramAtPos, posStr);
-					if (overloadsWithSameParamType.Count > 1)
-						AddParamTypeChecksAndMakeCall(sb, typeInfo, methodOverloads, luaArgCount, pos + 1);
+					// if (matchingSignatureOverloadCount == 0)
+					// 	continue;
 
-					foreach (var overload in overloadsWithSameParamType)
+					// Adds: "if (_arg#.TryRead<Type>(out var _p#_Type))"
+					AddReadValueConditional(sb, parameter, posStr);
+					sb.AppendIndent($"// pos={pos}, matching signatures = {matchingSignatureOverloadCount} => (");
+					for (int i = 0; i < signature.Count; i++)
 					{
+						if (i > 0)
+							sb.Append(", ");
+						sb.Append(signature[i].Type.Name);
+					}
+					sb.AppendLine(")");
+
+					//if (matchingSignatureOverloadCount != 1)
+					//if (overloads.Count > 1)
+					{
+						AddParamTypeChecksAndMakeCall(sb, typeInfo, methodOverloads, luaArgCount, pos + 1, signature);
+					}
+
+					foreach (var overload in methodOverloads.MethodsByParamCount[pos + 1])
+					{
+						if (overload.HasMatchingSignature(signature) == false)
+						{
+							continue;
+						}
+
 						var paramCount = overload.ParamInfos.Length;
 						var paramCountMatches = paramCount == pos + 1;
-						var needsExtraBlock = paramCountMatches && overloadsWithSameParamType.Count > 1;
 
 						// if we only have one left or the param count matches
-						if (overloadsWithSameParamType.Count == 1 || paramCountMatches)
+						if (overloads.Count == 1 || paramCountMatches)
 						{
-							if (needsExtraBlock) sb.OpenIndentedBlock("{");
 							AddRemainingParametersReadsAndAssignments(sb, overload, luaArgOffset, pos);
 							AddMethodCallAndReturn(sb, typeInfo, overload);
-							if (needsExtraBlock) sb.CloseIndentedBlock("}");
 						}
 					}
 
-					sb.CloseIndentedBlock("}");
+					sb.CloseIndentedBlock("}"); // Read value conditional block
 				}
 			}
 
-			if (pos == 0 && (typeInfo.Type.IsValueType || hasParams == false) && methodOverloads.Methods != null)
+			if (pos == 0 && (isAtCallLevel || typeInfo.Type.IsValueType))
 			{
-				var method = methodOverloads.Methods.FirstOrDefault();
+				var method = methodOverloads.Methods?.FirstOrDefault();
 				if (method != null)
 				{
 					sb.OpenIndentedBlock("{");
-					var methodInfo = new GenMethodInfo { MethodInfo = method, ParamInfos = new GenParamInfo[0] };
-					AddMethodCallAndReturn(sb, typeInfo, methodInfo);
+					AddMethodCallAndReturn(sb, typeInfo, method);
 					sb.CloseIndentedBlock("}");
 				}
 			}
@@ -305,7 +332,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("));");
 		}
 
-		private static void AddGetInstanceFromLuaContext(ScriptBuilder sb) =>
+		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb) =>
 			sb.AppendIndentLine("var _instance = _context.GetArgument<ILuaUserData>(0);");
 
 		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String posStr, String luaArgPosStr)

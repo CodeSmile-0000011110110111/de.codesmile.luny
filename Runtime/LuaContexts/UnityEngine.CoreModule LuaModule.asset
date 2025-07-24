@@ -527,7 +527,7 @@ MonoBehaviour:
   m_TypeBlacklist:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
-  m_ContentFolderGuid: e68be585aea486d4a97cfdf9a78f1f24
+  m_ContentFolderGuid: 170c96a3481d8bf4ba4729e644c4c452
   m_ModuleLoader:
     rid: -2
   m_ModuleLoaderTypeName: 
