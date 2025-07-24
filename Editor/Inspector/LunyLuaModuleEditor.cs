@@ -77,10 +77,12 @@ namespace CodeSmileEditor.Luny
 			AssetDatabase.SaveAssetIfDirty(Module);
 
 			var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
-			if (String.IsNullOrEmpty(onlyThisTypeStr) == false)
+			if (String.IsNullOrEmpty(onlyThisTypeStr) == false && IsCommentedOut(onlyThisTypeStr) == false)
 			{
 				var onlyThisType = m_Types.Where(type => type.FullName.Equals(onlyThisTypeStr));
 				var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
+				if (IsCommentedOut(onlyThisMethodName))
+					onlyThisMethodName = null;
 				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
 			}
 			else
@@ -91,6 +93,8 @@ namespace CodeSmileEditor.Luny
 			AssetDatabase.Refresh();
 			UpdateUIState(); // pick up any changes made during generation
 		}
+
+		private Boolean IsCommentedOut(String str) => str.StartsWith("//") || str.StartsWith("--");
 
 		private void OnLogModuleTable()
 		{

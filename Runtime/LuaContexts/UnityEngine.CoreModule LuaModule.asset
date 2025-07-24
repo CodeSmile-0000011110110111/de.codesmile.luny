@@ -531,7 +531,7 @@ MonoBehaviour:
   m_ModuleLoader:
     rid: -2
   m_ModuleLoaderTypeName: 
-  m_GenerateOnlyThisType: UnityEngine.Cubemap
+  m_GenerateOnlyThisType: //UnityEngine.Cubemap
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2

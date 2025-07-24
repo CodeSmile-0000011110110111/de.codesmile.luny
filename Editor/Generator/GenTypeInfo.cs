@@ -85,7 +85,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (onlyThisMethodName != null && onlyThisMethodName != method.Name)
 					continue;
 
-				Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");
+				//Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");
 				if (methodOverloads.TryGetValue(method.Name, out var existingOverloads))
 					existingOverloads.AddOverload(method);
 				else
@@ -155,7 +155,7 @@ namespace CodeSmileEditor.Luny.Generator
 			m_Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
 
 			var paramsByPosition = new List<HashSet<GenParamInfo>>();
-			var unsortedMethods = new List<GenMethodInfo>();
+			var allMethods = new List<GenMethodInfo>();
 			MethodsByParamCount = new List<List<GenMethodInfo>>();
 			MethodsByParamType = new List<Dictionary<GenParamInfo, List<GenMethodInfo>>>();
 			MinParamCount = Int32.MaxValue;
@@ -168,11 +168,13 @@ namespace CodeSmileEditor.Luny.Generator
 				var overloadMinParamCount = overloadParamCount;
 
 				// reverse enumerate parameters to find min number of required parameters
+				var trailingOptionalParameterCount = 0;
 				for (var i = overloadParamCount - 1; i >= 0; i--)
 				{
 					if (overloadParams[i].IsOptional == false)
 						break;
 
+					trailingOptionalParameterCount++;
 					overloadMinParamCount--;
 				}
 
@@ -195,11 +197,10 @@ namespace CodeSmileEditor.Luny.Generator
 
 				// generate parameter infos
 				var paramInfos = new GenParamInfo[overloadParamCount];
-				var methodInfo = new GenMethodInfo
+				var overloadInfo = new GenMethodInfo
 				{
 					MethodInfo = overload,
 					ParamInfos = paramInfos,
-					MinParamCount = overloadMinParamCount,
 				};
 
 				for (var pos = 0; pos < overloadParamCount; pos++)
@@ -210,50 +211,60 @@ namespace CodeSmileEditor.Luny.Generator
 					if (paramType.IsArray)
 						paramTypeName = paramTypeName.Replace("[]", "Array");
 					var bindVarName = $"_p{pos}_{paramTypeName}";
+
 					var paramInfo = new GenParamInfo
 					{
 						Name = parameter.Name,
 						ParamInfo = parameter,
 						VariableName = bindVarName,
-						MethodInfo = methodInfo,
+						MethodInfo = overloadInfo,
 					};
 					paramInfos[pos] = paramInfo;
 
 					if (MethodsByParamType[pos].ContainsKey(paramInfo) == false)
 						MethodsByParamType[pos].Add(paramInfo, new List<GenMethodInfo>());
-					MethodsByParamType[pos][paramInfo].Add(methodInfo);
+					MethodsByParamType[pos][paramInfo].Add(overloadInfo);
 
 					if (paramsByPosition.Count <= pos)
 						paramsByPosition.Add(new HashSet<GenParamInfo>());
 					paramsByPosition[pos].Add(paramInfo);
 				}
 
-				MethodsByParamCount[overloadMinParamCount].Add(methodInfo);
-				unsortedMethods.Add(methodInfo);
+				MethodsByParamCount[overloadMinParamCount].Add(overloadInfo);
+
+				// treat methods with trailing optional parameters as overloads
+				for (var i = trailingOptionalParameterCount; i > 0; i--)
+				{
+					var optionalParamInfos = overloadInfo.ParamInfos.Clone() as GenParamInfo[];
+					Array.Resize(ref optionalParamInfos, overloadParamCount - i);
+					var optionalParamMethod = new GenMethodInfo
+					{
+						MethodInfo = overload,
+						ParamInfos = optionalParamInfos,
+					};
+					allMethods.Add(optionalParamMethod);
+				}
+
+				allMethods.Add(overloadInfo);
 			}
 
 			// sort by min param count first, total param count second
 			// overloads with trailing optional parameters are sorted to the front
 			foreach (var methods in MethodsByParamCount)
-			{
-				methods.Sort((m1, m2) =>
-				{
-					var result = m1.MinParamCount.CompareTo(m2.MinParamCount);
-					if (result == 0)
-						result = m1.ParamCount.CompareTo(m2.ParamCount);
-					return result;
-				});
-			}
+				methods.Sort((m1, m2) => m1.ParamCount.CompareTo(m2.ParamCount));
 
 			if (paramsByPosition.Count > 0)
 			{
 				var signature = new List<GenParamInfo>();
-				FindOverloadsByTypeRecursive(unsortedMethods, 0, paramsByPosition, signature);
+				FindOverloadsByTypeRecursive(allMethods, 0, paramsByPosition, signature);
 			}
 
-			Debug.Log("Methods to generate, in this order:");
-			for (var i = 0; i < SortedMethods.Count; i++)
-				Debug.Log($"\t[{i}] {SortedMethods[i]}");
+			// if (SortedMethods.Count > 0)
+			// {
+			// 	Debug.Log("Methods to generate, in this order:");
+			// 	for (var i = 0; i < SortedMethods.Count; i++)
+			// 		Debug.Log($"\t[{i}] {SortedMethods[i]}");
+			// }
 
 			m_Methods = null;
 		}
@@ -265,7 +276,7 @@ namespace CodeSmileEditor.Luny.Generator
 			for (var i = 0; i < methods.Count; i++)
 			{
 				var method = methods[i];
-				if (pos >= method.MinParamCount && method.HasMatchingSignature(signature))
+				if (pos >= method.ParamCount && method.HasMatchingSignature(signature))
 					SortedMethods.Add(method);
 			}
 
@@ -301,7 +312,6 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public MethodBase MethodInfo;
 		public GenParamInfo[] ParamInfos;
-		public Int32 MinParamCount;
 		public Int32 ParamCount => ParamInfos?.Length ?? 0;
 
 		public static Boolean operator ==(GenMethodInfo left, GenMethodInfo right) => Equals(left, right);
@@ -344,12 +354,6 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			sb.Append(")  ");
-
-			if (MinParamCount < ParamCount)
-			{
-				sb.Append(MinParamCount);
-				sb.Append("-");
-			}
 			sb.Append(ParamCount);
 			sb.Append(" params");
 
@@ -395,15 +399,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public override String ToString() => $"{Type?.Name} {Name}";
 
-		public override Int32 GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = /*Name != null ? Name.GetHashCode() : 0;
-				hashCode = hashCode * 397 ^*/ Type != null ? Type.GetHashCode() : 0;
-				return hashCode;
-			}
-		}
+		public override Int32 GetHashCode() => Type != null ? Type.GetHashCode() : 0;
 
 		public override Boolean Equals(Object obj) => obj is GenParamInfo other && Equals(other);
 	}
