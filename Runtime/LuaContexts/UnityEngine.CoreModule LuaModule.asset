@@ -529,12 +529,13 @@ MonoBehaviour:
   - UnityEngine.Types
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
-    rid: -2
-  m_ModuleLoaderTypeName: 
+    rid: 2561253537325514823
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
   m_GenerateOnlyThisType: UnityEngine.Vector4
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253537325514823
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+      data: 
