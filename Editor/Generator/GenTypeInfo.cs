@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -110,16 +109,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public String Name;
 		public Int32 MinParamCount;
 		public Int32 MaxParamCount;
-
 		public List<GenMethodInfo> SortedMethods { get; } = new();
-		// sorted by min param count (not counting trailing optional params), then by total param count (incl. optional)
-		// List => param count (NOT: position!) - Note: can have empty lists at any position
-		// inner List => methods that required this number of parameters (not counting trailing optional params!)
-		public List<List<GenMethodInfo>> MethodsByParamCount { get; private set; }
-		// methods sorted by param position, keyed by param type
-		// List => param position
-		// inner Dictionary => key = param type, value = methods with that type at that position
-		public List<Dictionary<GenParamInfo, List<GenMethodInfo>>> MethodsByParamType { get; private set; }
 
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
@@ -156,8 +146,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var paramsByPosition = new List<HashSet<GenParamInfo>>();
 			var allMethods = new List<GenMethodInfo>();
-			MethodsByParamCount = new List<List<GenMethodInfo>>();
-			MethodsByParamType = new List<Dictionary<GenParamInfo, List<GenMethodInfo>>>();
 			MinParamCount = Int32.MaxValue;
 			MaxParamCount = 0;
 
@@ -183,17 +171,6 @@ namespace CodeSmileEditor.Luny.Generator
 					MinParamCount = overloadMinParamCount;
 				if (MaxParamCount < overloadParamCount)
 					MaxParamCount = overloadParamCount;
-
-				// grow collections depending on parameter count
-				while (MethodsByParamCount.Count <= overloadParamCount)
-				{
-					// Caution: index 0 is for parameterless method, it's not the parameter position
-					MethodsByParamCount.Add(new List<GenMethodInfo>());
-				}
-				while (MethodsByParamType.Count <= overloadParamCount - 1)
-				{
-					MethodsByParamType.Add(new Dictionary<GenParamInfo, List<GenMethodInfo>>());
-				}
 
 				// generate parameter infos
 				var paramInfos = new GenParamInfo[overloadParamCount];
@@ -221,16 +198,10 @@ namespace CodeSmileEditor.Luny.Generator
 					};
 					paramInfos[pos] = paramInfo;
 
-					if (MethodsByParamType[pos].ContainsKey(paramInfo) == false)
-						MethodsByParamType[pos].Add(paramInfo, new List<GenMethodInfo>());
-					MethodsByParamType[pos][paramInfo].Add(overloadInfo);
-
 					if (paramsByPosition.Count <= pos)
 						paramsByPosition.Add(new HashSet<GenParamInfo>());
 					paramsByPosition[pos].Add(paramInfo);
 				}
-
-				MethodsByParamCount[overloadMinParamCount].Add(overloadInfo);
 
 				// treat methods with trailing optional parameters as overloads
 				for (var i = trailingOptionalParameterCount; i > 0; i--)
@@ -247,11 +218,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 				allMethods.Add(overloadInfo);
 			}
-
-			// sort by min param count first, total param count second
-			// overloads with trailing optional parameters are sorted to the front
-			foreach (var methods in MethodsByParamCount)
-				methods.Sort((m1, m2) => m1.ParamCount.CompareTo(m2.ParamCount));
 
 			if (paramsByPosition.Count > 0)
 			{

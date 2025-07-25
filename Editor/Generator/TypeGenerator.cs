@@ -240,8 +240,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddRemainingParamsAndMethodCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Int32 paramPos,
-			Boolean hasParameters,
-			GenMethodInfo overload, Int32 luaArgOffset)
+			Boolean hasParameters, GenMethodInfo overload, Int32 luaArgOffset)
 		{
 			sb.AppendIndent("if (_argCount == ");
 			sb.Append(paramPos.ToString());

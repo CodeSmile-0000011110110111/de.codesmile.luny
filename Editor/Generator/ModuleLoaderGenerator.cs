@@ -33,6 +33,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(TypeHierarchy typeHierarchy, ScriptBuilder sb)
 		{
+			sb.AppendLine("#pragma warning disable 0105 // The using directive for '..' appeared previously in this namespace");
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
 			sb.AppendLine("using Unity.Profiling;");
@@ -42,6 +43,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(ns);
 				sb.AppendLine(";");
 			}
+			sb.AppendLine("#pragma warning restore 0105");
 			sb.AppendLine();
 		}
 
