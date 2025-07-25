@@ -237,7 +237,7 @@ namespace CodeSmileEditor.Luny.Generator
 				{
 					var parameter = overloadParams[pos];
 					var paramType = parameter.ParameterType;
-					var paramTypeName = paramType.Name;
+					var paramTypeName = paramType.FullName.Replace('+', '_').Replace('.', '_');
 					if (paramType.IsArray)
 						paramTypeName = paramTypeName.Replace("[]", "Array");
 					var bindVarName = $"_p{pos}_{paramTypeName}";
@@ -364,7 +364,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var paramInfo = ParamInfos[i];
 				if (i > 0)
 					sb.Append(", ");
-				sb.Append(paramInfo.Type.Name);
+				sb.Append(paramInfo.Type.FullName);
 				sb.Append(" ");
 				sb.Append(paramInfo.Name);
 			}
@@ -396,10 +396,12 @@ namespace CodeSmileEditor.Luny.Generator
 
 	internal sealed class GenParamInfo : IEquatable<GenParamInfo>
 	{
+		private string m_TypeFullName;
+
 		public ParameterInfo ParamInfo;
 		public String Name { get; set; }
 		public Type Type => ParamInfo?.ParameterType;
-		public String TypeFullName => ParamInfo.ParameterType.FullName?.Replace('+', '.') /* ?? ParamInfo.ParameterType.Name*/;
+		public String TypeFullName => m_TypeFullName ??= ParamInfo.ParameterType.FullName?.Replace('+', '.');
 		public Int32 Position => ParamInfo.Position;
 		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
 		public String VariableName { get; set; }

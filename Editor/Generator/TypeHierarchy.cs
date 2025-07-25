@@ -33,7 +33,21 @@ namespace CodeSmileEditor.Luny.Generator
 			var namespaces = new HashSet<String>();
 
 			foreach (var type in m_Types)
+			{
+				if (GenUtil.IsObsolete(type))
+					continue;
+
 				AddTypeAndBaseTypes(type, assemblies, namespaces);
+
+				var nestedTypes = type.GetNestedTypes(BindingFlags.Public);
+				foreach (var nestedType in nestedTypes)
+				{
+					if (GenUtil.IsObsolete(nestedType))
+						continue;
+
+					AddTypeAndBaseTypes(nestedType, assemblies, namespaces);
+				}
+			}
 
 			m_Assemblies = assemblies.OrderBy(assembly => assembly.FullName);
 			m_Namespaces = namespaces.OrderBy(ns => ns);

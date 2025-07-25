@@ -3,6 +3,7 @@
 
 using CodeSmile.Luny;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -36,7 +37,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 				generatableCount++;
 
-				// TODO filter out types we currently don't support
+				// filter out types we currently don't support
 				if (type.IsGenericType)
 				{
 					LogWarn($"Ignoring generic type: {type}");
@@ -56,7 +57,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (typeInfo.Type.IsEnum)
 					continue;
 
-				Log($"Generating type: {typeInfo.BindTypeFullName}");
+				//Log($"Generating type: {typeInfo.BindTypeFullName}");
 
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
@@ -159,10 +160,10 @@ namespace CodeSmileEditor.Luny.Generator
 					continue;
 				}
 
-				Log($"\t{overloads}");
+				//Log($"\t{overloads}");
 
 				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
-				AddOpenLuaBindFunction(sb, bindFuncName, "new");
+				AddOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? "ctor" : overloads.Name);
 				AddReadArgumentCount(sb);
 				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
 					AddValueTypeParameterlessCtor(sb, typeInfo);
@@ -230,7 +231,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (isFirstClosedBlock)
 				{
 					isFirstClosedBlock = false;
-					AddThrowArgumentException(sb);
+					//AddThrowArgumentException(sb);
 				}
 			}
 			paramPos = signature.Count;
@@ -271,6 +272,17 @@ namespace CodeSmileEditor.Luny.Generator
 			if (needsGetArguments)
 				AddGetArgumentFromLuaContext(sb, argPosStr, luaArgPosStr);
 			AddReadValueConditional(sb, parameter, argPosStr);
+		}
+
+		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
+		{
+			sb.AppendIndent("var _arg");
+			sb.Append(argPosStr);
+			sb.Append(" = _argCount > ");
+			sb.Append(luaArgPosStr);
+			sb.Append(" ? _context.GetArgument(");
+			sb.Append(luaArgPosStr);
+			sb.AppendLine(") : LuaValue.Nil;");
 		}
 
 		private static void AddReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String posStr)
@@ -418,17 +430,6 @@ namespace CodeSmileEditor.Luny.Generator
 					AddThrowArgumentException(sb);
 				}
 			}
-		}
-
-		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
-		{
-			sb.AppendIndent("var _arg");
-			sb.Append(argPosStr);
-			sb.Append(" = _argCount > ");
-			sb.Append(luaArgPosStr);
-			sb.Append(" ? _context.GetArgument(");
-			sb.Append(luaArgPosStr);
-			sb.AppendLine(") : LuaValue.Nil;");
 		}
 
 		private static void AddReadLuaValueStatement(ScriptBuilder sb, String argPosStr, GenParamInfo parameter,

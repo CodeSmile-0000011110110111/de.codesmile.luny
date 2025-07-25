@@ -30,7 +30,8 @@ namespace CodeSmile.Luny
 			var table = context.GetArgument<LuaTable>(0);
 			var key = context.GetArgument(1);
 			var values = table.Metatable[EnumValuesKey].Read<LuaTable>();
-			return new ValueTask<Int32>(context.Return(values[key]));
+			var enumValue = values[key];
+			return new ValueTask<Int32>(context.Return(enumValue));
 		});
 
 		private static readonly LuaFunction _nextFunc = new("next", BasicLibrary.Instance.Next);

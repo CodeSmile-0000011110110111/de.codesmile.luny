@@ -22,7 +22,6 @@ MonoBehaviour:
   - UnityEngine.Device
   - UnityEngine.Events
   - UnityEngine.iOS
-  - UnityEngine.Playables
   - UnityEngine.Pool
   - UnityEngine.Profiling
   - UnityEngine.SceneManagement
@@ -57,6 +56,7 @@ MonoBehaviour:
   - UnityEngine.TestTools
   - UnityEngineInternal
   - '---- below: to be included later ...'
+  - UnityEngine.Playables
   m_TypeWhitelist:
   - Unity.IntegerTime.DiscreteTime
   - Unity.IntegerTime.DiscreteTimeTimeExtensions
@@ -90,13 +90,19 @@ MonoBehaviour:
   - UnityEngine.ApplicationSandboxType
   - UnityEngine.AsyncInstantiateOperation
   - UnityEngine.AsyncInstantiateOperation`1
+  - UnityEngine.AsyncInstantiateOperation`1+Awaiter
   - UnityEngine.AsyncOperation
   - UnityEngine.AsyncOperationAwaitableExtensions
   - UnityEngine.AudioType
   - UnityEngine.Awaitable
   - UnityEngine.Awaitable`1
+  - UnityEngine.Awaitable`1+Awaiter
+  - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder
+  - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder`1
+  - UnityEngine.Awaitable+Awaiter
   - UnityEngine.AwaitableCompletionSource
   - UnityEngine.AwaitableCompletionSource`1
+  - UnityEngine.BackgroundThreadAwaitable
   - UnityEngine.BatteryStatus
   - UnityEngine.Behaviour
   - UnityEngine.BillboardAsset
@@ -197,7 +203,6 @@ MonoBehaviour:
   - UnityEngine.GradientAlphaKey
   - UnityEngine.GradientColorKey
   - UnityEngine.GradientMode
-  - UnityEngine.Graphics
   - UnityEngine.GraphicsBuffer
   - UnityEngine.GraphicsBuffer+IndirectDrawArgs
   - UnityEngine.GraphicsBuffer+IndirectDrawIndexedArgs
@@ -268,14 +273,13 @@ MonoBehaviour:
   - UnityEngine.Logger
   - UnityEngine.LogOption
   - UnityEngine.LogType
+  - UnityEngine.MainThreadAwaitable
   - UnityEngine.Material
   - UnityEngine.MaterialGlobalIlluminationFlags
   - UnityEngine.MaterialPropertyBlock
   - UnityEngine.MaterialPropertyType
   - UnityEngine.Mathf
   - UnityEngine.Matrix4x4
-  - UnityEngine.Mesh
-  - UnityEngine.Mesh+MeshData
   - UnityEngine.Mesh+MeshDataArray
   - UnityEngine.MeshFilter
   - UnityEngine.MeshRenderer
@@ -292,26 +296,6 @@ MonoBehaviour:
   - UnityEngine.OperatingSystemFamily
   - UnityEngine.Ping
   - UnityEngine.Plane
-  - UnityEngine.Playables.DirectorUpdateMode
-  - UnityEngine.Playables.DirectorWrapMode
-  - UnityEngine.Playables.FrameData
-  - UnityEngine.Playables.FrameData+EvaluationType
-  - UnityEngine.Playables.Notification
-  - UnityEngine.Playables.Playable
-  - UnityEngine.Playables.PlayableAsset
-  - UnityEngine.Playables.PlayableBehaviour
-  - UnityEngine.Playables.PlayableBinding
-  - UnityEngine.Playables.PlayableExtensions
-  - UnityEngine.Playables.PlayableGraph
-  - UnityEngine.Playables.PlayableHandle
-  - UnityEngine.Playables.PlayableOutput
-  - UnityEngine.Playables.PlayableOutputExtensions
-  - UnityEngine.Playables.PlayableOutputHandle
-  - UnityEngine.Playables.PlayableTraversalMode
-  - UnityEngine.Playables.PlayState
-  - UnityEngine.Playables.ScriptPlayable`1
-  - UnityEngine.Playables.ScriptPlayableBinding
-  - UnityEngine.Playables.ScriptPlayableOutput
   - UnityEngine.PlayerPrefs
   - UnityEngine.Pool.CollectionPool`2
   - UnityEngine.Pool.DictionaryPool`2
@@ -385,7 +369,6 @@ MonoBehaviour:
   - UnityEngine.SecondarySpriteTexture
   - UnityEngine.Security
   - UnityEngine.SendMessageOptions
-  - UnityEngine.Shader
   - UnityEngine.ShaderVariantCollection
   - UnityEngine.ShaderVariantCollection+ShaderVariant
   - UnityEngine.ShadowmaskMode
@@ -523,14 +506,19 @@ MonoBehaviour:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
   - '-- below: to be included later ...'
+  - UnityEngine.Graphics
+  - UnityEngine.Mesh
+  - UnityEngine.Mesh+MeshData
+  - UnityEngine.Shader
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
-    rid: -2
-  m_ModuleLoaderTypeName: 
-  m_GenerateOnlyThisType: 
-  m_GenerateOnlyThisMethod: 
+    rid: 2561253537325514834
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
+  m_GenerateOnlyThisType: //UnityEngine.Debug
+  m_GenerateOnlyThisMethod: Assert
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253537325514834
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+      data: 

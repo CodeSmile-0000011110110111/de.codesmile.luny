@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Internal;
 using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
@@ -23,9 +21,11 @@ namespace CodeSmileEditor.Luny.Generator
 ";
 
 		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
-		private static Type[] AttributeBlacklist = new Type[] { typeof(ObsoleteAttribute), typeof(ExcludeFromDocsAttribute) };
+		private static readonly Type[] AttributeBlacklist = { typeof(ObsoleteAttribute) };
 
-		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum));
+		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum)
+			|| type == typeof(Delegate) || type == typeof(MulticastDelegate) || type == typeof(Event));
+
 		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
 		                                                    false == (type.IsPrimitive || type.IsInterface ||
 		                                                              type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
@@ -33,33 +33,10 @@ namespace CodeSmileEditor.Luny.Generator
 		                                                              type.IsSubclassOf(typeof(Delegate)) ||
 		                                                              type.IsSubclassOf(typeof(Exception)) ||
 		                                                              type.HasAttribute(AttributeBlacklist));
+
 		public static Boolean IsSupportedMember(MemberInfo member) =>
 			!(member is MethodInfo mi && mi.IsStatic && mi.MemberType == MemberTypes.Constructor || // exclude static constructors
 			  HasAttribute(member, AttributeBlacklist));
-
-		private static bool HasAttribute(this Type type, Type[] attributes)
-		{
-			foreach (var attribute in attributes)
-			{
-				if (type.GetCustomAttributes(attribute, true).Length > 0)
-					return true;
-			}
-
-			if (type.IsNested)
-				return HasAttribute(type.DeclaringType, attributes);
-
-			return false;
-		}
-		private static bool HasAttribute(this MemberInfo member, Type[] attributes)
-		{
-			//return member.CustomAttributes.Where(attr => attributes.Contains(attr.AttributeType)).Any();
-			foreach (var attribute in attributes)
-			{
-				if (member.GetCustomAttributes(attribute, true).Length > 0)
-					return true;
-			}
-			return false;
-		}
 
 		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)
@@ -206,7 +183,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		public static string ToString(ParameterInfo[] parameters)
+		public static String ToString(ParameterInfo[] parameters)
 		{
 			var sb = new StringBuilder();
 			for (var i = 0; i < parameters.Length; i++)
@@ -219,6 +196,31 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(parameter.Name);
 			}
 			return sb.ToString();
+		}
+
+		private static Boolean HasAttribute(this Type type, Type[] attributes)
+		{
+			foreach (var attribute in attributes)
+			{
+				if (type.GetCustomAttributes(attribute, true).Length > 0)
+					return true;
+			}
+
+			if (type.IsNested)
+				return HasAttribute(type.DeclaringType, attributes);
+
+			return false;
+		}
+
+		private static Boolean HasAttribute(this MemberInfo member, Type[] attributes)
+		{
+			//return member.CustomAttributes.Where(attr => attributes.Contains(attr.AttributeType)).Any();
+			foreach (var attribute in attributes)
+			{
+				if (member.GetCustomAttributes(attribute, true).Length > 0)
+					return true;
+			}
+			return false;
 		}
 	}
 }
