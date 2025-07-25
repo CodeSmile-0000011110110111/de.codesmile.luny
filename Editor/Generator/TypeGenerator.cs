@@ -379,17 +379,24 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendIndent("var _lret");
 				sb.Append(Digits[i]);
 				sb.Append(" = ");
-				var isBoundType = s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo);
-				if (isBoundType)
+				if (returnType.IsPrimitive || returnType.IsEnum || returnType == typeof(String))
 				{
-					sb.Append("new ");
-					sb.Append(returnTypeInfo.InstanceTypeName);
-					sb.Append("(");
-				}
-				else if (returnType.IsPrimitive || returnType == typeof(String))
 					sb.Append("new LuaValue(");
+					if (returnType.IsEnum)
+						sb.Append("(System.Double)");
+				}
 				else
-					sb.Append("LuaValue.FromObject((System.Object)");
+				{
+					var isBoundType = s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo);
+					if (isBoundType)
+					{
+						sb.Append("new ");
+						sb.Append(returnTypeInfo.InstanceTypeName);
+						sb.Append("(");
+					}
+					else
+						sb.Append("LuaValue.FromObject((System.Object)");
+				}
 				sb.Append("_ret");
 				sb.Append(Digits[i]);
 				sb.AppendLine(");");
@@ -433,11 +440,11 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("_arg");
 				sb.Append(argPosStr);
 				sb.Append(".ReadValue<");
-				sb.Append(parameter.Type.FullName);
+				sb.Append(parameter.TypeFullName);
 				sb.Append(">(");
 				if (parameter.Type.IsEnum)
 				{
-					sb.Append(parameter.Type.FullName);
+					sb.Append(parameter.TypeFullName);
 					sb.Append(".");
 					sb.Append(parameter.ParamInfo.DefaultValue.ToString());
 				}
@@ -448,7 +455,7 @@ namespace CodeSmileEditor.Luny.Generator
 					{
 						// avoid implicit conversions from using the wrong overload, or throwing conversion errors
 						sb.Append("(");
-						sb.Append(parameter.Type.FullName);
+						sb.Append(parameter.TypeFullName);
 						sb.Append(")");
 					}
 					if (parameter.Type == typeof(Boolean))

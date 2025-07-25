@@ -135,7 +135,7 @@ namespace CodeSmileEditor.Luny.Generator
 				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (pointer)");
 				return true;
 			}
-			if (paramType.IsGenericType || paramType.IsGenericParameter)
+			if (paramType.IsGenericParameter || paramType.IsGenericType)
 			{
 				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
@@ -154,13 +154,6 @@ namespace CodeSmileEditor.Luny.Generator
 				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
 				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (array)");
-				return true;
-			}
-			if (paramType.IsEnum)
-			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (enum)");
 				return true;
 			}
 			if (paramType.IsInterface)
