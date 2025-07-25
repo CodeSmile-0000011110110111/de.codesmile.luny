@@ -21,22 +21,22 @@ namespace CodeSmileEditor.Luny.Generator
 ";
 
 		private static readonly Type Obsolete = typeof(ObsoleteAttribute);
-		private static readonly Type[] AttributeBlacklist = { typeof(ObsoleteAttribute) };
+		//private static readonly Type[] AttributeBlacklist = { typeof(ObsoleteAttribute) };
 
 		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum)
 			|| type == typeof(Delegate) || type == typeof(MulticastDelegate) || type == typeof(Event));
 
 		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
-		                                                    false == (type.IsPrimitive || type.IsInterface ||
-		                                                              type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
-		                                                              type.IsSubclassOf(typeof(Attribute)) ||
-		                                                              type.IsSubclassOf(typeof(Delegate)) ||
-		                                                              type.IsSubclassOf(typeof(Exception)) ||
-		                                                              type.HasAttribute(AttributeBlacklist));
+		                                                    !(type.IsPrimitive || type.IsInterface || type.IsGenericType ||
+		                                                      type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
+		                                                      type.IsSubclassOf(typeof(Attribute)) ||
+		                                                      type.IsSubclassOf(typeof(Delegate)) ||
+		                                                      type.IsSubclassOf(typeof(Exception)) ||
+		                                                      IsObsolete(type));
 
 		public static Boolean IsSupportedMember(MemberInfo member) =>
 			!(member is MethodInfo mi && mi.IsStatic && mi.MemberType == MemberTypes.Constructor || // exclude static constructors
-			  HasAttribute(member, AttributeBlacklist));
+			  IsObsolete(member));
 
 		public static IEnumerable<Assembly> GetBindableAssemblies() => AppDomain.CurrentDomain.GetAssemblies()
 			.Where(assembly => !assembly.IsDynamic && assembly.IsFullyTrusted)

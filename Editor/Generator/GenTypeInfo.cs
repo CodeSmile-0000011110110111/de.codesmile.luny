@@ -62,7 +62,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var obsolete = typeof(ObsoleteAttribute);
 			// FIXME: missing parameterless Ctor (assume always present for value types)
 			Ctors = type.GetConstructors(bindingFlags)
-				.Where(c => !c.GetCustomAttributes(obsolete).Any())
+				.Where(c => !(type.IsAbstract || c.GetCustomAttributes(obsolete).Any()))
 				.OrderBy(c => c.GetParameters().Length);
 			Fields = type.GetFields(bindingFlags).Where(f => !f.GetCustomAttributes(obsolete).Any()).OrderBy(f => f.Name);
 			Properties = type.GetProperties(bindingFlags).Where(p => !p.GetCustomAttributes(obsolete).Any()).OrderBy(p => p.Name);

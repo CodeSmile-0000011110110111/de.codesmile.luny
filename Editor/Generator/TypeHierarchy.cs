@@ -34,15 +34,12 @@ namespace CodeSmileEditor.Luny.Generator
 
 			foreach (var type in m_Types)
 			{
-				if (GenUtil.IsObsolete(type))
-					continue;
-
 				AddTypeAndBaseTypes(type, assemblies, namespaces);
 
 				var nestedTypes = type.GetNestedTypes(BindingFlags.Public);
 				foreach (var nestedType in nestedTypes)
 				{
-					if (GenUtil.IsObsolete(nestedType))
+					if (GenUtil.IsSupportedType(nestedType) == false)
 						continue;
 
 					AddTypeAndBaseTypes(nestedType, assemblies, namespaces);
@@ -64,7 +61,7 @@ namespace CodeSmileEditor.Luny.Generator
 			while (type != null)
 			{
 				if (--maxRecursionCount <= 0)
-					throw new OverflowException("base type recursion too deep");
+					throw new OverflowException("type hierarchy recursion too deep");
 
 				hierarchyTypes.Add(type);
 				type = type.BaseType;

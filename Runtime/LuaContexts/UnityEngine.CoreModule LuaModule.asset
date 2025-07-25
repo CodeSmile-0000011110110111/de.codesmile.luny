@@ -22,7 +22,7 @@ MonoBehaviour:
   - UnityEngine.Device
   - UnityEngine.Events
   - UnityEngine.iOS
-  - UnityEngine.Pool
+  - UnityEngine.Playables
   - UnityEngine.Profiling
   - UnityEngine.SceneManagement
   - UnityEngine.Sprites
@@ -56,7 +56,6 @@ MonoBehaviour:
   - UnityEngine.TestTools
   - UnityEngineInternal
   - '---- below: to be included later ...'
-  - UnityEngine.Playables
   m_TypeWhitelist:
   - Unity.IntegerTime.DiscreteTime
   - Unity.IntegerTime.DiscreteTimeTimeExtensions
@@ -89,19 +88,13 @@ MonoBehaviour:
   - UnityEngine.ApplicationMemoryUsageChange
   - UnityEngine.ApplicationSandboxType
   - UnityEngine.AsyncInstantiateOperation
-  - UnityEngine.AsyncInstantiateOperation`1
-  - UnityEngine.AsyncInstantiateOperation`1+Awaiter
   - UnityEngine.AsyncOperation
   - UnityEngine.AsyncOperationAwaitableExtensions
   - UnityEngine.AudioType
   - UnityEngine.Awaitable
-  - UnityEngine.Awaitable`1
-  - UnityEngine.Awaitable`1+Awaiter
   - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder
-  - UnityEngine.Awaitable+AwaitableAsyncMethodBuilder`1
   - UnityEngine.Awaitable+Awaiter
   - UnityEngine.AwaitableCompletionSource
-  - UnityEngine.AwaitableCompletionSource`1
   - UnityEngine.BackgroundThreadAwaitable
   - UnityEngine.BatteryStatus
   - UnityEngine.Behaviour
@@ -174,13 +167,8 @@ MonoBehaviour:
   - UnityEngine.EventProvider
   - UnityEngine.Events.PersistentListenerMode
   - UnityEngine.Events.UnityEvent
-  - UnityEngine.Events.UnityEvent`1
-  - UnityEngine.Events.UnityEvent`2
-  - UnityEngine.Events.UnityEvent`3
-  - UnityEngine.Events.UnityEvent`4
   - UnityEngine.Events.UnityEventBase
   - UnityEngine.Events.UnityEventCallState
-  - UnityEngine.ExposedReference`1
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
   - UnityEngine.FindObjectsInactive
@@ -203,6 +191,7 @@ MonoBehaviour:
   - UnityEngine.GradientAlphaKey
   - UnityEngine.GradientColorKey
   - UnityEngine.GradientMode
+  - UnityEngine.Graphics
   - UnityEngine.GraphicsBuffer
   - UnityEngine.GraphicsBuffer+IndirectDrawArgs
   - UnityEngine.GraphicsBuffer+IndirectDrawIndexedArgs
@@ -233,7 +222,6 @@ MonoBehaviour:
   - UnityEngine.KeyCode
   - UnityEngine.Keyframe
   - UnityEngine.LayerMask
-  - UnityEngine.LazyLoadReference`1
   - UnityEngine.LensFlare
   - UnityEngine.Light
   - UnityEngine.LightBakingOutput
@@ -280,6 +268,8 @@ MonoBehaviour:
   - UnityEngine.MaterialPropertyType
   - UnityEngine.Mathf
   - UnityEngine.Matrix4x4
+  - UnityEngine.Mesh
+  - UnityEngine.Mesh+MeshData
   - UnityEngine.Mesh+MeshDataArray
   - UnityEngine.MeshFilter
   - UnityEngine.MeshRenderer
@@ -296,16 +286,26 @@ MonoBehaviour:
   - UnityEngine.OperatingSystemFamily
   - UnityEngine.Ping
   - UnityEngine.Plane
+  - UnityEngine.Playables.DirectorUpdateMode
+  - UnityEngine.Playables.DirectorWrapMode
+  - UnityEngine.Playables.FrameData
+  - UnityEngine.Playables.FrameData+EvaluationType
+  - UnityEngine.Playables.Notification
+  - UnityEngine.Playables.Playable
+  - UnityEngine.Playables.PlayableAsset
+  - UnityEngine.Playables.PlayableBehaviour
+  - UnityEngine.Playables.PlayableBinding
+  - UnityEngine.Playables.PlayableExtensions
+  - UnityEngine.Playables.PlayableGraph
+  - UnityEngine.Playables.PlayableHandle
+  - UnityEngine.Playables.PlayableOutput
+  - UnityEngine.Playables.PlayableOutputExtensions
+  - UnityEngine.Playables.PlayableOutputHandle
+  - UnityEngine.Playables.PlayableTraversalMode
+  - UnityEngine.Playables.PlayState
+  - UnityEngine.Playables.ScriptPlayableBinding
+  - UnityEngine.Playables.ScriptPlayableOutput
   - UnityEngine.PlayerPrefs
-  - UnityEngine.Pool.CollectionPool`2
-  - UnityEngine.Pool.DictionaryPool`2
-  - UnityEngine.Pool.GenericPool`1
-  - UnityEngine.Pool.HashSetPool`1
-  - UnityEngine.Pool.LinkedPool`1
-  - UnityEngine.Pool.ListPool`1
-  - UnityEngine.Pool.ObjectPool`1
-  - UnityEngine.Pool.PooledObject`1
-  - UnityEngine.Pool.UnsafeGenericPool`1
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
   - UnityEngine.Profiling.CustomSampler
@@ -369,6 +369,7 @@ MonoBehaviour:
   - UnityEngine.SecondarySpriteTexture
   - UnityEngine.Security
   - UnityEngine.SendMessageOptions
+  - UnityEngine.Shader
   - UnityEngine.ShaderVariantCollection
   - UnityEngine.ShaderVariantCollection+ShaderVariant
   - UnityEngine.ShadowmaskMode
@@ -506,19 +507,15 @@ MonoBehaviour:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
   - '-- below: to be included later ...'
-  - UnityEngine.Graphics
-  - UnityEngine.Mesh
-  - UnityEngine.Mesh+MeshData
-  - UnityEngine.Shader
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
-    rid: 2561253537325514834
+    rid: 2561253537325514836
   m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
   m_GenerateOnlyThisType: //UnityEngine.Debug
   m_GenerateOnlyThisMethod: Assert
   references:
     version: 2
     RefIds:
-    - rid: 2561253537325514834
+    - rid: 2561253537325514836
       type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 

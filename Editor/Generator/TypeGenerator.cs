@@ -3,7 +3,6 @@
 
 using CodeSmile.Luny;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -25,30 +24,17 @@ namespace CodeSmileEditor.Luny.Generator
 			var generatedTypeInfos = new List<GenTypeInfo>();
 			s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
-			var generatableCount = 0;
-			var generatedCount = 0;
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
 
 				// skip the inevitable System types
-				if (GenUtil.IsBindableType(type) == false)
-					return;
-
-				generatableCount++;
-
-				// filter out types we currently don't support
-				if (type.IsGenericType)
+				if (GenUtil.IsBindableType(type))
 				{
-					LogWarn($"Ignoring generic type: {type}");
-					return;
+					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
+					generatedTypeInfos.Add(typeInfo);
+					s_TypeInfosByType.Add(type, typeInfo);
 				}
-
-				var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
-				generatedTypeInfos.Add(typeInfo);
-				s_TypeInfosByType.Add(type, typeInfo);
-
-				generatedCount++;
 			});
 
 			foreach (var typeInfo in generatedTypeInfos)
@@ -70,8 +56,6 @@ namespace CodeSmileEditor.Luny.Generator
 				var assetPath = $"{contentFolderPath}/{typeInfo.InstanceTypeName}.cs";
 				GenUtil.WriteFile(assetPath, sb.ToString());
 			}
-
-			Log($"{generatedCount} of {generatableCount} ({(Int32)(generatedCount / (Single)generatableCount * 100f)}%) types generated");
 
 			s_TypeInfosByType.Clear();
 			return generatedTypeInfos;
@@ -156,7 +140,7 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				if (overloads.Count == 0)
 				{
-					LogWarn($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
+					//LogWarn($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
 					continue;
 				}
 
@@ -392,15 +376,21 @@ namespace CodeSmileEditor.Luny.Generator
 			// convert method return values to LuaValue
 			for (var i = 0; i < returnCount; i++)
 			{
-				var returnTypeName = "LuaValue";
-				if (s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
-					returnTypeName = returnTypeInfo.InstanceTypeName;
-
 				sb.AppendIndent("var _lret");
 				sb.Append(Digits[i]);
-				sb.Append(" = new ");
-				sb.Append(returnTypeName);
-				sb.Append("(_ret");
+				sb.Append(" = ");
+				var isBoundType = s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo);
+				if (isBoundType)
+				{
+					sb.Append("new ");
+					sb.Append(returnTypeInfo.InstanceTypeName);
+					sb.Append("(");
+				}
+				else if (returnType.IsPrimitive || returnType == typeof(String))
+					sb.Append("new LuaValue(");
+				else
+					sb.Append("LuaValue.FromObject((System.Object)");
+				sb.Append("_ret");
 				sb.Append(Digits[i]);
 				sb.AppendLine(");");
 			}
