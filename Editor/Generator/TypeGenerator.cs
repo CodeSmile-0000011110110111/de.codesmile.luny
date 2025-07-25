@@ -132,35 +132,56 @@ namespace CodeSmileEditor.Luny.Generator
 			getters = new List<String>();
 
 			// Constructors
-			var isCtor = true;
 			foreach (var overloads in members.CtorOverloads)
 			{
 				var bindFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
 				getters.Add($"case \"new\": value = {bindFuncName}; break;");
-				AddLuaFunction(sb, bindFuncName, "new");
-
-				var isInstanceMethod = !(members.IsStatic || isCtor);
-				var luaArgCount = overloads.MaxParamCount + (isInstanceMethod ? 1 : 0);
-				if (typeInfo.Type.IsValueType)
-				{
-					sb.AppendIndentLine("// if (argCount == 0)");
-					sb.OpenIndentBlock("{");
-					sb.AppendIndentLine("// use parameterless ctor");
-					sb.CloseIndentBlock("}");
-				}
-				sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
-				if (isInstanceMethod)
+				AddOpenLuaBindFunction(sb, bindFuncName, "new");
+				AddReadArgumentCount(sb);
+				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
+					AddValueTypeParameterlessCtor(sb);
+				if (overloads.IsInstanceMethod)
 					AddGetInstanceFromLuaArguments(sb);
-				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, 0, 0, null, luaArgCount);
-				sb.AppendIndentLine("throw new System.ArgumentException();");
-				sb.CloseIndentBlock("});");
+				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, 0, 0, null);
+				AddCloseLuaBindFunction(sb);
 			}
 
 			setters = null;
 		}
 
+		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String luaFuncName)
+		{
+			sb.AppendIndent("private static readonly LuaFunction ");
+			sb.Append(funcName);
+			sb.Append(" = new(\"");
+			sb.Append(luaFuncName);
+			sb.AppendLine("\", (_context, _) =>");
+			sb.OpenIndentBlock("{");
+		}
+
+		private static void AddCloseLuaBindFunction(ScriptBuilder sb)
+		{
+			AddThrowArgumentException(sb);
+			sb.CloseIndentBlock("});");
+		}
+
+		private static void AddThrowArgumentException(ScriptBuilder sb) => sb.AppendIndentLine("throw new System.ArgumentException();");
+
+		private static void AddReadArgumentCount(ScriptBuilder sb) => sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
+
+		private static void AddValueTypeParameterlessCtor(ScriptBuilder sb)
+		{
+			sb.AppendIndentLine("// if (argCount == 0)");
+			sb.OpenIndentBlock("{");
+			sb.AppendIndentLine("// use parameterless ctor");
+			sb.CloseIndentBlock("}");
+		}
+
+		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb) =>
+			sb.AppendIndentLine("var _instance = _context.GetArgument<ILuaUserData>(0);");
+
 		private static void AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
-			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature, Int32 luaArgCount)
+			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature)
 		{
 			if (methodIndex >= overloads.SortedMethods.Count)
 				return;
@@ -187,7 +208,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			paramPos = signature.Count;
 
-			var luaArgOffset = luaArgCount - overloads.MaxParamCount;
+			var luaArgOffset = overloads.LuaArgCount - overloads.MaxParamCount;
 			var argNum = paramPos;
 			var hasParameters = overload.ParamCount > 0;
 			if (hasParameters)
@@ -211,14 +232,9 @@ namespace CodeSmileEditor.Luny.Generator
 				if (beyondLastMethod)
 					AddCloseRemainingMethodBlocks(sb, paramPos);
 				else
-				{
-					AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos, signature,
-						luaArgCount);
-				}
+					AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos, signature);
 			}
 		}
-
-		private static void AddThrowArgumentException(ScriptBuilder sb) => sb.AppendIndentLine("throw new System.ArgumentException();");
 
 		private static void AddGetAndReadArguments(ScriptBuilder sb, Int32 argNum, Int32 luaArgOffset, Boolean needsGetArguments,
 			GenParamInfo parameter)
@@ -335,9 +351,6 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb) =>
-			sb.AppendIndentLine("var _instance = _context.GetArgument<ILuaUserData>(0);");
-
 		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
 		{
 			sb.AppendIndent("var _arg");
@@ -382,34 +395,6 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
 				sb.Append(")");
 			}
-		}
-
-		private static void AddGetLuaArguments(ScriptBuilder sb, GenMemberInfo members, GenMethodOverloads methodOverloads)
-		{
-			// FIXME: move these inline with reading values to avoid always reading the max # of args
-			var luaArgCount = methodOverloads.MaxParamCount + (members.IsStatic ? 0 : 1);
-			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
-			for (var argNum = 0; argNum < luaArgCount; argNum++)
-			{
-				var argNumStr = argNum.ToString();
-				sb.AppendIndent("var _arg");
-				sb.Append(argNumStr);
-				sb.Append(" = _argCount > ");
-				sb.Append(argNumStr);
-				sb.Append(" ? _context.GetArgument(");
-				sb.Append(argNumStr);
-				sb.AppendLine(") : LuaValue.Nil;");
-			}
-		}
-
-		private static void AddLuaFunction(ScriptBuilder sb, String funcName, String luaFuncName)
-		{
-			sb.AppendIndent("private static readonly LuaFunction ");
-			sb.Append(funcName);
-			sb.Append(" = new(\"");
-			sb.Append(luaFuncName);
-			sb.AppendLine("\", (_context, _) =>");
-			sb.OpenIndentBlock("{");
 		}
 
 		private static void AddToStringOverride(ScriptBuilder sb, String fieldName)

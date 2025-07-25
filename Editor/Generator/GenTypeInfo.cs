@@ -89,7 +89,7 @@ namespace CodeSmileEditor.Luny.Generator
 					existingOverloads.AddOverload(method);
 				else
 				{
-					var overload = new GenMethodOverloads { Name = method.Name, MinParamCount = Int32.MaxValue };
+					var overload = new GenMethodOverloads { Name = method.Name };
 					overload.AddOverload(method);
 					methodOverloads.Add(method.Name, overload);
 				}
@@ -107,8 +107,11 @@ namespace CodeSmileEditor.Luny.Generator
 		private List<MethodBase> m_Methods = new();
 
 		public String Name;
-		public Int32 MinParamCount;
 		public Int32 MaxParamCount;
+		public Boolean IsConstructor;
+		public Boolean IsStaticMethod;
+		public Boolean IsInstanceMethod => !(IsStaticMethod || IsConstructor);
+		public Int32 LuaArgCount => MaxParamCount + (IsInstanceMethod ? 1 : 0);
 		public List<GenMethodInfo> SortedMethods { get; } = new();
 
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
@@ -136,6 +139,9 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			m_Methods.Add(method);
+
+			IsConstructor = method.IsConstructor;
+			IsStaticMethod = method.IsStatic;
 		}
 
 		public void Postprocess()
@@ -146,7 +152,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var paramsByPosition = new List<HashSet<GenParamInfo>>();
 			var allMethods = new List<GenMethodInfo>();
-			MinParamCount = Int32.MaxValue;
 			MaxParamCount = 0;
 
 			foreach (var overload in m_Methods)
@@ -166,9 +171,7 @@ namespace CodeSmileEditor.Luny.Generator
 					overloadMinParamCount--;
 				}
 
-				// update Min/Max param counts across all overloads
-				if (MinParamCount > overloadMinParamCount)
-					MinParamCount = overloadMinParamCount;
+				// update Max param count of all overloads
 				if (MaxParamCount < overloadParamCount)
 					MaxParamCount = overloadParamCount;
 
