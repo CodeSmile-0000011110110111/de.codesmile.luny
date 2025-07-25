@@ -12,9 +12,9 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class TypeGenerator
 	{
-		private static readonly string[] Digits = new []{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"};
-
 		private const String DisabledWarningCodes = "0162, 0168, 0219"; // Unreachable code, declared / assigned but never used
+		private static readonly String[] Digits =
+			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
 		private static Dictionary<Type, GenTypeInfo> s_TypeInfosByType;
 
@@ -22,7 +22,7 @@ namespace CodeSmileEditor.Luny.Generator
 			String onlyThisMethodName = null)
 		{
 			var generatedTypeInfos = new List<GenTypeInfo>();
-			s_TypeInfosByType = new();
+			s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
 			var generatableCount = 0;
 			var generatedCount = 0;
@@ -132,7 +132,6 @@ namespace CodeSmileEditor.Luny.Generator
 			AddCloseTypeDeclaration(sb);
 		}
 
-
 		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters,
 			out IList<String> setters)
 		{
@@ -190,7 +189,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddReadArgumentCount(ScriptBuilder sb) => sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 
-
 		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("var _instance = _context.GetArgument<");
@@ -201,9 +199,6 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
 			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature)
 		{
-			if (methodIndex >= overloads.SortedMethods.Count)
-				return;
-
 			if (signature == null)
 				signature = new List<GenParamInfo>();
 
@@ -212,7 +207,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var overload = overloads.SortedMethods[methodIndex];
 			var paramCount = overload.ParamCount;
 			var isFirstClosedBlock = true;
-			while (paramCount < signature.Count || overload.HasMatchingSignature(signature) == false)
+			while (paramCount < signature.Count || overload?.HasMatchingSignature(signature) == false)
 			{
 				needsGetArguments = false;
 				signature.RemoveAt(signature.Count - 1);
@@ -228,7 +223,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var luaArgOffset = overloads.LuaArgCount - overloads.MaxParamCount;
 			var argNum = paramPos;
-			var hasParameters = overload.ParamCount > 0;
+			var hasParameters = paramCount > 0;
 			if (hasParameters)
 			{
 				var parameter = overload.ParamInfos[paramPos];
@@ -238,7 +233,7 @@ namespace CodeSmileEditor.Luny.Generator
 				AddGetAndReadArguments(sb, argNum, luaArgOffset, needsGetArguments, parameter);
 			}
 
-			if (paramPos == overload.ParamCount)
+			if (paramPos == paramCount)
 			{
 				AddRemainingParamsAndMethodCallAndReturn(sb, typeInfo, paramPos, hasParameters, overload, luaArgOffset);
 				methodIndex++;
@@ -249,7 +244,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var beyondLastMethod = methodIndex >= overloads.SortedMethods.Count;
 				if (beyondLastMethod)
 					AddCloseRemainingMethodBlocks(sb, paramPos);
-				else
+				else if (methodIndex < overloads.SortedMethods.Count)
 					AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos, signature);
 			}
 		}
@@ -291,7 +286,7 @@ namespace CodeSmileEditor.Luny.Generator
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
 			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
-				AddGetArgumentFromLuaContext(sb, Digits[paramIndex], Digits[(paramIndex + luaArgOffset)]);
+				AddGetArgumentFromLuaContext(sb, Digits[paramIndex], Digits[paramIndex + luaArgOffset]);
 
 			// re-assign variables for readability in method call
 			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
@@ -312,6 +307,7 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 		}
+
 		private static void AddValueTypeParameterlessCtor(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndentLine("if (_argCount == 0)");
@@ -340,23 +336,21 @@ namespace CodeSmileEditor.Luny.Generator
 
 			// make call and get return values
 			sb.AppendIndent();
-				if (returnCount == 1)
-					sb.Append("var _ret0 = ");
-				else if (returnCount > 1)
-				{
-					throw new NotImplementedException("multiple return values");
-				}
+			if (returnCount == 1)
+				sb.Append("var _ret0 = ");
+			else if (returnCount > 1)
+				throw new NotImplementedException("multiple return values");
 
-				if (isCtor)
-					sb.Append("new ");
-				else if (isStatic == false)
-					sb.Append("_instance.");
-				sb.Append(isStatic || isCtor ? typeInfo.BindTypeFullName : typeInfo.InstanceFieldName);
-				if (isCtor == false)
-				{
-					sb.Append(".");
-					sb.Append(methodName);
-				}
+			if (isCtor)
+				sb.Append("new ");
+			else if (isStatic == false)
+				sb.Append("_instance.");
+			sb.Append(isStatic || isCtor ? typeInfo.BindTypeFullName : typeInfo.InstanceFieldName);
+			if (isCtor == false)
+			{
+				sb.Append(".");
+				sb.Append(methodName);
+			}
 			sb.Append("(");
 
 			// add call parameters
@@ -370,20 +364,20 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(");");
 
 			// convert method return values to LuaValue
-				for (var i = 0; i < returnCount; i++)
-				{
-					var returnTypeName = "LuaValue";
-					if (s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
-						returnTypeName = returnTypeInfo.InstanceTypeName;
+			for (var i = 0; i < returnCount; i++)
+			{
+				var returnTypeName = "LuaValue";
+				if (s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
+					returnTypeName = returnTypeInfo.InstanceTypeName;
 
-					sb.AppendIndent("var _lret");
-					sb.Append(Digits[i]);
-					sb.Append(" = new ");
-					sb.Append(returnTypeName);
-					sb.Append("(_ret");
-					sb.Append(Digits[i]);
-					sb.AppendLine(");");
-				}
+				sb.AppendIndent("var _lret");
+				sb.Append(Digits[i]);
+				sb.Append(" = new ");
+				sb.Append(returnTypeName);
+				sb.Append("(_ret");
+				sb.Append(Digits[i]);
+				sb.AppendLine(");");
+			}
 
 			// return values
 			sb.AppendIndent("var _retCount = _context.Return(");
@@ -464,6 +458,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(fieldName);
 			sb.AppendLine(".ToString();");
 		}
+
 		private static void AddStaticTypeToStringOverride(ScriptBuilder sb) =>
 			sb.AppendIndentLine("public override string ToString() => BindType.FullName;");
 

@@ -81,7 +81,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var methodOverloads = new Dictionary<String, GenMethodOverloads>();
 			foreach (var method in methods)
 			{
-				if (string.IsNullOrWhiteSpace(onlyThisMethodName) == false && onlyThisMethodName != method.Name)
+				if (String.IsNullOrWhiteSpace(onlyThisMethodName) == false && onlyThisMethodName != method.Name)
 					continue;
 
 				//Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");
@@ -113,6 +113,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public Boolean IsInstanceMethod => !(IsStaticMethod || IsConstructor);
 		public Int32 LuaArgCount => MaxParamCount + (IsInstanceMethod ? 1 : 0);
 		public List<GenMethodInfo> SortedMethods { get; } = new();
+		public Int32 Count => SortedMethods.Count;
 
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
@@ -222,11 +223,8 @@ namespace CodeSmileEditor.Luny.Generator
 				allMethods.Add(overloadInfo);
 			}
 
-			if (paramsByPosition.Count > 0)
-			{
-				var signature = new List<GenParamInfo>();
-				FindOverloadsByTypeRecursive(allMethods, 0, paramsByPosition, signature);
-			}
+			var signature = new List<GenParamInfo>();
+			FindOverloadsByTypeRecursive(allMethods, 0, paramsByPosition, signature);
 
 			// if (SortedMethods.Count > 0)
 			// {
@@ -238,25 +236,25 @@ namespace CodeSmileEditor.Luny.Generator
 			m_Methods = null;
 		}
 
-		private void FindOverloadsByTypeRecursive(List<GenMethodInfo> methods, Int32 pos, List<HashSet<GenParamInfo>> paramsByPosition,
+		private void FindOverloadsByTypeRecursive(List<GenMethodInfo> methods, Int32 paramPos, List<HashSet<GenParamInfo>> paramsByPosition,
 			List<GenParamInfo> signature)
 		{
 			//Debug.Log($"[{pos}] {signature.Count}/{MaxParamCount} {paramsByPosition.Count} => ({DebugSignatureToString(signature)})");
 			for (var i = 0; i < methods.Count; i++)
 			{
 				var method = methods[i];
-				if (pos >= method.ParamCount && method.HasMatchingSignature(signature))
+				if (paramPos >= method.ParamCount && method.HasMatchingSignature(signature))
 					SortedMethods.Add(method);
 			}
 
-			if (pos < paramsByPosition.Count)
+			if (paramPos < paramsByPosition.Count)
 			{
-				var parameters = paramsByPosition[pos];
+				var parameters = paramsByPosition[paramPos];
 				foreach (var parameter in parameters)
 				{
 					var nextSignature = new List<GenParamInfo>(signature);
 					nextSignature.Add(parameter);
-					FindOverloadsByTypeRecursive(methods, pos + 1, paramsByPosition, nextSignature);
+					FindOverloadsByTypeRecursive(methods, paramPos + 1, paramsByPosition, nextSignature);
 				}
 			}
 		}
