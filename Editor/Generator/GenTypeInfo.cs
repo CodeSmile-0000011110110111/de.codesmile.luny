@@ -117,26 +117,75 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
+
+		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter)
+		{
+			if (method.IsGenericMethod)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - is a generic method");
+				return true;
+			}
+
+			var paramType = parameter.ParameterType;
+			if (paramType.IsPointer || paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (pointer)");
+				return true;
+			}
+			if (paramType.IsGenericType || paramType.IsGenericParameter)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (generic)");
+				return true;
+			}
+			if (paramType.IsByRef)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (by ref)");
+				return true;
+			}
+			if (paramType.IsArray)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (array)");
+				return true;
+			}
+			if (paramType.IsEnum)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (enum)");
+				return true;
+			}
+			if (paramType.IsInterface)
+			{
+				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (interface)");
+				return true;
+			}
+			return false;
+		}
+
 		public Boolean Equals(GenMethodOverloads other) => Equals(Name, other.Name);
+
+		public override String ToString() => $"{Name}: {Count} overloads";
 
 		public void AddOverload(MethodBase method)
 		{
-			var parameters = method.GetParameters();
-			foreach (var parameter in parameters)
+			if (method is MethodInfo methodInfo && IsUnsupported(method, methodInfo.ReturnParameter))
+				return;
+
+			foreach (var parameter in method.GetParameters())
 			{
-				var paramType = parameter.ParameterType;
-				if (paramType.IsPointer)
-				{
-					// Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to pointer param " +
-					//           $"'{parameter.ParameterType.Name} {parameter.Name}'");
+				if (IsUnsupported(method, parameter))
 					return;
-				}
-				if (paramType.IsGenericType)
-				{
-					// Debug.Log($"Skip method: {method.DeclaringType.FullName}::{method.Name} due to generic param " +
-					//           $"'{parameter.ParameterType.Name} {parameter.Name}'");
-					return;
-				}
 			}
 
 			m_Methods.Add(method);
@@ -350,7 +399,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public ParameterInfo ParamInfo;
 		public String Name { get; set; }
 		public Type Type => ParamInfo?.ParameterType;
-		public String TypeFullName => ParamInfo.ParameterType.FullName.Replace('+', '.');
+		public String TypeFullName => ParamInfo.ParameterType.FullName?.Replace('+', '.') /* ?? ParamInfo.ParameterType.Name*/;
 		public Int32 Position => ParamInfo.Position;
 		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
 		public String VariableName { get; set; }

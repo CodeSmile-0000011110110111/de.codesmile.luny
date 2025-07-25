@@ -56,6 +56,7 @@ MonoBehaviour:
   - UnityEngine.Serialization
   - UnityEngine.TestTools
   - UnityEngineInternal
+  - '---- below: to be included later ...'
   m_TypeWhitelist:
   - Unity.IntegerTime.DiscreteTime
   - Unity.IntegerTime.DiscreteTimeTimeExtensions
@@ -521,12 +522,13 @@ MonoBehaviour:
   m_TypeBlacklist:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
+  - '-- below: to be included later ...'
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
     rid: -2
   m_ModuleLoaderTypeName: 
-  m_GenerateOnlyThisType: UnityEngine.Bounds
-  m_GenerateOnlyThisMethod: IntersectRay
+  m_GenerateOnlyThisType: 
+  m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:

@@ -11,9 +11,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Assembly = System.Reflection.Assembly;
 
 namespace CodeSmileEditor.Luny
 {
@@ -76,6 +78,10 @@ namespace CodeSmileEditor.Luny
 			// I kept losing the latest changes in case of freezes/crashes caused by the generator, so better save than sorry
 			AssetDatabase.SaveAssetIfDirty(Module);
 
+			// re-generate from scratch if generated code has errors
+			if (CompilationState.HasErrors(Module.BindingsNamespace))
+				OnDeleteGeneratedContent();
+
 			try
 			{
 				var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
@@ -92,13 +98,17 @@ namespace CodeSmileEditor.Luny
 			}
 			catch (Exception e)
 			{
-				Debug.LogException(e);
+				// delay showing the error to avoid it getting hidding by the compilation process
+				EditorApplication.delayCall += () => Debug.LogException(e);
+				throw;
 			}
-
-			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
-			// ImportAsset on the content folder (recursively) which always recompiles for some reason
-			AssetDatabase.Refresh();
-			UpdateUIState(); // pick up any changes made during generation
+			finally
+			{
+				// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
+				// ImportAsset on the content folder (recursively) which always recompiles for some reason
+				AssetDatabase.Refresh();
+				UpdateUIState(); // pick up any changes made during generation
+			}
 		}
 
 		private Boolean IsCommentedOut(String str) => str.StartsWith("//") || str.StartsWith("--");

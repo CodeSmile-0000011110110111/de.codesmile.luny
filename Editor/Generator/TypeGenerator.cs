@@ -5,7 +5,6 @@ using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ namespace CodeSmileEditor.Luny.Generator
 				// TODO filter out types we currently don't support
 				if (type.IsGenericType)
 				{
-					Debug.LogWarning($"Ignoring generic type: {type}");
+					LogWarn($"Ignoring generic type: {type}");
 					return;
 				}
 
@@ -57,6 +56,8 @@ namespace CodeSmileEditor.Luny.Generator
 				if (typeInfo.Type.IsEnum)
 					continue;
 
+				Log($"Generating type: {typeInfo.BindTypeFullName}");
+
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
 				AddNamespaceBlock(sb, module.BindingsNamespace);
@@ -69,13 +70,17 @@ namespace CodeSmileEditor.Luny.Generator
 				GenUtil.WriteFile(assetPath, sb.ToString());
 			}
 
-			EditorApplication.delayCall += () => Debug.Log($"{generatedCount} of {generatableCount} " +
-			                                               $"({(Int32)(generatedCount / (Single)generatableCount * 100f)}%) " +
-			                                               "types generated");
+			Log($"{generatedCount} of {generatableCount} ({(Int32)(generatedCount / (Single)generatableCount * 100f)}%) types generated");
 
 			s_TypeInfosByType.Clear();
 			return generatedTypeInfos;
 		}
+
+		// delay logs to make them appear after the compilation process
+		internal static void Log(String message) => EditorApplication.delayCall += () => Debug.Log(message);
+		internal static void LogWarn(String message) => EditorApplication.delayCall += () => Debug.LogWarning(message);
+		internal static void LogError(String message) => EditorApplication.delayCall += () => Debug.LogError(message);
+		internal static void LogException(Exception e) => EditorApplication.delayCall += () => Debug.LogException(e);
 
 		private static void AddUsingStatements(ScriptBuilder sb, String @namespace)
 		{
@@ -150,9 +155,11 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				if (overloads.Count == 0)
 				{
-					Debug.LogError($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
+					LogWarn($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
 					continue;
 				}
+
+				Log($"\t{overloads}");
 
 				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
 				AddOpenLuaBindFunction(sb, bindFuncName, "new");
@@ -444,7 +451,20 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(parameter.ParamInfo.DefaultValue.ToString());
 				}
 				else
-					sb.Append(parameter.ParamInfo.RawDefaultValue.ToString());
+				{
+					var defaultValue = parameter.ParamInfo.RawDefaultValue;
+					if (parameter.Type.IsPrimitive)
+					{
+						// avoid implicit conversions from using the wrong overload, or throwing conversion errors
+						sb.Append("(");
+						sb.Append(parameter.Type.FullName);
+						sb.Append(")");
+					}
+					if (parameter.Type == typeof(Boolean))
+						sb.Append((Boolean)defaultValue ? "true" : "false");
+					else
+						sb.Append(defaultValue == null ? "default" : Convert.ToString(defaultValue));
+				}
 				sb.Append(")");
 			}
 			else

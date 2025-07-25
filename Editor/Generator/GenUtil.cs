@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Internal;
@@ -203,6 +204,21 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				Debug.LogError($"Failed to write file: {assetPath}\n{e}");
 			}
+		}
+
+		public static string ToString(ParameterInfo[] parameters)
+		{
+			var sb = new StringBuilder();
+			for (var i = 0; i < parameters.Length; i++)
+			{
+				var parameter = parameters[i];
+				if (i > 0)
+					sb.Append(", ");
+				sb.Append(parameter.ParameterType.Name);
+				sb.Append(" ");
+				sb.Append(parameter.Name);
+			}
+			return sb.ToString();
 		}
 	}
 }
