@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
@@ -147,6 +148,12 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			foreach (var overloads in methodOverloads)
 			{
+				if (overloads.Count == 0)
+				{
+					Debug.LogError($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
+					continue;
+				}
+
 				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
 				AddOpenLuaBindFunction(sb, bindFuncName, "new");
 				AddReadArgumentCount(sb);

@@ -76,17 +76,24 @@ namespace CodeSmileEditor.Luny
 			// I kept losing the latest changes in case of freezes/crashes caused by the generator, so better save than sorry
 			AssetDatabase.SaveAssetIfDirty(Module);
 
-			var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
-			if (String.IsNullOrEmpty(onlyThisTypeStr) == false && IsCommentedOut(onlyThisTypeStr) == false)
+			try
 			{
-				var onlyThisType = m_Types.Where(type => type.FullName.Equals(onlyThisTypeStr));
-				var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
-				if (IsCommentedOut(onlyThisMethodName))
-					onlyThisMethodName = null;
-				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
+				var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
+				if (String.IsNullOrEmpty(onlyThisTypeStr) == false && IsCommentedOut(onlyThisTypeStr) == false)
+				{
+					var onlyThisType = m_Types.Where(type => type.FullName.Equals(onlyThisTypeStr));
+					var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
+					if (IsCommentedOut(onlyThisMethodName))
+						onlyThisMethodName = null;
+					LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
+				}
+				else
+					LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
 			}
-			else
-				LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+			}
 
 			// Refresh makes sense here as it will avoid compilation if there weren't any changes, unlike
 			// ImportAsset on the content folder (recursively) which always recompiles for some reason

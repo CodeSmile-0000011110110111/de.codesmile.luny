@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AssemblyName: UnityEngine.CoreModule
   m_NamespaceWhitelist:
-  - Unity.Content
   - Unity.IntegerTime
-  - Unity.IO.Archive
   - Unity.Profiling
   - Unity.Profiling.Memory
   - UnityEngine
@@ -38,7 +36,8 @@ MonoBehaviour:
   m_NamespaceBlacklist:
   - JetBrains.Annotations
   - Unity.Collections*
-  - Unity.IO.LowLevel.Unsafe
+  - Unity.Content
+  - Unity.IO.*
   - Unity.Jobs*
   - Unity.Profiling.LowLevel*
   - UnityEditor.*
@@ -58,16 +57,11 @@ MonoBehaviour:
   - UnityEngine.TestTools
   - UnityEngineInternal
   m_TypeWhitelist:
-  - Unity.Content.ContentNamespace
   - Unity.IntegerTime.DiscreteTime
   - Unity.IntegerTime.DiscreteTimeTimeExtensions
   - Unity.IntegerTime.RationalTime
   - Unity.IntegerTime.RationalTime+TicksPerSecond
   - Unity.IntegerTime.RationalTimeExtensions
-  - Unity.IO.Archive.ArchiveFileInfo
-  - Unity.IO.Archive.ArchiveFileInterface
-  - Unity.IO.Archive.ArchiveHandle
-  - Unity.IO.Archive.ArchiveStatus
   - Unity.Profiling.DebugScreenCapture
   - Unity.Profiling.Memory.CaptureFlags
   - Unity.Profiling.Memory.MemoryProfiler
@@ -529,13 +523,12 @@ MonoBehaviour:
   - UnityEngine.Types
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
-    rid: 2561253537325514824
-  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
-  m_GenerateOnlyThisType: UnityEngine.Vector4
-  m_GenerateOnlyThisMethod: 
+    rid: -2
+  m_ModuleLoaderTypeName: 
+  m_GenerateOnlyThisType: UnityEngine.Bounds
+  m_GenerateOnlyThisMethod: IntersectRay
   references:
     version: 2
     RefIds:
-    - rid: 2561253537325514824
-      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }
