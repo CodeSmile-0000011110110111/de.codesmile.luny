@@ -81,7 +81,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var methodOverloads = new Dictionary<String, GenMethodOverloads>();
 			foreach (var method in methods)
 			{
-				if (onlyThisMethodName != null && onlyThisMethodName != method.Name)
+				if (string.IsNullOrWhiteSpace(onlyThisMethodName) == false && onlyThisMethodName != method.Name)
 					continue;
 
 				//Debug.Log($"{method.DeclaringType.FullName}: Add {method.Name} with {method.GetParameters().Length} parameters.");

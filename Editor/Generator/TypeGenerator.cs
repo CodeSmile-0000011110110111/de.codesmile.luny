@@ -130,23 +130,37 @@ namespace CodeSmileEditor.Luny.Generator
 			out IList<String> setters)
 		{
 			getters = new List<String>();
+			AddMethodBindings(sb, typeInfo, members.CtorOverloads, getters);
+			AddMethodBindings(sb, typeInfo, members.MethodOverloads, getters);
 
-			// Constructors
-			foreach (var overloads in members.CtorOverloads)
+			setters = null;
+		}
+
+		private static void AddMethodBindings(ScriptBuilder sb, GenTypeInfo typeInfo, IEnumerable<GenMethodOverloads> methodOverloads,
+			IList<String> getters)
+		{
+			foreach (var overloads in methodOverloads)
 			{
-				var bindFuncName = $"_{typeInfo.InstanceTypeName}_ctor";
-				getters.Add($"case \"new\": value = {bindFuncName}; break;");
+				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
 				AddOpenLuaBindFunction(sb, bindFuncName, "new");
 				AddReadArgumentCount(sb);
 				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
-					AddValueTypeParameterlessCtor(sb);
+					AddValueTypeParameterlessCtor(sb, typeInfo);
 				if (overloads.IsInstanceMethod)
-					AddGetInstanceFromLuaArguments(sb);
+					AddGetInstanceFromLuaArguments(sb, typeInfo);
 				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, 0, 0, null);
 				AddCloseLuaBindFunction(sb);
 			}
+		}
 
-			setters = null;
+		private static String GenerateGetterCase(GenTypeInfo typeInfo, IList<String> getters, GenMethodOverloads overloads)
+		{
+			var isCtor = overloads.IsConstructor;
+			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
+			var bindFuncName = $"_{typeInfo.InstanceTypeName}_{bindFuncNameSuffix}";
+			var indexCaseName = isCtor ? "new" : overloads.Name;
+			getters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; break;");
+			return bindFuncName;
 		}
 
 		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String luaFuncName)
@@ -169,16 +183,25 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddReadArgumentCount(ScriptBuilder sb) => sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 
-		private static void AddValueTypeParameterlessCtor(ScriptBuilder sb)
+		private static void AddValueTypeParameterlessCtor(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			sb.AppendIndentLine("// if (argCount == 0)");
+			sb.AppendIndentLine("if (_argCount == 0)");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndentLine("// use parameterless ctor");
+			sb.AppendIndent("var _retval0 = new ");
+			sb.Append(typeInfo.InstanceTypeName);
+			sb.Append("(new ");
+			sb.Append(typeInfo.BindTypeFullName);
+			sb.AppendLine("());");
+			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_retval0));");
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb) =>
-			sb.AppendIndentLine("var _instance = _context.GetArgument<ILuaUserData>(0);");
+		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			sb.AppendIndent("var _instance = _context.GetArgument<");
+			sb.Append(typeInfo.InstanceTypeName);
+			sb.AppendLine(">(0);");
+		}
 
 		private static void AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
 			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature)
@@ -259,7 +282,7 @@ namespace CodeSmileEditor.Luny.Generator
 			Boolean hasParameters, GenMethodInfo overload, Int32 luaArgOffset)
 		{
 			sb.AppendIndent("if (_argCount == ");
-			sb.Append(paramPos.ToString());
+			sb.Append((paramPos + luaArgOffset).ToString());
 			sb.AppendLine(")");
 			sb.OpenIndentBlock("{");
 			if (hasParameters)
@@ -301,6 +324,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var methodInfo = overload.MethodInfo as MethodInfo;
 			var ctorInfo = overload.MethodInfo as ConstructorInfo;
 			var isCtor = ctorInfo != null;
+			var isStatic = overload.MethodInfo.IsStatic;
 
 			var returnCount = isCtor || methodInfo.ReturnType != typeof(void) ? 1 : 0;
 			var methodName = isCtor ? ctorInfo.DeclaringType.FullName.Replace('+', '.') : methodInfo.Name;
@@ -314,6 +338,13 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(typeInfo.InstanceTypeName);
 				sb.Append("(new ");
 			}
+			else
+			{
+				if (isStatic == false)
+					sb.Append("_instance.");
+				sb.Append(isStatic ? typeInfo.BindTypeFullName : typeInfo.InstanceFieldName);
+				sb.Append(".");
+			}
 			sb.Append(methodName);
 			sb.Append("(");
 
@@ -326,7 +357,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			sb.AppendLine(isCtor ? "));" : ");");
 
-			sb.AppendIndent("return new ValueTask<int>(_context.Return(");
+			sb.AppendIndent("return new ValueTask<System.Int32>(_context.Return(");
 			for (var i = 0; i < returnCount; i++)
 			{
 				if (i > 0)
