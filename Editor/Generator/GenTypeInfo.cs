@@ -122,43 +122,43 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			if (method.IsGenericMethod)
 			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - is a generic method");
+				TypeGenerator.Log($"Skip generic method: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())})");
 				return true;
 			}
 
 			var paramType = parameter.ParameterType;
-			if (paramType.IsPointer || paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
-			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (pointer)");
-				return true;
-			}
 			if (paramType.IsGenericParameter || paramType.IsGenericType)
 			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				TypeGenerator.Log($"Skip generic param: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (generic)");
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
+				return true;
+			}
+			if (paramType.IsPointer || paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
+			{
+				TypeGenerator.Log($"Skip pointer param: {method.DeclaringType.FullName}::{method.Name}" +
+				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
 				return true;
 			}
 			if (paramType.IsByRef)
 			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				TypeGenerator.Log($"Skip ref/out param: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (by ref)");
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
 				return true;
 			}
 			if (paramType.IsArray)
 			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				TypeGenerator.Log($"Skip array param: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (array)");
+				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
 				return true;
 			}
 			if (paramType.IsInterface)
 			{
-				TypeGenerator.Log($"Skip: {method.DeclaringType.FullName}::{method.Name}" +
+				TypeGenerator.LogWarn($"Skip interface param: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
 				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (interface)");
 				return true;

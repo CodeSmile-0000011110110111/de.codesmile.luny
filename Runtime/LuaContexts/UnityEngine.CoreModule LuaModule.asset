@@ -509,13 +509,13 @@ MonoBehaviour:
   - '-- below: to be included later ...'
   m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
   m_ModuleLoader:
-    rid: 2561253537325514837
+    rid: 2561253537325514840
   m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
   m_GenerateOnlyThisType: //UnityEngine.Camera
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: 2561253537325514837
+    - rid: 2561253537325514840
       type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 
