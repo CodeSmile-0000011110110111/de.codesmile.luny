@@ -98,28 +98,28 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void GenerateInstanceType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			AddOpenTypeDeclaration(sb, typeInfo.InstanceTypeName, false);
+			AddOpenTypeDeclaration(sb, typeInfo, false);
 			AddInstanceFieldAndProperty(sb, typeInfo.InstanceFieldName, typeInfo.BindTypeFullName);
-			AddMetatableFieldAndProperty(sb);
+			AddILuaUserDataImplementations(sb);
 			AddConstructor(sb, typeInfo);
 			AddImplicitOperator(sb, typeInfo.InstanceTypeName);
 			AddInstanceTypeToStringOverride(sb, typeInfo.InstanceFieldName);
 			AddLuaBindings(sb, typeInfo, typeInfo.InstanceMembers, out var getters, out var setters);
-			AddIndexMetamethod(sb, typeInfo.InstanceTypeName, getters);
-			AddNewIndexMetamethod(sb, typeInfo.InstanceTypeName, setters);
+			AddIndexMetamethod(sb, typeInfo, typeInfo.InstanceTypeName, getters);
+			AddNewIndexMetamethod(sb, typeInfo, typeInfo.InstanceTypeName, setters);
 			AddCloseTypeDeclaration(sb);
 		}
 
 		private static void GenerateStaticType(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			AddOpenTypeDeclaration(sb, typeInfo.StaticTypeName, true);
+			AddOpenTypeDeclaration(sb, typeInfo, true);
 			AddBindType(sb, typeInfo.BindTypeFullName);
 			AddStaticTypeToStringOverride(sb);
 			AddImplicitOperator(sb, typeInfo.StaticTypeName);
-			AddMetatableFieldAndProperty(sb);
+			AddILuaUserDataImplementations(sb);
 			AddLuaBindings(sb, typeInfo, typeInfo.StaticMembers, out var getters, out var setters);
-			AddIndexMetamethod(sb, typeInfo.StaticTypeName, getters);
-			AddNewIndexMetamethod(sb, typeInfo.StaticTypeName, setters);
+			AddIndexMetamethod(sb, typeInfo, typeInfo.StaticTypeName, getters);
+			AddNewIndexMetamethod(sb, typeInfo, typeInfo.StaticTypeName, setters);
 			AddCloseTypeDeclaration(sb);
 		}
 
@@ -127,10 +127,9 @@ namespace CodeSmileEditor.Luny.Generator
 			out IList<String> setters)
 		{
 			getters = new List<String>();
+			setters = new List<String>();
 			AddMethodBindings(sb, typeInfo, members.CtorOverloads, getters);
 			AddMethodBindings(sb, typeInfo, members.MethodOverloads, getters);
-
-			setters = null;
 		}
 
 		private static void AddMethodBindings(ScriptBuilder sb, GenTypeInfo typeInfo, IEnumerable<GenMethodOverloads> methodOverloads,
@@ -156,16 +155,6 @@ namespace CodeSmileEditor.Luny.Generator
 				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, 0, 0, null);
 				AddCloseLuaBindFunction(sb);
 			}
-		}
-
-		private static String GenerateGetterCase(GenTypeInfo typeInfo, IList<String> getters, GenMethodOverloads overloads)
-		{
-			var isCtor = overloads.IsConstructor;
-			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
-			var bindFuncName = $"_{typeInfo.InstanceTypeName}_{bindFuncNameSuffix}";
-			var indexCaseName = isCtor ? "new" : overloads.Name;
-			getters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; break;");
-			return bindFuncName;
 		}
 
 		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String luaFuncName)
@@ -487,12 +476,15 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddStaticTypeToStringOverride(ScriptBuilder sb) =>
 			sb.AppendIndentLine("public override string ToString() => BindType.FullName;");
 
-		private static void AddOpenTypeDeclaration(ScriptBuilder sb, String typeName, Boolean isSealed)
+		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isStaticType)
 		{
+			var isValueType = typeInfo.Type.IsValueType;
 			sb.AppendIndent("public ");
-			sb.Append(isSealed ? "sealed " : "");
-			sb.Append("class ");
-			sb.Append(typeName);
+			if (isStaticType)
+				sb.Append("sealed class ");
+			else
+				sb.Append(isValueType ? "struct " : "class ");
+			sb.Append(isStaticType ? typeInfo.StaticTypeName : typeInfo.InstanceTypeName);
 			sb.AppendLine(" : ILuaUserData");
 			sb.OpenIndentBlock("{"); // { class
 		}
@@ -548,7 +540,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(" value) => new(value);");
 		}
 
-		private static void AddMetatableFieldAndProperty(ScriptBuilder sb)
+		private static void AddILuaUserDataImplementations(ScriptBuilder sb)
 		{
 			sb.AppendIndentLine("private static LuaTable s_Metatable;");
 			sb.AppendIndentLine("public LuaTable Metatable");
@@ -556,46 +548,99 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("get => s_Metatable ??= LunyUserdataMetatable.Create(__index, __newindex);");
 			sb.AppendIndentLine("set => throw new System.NotSupportedException(\"Metatable of bound types not assignable\");");
 			sb.CloseIndentBlock("}"); // Metatable }
+			sb.AppendIndentLine("System.Span<LuaValue> ILuaUserData.UserValues => default;");
 		}
 
-		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName, IEnumerable<String> getters)
+		private static String GenerateGetterCase(GenTypeInfo typeInfo, IList<String> getters, GenMethodOverloads overloads)
 		{
+			var isCtor = overloads.IsConstructor;
+			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
+			var bindFuncName = $"_{typeInfo.InstanceTypeName}_{bindFuncNameSuffix}";
+			var indexCaseName = isCtor ? "new" : overloads.Name;
+			getters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; return true;");
+			return bindFuncName;
+		}
+
+		private static String GenerateSetterCase(GenTypeInfo typeInfo, IList<String> setters, GenMethodOverloads overloads)
+		{
+			throw new NotImplementedException();
+
+			var isCtor = overloads.IsConstructor;
+			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
+			var bindFuncName = $"_{typeInfo.InstanceTypeName}_{bindFuncNameSuffix}";
+			var indexCaseName = isCtor ? "new" : overloads.Name;
+			setters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; return true;");
+			return bindFuncName;
+		}
+
+		private static void AddIndexMetamethod(ScriptBuilder sb, GenTypeInfo typeInfo, String typeName, IList<String> getters)
+		{
+			// __index
 			sb.AppendIndentLine("private static readonly LuaFunction __index = new(Metamethods.Index, (context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var instance = context.GetArgument<");
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
 			sb.AppendIndentLine("var key = context.GetArgument<string>(1);");
-			sb.AppendIndentLine("var value = LuaValue.Nil;");
+			sb.AppendIndentLine("if (instance.GetLuaValue(key, out LuaValue value) == false)");
+			sb.IncrementIndent();
+			sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, instance, 2);");
+			sb.DecrementIndent();
+			sb.AppendIndentLine("return new ValueTask<System.Int32>(context.Return(value));");
+			sb.CloseIndentBlock("});");
+
+			// GetLuaValueForKey
+			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "protected ");
+			sb.AppendLine("System.Boolean GetLuaValue(System.String key, out LuaValue value)");
+			sb.OpenIndentBlock("{");
 			sb.AppendIndentLine("switch (key)");
 			sb.OpenIndentBlock("{");
 			foreach (var getter in getters)
 				sb.AppendIndentLine(getter);
-			sb.AppendIndentLine("default: throw new LuaRuntimeException(context.Thread, instance, 2);");
+			sb.AppendIndentLine("default: value = LuaValue.Nil; return false;");
 			sb.CloseIndentBlock("}");
-			sb.AppendIndentLine("return new ValueTask<int>(context.Return(value));");
-			sb.CloseIndentBlock("});");
+			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName, IEnumerable<String> setters)
+		private static void AddNewIndexMetamethod(ScriptBuilder sb, GenTypeInfo typeInfo, String typeName, IList<String> setters)
 		{
+			var hasSetters = setters.Count > 0;
+
+			// SetLuaValueForKey
+			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "protected ");
+			sb.Append("System.Boolean SetLuaValue(System.String key, LuaValue value)");
+			if (hasSetters)
+			{
+				sb.AppendLine();
+				sb.OpenIndentBlock("{");
+				sb.AppendIndentLine("switch (key)");
+				sb.OpenIndentBlock("{");
+				foreach (var setter in setters)
+					sb.AppendIndentLine(setter);
+				sb.AppendIndentLine("default: return false;");
+				sb.CloseIndentBlock("}");
+				sb.CloseIndentBlock("}");
+			}
+			else
+				sb.AppendLine(" => false;");
+
 			sb.AppendIndentLine("private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var instance = context.GetArgument<");
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
-			sb.AppendIndentLine("var key = context.GetArgument<string>(1);");
-			sb.AppendIndentLine("var value = context.GetArgument(2);");
-			sb.AppendIndentLine("switch (key)");
-			sb.OpenIndentBlock("{");
-			if (setters != null)
+			if (hasSetters)
 			{
-				foreach (var setter in setters)
-					sb.AppendIndentLine(setter);
+				sb.AppendIndentLine("var key = context.GetArgument<string>(1);");
+				sb.AppendIndentLine("var value = context.GetArgument(2);");
+				sb.AppendIndentLine("if (instance.SetLuaValue(key, value) == false)");
+				sb.IncrementIndent();
+				sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, instance, 2);");
+				sb.DecrementIndent();
+				sb.AppendIndentLine("return new ValueTask<System.Int32>(context.Return(0));");
 			}
-			sb.AppendIndentLine("default: throw new LuaRuntimeException(context.Thread, instance, 2);");
-			sb.CloseIndentBlock("}");
-			sb.AppendIndentLine("return new ValueTask<int>(context.Return(0));");
+			else
+				sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, instance, 2);");
 			sb.CloseIndentBlock("});");
 		}
 	}

@@ -120,50 +120,36 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter)
 		{
-			if (method.IsGenericMethod)
-			{
-				TypeGenerator.Log($"Skip generic method: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())})");
-				return true;
-			}
-
 			var paramType = parameter.ParameterType;
-			if (paramType.IsGenericParameter || paramType.IsGenericType)
-			{
-				TypeGenerator.Log($"Skip generic param: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
-				return true;
-			}
-			if (paramType.IsPointer || paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
-			{
-				TypeGenerator.Log($"Skip pointer param: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
-				return true;
-			}
 			if (paramType.IsByRef)
-			{
-				TypeGenerator.Log($"Skip ref/out param: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
-				return true;
-			}
+				return Unsupported(method, parameter, "byref param");
 			if (paramType.IsArray)
+				return Unsupported(method, parameter, "array param", false);
+			if (paramType.IsGenericParameter)
+				return Unsupported(method, parameter, "generic param", false);
+			if (method.IsGenericMethod)
+				return Unsupported(method, parameter, "generic method", false);
+			if (paramType.IsGenericType)
+				return Unsupported(method, parameter, "generic type", false);
+			if (paramType.IsInterface)
+				return Unsupported(method, parameter, "interface param", false);
+			if (paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
+				return Unsupported(method, parameter, "IntPtr param", false);
+			if (paramType.IsPointer)
+				return Unsupported(method, parameter, "pointer param", false);
+
+			return false;
+		}
+
+		private static Boolean Unsupported(MethodBase method, ParameterInfo parameter, String reason, Boolean log = true)
+		{
+			if (log)
 			{
-				TypeGenerator.Log($"Skip array param: {method.DeclaringType.FullName}::{method.Name}" +
+				TypeGenerator.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
 				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
-				return true;
 			}
-			if (paramType.IsInterface)
-			{
-				TypeGenerator.LogWarn($"Skip interface param: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}' (interface)");
-				return true;
-			}
-			return false;
+			return true;
 		}
 
 		public Boolean Equals(GenMethodOverloads other) => Equals(Name, other.Name);
@@ -389,7 +375,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 	internal sealed class GenParamInfo : IEquatable<GenParamInfo>
 	{
-		private string m_TypeFullName;
+		private String m_TypeFullName;
 
 		public ParameterInfo ParamInfo;
 		public String Name { get; set; }

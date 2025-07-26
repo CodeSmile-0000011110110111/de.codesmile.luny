@@ -16,6 +16,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Assembly = System.Reflection.Assembly;
+using Object = System.Object;
 
 namespace CodeSmileEditor.Luny
 {
@@ -70,7 +71,6 @@ namespace CodeSmileEditor.Luny
 			AssetDatabase.SaveAssetIfDirty(Module);
 		}
 
-		//OnGenerate();
 		private void OnGenerate()
 		{
 			UpdateUIState(); // pick up any recent changes
@@ -80,7 +80,11 @@ namespace CodeSmileEditor.Luny
 
 			// re-generate from scratch if generated code has errors
 			if (CompilationState.HasErrors(Module.BindingsNamespace))
+			{
 				OnDeleteGeneratedContent();
+				CompilationPipeline.RequestScriptCompilation();
+				return;
+			}
 
 			try
 			{
