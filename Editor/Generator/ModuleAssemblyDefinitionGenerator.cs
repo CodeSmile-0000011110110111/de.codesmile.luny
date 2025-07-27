@@ -8,9 +8,9 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal static class AssemblyDefinitionGenerator
+	internal static class ModuleAssemblyDefinitionGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
 			AssemblyDefinitionAssets asmdefAssets)
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
@@ -25,7 +25,7 @@ namespace CodeSmileEditor.Luny.Generator
 			AddDefaultSettings(sb);
 			sb.CloseIndentBlock("}");
 
-			var assetPath = $"{contentFolderPath}/{asmDefName}.asmdef";
+			var assetPath = $"{contentFolderPath}/_{asmDefName.Replace('.', '_')}_Assembly.asmdef";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
@@ -40,7 +40,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, TypeHierarchy typeHierarchy, AssemblyDefinitionAssets asmdefAssets,
+		private static void AddReferences(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy, AssemblyDefinitionAssets asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentLine("\"references\": [");

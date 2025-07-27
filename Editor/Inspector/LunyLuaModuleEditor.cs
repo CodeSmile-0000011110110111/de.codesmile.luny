@@ -65,18 +65,16 @@ namespace CodeSmileEditor.Luny
 		private void OnDeleteGeneratedContent()
 		{
 			GenUtil.TryDeleteContentFolderPath(Module);
-			Module.ModuleLoader = null;
-			Module.ModuleLoaderTypeName = null;
-			EditorUtility.SetDirty(Module);
-			AssetDatabase.SaveAssetIfDirty(Module);
+			Module.ClearGeneratedTypeReferences();
+			Module.SaveAsset();
 		}
 
 		private void OnGenerate()
 		{
 			UpdateUIState(); // pick up any recent changes
 
-			// I kept losing the latest changes in case of freezes/crashes caused by the generator, so better save than sorry
-			AssetDatabase.SaveAssetIfDirty(Module);
+			// just to avoid losing most recent Inspector changes on generator errors
+			Module.SaveAsset();
 
 			// re-generate from scratch if generated code has errors
 			if (CompilationState.HasErrors(Module.BindingsNamespace))
@@ -95,10 +93,10 @@ namespace CodeSmileEditor.Luny
 					var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
 					if (IsCommentedOut(onlyThisMethodName))
 						onlyThisMethodName = null;
-					LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
+					ModuleBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
 				}
 				else
-					LuaBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
+					ModuleBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
 			}
 			catch (Exception e)
 			{
@@ -123,7 +121,7 @@ namespace CodeSmileEditor.Luny
 			{
 				var module = new LuaTable();
 				Module.ModuleLoader.Load(module);
-				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoaderTypeName}"));
+				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
 			}
 		}
 
@@ -329,7 +327,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogCtors()
 		{
-			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
@@ -349,7 +347,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogFields()
 		{
-			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
@@ -369,7 +367,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogProperties()
 		{
-			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
@@ -389,7 +387,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogMethods()
 		{
-			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
@@ -409,7 +407,7 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogEvents()
 		{
-			var typeHierarchy = new TypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{

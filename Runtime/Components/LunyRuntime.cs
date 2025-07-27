@@ -29,24 +29,28 @@ namespace CodeSmile.Luny
 	public sealed class LunyRuntime : MonoBehaviour, ILunyRuntime, ILunyRuntimeInternal
 	{
 		private static LunyRuntime s_Singleton;
+		private static Boolean s_SingletonAssigned;
+
 		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
 #if DEBUG || UNITY_EDITOR
+		// FIXME: move this into Luny settings ...
 		[Tooltip("If enabled, PlayMode will continue to run while the editor is in background. Useful for editing runtime " +
 		         "scripts with changes taking effect without having to focus the editor or player window. Only takes effect " +
 		         "in development (debug) builds and editor.")]
-		[SerializeField] private Boolean m_DevelopRunInBackground = true;
+		[SerializeField] private Boolean m_AlwaysRunInBackgroundInDevelopMode = true;
 #endif
 
-		// TODO: consider splitting into LunyRuntime and LunyModding
+		// TODO: consider splitting into LunyRuntime and LunyModding, or array of states
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
 
-		public static ILunyRuntime Singleton => s_Singleton;
+		public static ILunyRuntime Singleton => s_SingletonAssigned ? s_Singleton : s_Singleton = CreateInstance();
 		public ILunyLua RuntimeLua => m_RuntimeLua;
 		public ILunyLua ModdingLua => m_ModdingLua;
 
-		public static GameObject CreateLunyObject() => new(nameof(LunyRuntime), typeof(LunyRuntime));
+		private static LunyRuntime CreateInstance() => new GameObject(nameof(LunyRuntime)).AddComponent<LunyRuntime>();
+
 		/// <summary>
 		/// Can be used for last-second cleanup of anything Luny/Lua related.
 		/// </summary>
@@ -77,6 +81,7 @@ namespace CodeSmile.Luny
 			}
 
 			s_Singleton = this;
+			s_SingletonAssigned = true;
 
 			ApplyRunInBackgroundSetting();
 
@@ -109,7 +114,7 @@ namespace CodeSmile.Luny
 		private void ApplyRunInBackgroundSetting()
 		{
 #if DEBUG || UNITY_EDITOR
-			Application.runInBackground = m_DevelopRunInBackground;
+			Application.runInBackground = m_AlwaysRunInBackgroundInDevelopMode;
 #endif
 		}
 

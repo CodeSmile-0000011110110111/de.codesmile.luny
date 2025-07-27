@@ -39,15 +39,13 @@ namespace CodeSmileEditor.Luny.Generator
 			if (type.IsEnum == false)
 			{
 				IsStatic = type.IsAbstract && type.IsSealed;
+				IsGameObjectType = Type == typeof(GameObject);
+				IsComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
 				InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
+
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
 				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
 				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, onlyThisMethodName);
-			}
-			else
-			{
-				IsGameObjectType = Type == typeof(GameObject);
-				IsComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
 			}
 		}
 	}
@@ -152,7 +150,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			if (log)
 			{
-				TypeGenerator.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
+				ModuleTypeGenerator.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
 				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
 				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
 			}

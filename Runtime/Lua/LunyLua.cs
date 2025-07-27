@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -25,6 +26,7 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
+		LuaGameObjectFactoryBase GameObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
@@ -38,8 +40,10 @@ namespace CodeSmile.Luny
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaFileWatcher m_FileWatcher;
+		private LuaGameObjectFactoryBase m_GameObjectFactory;
 
 		public LuaState State => m_LuaState;
+		public LuaGameObjectFactoryBase GameObjectFactory => m_GameObjectFactory;
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -102,6 +106,7 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			ClearScripts();
+			m_GameObjectFactory = null;
 			m_FileWatcher?.Dispose();
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
@@ -149,7 +154,12 @@ namespace CodeSmile.Luny
 			OverridePrintAndLog();
 
 			foreach (var module in luaContext.Modules)
+			{
 				module.Load(m_LuaState);
+
+				if (m_GameObjectFactory == null && module.GameObjectFactory != null)
+					m_GameObjectFactory = module.GameObjectFactory;
+			}
 		}
 
 		private void InstallBasicLibraryOverrides()

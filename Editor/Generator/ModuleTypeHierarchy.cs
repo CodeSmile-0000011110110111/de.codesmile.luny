@@ -11,7 +11,7 @@ using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal sealed class TypeHierarchy
+	internal sealed class ModuleTypeHierarchy
 	{
 		private readonly TreeNode<Type> m_Hierarchy = new(typeof(Object));
 		private readonly List<Type> m_Enums = new();
@@ -24,7 +24,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public IEnumerable<Type> Types => m_Types;
 		public IEnumerable<Type> Enums => m_Enums;
 
-		public TypeHierarchy(IEnumerable<Type> types)
+		public ModuleTypeHierarchy(IEnumerable<Type> types)
 		{
 			Debug.Assert(types != null);
 			m_Types = types;

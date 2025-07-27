@@ -11,19 +11,16 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal static class TypeGenerator
+	internal static class ModuleTypeGenerator
 	{
 		private const String DisabledWarningCodes = "0162, 0168, 0219"; // Unreachable code, declared / assigned but never used
 		private static readonly String[] Digits =
 			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
-		private static Dictionary<Type, GenTypeInfo> s_TypeInfosByType;
-
-		public static IEnumerable<GenTypeInfo> Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
-			String onlyThisMethodName = null)
+		public static IEnumerable<GenTypeInfo> Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
+			String onlyThisMethodName)
 		{
 			var generatedTypeInfos = new List<GenTypeInfo>();
-			s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
 			typeHierarchy.Visit((node, level) =>
 			{
@@ -34,7 +31,7 @@ namespace CodeSmileEditor.Luny.Generator
 				{
 					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
 					generatedTypeInfos.Add(typeInfo);
-					s_TypeInfosByType.Add(type, typeInfo);
+					ModuleBindingsGenerator.TypeInfosByType.Add(type, typeInfo);
 				}
 			});
 
@@ -58,7 +55,6 @@ namespace CodeSmileEditor.Luny.Generator
 				GenUtil.WriteFile(assetPath, sb.ToString());
 			}
 
-			s_TypeInfosByType.Clear();
 			return generatedTypeInfos;
 		}
 
@@ -104,7 +100,10 @@ namespace CodeSmileEditor.Luny.Generator
 
 			AddOpenTypeDeclaration(sb, typeInfo, isLuaStaticType);
 			if (isLuaStaticType)
+			{
 				AddBindType(sb, typeInfo.BindTypeFullName);
+				AddLuaGameObjectFactoryImplementation(sb, typeInfo);
+			}
 			else
 			{
 				AddConstructor(sb, typeInfo);
@@ -123,29 +122,38 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var isValueType = typeInfo.Type.IsValueType;
 			sb.AppendIndent("public ");
-			if (isLuaStaticType)
-				sb.Append("sealed class ");
-			else
-				sb.Append(isValueType ? "struct " : "class ");
+			sb.Append(isLuaStaticType ? "sealed class " : isValueType ? "struct " : "class ");
 			sb.Append(isLuaStaticType ? typeInfo.StaticLuaTypeName : typeInfo.InstanceLuaTypeName);
 			sb.Append(" : ");
 			sb.Append(nameof(ILuaUserData));
-			if (isLuaStaticType && typeInfo.IsGameObjectType)
+			if (isLuaStaticType == false && typeInfo.IsGameObjectType)
 			{
 				sb.Append(", ");
-				sb.Append(nameof(ILuaGameObjectFactory));
+				sb.Append(nameof(ILuaUnityEngineGameObject));
 			}
 			sb.AppendLine();
-			sb.OpenIndentBlock("{"); // { class
+			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddCloseTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentBlock("}"); // class }
+		private static void AddCloseTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
 		private static void AddBindType(ScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndent("public static System.Type BindType => typeof(");
 			sb.Append(typeName);
 			sb.AppendLine(");");
+		}
+
+		private static void AddLuaGameObjectFactoryImplementation(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			if (typeInfo.IsGameObjectType)
+			{
+				sb.AppendIndent("public ");
+				sb.Append(nameof(ILuaUnityEngineGameObject));
+				sb.Append(" Create(UnityEngine.GameObject gameObject) => new ");
+				sb.Append(typeInfo.InstanceLuaTypeName);
+				sb.AppendLine("(gameObject);");
+			}
 		}
 
 		private static void AddConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
@@ -511,7 +519,7 @@ namespace CodeSmileEditor.Luny.Generator
 					if (returnType.IsEnum)
 						sb.Append("(System.Double)");
 				}
-				else if (s_TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
+				else if (ModuleBindingsGenerator.TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
 				{
 					needsExtraClosingBrace = true;
 					sb.Append("new LuaValue(");

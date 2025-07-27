@@ -119,8 +119,8 @@ namespace CodeSmile.Luny
 		}
 
 		private ILunyLua GetModdingOrRuntimeLuaInstance() => m_LuaAsset is LunyModdingLuaAsset
-			? LunyRef.LunyRuntime.ModdingLua
-			: LunyRef.LunyRuntime.RuntimeLua;
+			? LunyRef.Luny.ModdingLua
+			: LunyRef.Luny.RuntimeLua;
 
 		private LunyReference GetOrAddLunyReference()
 		{

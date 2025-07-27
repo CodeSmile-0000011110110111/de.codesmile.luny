@@ -4,7 +4,6 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,7 +11,7 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, TypeHierarchy typeHierarchy,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
 			IEnumerable<GenTypeInfo> typeInfos)
 		{
 			var @namespace = module.BindingsNamespace;
@@ -27,11 +26,11 @@ namespace CodeSmileEditor.Luny.Generator
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
-			var assetPath = $"{contentFolderPath}/Lua_{module.AssemblyName}_Loader.cs";
+			var assetPath = $"{contentFolderPath}/_{loaderClassName}.cs";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddUsingStatements(TypeHierarchy typeHierarchy, ScriptBuilder sb)
+		private static void AddUsingStatements(ModuleTypeHierarchy typeHierarchy, ScriptBuilder sb)
 		{
 			sb.AppendLine("#pragma warning disable 0105 // The using directive for '..' appeared previously in this namespace");
 			sb.AppendLine("using CodeSmile.Luny;");
@@ -51,28 +50,28 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("namespace ");
 			sb.AppendLine(@namespace);
-			sb.OpenIndentBlock("{"); // namespace
+			sb.OpenIndentBlock("{");
 		}
 
-		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}"); // namespace
+		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
 		private static void AddClassBlock(ScriptBuilder sb, String loaderClassName)
 		{
-			sb.AppendIndentLine("[Serializable]");
+			sb.AppendIndentLine("[System.Serializable]");
 			sb.AppendIndent("public sealed class ");
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
 			sb.AppendLine(nameof(LunyLuaModuleLoader));
-			sb.OpenIndentBlock("{"); // class
+			sb.OpenIndentBlock("{");
 		}
 
-		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}"); // class
+		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddLoadMethod(ScriptBuilder sb, TypeHierarchy typeHierarchy, IEnumerable<GenTypeInfo> typeInfos,
+		private static void AddLoadMethod(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy, IEnumerable<GenTypeInfo> typeInfos,
 			String className)
 		{
 			sb.AppendIndentLine("public override void Load(LuaTable env)");
-			sb.OpenIndentBlock("{"); // Load(..)
+			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var marker = new ProfilerMarker(ProfilerCategory.Scripts, nameof(");
 			sb.Append(className);
 			sb.AppendLine("));");
@@ -80,10 +79,10 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("base.Load(env);");
 			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
 			sb.AppendIndentLine("marker.End();");
-			sb.CloseIndentBlock("}"); // Load(..)
+			sb.CloseIndentBlock("}");
 		}
 
-		private static void GenerateTypeInitialization(ScriptBuilder sb, TypeHierarchy typeHierarchy,
+		private static void GenerateTypeInitialization(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy,
 			IEnumerable<GenTypeInfo> typeInfos)
 		{
 			var namespaceTables = new Dictionary<String, String>();
@@ -131,11 +130,8 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(typeInfo.StaticLuaTypeName);
 					sb.Append("(); // ");
 					sb.AppendLine(typeInfo.Type.FullName);
-					// sb.Append(" in ");
-					// sb.AppendLine(typeInfo.Type.Assembly.GetName().Name);
 				}
 			}
 		}
-
 	}
 }

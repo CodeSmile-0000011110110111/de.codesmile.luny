@@ -17,56 +17,71 @@ namespace CodeSmile.Luny
 
 		public void OnAfterDeserialize() =>
 			// must delay because SerializationUtility & AssetDatabase cannot be used during serialization
-			EditorApplication.delayCall += () => UpdateModuleLoaderReference();
+			EditorApplication.delayCall += () => UpdateGeneratedReferences();
 
-		private void UpdateModuleLoaderReference()
+		private void UpdateGeneratedReferences()
 		{
-			ClearMissingSerializeReferenceTypeWarning();
+			var needsSaving = ClearMissingSerializeReferenceTypeWarning();
 
-			if (m_ModuleLoader == null)
+			var folderPath = AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid);
+			if (AssetDatabase.IsValidFolder(folderPath))
 			{
-				m_ModuleLoader = TryInstantiateModuleLoader(m_ContentFolderGuid, m_ModuleLoaderTypeName);
-				if (m_ModuleLoader != null) // loader script may not exist
+				if (m_ModuleLoader == null)
 				{
-					Debug.Log($"{name} ({GetInstanceID()}) assigned new module loader: {m_ModuleLoader} ({m_ModuleLoader.GetHashCode()})");
-					EditorUtility.SetDirty(this);
-					AssetDatabase.SaveAssetIfDirty(this);
+					m_ModuleLoader = TryInstantiateType<LunyLuaModuleLoader>(folderPath, m_ModuleLoaderTypeName);
+					needsSaving = needsSaving || m_ModuleLoader != null;
+				}
+				if (m_GameObjectFactory == null)
+				{
+					m_GameObjectFactory = TryInstantiateType<LuaGameObjectFactoryBase>(folderPath, m_GameObjectFactoryTypeName);
+					needsSaving = needsSaving || m_GameObjectFactory != null;
+				}
+
+				if (needsSaving)
+					SaveAsset();
+			}
+		}
+
+		internal void SaveAsset()
+		{
+			EditorUtility.SetDirty(this);
+			AssetDatabase.SaveAssetIfDirty(this);
+		}
+
+		private T TryInstantiateType<T>(String folderPath, String typeName) where T : class
+		{
+			if (String.IsNullOrEmpty(typeName) == false)
+			{
+				var moduleAssembly = EditorAssetUtility.GetAssemblyForAssetPath(folderPath);
+				if (moduleAssembly != null)
+				{
+					var type = moduleAssembly.GetType(typeName);
+					if (type != null)
+						return Activator.CreateInstance(type) as T;
 				}
 			}
+
+			LunyLogger.LogWarn($"Generated type '{typeName}' not found in: {folderPath}");
+			return default;
 		}
 
-		private LunyLuaModuleLoader TryInstantiateModuleLoader(String folderGuid, String loaderTypeName)
-		{
-			var folder = AssetDatabase.GUIDToAssetPath(folderGuid);
-			if (AssetDatabase.IsValidFolder(folder) == false || String.IsNullOrEmpty(loaderTypeName))
-				return null;
-
-			LunyLuaModuleLoader moduleLoader = null;
-			var loaderAssembly = EditorAssetUtility.GetAssemblyForAssetPath(folder);
-			if (loaderAssembly != null)
-			{
-				var loaderType = loaderAssembly?.GetType(loaderTypeName);
-				if (loaderType != null)
-					moduleLoader = Activator.CreateInstance(loaderType) as LunyLuaModuleLoader;
-				else
-					LunyLogger.LogWarn($"Module loader type '{loaderTypeName}' not found in {loaderAssembly.FullName}");
-			}
-			// else
-			// 	LunyLogger.LogWarn($"Assembly not found for path: {folder}");
-
-			return moduleLoader;
-		}
-
-		private void ClearMissingSerializeReferenceTypeWarning()
+		private Boolean ClearMissingSerializeReferenceTypeWarning()
 		{
 			// this may occur if the user manually deletes the generated scripts
-			if (SerializationUtility.HasManagedReferencesWithMissingTypes(this))
-			{
-				SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
-				m_ModuleLoader = null;
-				m_ModuleLoaderTypeName = null;
-				EditorUtility.SetDirty(this);
-			}
+			if (SerializationUtility.HasManagedReferencesWithMissingTypes(this) == false)
+				return false;
+
+			SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
+			ClearGeneratedTypeReferences();
+			return true;
+		}
+
+		internal void ClearGeneratedTypeReferences()
+		{
+			m_ModuleLoader = null;
+			m_ModuleLoaderTypeName = null;
+			m_GameObjectFactory = null;
+			m_GameObjectFactoryTypeName = null;
 		}
 #endif
 	}
