@@ -9,13 +9,9 @@ namespace CodeSmile.Luny
 {
 	public abstract class LuaUnityObjectFactoryBase
 	{
+		public static ILuaUserData CreateLuaInstance(Object instance) => null;
 		public abstract ILuaUnityGameObject CreateLuaGameObject(GameObject gameObject);
 
 		public abstract ILuaUnityObject CreateLuaObject(Object instance);
-
-		public static ILuaUserData CreateLuaInstance(Object instance)
-		{
-			return null;
-		}
 	}
 }

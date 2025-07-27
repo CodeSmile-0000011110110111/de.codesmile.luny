@@ -27,10 +27,8 @@ namespace CodeSmileEditor.Luny
 		private Type GetLuaScriptType(String assetPath) =>
 			// Lua scripts created in "Editor" folders or assemblies are considered editor-only Lua scripts
 			EditorAssetUtility.IsEditorPath(assetPath) || EditorAssetUtility.IsEditorAssembly(assetPath)
-				?
-				typeof(LunyEditorLuaAsset)
-				:
-				EditorAssetUtility.IsModdingPath(assetPath)
+				? typeof(LunyEditorLuaAsset)
+				: EditorAssetUtility.IsModdingPath(assetPath)
 					? typeof(LunyModdingLuaAsset)
 					: typeof(LunyRuntimeLuaAsset);
 	}

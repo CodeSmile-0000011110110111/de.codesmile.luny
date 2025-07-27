@@ -5,7 +5,6 @@ using Lua;
 using System;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -14,9 +13,9 @@ namespace CodeSmile.Luny
 	public sealed partial class LunyLuaModule : ScriptableObject
 	{
 		[SerializeField] internal String m_AssemblyName = "";
-		[SerializeField][ReadOnlyField] internal String[] m_NamespaceWhitelist = Array.Empty<String>();
+		[SerializeField] [ReadOnlyField] internal String[] m_NamespaceWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_NamespaceBlacklist = Array.Empty<String>();
-		[SerializeField][ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();
+		[SerializeField] [ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
 
 		// serialized for runtime, but hidden in Inspector because these are automated
@@ -25,14 +24,6 @@ namespace CodeSmile.Luny
 		[SerializeField] [ReadOnlyField] internal String m_UnityObjectFactoryTypeName;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 		[SerializeReference] [HideInInspector] private LuaUnityObjectFactoryBase m_UnityUnityObjectFactory;
-
-#if UNITY_EDITOR
-		[Header("Debug")]
-		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
-		[SerializeField] internal string m_GenerateOnlyThisType;
-		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
-		[SerializeField] internal string m_GenerateOnlyThisMethod;
-#endif
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String BindingsNamespace => $"Lua_{m_AssemblyName}";
@@ -45,7 +36,11 @@ namespace CodeSmile.Luny
 		internal String ModuleLoaderTypeName { get => m_ModuleLoaderTypeName; set => m_ModuleLoaderTypeName = value; }
 		internal String UnityObjectFactoryTypeName { get => m_UnityObjectFactoryTypeName; set => m_UnityObjectFactoryTypeName = value; }
 		internal LunyLuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
-		internal LuaUnityObjectFactoryBase UnityUnityObjectFactory { get => m_UnityUnityObjectFactory; set => m_UnityUnityObjectFactory = value; }
+		internal LuaUnityObjectFactoryBase UnityUnityObjectFactory
+		{
+			get => m_UnityUnityObjectFactory;
+			set => m_UnityUnityObjectFactory = value;
+		}
 
 		public void Load(LuaState luaState)
 		{
@@ -58,5 +53,13 @@ namespace CodeSmile.Luny
 
 			ModuleLoader?.Load(luaState.Environment);
 		}
+
+#if UNITY_EDITOR
+		[Header("Debug")]
+		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
+		[SerializeField] internal String m_GenerateOnlyThisType;
+		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
+		[SerializeField] internal String m_GenerateOnlyThisMethod;
+#endif
 	}
 }

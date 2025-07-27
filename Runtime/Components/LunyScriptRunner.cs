@@ -35,14 +35,12 @@ namespace CodeSmile.Luny
 		private Boolean m_DestroyDidCallOnDisable;
 		private Boolean m_DestroyDidCallOnDestroy;
 
-		private LunyLuaScriptEventHandler<ScriptPhysics2DEvent> Physics2DEvents =>
-			m_Physics2DEventsEnabled && m_Physics2DEvents != null
-				? m_Physics2DEvents
-				: m_Physics2DEvents = m_LuaScript.EventHandler<ScriptPhysics2DEvent>();
-		private LunyLuaScriptEventHandler<ScriptPhysics3DEvent> Physics3DEvents =>
-			m_Physics3DEventsEnabled && m_Physics3DEvents != null
-				? m_Physics3DEvents
-				: m_Physics3DEvents = m_LuaScript.EventHandler<ScriptPhysics3DEvent>();
+		private LunyLuaScriptEventHandler<ScriptPhysics2DEvent> Physics2DEvents => m_Physics2DEventsEnabled && m_Physics2DEvents != null
+			? m_Physics2DEvents
+			: m_Physics2DEvents = m_LuaScript.EventHandler<ScriptPhysics2DEvent>();
+		private LunyLuaScriptEventHandler<ScriptPhysics3DEvent> Physics3DEvents => m_Physics3DEventsEnabled && m_Physics3DEvents != null
+			? m_Physics3DEvents
+			: m_Physics3DEvents = m_LuaScript.EventHandler<ScriptPhysics3DEvent>();
 		private LunyLuaScriptEventHandler<ScriptRenderingEvent> RenderEvents => m_RenderEventsEnabled && m_RenderEvents != null
 			? m_RenderEvents
 			: m_RenderEvents = m_LuaScript.EventHandler<ScriptRenderingEvent>();

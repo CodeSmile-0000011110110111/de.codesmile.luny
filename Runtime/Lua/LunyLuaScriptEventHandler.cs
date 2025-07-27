@@ -13,8 +13,7 @@ namespace CodeSmile.Luny
 	{
 		private LuaCallbackFunctions m_Callbacks;
 
-		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
-			m_Callbacks?.TryInvoke(luaState, eventIndex, args);
+		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) => m_Callbacks?.TryInvoke(luaState, eventIndex, args);
 
 		private LuaCallbackFunctions CreateCallbacks<T>(LuaTable context) where T : Enum
 		{

@@ -24,7 +24,8 @@ namespace CodeSmileEditor.Luny.Generator
 		//private static readonly Type[] AttributeBlacklist = { typeof(ObsoleteAttribute) };
 
 		public static Boolean IsBindableType(Type type) => !(type == typeof(Object) || type == typeof(ValueType) || type == typeof(Enum)
-			|| type == typeof(Delegate) || type == typeof(MulticastDelegate) || type == typeof(Event));
+		                                                     || type == typeof(Delegate) || type == typeof(MulticastDelegate) ||
+		                                                     type == typeof(Event));
 
 		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
 		                                                    !(type.IsPrimitive || type.IsInterface || type.IsGenericType ||

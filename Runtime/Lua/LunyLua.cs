@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {

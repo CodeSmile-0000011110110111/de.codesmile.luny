@@ -16,7 +16,6 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Assembly = System.Reflection.Assembly;
-using Object = System.Object;
 
 namespace CodeSmileEditor.Luny
 {

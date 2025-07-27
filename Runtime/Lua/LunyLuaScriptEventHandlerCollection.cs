@@ -22,9 +22,8 @@ namespace CodeSmile.Luny
 
 		public void Add(Type enumType, LunyLuaScriptEventHandlerBase item) => m_EventHandlers.Add(enumType, item);
 
-		public LunyLuaScriptEventHandler<T> TryGet<T>() where T : Enum =>
-			m_EventHandlers.TryGetValue(typeof(T), out var handler)
-				? (LunyLuaScriptEventHandler<T>)handler
-				: null;
+		public LunyLuaScriptEventHandler<T> TryGet<T>() where T : Enum => m_EventHandlers.TryGetValue(typeof(T), out var handler)
+			? (LunyLuaScriptEventHandler<T>)handler
+			: null;
 	}
 }

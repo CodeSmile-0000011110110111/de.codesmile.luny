@@ -29,7 +29,6 @@ namespace CodeSmile.Luny
 		}
 	}
 
-
 	// TODO: how to best hook into the gameobject/component lifecycle?
 
 	/*
@@ -49,5 +48,4 @@ namespace CodeSmile.Luny
 			}
 		}
 		*/
-
 }

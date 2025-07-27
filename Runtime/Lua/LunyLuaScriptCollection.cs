@@ -72,7 +72,6 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		public Boolean TryGetScriptForPath(String fullPath, out LunyLuaScript script) =>
-			m_FullPathScripts.TryGetValue(fullPath, out script);
+		public Boolean TryGetScriptForPath(String fullPath, out LunyLuaScript script) => m_FullPathScripts.TryGetValue(fullPath, out script);
 	}
 }

@@ -6,10 +6,8 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public interface ILuaUnityObject
-	{
+	public interface ILuaUnityObject {}
 
-	}
 	public interface ILuaUnityGameObject
 	{
 		// Instantiate

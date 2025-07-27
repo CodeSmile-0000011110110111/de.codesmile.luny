@@ -71,8 +71,7 @@ namespace CodeSmile.Luny
 
 		public Boolean IsEditorContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.EditorLuaContext);
 		public Boolean IsRuntimeContext => AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.RuntimeLuaContext);
-		public Boolean IsModdingContext =>
-			m_IsModdingContext = AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.ModdingLuaContext);
+		public Boolean IsModdingContext => m_IsModdingContext = AssetDatabase.GetLabels(this).Contains(LunyAssetLabel.ModdingLuaContext);
 #else
 		public Boolean IsEditorContext => false;
 		public Boolean IsRuntimeContext => true;
