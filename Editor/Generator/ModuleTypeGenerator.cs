@@ -126,10 +126,18 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(isLuaStaticType ? typeInfo.StaticLuaTypeName : typeInfo.InstanceLuaTypeName);
 			sb.Append(" : ");
 			sb.Append(nameof(ILuaUserData));
-			if (isLuaStaticType == false && typeInfo.IsGameObjectType)
+			if (isLuaStaticType == false)
 			{
-				sb.Append(", ");
-				sb.Append(nameof(ILuaUnityEngineGameObject));
+				if (typeInfo.IsUnityObjectType)
+				{
+					sb.Append(", ");
+					sb.Append(nameof(ILuaUnityObject));
+				}
+				else if (typeInfo.IsUnityGameObjectType)
+				{
+					sb.Append(", ");
+					sb.Append(nameof(ILuaUnityGameObject));
+				}
 			}
 			sb.AppendLine();
 			sb.OpenIndentBlock("{");
@@ -146,10 +154,10 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddLuaGameObjectFactoryImplementation(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			if (typeInfo.IsGameObjectType)
+			if (typeInfo.IsUnityGameObjectType)
 			{
 				sb.AppendIndent("public ");
-				sb.Append(nameof(ILuaUnityEngineGameObject));
+				sb.Append(nameof(ILuaUnityGameObject));
 				sb.Append(" Create(UnityEngine.GameObject gameObject) => new ");
 				sb.Append(typeInfo.InstanceLuaTypeName);
 				sb.AppendLine("(gameObject);");
@@ -306,7 +314,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var overload = overloads.SortedMethods[methodIndex];
 			var paramCount = overload.ParamCount;
 			var isFirstClosedBlock = true;
-			while (paramCount < signature.Count || overload?.HasMatchingSignature(signature) == false)
+			while (paramCount < signature.Count || overload.HasMatchingSignature(signature) == false)
 			{
 				needsGetArguments = false;
 				signature.RemoveAt(signature.Count - 1);

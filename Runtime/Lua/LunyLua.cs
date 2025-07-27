@@ -26,7 +26,7 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
-		LuaGameObjectFactoryBase GameObjectFactory { get; }
+		LuaUnityObjectFactoryBase UnityObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
@@ -40,10 +40,10 @@ namespace CodeSmile.Luny
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaFileWatcher m_FileWatcher;
-		private LuaGameObjectFactoryBase m_GameObjectFactory;
+		private LuaUnityObjectFactoryBase m_UnityObjectFactory;
 
 		public LuaState State => m_LuaState;
-		public LuaGameObjectFactoryBase GameObjectFactory => m_GameObjectFactory;
+		public LuaUnityObjectFactoryBase UnityObjectFactory => m_UnityObjectFactory;
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -106,7 +106,7 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			ClearScripts();
-			m_GameObjectFactory = null;
+			m_UnityObjectFactory = null;
 			m_FileWatcher?.Dispose();
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
@@ -157,8 +157,8 @@ namespace CodeSmile.Luny
 			{
 				module.Load(m_LuaState);
 
-				if (m_GameObjectFactory == null && module.GameObjectFactory != null)
-					m_GameObjectFactory = module.GameObjectFactory;
+				if (m_UnityObjectFactory == null && module.UnityUnityObjectFactory != null)
+					m_UnityObjectFactory = module.UnityUnityObjectFactory;
 			}
 		}
 

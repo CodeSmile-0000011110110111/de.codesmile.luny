@@ -10,15 +10,15 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyGameObject : ILunyGameObject
 	{
-		private ILuaUnityEngineGameObject m_LuaGameObject;
+		private ILuaUnityGameObject m_LuaGameObject;
 		private GameObject m_UnityGameObject;
 
 		public GameObject UnityGameObject => m_UnityGameObject;
-		public ILuaUnityEngineGameObject LuaGameObject => m_LuaGameObject;
+		public ILuaUnityGameObject LuaGameObject => m_LuaGameObject;
 
 		public LunyGameObject(ILunyLua lua, GameObject gameObject)
 		{
-			m_LuaGameObject = lua.GameObjectFactory.Create(m_UnityGameObject);
+			m_LuaGameObject = lua.UnityObjectFactory.CreateLuaGameObject(m_UnityGameObject);
 			m_UnityGameObject = gameObject;
 		}
 

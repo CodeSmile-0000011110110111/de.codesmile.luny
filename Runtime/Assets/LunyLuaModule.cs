@@ -22,9 +22,9 @@ namespace CodeSmile.Luny
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
-		[SerializeField] [ReadOnlyField] internal String m_GameObjectFactoryTypeName;
+		[SerializeField] [ReadOnlyField] internal String m_UnityObjectFactoryTypeName;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
-		[SerializeReference] [HideInInspector] private LuaGameObjectFactoryBase m_GameObjectFactory;
+		[SerializeReference] [HideInInspector] private LuaUnityObjectFactoryBase m_UnityUnityObjectFactory;
 
 #if UNITY_EDITOR
 		[Header("Debug")]
@@ -43,9 +43,9 @@ namespace CodeSmile.Luny
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeName { get => m_ModuleLoaderTypeName; set => m_ModuleLoaderTypeName = value; }
-		internal String GameObjectFactoryTypeName { get => m_GameObjectFactoryTypeName; set => m_GameObjectFactoryTypeName = value; }
+		internal String UnityObjectFactoryTypeName { get => m_UnityObjectFactoryTypeName; set => m_UnityObjectFactoryTypeName = value; }
 		internal LunyLuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
-		internal LuaGameObjectFactoryBase GameObjectFactory { get => m_GameObjectFactory; set => m_GameObjectFactory = value; }
+		internal LuaUnityObjectFactoryBase UnityUnityObjectFactory { get => m_UnityUnityObjectFactory; set => m_UnityUnityObjectFactory = value; }
 
 		public void Load(LuaState luaState)
 		{

@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
@@ -13,22 +14,22 @@ namespace CodeSmileEditor.Luny.Generator
 		public static void Generate(LunyLuaModule module, String contentFolderPath)
 		{
 			var typeInfos = ModuleBindingsGenerator.TypeInfosByType;
-
-			if (typeInfos.TryGetValue(typeof(GameObject), out var gameObjectTypeInfo))
-				GenerateGameObjectFactory(module, gameObjectTypeInfo, contentFolderPath);
+			if (typeInfos.TryGetValue(typeof(Object), out var gameObjectTypeInfo))
+				GenerateUnityObjectFactory(module, gameObjectTypeInfo, contentFolderPath);
 		}
 
-		private static void GenerateGameObjectFactory(LunyLuaModule module, GenTypeInfo typeInfo, String contentFolderPath)
+		private static void GenerateUnityObjectFactory(LunyLuaModule module, GenTypeInfo typeInfo, String contentFolderPath)
 		{
 			var @namespace = module.BindingsNamespace;
 			var factoryClassName = $"{typeInfo.InstanceLuaTypeName}_Factory";
-			module.GameObjectFactoryTypeName = $"{@namespace}.{factoryClassName}";
+			module.UnityObjectFactoryTypeName = $"{@namespace}.{factoryClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 			AddUsingStatements(sb, typeInfo);
 			AddNamespaceBlock(sb, @namespace);
 			AddClassBlock(sb, factoryClassName);
-			AddCreateMethod(sb, typeInfo);
+			AddCreateLuaObjectMethod(sb, typeInfo);
+			AddCreateLuaGameObjectMethod(sb, typeInfo);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
@@ -57,22 +58,37 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public sealed class ");
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
-			sb.AppendLine(nameof(LuaGameObjectFactoryBase));
+			sb.AppendLine(nameof(LuaUnityObjectFactoryBase));
 			sb.OpenIndentBlock("{");
 		}
 
 		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddCreateMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddCreateLuaObjectMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public override ");
-			sb.Append(nameof(ILuaUnityEngineGameObject));
-			sb.Append(" Create(");
+			sb.Append(nameof(ILuaUnityObject));
+			sb.Append(" CreateLuaObject(");
 			sb.Append(typeInfo.Type.FullName);
-			sb.Append(" gameObject) => ");
+			sb.Append(" obj) => ");
 			sb.Append("new ");
 			sb.Append(typeInfo.InstanceLuaTypeName);
-			sb.AppendLine("(gameObject);");
+			sb.AppendLine("(obj);");
+		}
+
+		private static void AddCreateLuaGameObjectMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			if (ModuleBindingsGenerator.TypeInfosByType.TryGetValue(typeof(GameObject), out var luaGameObject))
+			{
+				sb.AppendIndent("public override ");
+				sb.Append(nameof(ILuaUnityGameObject));
+				sb.Append(" CreateLuaGameObject(");
+				sb.Append(luaGameObject.Type.FullName);
+				sb.Append(" gameObject) => ");
+				sb.Append("new ");
+				sb.Append(luaGameObject.InstanceLuaTypeName);
+				sb.AppendLine("(gameObject);");
+			}
 		}
 	}
 }

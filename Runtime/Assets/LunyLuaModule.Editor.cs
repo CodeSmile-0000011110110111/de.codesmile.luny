@@ -31,10 +31,10 @@ namespace CodeSmile.Luny
 					m_ModuleLoader = TryInstantiateType<LunyLuaModuleLoader>(folderPath, m_ModuleLoaderTypeName);
 					needsSaving = needsSaving || m_ModuleLoader != null;
 				}
-				if (m_GameObjectFactory == null)
+				if (m_UnityUnityObjectFactory == null)
 				{
-					m_GameObjectFactory = TryInstantiateType<LuaGameObjectFactoryBase>(folderPath, m_GameObjectFactoryTypeName);
-					needsSaving = needsSaving || m_GameObjectFactory != null;
+					m_UnityUnityObjectFactory = TryInstantiateType<LuaUnityObjectFactoryBase>(folderPath, m_UnityObjectFactoryTypeName);
+					needsSaving = needsSaving || m_UnityUnityObjectFactory != null;
 				}
 
 				if (needsSaving)
@@ -80,8 +80,8 @@ namespace CodeSmile.Luny
 		{
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeName = null;
-			m_GameObjectFactory = null;
-			m_GameObjectFactoryTypeName = null;
+			m_UnityUnityObjectFactory = null;
+			m_UnityObjectFactoryTypeName = null;
 		}
 #endif
 	}

@@ -6,12 +6,16 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public interface ILuaUnityEngineGameObject
+	public interface ILuaUnityObject
+	{
+
+	}
+	public interface ILuaUnityGameObject
 	{
 		// Instantiate
 		// Add/GetComponent
 		// Destroy
 	}
 
-	public interface ILuaUnityEngineComponent {}
+	public interface ILuaUnityComponent {}
 }

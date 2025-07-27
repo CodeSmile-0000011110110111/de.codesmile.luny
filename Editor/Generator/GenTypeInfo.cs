@@ -18,12 +18,13 @@ namespace CodeSmileEditor.Luny.Generator
 		public readonly String InstanceLuaTypeName;
 		public readonly String StaticLuaTypeName;
 		public readonly String BindTypeFullName;
+		public readonly Boolean IsStatic;
+		public readonly Boolean IsUnityObjectType;
+		public readonly Boolean IsUnityGameObjectType;
+		public readonly Boolean IsUnityComponentType;
 		public String InstanceFieldName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
-		public readonly Boolean IsStatic;
-		public readonly Boolean IsGameObjectType;
-		public readonly Boolean IsComponentType;
 
 		public GenTypeInfo(Type type, String onlyThisMethodName = null)
 		{
@@ -39,8 +40,9 @@ namespace CodeSmileEditor.Luny.Generator
 			if (type.IsEnum == false)
 			{
 				IsStatic = type.IsAbstract && type.IsSealed;
-				IsGameObjectType = Type == typeof(GameObject);
-				IsComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
+				IsUnityObjectType = Type == typeof(UnityEngine.Object);
+				IsUnityGameObjectType = Type == typeof(GameObject);
+				IsUnityComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
 				InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
 
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
@@ -127,17 +129,17 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var paramType = parameter.ParameterType;
 			if (paramType.IsByRef)
-				return Unsupported(method, parameter, "byref param", false);
+				return Unsupported(method, parameter, "byref param");
 			if (paramType.IsArray)
-				return Unsupported(method, parameter, "array param", false);
+				return Unsupported(method, parameter, "array param");
 			if (paramType.IsGenericParameter)
-				return Unsupported(method, parameter, "generic param", false);
+				return Unsupported(method, parameter, "generic param");
 			if (method.IsGenericMethod)
-				return Unsupported(method, parameter, "generic method", false);
+				return Unsupported(method, parameter, "generic method");
 			if (paramType.IsGenericType)
-				return Unsupported(method, parameter, "generic type", false);
+				return Unsupported(method, parameter, "generic type");
 			if (paramType.IsInterface)
-				return Unsupported(method, parameter, "interface param", false);
+				return Unsupported(method, parameter, "interface param");
 			if (paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
 				return Unsupported(method, parameter, "IntPtr param", false);
 			if (paramType.IsPointer)
@@ -151,8 +153,8 @@ namespace CodeSmileEditor.Luny.Generator
 			if (log)
 			{
 				ModuleTypeGenerator.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
-				                  $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                  $"'{parameter.ParameterType.Name} {parameter.Name}'");
+				                        $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				                        $"'{parameter.ParameterType.Name} {parameter.Name}'");
 			}
 			return true;
 		}
@@ -259,13 +261,6 @@ namespace CodeSmileEditor.Luny.Generator
 			var signature = new List<GenParamInfo>();
 			FindOverloadsByTypeRecursive(allMethods, 0, paramsByPosition, signature);
 
-			// if (SortedMethods.Count > 0)
-			// {
-			// 	Debug.Log("Methods to generate, in this order:");
-			// 	for (var i = 0; i < SortedMethods.Count; i++)
-			// 		Debug.Log($"\t[{i}] {SortedMethods[i]}");
-			// }
-
 			m_Methods = null;
 		}
 
@@ -290,18 +285,6 @@ namespace CodeSmileEditor.Luny.Generator
 					FindOverloadsByTypeRecursive(methods, paramPos + 1, paramsByPosition, nextSignature);
 				}
 			}
-		}
-
-		private String DebugSignatureToString(List<GenParamInfo> signature)
-		{
-			var sb = new StringBuilder();
-			for (var i = 0; i < signature.Count; i++)
-			{
-				if (i > 0)
-					sb.Append(", ");
-				sb.Append(signature[i].Type.Name);
-			}
-			return sb.ToString();
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
