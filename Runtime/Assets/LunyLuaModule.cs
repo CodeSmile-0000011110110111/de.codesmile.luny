@@ -18,6 +18,7 @@ namespace CodeSmile.Luny
 		[SerializeField][ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
 
+		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
 		[SerializeField] [HideInInspector] internal String m_ModuleLoaderTypeName;

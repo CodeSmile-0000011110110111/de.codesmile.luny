@@ -15,13 +15,15 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class GenTypeInfo
 	{
 		public readonly Type Type;
-		public readonly String InstanceTypeName;
-		public readonly String StaticTypeName;
+		public readonly String InstanceLuaTypeName;
+		public readonly String StaticLuaTypeName;
 		public readonly String BindTypeFullName;
-		public readonly Boolean IsStatic;
 		public String InstanceFieldName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
+		public readonly Boolean IsStatic;
+		public readonly Boolean IsGameObjectType;
+		public readonly Boolean IsComponentType;
 
 		public GenTypeInfo(Type type, String onlyThisMethodName = null)
 		{
@@ -31,8 +33,8 @@ namespace CodeSmileEditor.Luny.Generator
 			BindTypeFullName = typeFullNameNoPlus;
 
 			var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
-			InstanceTypeName = $"Lua_{typeFullNameNoDots}";
-			StaticTypeName = $"{InstanceTypeName}_static";
+			InstanceLuaTypeName = $"Lua_{typeFullNameNoDots}";
+			StaticLuaTypeName = $"{InstanceLuaTypeName}_static";
 
 			if (type.IsEnum == false)
 			{
@@ -41,6 +43,11 @@ namespace CodeSmileEditor.Luny.Generator
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
 				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
 				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, onlyThisMethodName);
+			}
+			else
+			{
+				IsGameObjectType = Type == typeof(GameObject);
+				IsComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
 			}
 		}
 	}
@@ -122,7 +129,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var paramType = parameter.ParameterType;
 			if (paramType.IsByRef)
-				return Unsupported(method, parameter, "byref param");
+				return Unsupported(method, parameter, "byref param", false);
 			if (paramType.IsArray)
 				return Unsupported(method, parameter, "array param", false);
 			if (paramType.IsGenericParameter)

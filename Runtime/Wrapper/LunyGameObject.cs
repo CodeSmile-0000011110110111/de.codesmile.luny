@@ -9,11 +9,15 @@ namespace CodeSmile.Luny
 	public sealed class LunyGameObject
 	{
 		private GameObject m_UnityGameObject;
-		public GameObject GameObject
+		private ILuaUnityEngineGameObject m_LuaGameObject;
+
+		public GameObject UnityGameObject
 		{
 			get => m_UnityGameObject;
 			set => m_UnityGameObject = value;
 		}
+		public ILuaUnityEngineGameObject LuaGameObject => m_LuaGameObject;
+
 		public LunyGameObject(GameObject gameObject) => m_UnityGameObject = gameObject;
 
 		internal void Dispose() => m_UnityGameObject = null;

@@ -128,7 +128,7 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append("[\"");
 					sb.Append(typeInfo.Type.Name);
 					sb.Append("\"] = new ");
-					sb.Append(typeInfo.StaticTypeName);
+					sb.Append(typeInfo.StaticLuaTypeName);
 					sb.Append("(); // ");
 					sb.AppendLine(typeInfo.Type.FullName);
 					// sb.Append(" in ");

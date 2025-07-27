@@ -3,7 +3,6 @@
 
 using Lua;
 using Lua.Platforms;
-using Lua.Runtime;
 using Lua.Standard;
 using Lua.Unity;
 using System;
@@ -47,10 +46,6 @@ namespace CodeSmile.Luny
 		{
 			m_Scripts = new LunyLuaScriptCollection();
 			InitLuaEnvironment(luaContext, fileSystemHook);
-
-
-
-
 		}
 
 		public async ValueTask AddAndRunScript(LunyLuaScript script)
