@@ -13,7 +13,7 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		public static void Generate(LunyLuaModule module, String contentFolderPath)
 		{
-			var typeInfos = ModuleBindingsGenerator.TypeInfosByType;
+			var typeInfos = ModuleGenerator.TypeInfosByType;
 			if (typeInfos.TryGetValue(typeof(Object), out var gameObjectTypeInfo))
 				GenerateUnityObjectFactory(module, gameObjectTypeInfo, contentFolderPath);
 		}
@@ -78,7 +78,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddCreateLuaGameObjectMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			if (ModuleBindingsGenerator.TypeInfosByType.TryGetValue(typeof(GameObject), out var luaGameObject))
+			if (ModuleGenerator.TypeInfosByType.TryGetValue(typeof(GameObject), out var luaGameObject))
 			{
 				sb.AppendIndent("public override ");
 				sb.Append(nameof(ILuaUnityGameObject));

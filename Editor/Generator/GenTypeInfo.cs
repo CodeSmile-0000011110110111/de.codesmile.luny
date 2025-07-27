@@ -23,6 +23,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public readonly Boolean IsUnityGameObjectType;
 		public readonly Boolean IsUnityComponentType;
 		public String InstanceFieldName;
+		public String InstancePropertyName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
 
@@ -44,6 +45,7 @@ namespace CodeSmileEditor.Luny.Generator
 				IsUnityGameObjectType = Type == typeof(GameObject);
 				IsUnityComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
 				InstanceFieldName = type.IsValueType ? "m_Value" : "m_Instance";
+				InstancePropertyName = type.IsValueType ? "Value" : "Instance";
 
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
 				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
@@ -61,8 +63,8 @@ namespace CodeSmileEditor.Luny.Generator
 		public IEnumerable<EventInfo> Events;
 		public IEnumerable<GenMethodOverloads> CtorOverloads;
 		public IEnumerable<GenMethodOverloads> MethodOverloads;
-		public Boolean HasMembers;
-		public Boolean IsStatic;
+		//public Boolean HasMembers;
+		//public Boolean IsStatic;
 
 		public GenMemberInfo(Type type, BindingFlags bindingFlags, String onlyThisMethodName)
 		{
@@ -79,8 +81,8 @@ namespace CodeSmileEditor.Luny.Generator
 			Events = type.GetEvents(bindingFlags).Where(e => !e.GetCustomAttributes(obsolete).Any()).OrderBy(e => e.Name);
 			CtorOverloads = GetMethodOverloads(Ctors, onlyThisMethodName);
 			MethodOverloads = GetMethodOverloads(Methods, onlyThisMethodName);
-			HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
-			IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
+			//HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
+			//IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
 		}
 
 		private IEnumerable<GenMethodOverloads> GetMethodOverloads(IEnumerable<MethodBase> methods, String onlyThisMethodName)

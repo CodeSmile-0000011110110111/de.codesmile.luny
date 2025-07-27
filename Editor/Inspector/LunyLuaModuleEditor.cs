@@ -93,10 +93,10 @@ namespace CodeSmileEditor.Luny
 					var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
 					if (IsCommentedOut(onlyThisMethodName))
 						onlyThisMethodName = null;
-					ModuleBindingsGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
+					ModuleGenerator.Generate(Module, m_AsmDefCollection, onlyThisType, onlyThisMethodName);
 				}
 				else
-					ModuleBindingsGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
+					ModuleGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered);
 			}
 			catch (Exception e)
 			{

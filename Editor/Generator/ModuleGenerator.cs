@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace CodeSmileEditor.Luny.Generator
 {
-	internal static class ModuleBindingsGenerator
+	internal static class ModuleGenerator
 	{
 		private static Dictionary<Type, GenTypeInfo> s_TypeInfosByType;
 		public static Dictionary<Type, GenTypeInfo> TypeInfosByType => s_TypeInfosByType;

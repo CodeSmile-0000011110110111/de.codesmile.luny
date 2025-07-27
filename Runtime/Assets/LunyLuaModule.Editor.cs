@@ -59,9 +59,10 @@ namespace CodeSmile.Luny
 					if (type != null)
 						return Activator.CreateInstance(type) as T;
 				}
+
+				LunyLogger.LogWarn($"Generated type '{typeName}' not found in: {folderPath}");
 			}
 
-			LunyLogger.LogWarn($"Generated type '{typeName}' not found in: {folderPath}");
 			return default;
 		}
 
