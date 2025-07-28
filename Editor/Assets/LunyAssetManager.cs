@@ -6,15 +6,12 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace CodeSmileEditor.Luny
 {
 	internal sealed class LunyAssetManager : ScriptableSingleton<LunyAssetManager>
 	{
-		private static LunyRuntimeAssetRegistry s_RuntimeRegistry;
-
 		public static void GetOrFindDefaultLuaContexts(out LunyLuaContext editorContext, out LunyLuaContext runtimeContext,
 			out LunyLuaContext moddingContext)
 		{
@@ -51,43 +48,38 @@ namespace CodeSmileEditor.Luny
 			settings.Save();
 		}
 
-		internal static void InitRegistries()
+		internal static void InitRuntimeRegistry()
 		{
-			if (LunyRuntimeAssetRegistry.Singleton == null)
-				LunyRuntimeAssetRegistry.Singleton = s_RuntimeRegistry = FindOrCreateRuntimeRegistry();
+			var registryGuids = AssetDatabase.FindAssets($"t:{nameof(LunyRuntimeAssetRegistry)}");
+			if (registryGuids.Length == 0 || registryGuids.Length > 1 || LunyRuntimeAssetRegistry.LoadFromResources() == null)
+				LunyRuntimeAssetRegistry.Singleton = FindOrCreateRuntimeRegistry(registryGuids);
 
 			RegisterAllLunyAssets();
 		}
 
 		// delayCall prevents "Asset import worker (4)" warning spam when selecting the registry asset
 		// this is likely due to modifying the AssetDatabase 'too early' (ie same issue as with static ctor)
-		[InitializeOnLoadMethod] private static void OnLoad() => EditorApplication.delayCall += () => InitRegistries();
+		[InitializeOnLoadMethod] private static void OnLoad() => EditorApplication.delayCall += () => InitRuntimeRegistry();
 
 		// Ensure we're not starting playmode without a registry (in case user deleted registry and clicked play)
-		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRegistries();
+		[InitializeOnEnterPlayMode] private static void OnEnterPlayMode() => InitRuntimeRegistry();
 
-		private static LunyRuntimeAssetRegistry FindOrCreateRuntimeRegistry()
+		private static LunyRuntimeAssetRegistry FindOrCreateRuntimeRegistry(String[] registryGuids)
 		{
-			if (s_RuntimeRegistry != null)
-				return s_RuntimeRegistry;
-
-			var registryGuids = AssetDatabase.FindAssets($"t:{nameof(LunyRuntimeAssetRegistry)}");
+			// we found none => create it
+			if (registryGuids.Length == 0)
+				return CreateRuntimeRegistry();
 
 			// we got multiple => delete all and create new one
-			if (registryGuids.Length > 1)
+			var notInResources = LunyRuntimeAssetRegistry.LoadFromResources() == null;
+			if (registryGuids.Length > 1 || notInResources)
 			{
 				LunyRuntimeAssetRegistry.Singleton = null;
 				TryDeleteAllRuntimeRegistries(registryGuids);
 				return CreateRuntimeRegistry();
 			}
 
-			// we found none => create it
-			if (registryGuids.Length == 0)
-				return CreateRuntimeRegistry();
-
-			// get the one that exists
-			var assetPath = AssetDatabase.GUIDToAssetPath(registryGuids[0]);
-			return AssetDatabase.LoadAssetAtPath<LunyRuntimeAssetRegistry>(assetPath);
+			return LunyRuntimeAssetRegistry.LoadFromResources();
 		}
 
 		private static LunyRuntimeAssetRegistry CreateRuntimeRegistry()
@@ -180,7 +172,7 @@ namespace CodeSmileEditor.Luny
 						{
 							var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 							if (runtimeRegistry == null)
-								InitRegistries(); // no delay here because entire block is already delayed
+								InitRuntimeRegistry(); // no delay here because entire block is already delayed
 							else
 							{
 								var luaAssets = GetLuaAssets(isMmoddingLuaAsset, runtimeRegistry);
@@ -210,7 +202,7 @@ namespace CodeSmileEditor.Luny
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
-							EditorApplication.delayCall += InitRegistries; // delay to ensure asset is already deleted
+							EditorApplication.delayCall += InitRuntimeRegistry; // delay to ensure asset is already deleted
 						else
 						{
 							var luaAssets = GetLuaAssets(isModdingLuaAsset, runtimeRegistry);
@@ -251,7 +243,7 @@ namespace CodeSmileEditor.Luny
 						{
 							var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 							if (runtimeRegistry == null)
-								InitRegistries();
+								InitRuntimeRegistry();
 							else
 							{
 								var luaAssets = GetLuaAssets(isModdingLuaAsset, runtimeRegistry);

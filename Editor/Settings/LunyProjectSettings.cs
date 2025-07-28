@@ -113,7 +113,7 @@ namespace CodeSmileEditor.Luny
 		private void TryAssignDefaultsForNullValues()
 		{
 			if (LunyRuntimeAssetRegistry.Singleton == null)
-				LunyAssetManager.InitRegistries();
+				LunyAssetManager.InitRuntimeRegistry();
 
 			var shouldSave = m_EditorContext == null || m_RuntimeContext == null || m_ModdingContext == null;
 			if (m_EditorContext == null)

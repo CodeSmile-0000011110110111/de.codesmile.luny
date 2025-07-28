@@ -15,7 +15,8 @@
   "licensesUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.luny/tree/main/LICENSE",
   "dependencies": {
     "de.codesmile.luacsharp": "0.5.0-dev.4",
-    "de.codesmile.core": "1.0.4"
+    "de.codesmile.core": "1.0.4",
+    "com.unity.test-framework": "1.5.1"
   },
   "relatedPackages": {}
 }

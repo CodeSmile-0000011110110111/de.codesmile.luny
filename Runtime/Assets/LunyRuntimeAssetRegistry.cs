@@ -14,6 +14,7 @@ namespace CodeSmile.Luny
 	public sealed class LunyRuntimeAssetRegistry : ScriptableObject
 	{
 		private static LunyRuntimeAssetRegistry s_Singleton;
+		private static Boolean s_SingletonAssigned;
 
 		[Header("Fully automated registry (read-only)")]
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_RuntimeContext;
@@ -42,16 +43,28 @@ namespace CodeSmile.Luny
 
 		public static LunyRuntimeAssetRegistry Singleton
 		{
-			get => s_Singleton != null ? s_Singleton : Resources.Load<LunyRuntimeAssetRegistry>(nameof(LunyRuntimeAssetRegistry));
-			internal set => s_Singleton = value;
+			get => s_SingletonAssigned ? s_Singleton : LoadFromResources();
+			internal set
+			{
+				s_Singleton = value;
+				s_SingletonAssigned = s_Singleton != null;
+			}
 		}
 
-		private void Awake() => s_Singleton = this;
+		internal static LunyRuntimeAssetRegistry LoadFromResources() =>
+			Singleton = Resources.Load<LunyRuntimeAssetRegistry>(nameof(LunyRuntimeAssetRegistry));
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+		private static void ResetSingletonFields()
+		{
+			s_Singleton = null;
+			s_SingletonAssigned = false;
+		}
 
 		private void OnDestroy()
 		{
 			if (s_Singleton == this)
-				s_Singleton = null;
+				ResetSingletonFields();
 		}
 
 		public LunyLuaAsset GetRuntimeLuaAsset(String assetNameOrPath)
@@ -69,15 +82,15 @@ namespace CodeSmile.Luny
 		public void Save()
 		{
 #if UNITY_EDITOR
-			if (s_Singleton != null)
+			// delay to avoid "worker: import error code (4)" when called from ctor/InitOnLoad
+			EditorApplication.delayCall += () =>
 			{
-				// delay to avoid "worker: import error code (4)" when called from ctor/InitOnLoad
-				EditorApplication.delayCall += () =>
+				if (Singleton != null)
 				{
-					EditorUtility.SetDirty(s_Singleton);
-					AssetDatabase.SaveAssetIfDirty(s_Singleton);
-				};
-			}
+					EditorUtility.SetDirty(Singleton);
+					AssetDatabase.SaveAssetIfDirty(Singleton);
+				}
+			};
 #endif
 		}
 	}
