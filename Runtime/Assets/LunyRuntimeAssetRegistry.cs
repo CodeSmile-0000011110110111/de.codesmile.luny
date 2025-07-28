@@ -40,10 +40,19 @@ namespace CodeSmile.Luny
 		public LuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
 		public LuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;
 
-		public static LunyRuntimeAssetRegistry Singleton { get => s_Singleton; internal set => s_Singleton = value; }
+		public static LunyRuntimeAssetRegistry Singleton
+		{
+			get => s_Singleton != null ? s_Singleton : Resources.Load<LunyRuntimeAssetRegistry>(nameof(LunyRuntimeAssetRegistry));
+			internal set => s_Singleton = value;
+		}
 
 		private void Awake() => s_Singleton = this;
-		private void OnDestroy() => s_Singleton = null;
+
+		private void OnDestroy()
+		{
+			if (s_Singleton == this)
+				s_Singleton = null;
+		}
 
 		public LunyLuaAsset GetRuntimeLuaAsset(String assetNameOrPath)
 		{

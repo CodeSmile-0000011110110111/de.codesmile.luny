@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 		private static LunyRuntime s_Singleton;
 		private static Boolean s_SingletonAssigned;
 
-		[SerializeField] [ReadOnlyField] private LunyRuntimeAssetRegistry m_AssetRegistry;
+		private LunyRuntimeAssetRegistry m_AssetRegistry;
 
 #if DEBUG || UNITY_EDITOR
 		// FIXME: move this into Luny settings ...
@@ -63,21 +63,12 @@ namespace CodeSmile.Luny
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			// ensure registry is assigned
-			m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton;
 			ApplyRunInBackgroundSetting();
 		}
 #endif
 
 		private void Awake()
 		{
-			if (m_AssetRegistry == null)
-			{
-				m_AssetRegistry = Resources.Load<LunyRuntimeAssetRegistry>(nameof(LunyRuntimeAssetRegistry));
-				if (m_AssetRegistry == null)
-					throw new LunyException($"Missing {nameof(LunyRuntimeAssetRegistry)} resource");
-			}
-
 			if (s_Singleton != null)
 			{
 				throw new LunyException($"Duplicate Luny component on '{gameObject.name}' ({gameObject.GetInstanceID()}) in " +
@@ -86,6 +77,10 @@ namespace CodeSmile.Luny
 
 			s_Singleton = this;
 			s_SingletonAssigned = true;
+
+			m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton;
+			if (m_AssetRegistry == null)
+				throw new LunyException($"Missing {nameof(LunyRuntimeAssetRegistry)} resource");
 
 			ApplyRunInBackgroundSetting();
 
