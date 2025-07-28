@@ -507,17 +507,21 @@ MonoBehaviour:
   - UnityEngine.ExposedPropertyResolver
   - UnityEngine.Types
   - '-- below: to be included later ...'
-  m_ContentFolderGuid: e9495ba5735b28a4da67ab9a9eedb7c3
-  m_ModuleLoaderTypeName: 
-  m_UnityObjectFactoryTypeName: 
+  m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
+  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
+  m_UnityObjectFactoryTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_Object_Factory
   m_ModuleLoader:
-    rid: -2
+    rid: 2561253608917827642
   m_UnityUnityObjectFactory:
-    rid: -2
+    rid: 2561253608917827643
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253608917827642
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+      data: 
+    - rid: 2561253608917827643
+      type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+      data: 

@@ -131,17 +131,17 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var paramType = parameter.ParameterType;
 			if (paramType.IsByRef)
-				return Unsupported(method, parameter, "byref param");
+				return Unsupported(method, parameter, "byref param", false);
 			if (paramType.IsArray)
-				return Unsupported(method, parameter, "array param");
+				return Unsupported(method, parameter, "array param", false);
 			if (paramType.IsGenericParameter)
-				return Unsupported(method, parameter, "generic param");
+				return Unsupported(method, parameter, "generic param", false);
 			if (method.IsGenericMethod)
-				return Unsupported(method, parameter, "generic method");
+				return Unsupported(method, parameter, "generic method", false);
 			if (paramType.IsGenericType)
-				return Unsupported(method, parameter, "generic type");
+				return Unsupported(method, parameter, "generic type", false);
 			if (paramType.IsInterface)
-				return Unsupported(method, parameter, "interface param");
+				return Unsupported(method, parameter, "interface param", false);
 			if (paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
 				return Unsupported(method, parameter, "IntPtr param", false);
 			if (paramType.IsPointer)
@@ -154,7 +154,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			if (log)
 			{
-				ModuleTypeGenerator.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
+				GenUtil.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
 				                        $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
 				                        $"'{parameter.ParameterType.Name} {parameter.Name}'");
 			}

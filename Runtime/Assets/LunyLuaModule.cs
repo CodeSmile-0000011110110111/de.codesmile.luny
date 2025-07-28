@@ -49,7 +49,7 @@ namespace CodeSmile.Luny
 #endif
 
 			if (ModuleLoader == null)
-				Debug.LogError($"Missing loader for LuaModule '{name}'");
+				Debug.LogError($"LuaModule '{name}' has no loader reference. Try generating the module again.");
 
 			ModuleLoader?.Load(luaState.Environment);
 		}

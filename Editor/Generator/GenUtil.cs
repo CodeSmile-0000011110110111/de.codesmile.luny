@@ -30,6 +30,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public static Boolean IsSupportedType(Type type) => (type.IsClass || type.IsValueType) &&
 		                                                    !(type.IsPrimitive || type.IsInterface || type.IsGenericType ||
 		                                                      type.IsNested && type.FullName.Contains("e__FixedBuffer") ||
+		                                                      type.BaseType != null && type.BaseType.IsGenericType ||
 		                                                      type.IsSubclassOf(typeof(Attribute)) ||
 		                                                      type.IsSubclassOf(typeof(Delegate)) ||
 		                                                      type.IsSubclassOf(typeof(Exception)) ||
@@ -223,5 +224,11 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			return false;
 		}
+
+		// delay logs to make them appear after the compilation process
+		internal static void Log(String message) => EditorApplication.delayCall += () => Debug.Log(message);
+		internal static void LogWarn(String message) => EditorApplication.delayCall += () => Debug.LogWarning(message);
+		internal static void LogError(String message) => EditorApplication.delayCall += () => Debug.LogError(message);
+		internal static void LogException(Exception e) => EditorApplication.delayCall += () => Debug.LogException(e);
 	}
 }

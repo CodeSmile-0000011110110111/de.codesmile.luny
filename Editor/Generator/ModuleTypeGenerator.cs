@@ -41,7 +41,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (typeInfo.Type.IsEnum)
 					continue;
 
-				//Log($"Generating type: {typeInfo.BindTypeFullName}");
+				GenUtil.Log($"Generating type: {typeInfo.BindTypeFullName}");
 
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
@@ -57,12 +57,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			return generatedTypeInfos;
 		}
-
-		// delay logs to make them appear after the compilation process
-		internal static void Log(String message) => EditorApplication.delayCall += () => Debug.Log(message);
-		internal static void LogWarn(String message) => EditorApplication.delayCall += () => Debug.LogWarning(message);
-		internal static void LogError(String message) => EditorApplication.delayCall += () => Debug.LogError(message);
-		internal static void LogException(Exception e) => EditorApplication.delayCall += () => Debug.LogException(e);
 
 		private static void AddUsingStatements(ScriptBuilder sb, String @namespace)
 		{
