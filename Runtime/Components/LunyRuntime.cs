@@ -123,7 +123,6 @@ namespace CodeSmile.Luny
 
 		private void CreateLuaStates(LunyLuaContext runtimeContext, LunyLuaContext moddingContext)
 		{
-			LunyLogger.LogInfo("Creating runtime Lua states ...");
 			m_RuntimeLua?.Dispose();
 			m_ModdingLua?.Dispose();
 			m_RuntimeLua = new LunyLua(runtimeContext, new RuntimeFileSystem(runtimeContext, m_AssetRegistry));

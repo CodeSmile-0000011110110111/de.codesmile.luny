@@ -50,6 +50,12 @@ namespace CodeSmileEditor.Luny.Generator
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
 				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
 				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, onlyThisMethodName);
+
+				// Ctor wrappers must be generated in the static class type
+				StaticMembers.Ctors = InstanceMembers.Ctors;
+				StaticMembers.CtorOverloads = InstanceMembers.CtorOverloads;
+				InstanceMembers.Ctors = new ConstructorInfo[0];
+				InstanceMembers.CtorOverloads = new GenMethodOverloads[0];
 			}
 		}
 	}
@@ -69,7 +75,6 @@ namespace CodeSmileEditor.Luny.Generator
 		public GenMemberInfo(Type type, BindingFlags bindingFlags, String onlyThisMethodName)
 		{
 			var obsolete = typeof(ObsoleteAttribute);
-			// FIXME: missing parameterless Ctor (assume always present for value types)
 			Ctors = type.GetConstructors(bindingFlags)
 				.Where(c => !(type.IsAbstract || c.GetCustomAttributes(obsolete).Any()))
 				.OrderBy(c => c.GetParameters().Length);

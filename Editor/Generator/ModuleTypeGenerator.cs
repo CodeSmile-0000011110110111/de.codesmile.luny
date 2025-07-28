@@ -80,16 +80,18 @@ namespace CodeSmileEditor.Luny.Generator
 
 			AddOpenTypeDeclaration(sb, typeInfo, baseType, isLuaStaticType);
 			if (isLuaStaticType)
+			{
 				AddBindType(sb, typeInfo.BindTypeFullName);
+			}
 			else
 			{
-				AddConstructor(sb, typeInfo, baseType);
 				AddInstanceFieldAndProperty(sb, typeInfo, baseType);
+				AddConstructor(sb, typeInfo, baseType);
 			}
 			AddToStringOverride(sb, typeInfo, isLuaStaticType);
 			AddImplicitLuaValueConversionOperator(sb, luaTypeName);
 			AddILuaUserDataImplementations(sb, baseType != null);
-			AddLuaBindings(sb, typeInfo, members, out var getters, out var setters);
+			AddMemberBindings(sb, typeInfo, members, out var getters, out var setters);
 			AddIndexMetamethod(sb, luaTypeName);
 			AddNewIndexMetamethod(sb, luaTypeName, setters.Count > 0);
 			AddGetValueMethod(sb, typeInfo, baseType, isLuaStaticType, getters);
@@ -231,7 +233,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("System.Span<LuaValue> ILuaUserData.UserValues => default;");
 		}
 
-		private static void AddLuaBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters,
+		private static void AddMemberBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters,
 			out IList<String> setters)
 		{
 			getters = new List<String>();
@@ -246,12 +248,7 @@ namespace CodeSmileEditor.Luny.Generator
 			foreach (var overloads in methodOverloads)
 			{
 				if (overloads.Count == 0)
-				{
-					//LogWarn($"{typeInfo.Type.Name}: empty overloads for {overloads.Name}");
 					continue;
-				}
-
-				//Log($"\t{overloads}");
 
 				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
 				AddOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? "ctor" : overloads.Name);

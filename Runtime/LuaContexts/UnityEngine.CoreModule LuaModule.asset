@@ -451,19 +451,18 @@ MonoBehaviour:
   - UnityEngine.LightingSettings*
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
   m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
-  m_UnityObjectFactoryTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_Object_Factory
+  m_UnityObjectFactoryTypeName: 
   m_ModuleLoader:
-    rid: 2561253608917827668
+    rid: 2561253608917827670
   m_UnityUnityObjectFactory:
-    rid: 2561253608917827669
-  m_GenerateOnlyThisType: 
+    rid: -2
+  m_GenerateOnlyThisType: UnityEngine.Vector4
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: 2561253608917827668
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2561253608917827670
       type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
-      data: 
-    - rid: 2561253608917827669
-      type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 
