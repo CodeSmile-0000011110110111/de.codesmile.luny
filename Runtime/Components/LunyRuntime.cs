@@ -31,8 +31,6 @@ namespace CodeSmile.Luny
 		private static LunyRuntime s_Singleton;
 		private static Boolean s_SingletonAssigned;
 
-		private LunyRuntimeAssetRegistry m_AssetRegistry;
-
 #if DEBUG || UNITY_EDITOR
 		// FIXME: move this into Luny settings ...
 		[Tooltip("If enabled, PlayMode will continue to run while the editor is in background. Useful for editing runtime " +
@@ -41,6 +39,8 @@ namespace CodeSmile.Luny
 		[SerializeField] private Boolean m_AlwaysRunInBackgroundInDevelopMode = true;
 #endif
 
+		private LunyRuntimeAssetRegistry m_AssetRegistry;
+
 		// TODO: consider splitting into LunyRuntime and LunyModding, or array of states
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
@@ -48,6 +48,13 @@ namespace CodeSmile.Luny
 		public static ILunyRuntime Singleton => s_SingletonAssigned ? s_Singleton : s_Singleton = CreateInstance();
 		public ILunyLua RuntimeLua => m_RuntimeLua;
 		public ILunyLua ModdingLua => m_ModdingLua;
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+		private static void ResetStaticFields()
+		{
+			s_Singleton = null;
+			s_SingletonAssigned = false;
+		}
 
 		private static LunyRuntime CreateInstance() => new GameObject(nameof(LunyRuntime)).AddComponent<LunyRuntime>();
 
@@ -61,10 +68,7 @@ namespace CodeSmile.Luny
 		}
 
 #if UNITY_EDITOR
-		private void OnValidate()
-		{
-			ApplyRunInBackgroundSetting();
-		}
+		private void OnValidate() => ApplyRunInBackgroundSetting();
 #endif
 
 		private void Awake()
@@ -86,7 +90,7 @@ namespace CodeSmile.Luny
 
 			CreateLuaStates(m_AssetRegistry.RuntimeContext, m_AssetRegistry.ModdingContext);
 
-			RegisterLunyScriptComponents();
+			//RegisterLunyScriptComponents();
 		}
 
 		private void OnDestroy()
@@ -147,7 +151,7 @@ namespace CodeSmile.Luny
 			// }
 		}
 
-		private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");
+		//private void RegisterLunyScriptComponents() => Debug.LogWarning("TODO: RegisterLunyScriptComponents");
 
 		// var lunyScriptTypes = AppDomain.CurrentDomain.GetAssemblies()
 		// 	.SelectMany(assembly => assembly.GetTypes())
