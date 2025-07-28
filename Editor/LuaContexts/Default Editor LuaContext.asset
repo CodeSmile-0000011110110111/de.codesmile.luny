@@ -18,6 +18,7 @@ MonoBehaviour:
   - Assets
   m_Libraries: -1
   m_Modules:
+  - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
   - {fileID: 11400000, guid: 6a7a967bbd8eb0648ac4d924d3fbd69c, type: 2}
   m_Path: Packages/de.codesmile.luny/Editor/LuaContexts/Default Editor LuaContext.asset
   m_IsModdingContext: 0

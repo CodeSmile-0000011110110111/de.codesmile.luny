@@ -17,31 +17,16 @@ namespace CodeSmileEditor.Luny.Generator
 		private static readonly String[] Digits =
 			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
-		public static IEnumerable<GenTypeInfo> Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, IList<GenTypeInfo> typeInfos,
 			String onlyThisMethodName)
 		{
-			var generatedTypeInfos = new List<GenTypeInfo>();
-
-			typeHierarchy.Visit((node, level) =>
-			{
-				var type = node.Value;
-
-				// skip the inevitable System types
-				if (GenUtil.IsBindableType(type))
-				{
-					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
-					generatedTypeInfos.Add(typeInfo);
-					ModuleGenerator.TypeInfosByType.Add(type, typeInfo);
-				}
-			});
-
-			foreach (var typeInfo in generatedTypeInfos)
+			foreach (var typeInfo in typeInfos)
 			{
 				// enums are handled by module loader
 				if (typeInfo.Type.IsEnum)
 					continue;
 
-				GenUtil.Log($"Generating type: {typeInfo.BindTypeFullName}");
+				//GenUtil.Log($"Generating type: {typeInfo.BindTypeFullName}");
 
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
@@ -54,8 +39,6 @@ namespace CodeSmileEditor.Luny.Generator
 				var assetPath = $"{contentFolderPath}/{typeInfo.InstanceLuaTypeName}.cs";
 				GenUtil.WriteFile(assetPath, sb.ToString());
 			}
-
-			return generatedTypeInfos;
 		}
 
 		private static void AddUsingStatements(ScriptBuilder sb, String @namespace)
@@ -434,10 +417,22 @@ namespace CodeSmileEditor.Luny.Generator
 						sb.Append(parameter.TypeFullName);
 						sb.Append(")");
 					}
+
 					if (parameter.Type == typeof(Boolean))
 						sb.Append((Boolean)defaultValue ? "true" : "false");
+					else if (defaultValue == null)
+						sb.Append("default");
 					else
-						sb.Append(defaultValue == null ? "default" : Convert.ToString(defaultValue));
+					{
+						var value = Convert.ToString(defaultValue);
+						if (String.IsNullOrEmpty(value) == false)
+						{
+							// enclose value in brackets to avoid any ambiguities
+							sb.Append("(");
+							sb.Append(value);
+							sb.Append(")");
+						}
+					}
 				}
 				sb.Append(")");
 			}

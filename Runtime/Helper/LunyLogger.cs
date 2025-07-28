@@ -9,35 +9,37 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace CodeSmile.Luny
 {
 	// NOTE: The name of class and methods must follow a specific scheme (class ends with "Logger", methods start with "Log")
 	// see: https://www.reddit.com/r/Unity3D/comments/17eikh0/i_found_a_way_to_go_to_the_right_line_in_your/
 
+	[Preserve]
 	public static class LunyLogger
 	{
-		internal static readonly LuaFunction LuaLogInfo = new("print", (context, ct) =>
+		[Preserve] internal static readonly LuaFunction LuaLogInfo = new("print", (context, ct) =>
 		{
 			LogInfo(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(context.Return());
 		});
-		internal static readonly LuaFunction LuaLogWarn = new("warn", (context, ct) =>
+		[Preserve] internal static readonly LuaFunction LuaLogWarn = new("warn", (context, ct) =>
 		{
 			LogWarn(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(context.Return());
 		});
-		internal static readonly LuaFunction LuaLogError = new("error", (context, ct) =>
+		[Preserve] internal static readonly LuaFunction LuaLogError = new("error", (context, ct) =>
 		{
 			LogError(GetLuaMessageAndTraceback(context));
 			return new ValueTask<Int32>(context.Return());
 		});
 
-		[HideInCallstack] public static void LogInfo(String message) => Debug.Log(message);
-		[HideInCallstack] public static void LogWarn(String message) => Debug.LogWarning(message);
-		[HideInCallstack] public static void LogError(String message) => Debug.LogError(message);
+		[Preserve] [HideInCallstack] public static void LogInfo(String message) => Debug.Log(message);
+		[Preserve] [HideInCallstack] public static void LogWarn(String message) => Debug.LogWarning(message);
+		[Preserve] [HideInCallstack] public static void LogError(String message) => Debug.LogError(message);
 
-		[HideInCallstack] public static void LogException(Exception ex, Component component = null)
+		[Preserve] [HideInCallstack] public static void LogException(Exception ex, Component component = null)
 		{
 			var scriptName = "";
 			var message = ex.Message;
@@ -52,7 +54,7 @@ namespace CodeSmile.Luny
 			               $"{ex.StackTrace}\n{ex.InnerException?.Message}\n{ex.InnerException?.StackTrace}");
 		}
 
-		private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
+		[Preserve] private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
 		{
 			// FIXME: I lost that callback code in the LuaCSharp framework since I hadn't committed it, dang!
 
@@ -73,7 +75,7 @@ namespace CodeSmile.Luny
 			return $"{msg}\nC# stack traceback:";
 		}
 
-		private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>
+		[Preserve] private static String GetTrimmedTraceback(LuaRuntimeException luaRunEx) =>
 			luaRunEx.LuaTraceback.ToString().Replace("Lua stack traceback:\n", "").Trim();
 	}
 }

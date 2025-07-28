@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace CodeSmileEditor.Luny
@@ -104,7 +105,9 @@ namespace CodeSmileEditor.Luny
 					registry.ModdingAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
 
-			var path = $"Assets/{nameof(LunyRuntimeAssetRegistry)}.asset";
+			var pathRoot = "Assets/Luny/Resources";
+			EditorIO.TryCreateAndImportPath(pathRoot);
+			var path = $"{pathRoot}/{nameof(LunyRuntimeAssetRegistry)}.asset";
 			AssetDatabase.CreateAsset(registry, path);
 			return registry;
 		}

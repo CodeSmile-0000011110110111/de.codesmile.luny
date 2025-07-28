@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,25 +16,58 @@ namespace CodeSmileEditor.Luny.Generator
 		private static Dictionary<Type, GenTypeInfo> s_TypeInfosByType;
 		public static Dictionary<Type, GenTypeInfo> TypeInfosByType => s_TypeInfosByType;
 
-		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, IEnumerable<Type> types,
-			String onlyThisMethodName = null)
+		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, Type[] types, String onlyThisMethodName = null)
 		{
 			Debug.Assert(module != null);
 			Debug.Assert(types != null);
 
-			if (types.Any())
+			if (types.Length > 0)
 			{
-				s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
-
+				var assembly = GenUtil.FindAssembly(module.AssemblyName);
+				var typeInfos = CreateTypeInfos(assembly, types, out var namespaces, onlyThisMethodName);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
-				var typeHierarchy = new ModuleTypeHierarchy(types);
-				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, typeHierarchy, asmdefAssets);
-				var boundTypes = ModuleTypeGenerator.Generate(module, contentFolderPath, typeHierarchy, onlyThisMethodName);
-				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeHierarchy, boundTypes);
+				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
+				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos, onlyThisMethodName);
+				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeInfos, namespaces);
 				ModuleFactoryGenerator.Generate(module, contentFolderPath);
 
 				s_TypeInfosByType = null;
 			}
+		}
+
+		private static IList<GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
+			String onlyThisMethodName)
+		{
+			s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
+
+			var typeHierarchy = new ModuleTypeHierarchy(types);
+			var generatableTypeInfos = new List<GenTypeInfo>();
+			typeHierarchy.Visit((node, level) =>
+			{
+				var type = node.Value;
+
+				// skip the inevitable System types
+				if (GenUtil.IsBindableType(type))
+				{
+					if (type.Assembly != moduleAssembly)
+					{
+						GenUtil.LogWarn($"Skip {type.FullName}, is in foreign assembly: {type.Assembly.GetName().FullName}");
+						return;
+					}
+					if (type.IsGenericType)
+					{
+						GenUtil.LogWarn($"Skip generic type: {type.FullName}");
+						return;
+					}
+
+					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
+					generatableTypeInfos.Add(typeInfo);
+					s_TypeInfosByType.Add(type, typeInfo);
+				}
+			});
+
+			namespaces = typeHierarchy.Namespaces.ToArray();
+			return generatableTypeInfos;
 		}
 	}
 }

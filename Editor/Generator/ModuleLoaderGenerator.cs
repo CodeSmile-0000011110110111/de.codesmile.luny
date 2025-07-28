@@ -11,18 +11,18 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
-			IEnumerable<GenTypeInfo> typeInfos)
+		public static void Generate(LunyLuaModule module, String contentFolderPath, IList<GenTypeInfo> typeInfos,
+			IEnumerable<String> namespaces)
 		{
 			var @namespace = module.BindingsNamespace;
 			var loaderClassName = $"Lua_{module.AssemblyName.Replace('.', '_')}_Loader";
 			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
-			AddUsingStatements(typeHierarchy, sb);
+			AddUsingStatements(sb, namespaces);
 			AddNamespaceBlock(sb, @namespace);
 			AddClassBlock(sb, loaderClassName);
-			AddLoadMethod(sb, typeHierarchy, typeInfos, loaderClassName);
+			AddLoadMethod(sb, typeInfos, namespaces, loaderClassName);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
@@ -30,13 +30,13 @@ namespace CodeSmileEditor.Luny.Generator
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddUsingStatements(ModuleTypeHierarchy typeHierarchy, ScriptBuilder sb)
+		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
 			sb.AppendLine("#pragma warning disable 0105 // The using directive for '..' appeared previously in this namespace");
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
 			sb.AppendLine("using Unity.Profiling;");
-			foreach (var ns in typeHierarchy.Namespaces)
+			foreach (var ns in namespaces)
 			{
 				sb.Append("using ");
 				sb.Append(ns);
@@ -67,7 +67,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddLoadMethod(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy, IEnumerable<GenTypeInfo> typeInfos,
+		private static void AddLoadMethod(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces,
 			String className)
 		{
 			sb.AppendIndentLine("public override void Load(LuaTable env)");
@@ -77,17 +77,16 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("));");
 			sb.AppendIndentLine("marker.Begin();");
 			sb.AppendIndentLine("base.Load(env);");
-			GenerateTypeInitialization(sb, typeHierarchy, typeInfos);
+			GenerateTypeInitialization(sb, typeInfos, namespaces);
 			sb.AppendIndentLine("marker.End();");
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void GenerateTypeInitialization(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy,
-			IEnumerable<GenTypeInfo> typeInfos)
+		private static void GenerateTypeInitialization(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces)
 		{
 			var namespaceTables = new Dictionary<String, String>();
 
-			foreach (var @namespace in typeHierarchy.Namespaces)
+			foreach (var @namespace in namespaces)
 			{
 				var namespaceTableName = $"{@namespace.Replace(".", "")}Table";
 				namespaceTables.Add(@namespace, namespaceTableName);

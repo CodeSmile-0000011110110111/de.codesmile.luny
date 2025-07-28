@@ -21,17 +21,11 @@ MonoBehaviour:
   - UnityEngine.Apple
   - UnityEngine.Device
   - UnityEngine.Events
-  - UnityEngine.iOS
   - UnityEngine.Playables
   - UnityEngine.Profiling
   - UnityEngine.SceneManagement
   - UnityEngine.Sprites
-  - UnityEngine.tvOS
   - UnityEngine.U2D
-  - UnityEngine.Windows
-  - UnityEngine.Windows.Speech
-  - UnityEngine.Windows.WebCam
-  - UnityEngine.WSA
   m_NamespaceBlacklist:
   - JetBrains.Annotations
   - Unity.Collections*
@@ -45,6 +39,7 @@ MonoBehaviour:
   - UnityEngine.DedicatedServer
   - UnityEngine.Diagnostics
   - UnityEngine.Experimental.*
+  - UnityEngine.iOS
   - UnityEngine.Jobs
   - UnityEngine.LowLevel
   - UnityEngine.Networking*
@@ -54,6 +49,9 @@ MonoBehaviour:
   - UnityEngine.Search
   - UnityEngine.Serialization
   - UnityEngine.TestTools
+  - UnityEngine.tvOS
+  - UnityEngine.Windows*
+  - UnityEngine.WSA
   - UnityEngineInternal
   - '---- below: to be included later ...'
   m_TypeWhitelist:
@@ -77,7 +75,6 @@ MonoBehaviour:
   - Unity.Profiling.ProfilerRecorder
   - Unity.Profiling.ProfilerRecorderOptions
   - Unity.Profiling.ProfilerRecorderSample
-  - UnityEngine.AndroidActivityIndicatorStyle
   - UnityEngine.AnimationCurve
   - UnityEngine.AnisotropicFiltering
   - UnityEngine.Apple.FrameCapture
@@ -110,7 +107,6 @@ MonoBehaviour:
   - UnityEngine.BuildCompression
   - UnityEngine.Cache
   - UnityEngine.CachedAssetBundle
-  - UnityEngine.Caching
   - UnityEngine.Camera
   - UnityEngine.Camera+FieldOfViewAxis
   - UnityEngine.Camera+GateFitMode
@@ -161,10 +157,8 @@ MonoBehaviour:
   - UnityEngine.DeviceType
   - UnityEngine.Display
   - UnityEngine.DisplayInfo
-  - UnityEngine.DrivenRectTransformTracker
   - UnityEngine.DrivenTransformProperties
   - UnityEngine.DynamicGI
-  - UnityEngine.EventProvider
   - UnityEngine.Events.PersistentListenerMode
   - UnityEngine.Events.UnityEvent
   - UnityEngine.Events.UnityEventBase
@@ -181,8 +175,6 @@ MonoBehaviour:
   - UnityEngine.FrameTimingManager
   - UnityEngine.FrustumPlanes
   - UnityEngine.FullScreenMode
-  - UnityEngine.FullScreenMovieControlMode
-  - UnityEngine.FullScreenMovieScalingMode
   - UnityEngine.GameObject
   - UnityEngine.GeometryUtility
   - UnityEngine.Gizmos
@@ -198,7 +190,6 @@ MonoBehaviour:
   - UnityEngine.GraphicsBuffer+Target
   - UnityEngine.GraphicsBuffer+UsageFlags
   - UnityEngine.GraphicsBufferHandle
-  - UnityEngine.Handheld
   - UnityEngine.Hash128
   - UnityEngine.HashUnsafeUtilities
   - UnityEngine.HashUtilities
@@ -211,26 +202,11 @@ MonoBehaviour:
   - UnityEngine.InspectorSortDirection
   - UnityEngine.InstantiateParameters
   - UnityEngine.IntegrityCheckLevel
-  - UnityEngine.iOS.ActivityIndicatorStyle
-  - UnityEngine.iOS.Device
-  - UnityEngine.iOS.DeviceGeneration
-  - UnityEngine.iOS.OnDemandResources
-  - UnityEngine.iOS.OnDemandResourcesRequest
-  - UnityEngine.iOS.SystemGestureDeferMode
-  - UnityEngine.iPhoneSettings
-  - UnityEngine.iPhoneUtils
   - UnityEngine.KeyCode
   - UnityEngine.Keyframe
   - UnityEngine.LayerMask
   - UnityEngine.LensFlare
-  - UnityEngine.Light
   - UnityEngine.LightBakingOutput
-  - UnityEngine.LightingSettings
-  - UnityEngine.LightingSettings+DenoiserType
-  - UnityEngine.LightingSettings+FilterMode
-  - UnityEngine.LightingSettings+FilterType
-  - UnityEngine.LightingSettings+Lightmapper
-  - UnityEngine.LightingSettings+Sampling
   - UnityEngine.LightmapBakeType
   - UnityEngine.LightmapCompression
   - UnityEngine.LightmapData
@@ -262,7 +238,6 @@ MonoBehaviour:
   - UnityEngine.LogOption
   - UnityEngine.LogType
   - UnityEngine.MainThreadAwaitable
-  - UnityEngine.Material
   - UnityEngine.MaterialGlobalIlluminationFlags
   - UnityEngine.MaterialPropertyBlock
   - UnityEngine.MaterialPropertyType
@@ -296,7 +271,6 @@ MonoBehaviour:
   - UnityEngine.Playables.PlayableBehaviour
   - UnityEngine.Playables.PlayableBinding
   - UnityEngine.Playables.PlayableExtensions
-  - UnityEngine.Playables.PlayableGraph
   - UnityEngine.Playables.PlayableHandle
   - UnityEngine.Playables.PlayableOutput
   - UnityEngine.Playables.PlayableOutputExtensions
@@ -315,7 +289,6 @@ MonoBehaviour:
   - UnityEngine.Profiling.Sampler
   - UnityEngine.Projector
   - UnityEngine.PropertyName
-  - UnityEngine.QualitySettings
   - UnityEngine.Quaternion
   - UnityEngine.Random
   - UnityEngine.Random+State
@@ -415,7 +388,6 @@ MonoBehaviour:
   - UnityEngine.Texture3D
   - UnityEngine.TextureFormat
   - UnityEngine.TextureMipmapLimitBiasMode
-  - UnityEngine.TextureMipmapLimitGroups
   - UnityEngine.TextureMipmapLimitSettings
   - UnityEngine.TextureWrapMode
   - UnityEngine.ThreadPriority
@@ -430,9 +402,6 @@ MonoBehaviour:
   - UnityEngine.TransferFunction
   - UnityEngine.Transform
   - UnityEngine.TransparencySortMode
-  - UnityEngine.tvOS.Device
-  - UnityEngine.tvOS.DeviceGeneration
-  - UnityEngine.tvOS.Remote
   - UnityEngine.U2D.Light2DBase
   - UnityEngine.U2D.PixelPerfectRendering
   - UnityEngine.U2D.SpriteAtlas
@@ -459,69 +428,42 @@ MonoBehaviour:
   - UnityEngine.WaitWhile
   - UnityEngine.WeightedMode
   - UnityEngine.WhitePoint
-  - UnityEngine.Windows.CrashReporting
-  - UnityEngine.Windows.Crypto
-  - UnityEngine.Windows.Directory
-  - UnityEngine.Windows.File
-  - UnityEngine.Windows.Input
-  - UnityEngine.Windows.LicenseInformation
-  - UnityEngine.Windows.Speech.ConfidenceLevel
-  - UnityEngine.Windows.Speech.DictationCompletionCause
-  - UnityEngine.Windows.Speech.DictationRecognizer
-  - UnityEngine.Windows.Speech.DictationTopicConstraint
-  - UnityEngine.Windows.Speech.GrammarRecognizer
-  - UnityEngine.Windows.Speech.KeywordRecognizer
-  - UnityEngine.Windows.Speech.PhraseRecognitionSystem
-  - UnityEngine.Windows.Speech.PhraseRecognizedEventArgs
-  - UnityEngine.Windows.Speech.PhraseRecognizer
-  - UnityEngine.Windows.Speech.SemanticMeaning
-  - UnityEngine.Windows.Speech.SpeechError
-  - UnityEngine.Windows.Speech.SpeechSystemStatus
-  - UnityEngine.Windows.WebCam.CameraParameters
-  - UnityEngine.Windows.WebCam.CapturePixelFormat
-  - UnityEngine.Windows.WebCam.PhotoCapture
-  - UnityEngine.Windows.WebCam.PhotoCapture+CaptureResultType
-  - UnityEngine.Windows.WebCam.PhotoCapture+PhotoCaptureResult
-  - UnityEngine.Windows.WebCam.PhotoCaptureFileOutputFormat
-  - UnityEngine.Windows.WebCam.PhotoCaptureFrame
-  - UnityEngine.Windows.WebCam.VideoCapture
-  - UnityEngine.Windows.WebCam.VideoCapture+AudioState
-  - UnityEngine.Windows.WebCam.VideoCapture+CaptureResultType
-  - UnityEngine.Windows.WebCam.VideoCapture+VideoCaptureResult
-  - UnityEngine.Windows.WebCam.WebCam
-  - UnityEngine.Windows.WebCam.WebCamMode
   - UnityEngine.WrapMode
-  - UnityEngine.WSA.Application
-  - UnityEngine.WSA.Cursor
-  - UnityEngine.WSA.Folder
-  - UnityEngine.WSA.Launcher
-  - UnityEngine.WSA.SecondaryTileData
-  - UnityEngine.WSA.Tile
-  - UnityEngine.WSA.TileForegroundText
-  - UnityEngine.WSA.TileTemplate
-  - UnityEngine.WSA.Toast
-  - UnityEngine.WSA.ToastTemplate
-  - UnityEngine.WSA.WindowActivationState
   - UnityEngine.YieldInstruction
   m_TypeBlacklist:
+  - UnityEngine.AndroidActivityIndicatorStyle
+  - UnityEngine.DrivenRectTransformTracker
+  - UnityEngine.EventProvider
   - UnityEngine.ExposedPropertyResolver
+  - UnityEngine.FullScreenMovieControlMode
+  - UnityEngine.FullScreenMovieScalingMode
+  - UnityEngine.Handheld
+  - UnityEngine.iPhoneSettings
+  - UnityEngine.iPhoneUtils
   - UnityEngine.Types
   - '-- below: to be included later ...'
+  - UnityEngine.Material
+  - UnityEngine.TextureMipmapLimitGroups
+  - UnityEngine.QualitySettings
+  - UnityEngine.Playables.PlayableGraph
+  - UnityEngine.Light
+  - UnityEngine.Caching
+  - UnityEngine.LightingSettings*
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
   m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
   m_UnityObjectFactoryTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_Object_Factory
   m_ModuleLoader:
-    rid: 2561253608917827642
+    rid: 2561253608917827668
   m_UnityUnityObjectFactory:
-    rid: 2561253608917827643
-  m_GenerateOnlyThisType: //UnityEngine.GameObject
+    rid: 2561253608917827669
+  m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: 2561253608917827642
+    - rid: 2561253608917827668
       type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 
-    - rid: 2561253608917827643
+    - rid: 2561253608917827669
       type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
       data: 

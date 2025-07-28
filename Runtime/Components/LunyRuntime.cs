@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 		private static LunyRuntime s_Singleton;
 		private static Boolean s_SingletonAssigned;
 
-		[SerializeField] [HideInInspector] private LunyRuntimeAssetRegistry m_AssetRegistry;
+		[SerializeField] [ReadOnlyField] private LunyRuntimeAssetRegistry m_AssetRegistry;
 
 #if DEBUG || UNITY_EDITOR
 		// FIXME: move this into Luny settings ...
@@ -63,7 +63,7 @@ namespace CodeSmile.Luny
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			// ensure registry is assigned and gets serialized, we need its reference in builds
+			// ensure registry is assigned
 			m_AssetRegistry = LunyRuntimeAssetRegistry.Singleton;
 			ApplyRunInBackgroundSetting();
 		}
@@ -72,7 +72,11 @@ namespace CodeSmile.Luny
 		private void Awake()
 		{
 			if (m_AssetRegistry == null)
-				throw new LunyException("Missing LunyRuntimeAssetRegistry reference.");
+			{
+				m_AssetRegistry = Resources.Load<LunyRuntimeAssetRegistry>(nameof(LunyRuntimeAssetRegistry));
+				if (m_AssetRegistry == null)
+					throw new LunyException($"Missing {nameof(LunyRuntimeAssetRegistry)} resource");
+			}
 
 			if (s_Singleton != null)
 			{

@@ -4,15 +4,17 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace CodeSmile.Luny
 {
+	[Preserve]
 	public sealed class LunyException : Exception
 	{
-		public LunyException(String message)
+		[Preserve] public LunyException(String message)
 			: base(message) {}
 
-		public LunyException(String message, Exception innerException)
+		[Preserve] public LunyException(String message, Exception innerException)
 			: base(message, innerException) {}
 	}
 }

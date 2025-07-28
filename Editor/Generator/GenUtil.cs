@@ -48,6 +48,10 @@ namespace CodeSmileEditor.Luny.Generator
 			.Where(assembly => assembly.GetName().Name == assemblyName)
 			.FirstOrDefault();
 
+		public static Assembly FindAssembly(String assemblyName) => AppDomain.CurrentDomain.GetAssemblies()
+			.Where(assembly => assembly.GetName().Name == assemblyName)
+			.FirstOrDefault();
+
 		public static IEnumerable<Type> GetNamespaceFilteredTypes(IEnumerable<Type> types, IEnumerable<String> namespaces,
 			IEnumerable<String> typeNames = null)
 		{
@@ -200,6 +204,12 @@ namespace CodeSmileEditor.Luny.Generator
 			return sb.ToString();
 		}
 
+		// delay logs to make them appear after the compilation process
+		internal static void Log(String message) => EditorApplication.delayCall += () => Debug.Log(message);
+		internal static void LogWarn(String message) => EditorApplication.delayCall += () => Debug.LogWarning(message);
+		internal static void LogError(String message) => EditorApplication.delayCall += () => Debug.LogError(message);
+		internal static void LogException(Exception e) => EditorApplication.delayCall += () => Debug.LogException(e);
+
 		private static Boolean HasAttribute(this Type type, Type[] attributes)
 		{
 			foreach (var attribute in attributes)
@@ -224,11 +234,5 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			return false;
 		}
-
-		// delay logs to make them appear after the compilation process
-		internal static void Log(String message) => EditorApplication.delayCall += () => Debug.Log(message);
-		internal static void LogWarn(String message) => EditorApplication.delayCall += () => Debug.LogWarning(message);
-		internal static void LogError(String message) => EditorApplication.delayCall += () => Debug.LogError(message);
-		internal static void LogException(Exception e) => EditorApplication.delayCall += () => Debug.LogException(e);
 	}
 }

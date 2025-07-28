@@ -3,6 +3,7 @@
 
 using CodeSmile.Luny;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class ModuleAssemblyDefinitionGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, ModuleTypeHierarchy typeHierarchy,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<String> namespaces,
 			AssemblyDefinitionAssets asmdefAssets)
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
@@ -20,7 +21,7 @@ namespace CodeSmileEditor.Luny.Generator
 			var sb = new ScriptBuilder();
 			sb.OpenIndentBlock("{");
 			AddNameAndNamespace(sb, asmDefName);
-			AddReferences(sb, typeHierarchy, asmdefAssets, isEditorModule);
+			AddReferences(sb, namespaces, asmdefAssets, isEditorModule);
 			AddIncludedPlatforms(sb, modulePath);
 			AddDefaultSettings(sb);
 			sb.CloseIndentBlock("}");
@@ -40,7 +41,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, ModuleTypeHierarchy typeHierarchy, AssemblyDefinitionAssets asmdefAssets,
+		private static void AddReferences(ScriptBuilder sb, IEnumerable<String> namespaces, AssemblyDefinitionAssets asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentLine("\"references\": [");
@@ -60,7 +61,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("\"");
 			}
 
-			foreach (var ns in typeHierarchy.Namespaces)
+			foreach (var ns in namespaces)
 			{
 				var asmdefGuid = GetGuidForReference(asmdefAssets, ns);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
