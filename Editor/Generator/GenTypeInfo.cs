@@ -27,6 +27,8 @@ namespace CodeSmileEditor.Luny.Generator
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
 
+		public override String ToString() => Type?.ToString() ?? GetType().Name;
+
 		public GenTypeInfo(Type type, String onlyThisMethodName = null)
 		{
 			Type = type;

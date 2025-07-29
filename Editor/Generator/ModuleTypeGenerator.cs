@@ -80,9 +80,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 			AddOpenTypeDeclaration(sb, typeInfo, baseType, isLuaStaticType);
 			if (isLuaStaticType)
-			{
 				AddBindType(sb, typeInfo.BindTypeFullName);
-			}
 			else
 			{
 				AddInstanceFieldAndProperty(sb, typeInfo, baseType);
@@ -159,7 +157,7 @@ namespace CodeSmileEditor.Luny.Generator
 			else
 			{
 				sb.Append(" => ");
-				sb.AppendIndent(typeInfo.InstanceFieldName);
+				sb.Append(typeInfo.InstanceFieldName);
 				sb.Append(" = ");
 				sb.Append(paramName);
 				sb.AppendLine(";");
@@ -251,7 +249,7 @@ namespace CodeSmileEditor.Luny.Generator
 					continue;
 
 				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
-				AddOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? "ctor" : overloads.Name);
+				AddOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? ".ctor" : overloads.Name);
 				AddReadArgumentCount(sb);
 				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
 					AddValueTypeParameterlessCtor(sb, typeInfo);
@@ -262,12 +260,12 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String luaFuncName)
+		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String debugName)
 		{
 			sb.AppendIndent("private static readonly LuaFunction ");
 			sb.Append(funcName);
 			sb.Append(" = new(\"");
-			sb.Append(luaFuncName);
+			sb.Append(debugName);
 			sb.AppendLine("\", (_context, _) =>");
 			sb.OpenIndentBlock("{");
 		}
@@ -345,14 +343,12 @@ namespace CodeSmileEditor.Luny.Generator
 				methodIndex++;
 			}
 
-			if (hasParameters)
-			{
-				var beyondLastMethod = methodIndex >= overloads.SortedMethods.Count;
-				if (beyondLastMethod)
-					AddCloseRemainingMethodBlocks(sb, paramPos);
-				else if (methodIndex < overloads.SortedMethods.Count)
-					AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos, signature);
-			}
+			var overloadCount = overloads.SortedMethods.Count;
+			var beyondLastMethod = methodIndex >= overloadCount;
+			if (beyondLastMethod)
+				AddCloseRemainingMethodBlocks(sb, paramPos);
+			else if (methodIndex < overloadCount)
+				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos, signature);
 		}
 
 		private static void AddGetAndReadArguments(ScriptBuilder sb, Int32 argNum, Int32 luaArgOffset, Boolean needsGetArguments,
