@@ -27,7 +27,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var typeInfos = CreateTypeInfos(assembly, types, out var namespaces, onlyThisMethodName);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
-				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos, onlyThisMethodName);
+				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeInfos, namespaces);
 				ModuleFactoryGenerator.Generate(module, contentFolderPath);
 

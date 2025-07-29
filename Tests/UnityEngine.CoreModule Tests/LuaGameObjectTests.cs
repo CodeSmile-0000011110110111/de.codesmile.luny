@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+#if UNITYENGINE_COREMODULE_LOADER_TESTS
 using CodeSmile.Luny;
 using Lua_UnityEngine.CoreModule;
 using Lua.Unity;
@@ -29,7 +30,15 @@ public class LuaGameObjectTests
 	{
 		var script = "return UnityEngine.GameObject.new('new go')";
 		var retvals = await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, nameof(Lua_newGameObject_NoName), null);
-		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance, Is.Not.Null);
 		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.name, Is.EqualTo("new go"));
 	}
+	[Test] public async Task Lua_AddComponent_MeshFilter()
+	{
+		var script = "local go = UnityEngine.GameObject.new('go with MeshFilter');" +
+		             "return go, go:AddComponent(UnityEngine.MeshFilter);";
+		var retvals = await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, nameof(Lua_AddComponent_MeshFilter), null);
+		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance is MeshFilter);
+		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance.gameObject, Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance));
+	}
 }
+#endif

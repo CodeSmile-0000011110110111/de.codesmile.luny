@@ -20,6 +20,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "de.codesmile.luny",
+            "expression": "0.0.0",
+            "define": "UNITYENGINE_COREMODULE_LOADER_TESTS"
+        }
+    ],
     "noEngineReferences": false
 }
