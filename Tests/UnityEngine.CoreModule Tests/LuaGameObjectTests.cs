@@ -37,10 +37,12 @@ public class LuaGameObjectTests
 	[Test] public async Task Lua_AddComponent_MeshFilter()
 	{
 		var script = "local go = UnityEngine.GameObject.new('go with MeshFilter');" +
-		             "return go, go:AddComponent(UnityEngine.MeshFilter);";
+		             "local com = go:AddComponent(UnityEngine.MeshFilter);" +
+		             "print(tostring(go));print(type(go));print(tostring(com));print(type(com));" +
+		             "return go, com;";
 		var retvals = await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, nameof(Lua_AddComponent_MeshFilter), null);
-		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance is MeshFilter);
-		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance.gameObject,
+		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
+		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance.gameObject,
 			Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance));
 	}
 }

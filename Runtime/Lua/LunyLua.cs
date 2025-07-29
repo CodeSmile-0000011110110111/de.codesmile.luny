@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -44,6 +45,27 @@ namespace CodeSmile.Luny
 		public LuaState State => m_LuaState;
 		public LuaUnityObjectFactoryBase UnityObjectFactory => m_UnityObjectFactory;
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
+
+		public static ValueTask<Int32> _type(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
+		{
+			var arg0 = context.GetArgument(0);
+
+			var result = arg0.Type switch
+			{
+				LuaValueType.Nil => "nil",
+				LuaValueType.Boolean => "boolean",
+				LuaValueType.String => "string",
+				LuaValueType.Number => "number",
+				LuaValueType.Function => "function",
+				LuaValueType.Thread => "thread",
+				LuaValueType.LightUserData or LuaValueType.UserData => arg0.TryRead(out Object o) && o != null
+					? $"userdata ({o.GetType().Name})"
+					: "userdata (null)",
+				LuaValueType.Table => "table",
+				var _ => throw new NotImplementedException(),
+			};
+			return new ValueTask<Int32>(context.Return(result));
+		}
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -150,7 +172,8 @@ namespace CodeSmile.Luny
 			if (luaContext.IsSandbox)
 				RemovePotentiallyHarmfulFunctions();
 
-			OverridePrintAndLog();
+			OverridePrintFunction();
+			OverrideTypeFunction();
 
 			foreach (var module in luaContext.Modules)
 			{
@@ -221,13 +244,15 @@ namespace CodeSmile.Luny
 			env.SetNil("load"); // disallow compiling and executing arbitrary strings
 		}
 
-		private void OverridePrintAndLog()
+		private void OverridePrintFunction()
 		{
 			var env = m_LuaState.Environment;
 			env["print"] = LunyLogger.LuaLogInfo;
 			env["warn"] = LunyLogger.LuaLogWarn;
 			env["error"] = LunyLogger.LuaLogError;
 		}
+
+		private void OverrideTypeFunction() => m_LuaState.Environment["type"] = new LuaFunction("type", _type);
 
 		internal void NotifyChangedScripts()
 		{
