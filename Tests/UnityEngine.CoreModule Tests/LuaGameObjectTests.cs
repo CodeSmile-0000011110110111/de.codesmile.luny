@@ -38,7 +38,7 @@ public class LuaGameObjectTests
 	{
 		var script = "local go = UnityEngine.GameObject.new('go with MeshFilter');" +
 		             "local com = go:AddComponent(UnityEngine.MeshFilter);" +
-		             "print(tostring(go));print(type(go));print(tostring(com));print(type(com));" +
+		             "print(tostring(go));print(typeof(go));print(tostring(com));print(typeof(com));" +
 		             "return go, com;";
 		var retvals = await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, nameof(Lua_AddComponent_MeshFilter), null);
 		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);

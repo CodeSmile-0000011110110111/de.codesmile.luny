@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Object = System.Object;
 
 namespace CodeSmile.Luny
@@ -37,6 +38,30 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLua : ILunyLua
 	{
+		[Preserve] private static readonly LuaFunction _typeof = new("typeof", (context, _) =>
+		{
+			var arg0 = context.GetArgument(0);
+
+			var typeName = arg0.Type switch
+			{
+				LuaValueType.Nil => "nil",
+				LuaValueType.Boolean => "boolean",
+				LuaValueType.String => "string",
+				LuaValueType.Number => "number",
+				LuaValueType.Function => "function",
+				LuaValueType.Thread => "thread",
+				LuaValueType.LightUserData or LuaValueType.UserData =>
+					arg0.TryRead(out Object o) && o != null
+						? o is ILuaBindingType bt && bt.BindingType != null
+							? bt.BindingType.Name
+							: o.GetType().Name
+						: "null",
+				LuaValueType.Table => "table",
+				var _ => throw new NotImplementedException(),
+			};
+			return new ValueTask<Int32>(context.Return(typeName));
+		});
+
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaFileWatcher m_FileWatcher;
@@ -45,27 +70,6 @@ namespace CodeSmile.Luny
 		public LuaState State => m_LuaState;
 		public LuaUnityObjectFactoryBase UnityObjectFactory => m_UnityObjectFactory;
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
-
-		public static ValueTask<Int32> _type(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
-		{
-			var arg0 = context.GetArgument(0);
-
-			var result = arg0.Type switch
-			{
-				LuaValueType.Nil => "nil",
-				LuaValueType.Boolean => "boolean",
-				LuaValueType.String => "string",
-				LuaValueType.Number => "number",
-				LuaValueType.Function => "function",
-				LuaValueType.Thread => "thread",
-				LuaValueType.LightUserData or LuaValueType.UserData => arg0.TryRead(out Object o) && o != null
-					? $"userdata ({o.GetType().Name})"
-					: "userdata (null)",
-				LuaValueType.Table => "table",
-				var _ => throw new NotImplementedException(),
-			};
-			return new ValueTask<Int32>(context.Return(result));
-		}
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -172,8 +176,7 @@ namespace CodeSmile.Luny
 			if (luaContext.IsSandbox)
 				RemovePotentiallyHarmfulFunctions();
 
-			OverridePrintFunction();
-			OverrideTypeFunction();
+			AddAndOverrideGlobalFunctions();
 
 			foreach (var module in luaContext.Modules)
 			{
@@ -244,15 +247,15 @@ namespace CodeSmile.Luny
 			env.SetNil("load"); // disallow compiling and executing arbitrary strings
 		}
 
-		private void OverridePrintFunction()
+		private void AddAndOverrideGlobalFunctions()
 		{
 			var env = m_LuaState.Environment;
 			env["print"] = LunyLogger.LuaLogInfo;
 			env["warn"] = LunyLogger.LuaLogWarn;
 			env["error"] = LunyLogger.LuaLogError;
-		}
 
-		private void OverrideTypeFunction() => m_LuaState.Environment["type"] = new LuaFunction("type", _type);
+			env["typeof"] = _typeof;
+		}
 
 		internal void NotifyChangedScripts()
 		{
