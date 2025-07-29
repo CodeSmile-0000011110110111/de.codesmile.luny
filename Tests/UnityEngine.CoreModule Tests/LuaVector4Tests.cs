@@ -1,4 +1,3 @@
-/*
 using CodeSmile.Luny;
 using Lua_UnityEngine.CoreModule;
 using Lua.Unity;
@@ -40,4 +39,3 @@ public class LuaVector4Tests
 		Assert.That(retvals[0].Read<Lua_UnityEngine_Vector4>().Value, Is.EqualTo(new Vector4(1, 2, 3, 4)));
 	}
 }
-*/

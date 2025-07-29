@@ -115,7 +115,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 			sb.Append(nameof(ILuaUserData));
 			sb.Append(", ");
-			sb.Append(nameof(ILuaBindType));
+			sb.Append(nameof(ILuaBindingType));
 
 			if (isLuaStaticType == false)
 			{
@@ -139,8 +139,10 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddBindType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
-			sb.AppendIndent(isLuaStaticType || typeInfo.Type.IsValueType ? "public static " : "public static new ");
-			sb.Append("System.Type BindType => typeof(");
+			sb.AppendIndent(isLuaStaticType || typeInfo.Type.IsValueType ? "public " : "public new ");
+			sb.Append("System.Type ");
+			sb.Append(nameof(ILuaBindingType.BindingType));
+			sb.Append(" => typeof(");
 			sb.Append(typeInfo.BindTypeFullName);
 			sb.AppendLine(");");
 		}
@@ -209,7 +211,10 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("public override System.String ToString() => ");
 			if (isLuaStaticType)
-				sb.AppendLine("BindType.FullName;");
+			{
+				sb.Append(nameof(ILuaBindingType.BindingType));
+				sb.AppendLine(".FullName;");
+			}
 			else
 			{
 				if (typeInfo.Type.IsValueType)
@@ -295,7 +300,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddReadArgumentCountAndErrorValues(ScriptBuilder sb)
 		{
 			sb.AppendIndentLine("LuaValue _lastArg = default;");
-			sb.AppendIndentLine("System.Int32 _lastArgPos = 0;");
+			sb.AppendIndentLine("System.Int32 _lastArgPos = default;");
+			sb.AppendIndentLine("System.Type _expectedType = default;");
 			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 		}
 
@@ -371,11 +377,9 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads, GenMethodInfo overload)
 		{
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
-			sb.Append($"{overloads.Name}: invalid argument {{_lastArgPos}} ({{_lastArg}})");
+			sb.Append($"{{\"{overloads.Name}\"}}: invalid argument #{{_lastArgPos}}: {{_lastArg}} ({{_lastArg.Type}}), expected: {{_expectedType.FullName}}");
 			if (overloads.IsInstanceMethod)
 				sb.Append(", target: '{_this}'");
-			sb.Append("\\nExpected signature: ");
-			sb.Append(overload.ToString());
 			sb.AppendLine("\", 2);");
 		}
 
@@ -391,10 +395,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
 		{
-			sb.AppendIndent("_lastArgPos = ");
-			sb.Append(argPosStr);
-			sb.AppendLine(";");
-
 			sb.AppendIndent("var _arg");
 			sb.Append(argPosStr);
 			sb.Append(" = _lastArg = _argCount > ");
@@ -404,19 +404,25 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(") : LuaValue.Nil;");
 		}
 
-		private static void AddReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String posStr)
+		private static void AddReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String argPosStr)
 		{
+			sb.AppendIndent("_lastArgPos = ");
+			sb.Append(argPosStr);
+			sb.Append("; ");
+			sb.Append("_expectedType = typeof(");
+			sb.Append(parameter.Type == typeof(Type) ? typeof(ILuaBindingType).FullName : parameter.TypeFullName);
+			sb.AppendLine(");");
+
 			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
 			sb.AppendIndent(hasDefaultValue ? "var " : "if (");
-			AddReadLuaValueStatement(sb, posStr, parameter);
+			AddReadLuaValueStatement(sb, parameter, argPosStr);
 			sb.AppendLine(hasDefaultValue ? ";" : ")");
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddReadLuaValueStatement(ScriptBuilder sb, String argPosStr, GenParamInfo parameter,
-			Boolean useSignatureName = false)
+		private static void AddReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr, Boolean useSignatureName = false)
 		{
-			// FIXME: optimize to read specific value types when possible
+			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindingType).FullName : parameter.TypeFullName;
 			if (parameter.ParamInfo.HasDefaultValue)
 			{
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
@@ -424,11 +430,11 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("_arg");
 				sb.Append(argPosStr);
 				sb.Append(".ReadValue<");
-				sb.Append(parameter.TypeFullName);
+				sb.Append(paramTypeName);
 				sb.Append(">(");
 				if (parameter.Type.IsEnum)
 				{
-					sb.Append(parameter.TypeFullName);
+					sb.Append(paramTypeName);
 					sb.Append(".");
 					sb.Append(parameter.ParamInfo.DefaultValue.ToString());
 				}
@@ -439,7 +445,7 @@ namespace CodeSmileEditor.Luny.Generator
 					{
 						// avoid implicit conversions from using the wrong overload, or throwing conversion errors
 						sb.Append("(");
-						sb.Append(parameter.TypeFullName);
+						sb.Append(paramTypeName);
 						sb.Append(")");
 					}
 
@@ -466,7 +472,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("_arg");
 				sb.Append(argPosStr);
 				sb.Append(".TryRead<");
-				sb.Append(parameter.TypeFullName);
+				sb.Append(paramTypeName);
 				sb.Append(">(out var ");
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
 				sb.Append(")");
@@ -502,12 +508,14 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(parameters[paramIndex].Name);
 					sb.Append(" = ");
 					sb.Append(parameters[paramIndex].VariableName);
+					if (parameters[paramIndex].Type == typeof(Type))
+						sb.Append(".BindingType");
 					sb.AppendLine(";");
 				}
 				else
 				{
 					sb.AppendIndent(parameters[paramIndex].ParamInfo.HasDefaultValue ? "var " : "");
-					AddReadLuaValueStatement(sb, Digits[paramIndex], parameters[paramIndex], true);
+					AddReadLuaValueStatement(sb, parameters[paramIndex], Digits[paramIndex], true);
 					sb.AppendLine(";");
 				}
 			}
