@@ -13,12 +13,12 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class ModuleTypeGenerator
 	{
+		private const String DisabledWarningCodes = "0109, 0162, 0168, 0219";
 		// 0109 new keyword not required
 		// 0162 unreachable code
 		// 0168 declared but never used
 		// 0219 assigned but never used
 		private static readonly Type SystemType = typeof(Type);
-		private const String DisabledWarningCodes = "0109, 0162, 0168, 0219";
 		private static readonly String[] Digits =
 			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
@@ -292,10 +292,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddCloseLuaBindFunction(ScriptBuilder sb, GenTypeInfo typeInfo, String bindFuncName)
-		{
-			sb.CloseIndentBlock("});");
-		}
+		private static void AddCloseLuaBindFunction(ScriptBuilder sb, GenTypeInfo typeInfo, String bindFuncName) => sb.CloseIndentBlock("});");
 
 		private static void AddReadArgumentCountAndErrorValues(ScriptBuilder sb)
 		{
@@ -377,7 +374,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads, GenMethodInfo overload)
 		{
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
-			sb.Append($"{{\"{overloads.Name}\"}}: invalid argument #{{_lastArgPos}}: {{_lastArg}} ({{_lastArg.Type}}), expected: {{_expectedType.FullName}}");
+			sb.Append(
+				$"{{\"{overloads.Name}\"}}: invalid argument #{{_lastArgPos}}: {{_lastArg}} ({{_lastArg.Type}}), expected: {{_expectedType.FullName}}");
 			if (overloads.IsInstanceMethod)
 				sb.Append(", target: '{_this}'");
 			sb.AppendLine("\", 2);");
@@ -420,7 +418,8 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr, Boolean useSignatureName = false)
+		private static void AddReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr,
+			Boolean useSignatureName = false)
 		{
 			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindingType).FullName : parameter.TypeFullName;
 			if (parameter.ParamInfo.HasDefaultValue)
@@ -605,9 +604,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddCloseRemainingMethodBlocks(ScriptBuilder sb, Int32 paramPos)
 		{
 			for (; paramPos > 0; paramPos--)
-			{
 				sb.CloseIndentBlock("}");
-			}
 		}
 
 		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)

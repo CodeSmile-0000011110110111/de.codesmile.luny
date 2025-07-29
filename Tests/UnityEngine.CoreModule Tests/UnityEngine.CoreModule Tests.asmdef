@@ -6,7 +6,7 @@
         "UnityEditor.TestRunner",
         "Lua.Unity",
         "CodeSmile.Luny",
-        "Lua_UnityEngine.CoreModule"
+        "Lua_UnityEngine_CoreModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -18,14 +18,9 @@
     ],
     "autoReferenced": false,
     "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
+        "UNITY_INCLUDE_TESTS",
+        "LUA_UNITYENGINE_COREMODULE"
     ],
-    "versionDefines": [
-        {
-            "name": "de.codesmile.luny",
-            "expression": "0.0.0",
-            "define": "UNITYENGINE_COREMODULE_LOADER_TESTS"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

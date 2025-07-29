@@ -1,5 +1,5 @@
 using CodeSmile.Luny;
-using Lua_UnityEngine.CoreModule;
+using Lua_UnityEngine_CoreModule;
 using Lua.Unity;
 using NUnit.Framework;
 using System.Threading.Tasks;

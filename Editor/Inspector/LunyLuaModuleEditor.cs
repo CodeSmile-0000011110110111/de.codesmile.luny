@@ -63,9 +63,11 @@ namespace CodeSmileEditor.Luny
 
 		private void OnDeleteGeneratedContent()
 		{
-			GenUtil.TryDeleteContentFolderPath(Module);
 			Module.ClearGeneratedTypeReferences();
 			Module.SaveAsset();
+			ResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+			ResponseFile.Import();
+			GenUtil.TryDeleteContentFolderPath(Module);
 		}
 
 		private void OnGenerate()
@@ -85,6 +87,8 @@ namespace CodeSmileEditor.Luny
 
 			try
 			{
+				ResponseFile.AddScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+
 				var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
 				if (String.IsNullOrEmpty(onlyThisTypeStr) == false && IsCommentedOut(onlyThisTypeStr) == false)
 				{
@@ -99,6 +103,8 @@ namespace CodeSmileEditor.Luny
 			}
 			catch (Exception e)
 			{
+				ResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+
 				// delay showing the error to avoid it getting hidding by the compilation process
 				EditorApplication.delayCall += () => Debug.LogException(e);
 				throw;

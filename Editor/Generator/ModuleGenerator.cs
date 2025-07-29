@@ -24,8 +24,9 @@ namespace CodeSmileEditor.Luny.Generator
 			if (types.Length > 0)
 			{
 				var assembly = GenUtil.FindAssembly(module.AssemblyName);
-				var typeInfos = CreateTypeInfos(assembly, types, out var namespaces, onlyThisMethodName);
+				s_TypeInfosByType = CreateTypeInfos(assembly, types, out var namespaces, onlyThisMethodName, out var typeInfos);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
+
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
 				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeInfos, namespaces);
@@ -35,10 +36,10 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		private static IList<GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
-			String onlyThisMethodName)
+		private static Dictionary<Type, GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
+			String onlyThisMethodName, out List<GenTypeInfo> typeInfos)
 		{
-			s_TypeInfosByType = new Dictionary<Type, GenTypeInfo>();
+			var typeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
 			var typeHierarchy = new ModuleTypeHierarchy(types);
 			var generatableTypeInfos = new List<GenTypeInfo>();
@@ -62,12 +63,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
 					generatableTypeInfos.Add(typeInfo);
-					s_TypeInfosByType.Add(type, typeInfo);
+					typeInfosByType.Add(type, typeInfo);
 				}
 			});
 
 			namespaces = typeHierarchy.Namespaces.ToArray();
-			return generatableTypeInfos;
+
+			typeInfos = generatableTypeInfos;
+			return typeInfosByType;
 		}
 	}
 }

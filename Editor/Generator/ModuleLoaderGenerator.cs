@@ -15,7 +15,7 @@ namespace CodeSmileEditor.Luny.Generator
 			IEnumerable<String> namespaces)
 		{
 			var @namespace = module.BindingsNamespace;
-			var loaderClassName = $"Lua_{module.AssemblyName.Replace('.', '_')}_Loader";
+			var loaderClassName = $"{@namespace}_Loader";
 			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);

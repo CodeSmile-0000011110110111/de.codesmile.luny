@@ -26,7 +26,8 @@ namespace CodeSmile.Luny
 		[SerializeReference] [HideInInspector] private LuaUnityObjectFactoryBase m_UnityUnityObjectFactory;
 
 		internal String AssemblyName => m_AssemblyName;
-		internal String BindingsNamespace => $"Lua_{m_AssemblyName}";
+		internal String BindingsNamespace => $"Lua_{m_AssemblyName.Replace('.', '_')}";
+		internal String ScriptingDefineSymbol => BindingsNamespace.ToUpper();
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 		internal String[] NamespaceBlacklist => m_NamespaceBlacklist;

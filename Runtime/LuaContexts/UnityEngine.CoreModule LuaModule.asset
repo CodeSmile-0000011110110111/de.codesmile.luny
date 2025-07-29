@@ -450,20 +450,20 @@ MonoBehaviour:
   - UnityEngine.Caching
   - UnityEngine.LightingSettings*
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
-  m_ModuleLoaderTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_CoreModule_Loader
-  m_UnityObjectFactoryTypeName: Lua_UnityEngine.CoreModule.Lua_UnityEngine_Object_Factory
+  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule_Loader
+  m_UnityObjectFactoryTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_Object_Factory
   m_ModuleLoader:
-    rid: 2561253628306260039
+    rid: 2561253628306260051
   m_UnityUnityObjectFactory:
-    rid: 2561253628306260040
+    rid: 2561253628306260052
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: 2561253628306260039
-      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+    - rid: 2561253628306260051
+      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
       data: 
-    - rid: 2561253628306260040
-      type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine.CoreModule, asm: Lua_UnityEngine.CoreModule}
+    - rid: 2561253628306260052
+      type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
       data: 
