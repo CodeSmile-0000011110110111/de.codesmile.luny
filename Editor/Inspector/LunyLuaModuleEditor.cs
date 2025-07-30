@@ -125,7 +125,7 @@ namespace CodeSmileEditor.Luny
 			if (Module.ModuleLoader != null)
 			{
 				var module = new LuaTable();
-				Module.ModuleLoader.Load(new LuaModuleLoader.LoadParameters { env = module });
+				Module.ModuleLoader.Load(new LuaModuleLoader.ModuleParameters { env = module });
 				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
 			}
 		}
@@ -304,9 +304,9 @@ namespace CodeSmileEditor.Luny
 			}
 		}
 
-		private void OnLogTypeMembers()
-		{
-			var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
+		private void OnLogTypeMembers() => throw new NotImplementedException();
+
+		/*var namespaces = Module.NamespaceWhitelist.Except(Module.NamespaceBlacklist);
 			var typeNames = Module.TypeWhitelist.Except(Module.TypeBlacklist);
 			var filteredTypes = GenUtil.GetNamespaceFilteredTypes(m_Types, namespaces, typeNames);
 			Debug.Log($"{filteredTypes.Count()} whitelisted Types' members:");
@@ -327,106 +327,138 @@ namespace CodeSmileEditor.Luny
 						Debug.Log($"\t\t{member.Name}{overloads}");
 					}
 				}
-			}
-		}
-
+			}*/
 		private void OnLogCtors()
 		{
-			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered?.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
 				var typeInfo = new GenTypeInfo(type);
-				var staticCtors = typeInfo.StaticMembers.Ctors;
-				var ctors = typeInfo.InstanceMembers.Ctors;
+				var staticCtors = typeInfo.StaticMembers?.Ctors;
+				var ctors = typeInfo.InstanceMembers?.Ctors;
 				var indent = new String('\t', level);
-				Debug.Log($"{indent}{type.FullName} has {staticCtors.Count()} static & {ctors.Count()} instance public Ctors:");
+				Debug.Log($"{indent}{type.FullName} has {staticCtors?.Count()} static & {ctors?.Count()} instance public Ctors:");
 
-				foreach (var staticCtor in staticCtors)
-					LogMember(staticCtor, level, true);
-				foreach (var ctor in ctors)
-					LogMember(ctor, level);
+				if (staticCtors != null)
+				{
+					foreach (var staticCtor in staticCtors)
+						LogMember(staticCtor, level, true);
+				}
+
+				if (ctors != null)
+				{
+					foreach (var ctor in ctors)
+						LogMember(ctor, level);
+				}
 			});
 		}
 
 		private void OnLogFields()
 		{
-			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered?.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
+				if (node == null)
+					return;
+
 				var type = node.Value;
 				var typeInfo = new GenTypeInfo(type);
-				var staticFields = typeInfo.StaticMembers.Fields;
-				var fields = typeInfo.InstanceMembers.Fields;
+				var staticFields = typeInfo.StaticMembers?.Fields;
+				var fields = typeInfo.InstanceMembers?.Fields;
 				var indent = new String('\t', level);
-				Debug.Log($"{indent}{type.FullName} has {staticFields.Count()} static & {fields.Count()} instance public Fields:");
+				Debug.Log($"{indent}{type.FullName} has {staticFields?.Count()} static & {fields?.Count()} instance public Fields:");
 
-				foreach (var staticField in staticFields)
-					LogMember(staticField, level, true);
-				foreach (var field in fields)
-					LogMember(field, level);
+				if (staticFields != null)
+				{
+					foreach (var staticField in staticFields)
+						LogMember(staticField, level, true);
+				}
+				if (fields != null)
+				{
+					foreach (var field in fields)
+						LogMember(field, level);
+				}
 			});
 		}
 
 		private void OnLogProperties()
 		{
-			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
-			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered?.Where(type => !type.IsEnum));
+			Debug.Log($"{typeHierarchy.Types?.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
 				var typeInfo = new GenTypeInfo(type);
-				var staticProps = typeInfo.StaticMembers.Properties;
-				var props = typeInfo.InstanceMembers.Properties;
+				var staticProps = typeInfo.StaticMembers?.Properties;
+				var props = typeInfo.InstanceMembers?.Properties;
 				var indent = new String('\t', level);
-				Debug.Log($"{indent}{type.FullName} has {staticProps.Count()} static & {props.Count()} instance public Properties:");
+				Debug.Log($"{indent}{type.FullName} has {staticProps?.Count()} static & {props?.Count()} instance public Properties:");
 
-				foreach (var staticProp in staticProps)
-					LogMember(staticProp, level, true);
-				foreach (var prop in props)
-					LogMember(prop, level);
+				if (staticProps != null)
+				{
+					foreach (var staticProp in staticProps)
+						LogMember(staticProp, level, true);
+				}
+				if (props != null)
+				{
+					foreach (var prop in props)
+						LogMember(prop, level);
+				}
 			});
 		}
 
 		private void OnLogMethods()
 		{
-			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered?.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
 				var typeInfo = new GenTypeInfo(type);
-				var staticMethods = typeInfo.StaticMembers.Methods;
-				var methods = typeInfo.InstanceMembers.Methods;
+				var staticMethods = typeInfo.StaticMembers?.Methods;
+				var methods = typeInfo.InstanceMembers?.Methods;
 				var indent = new String('\t', level);
-				Debug.Log($"{indent}{type.FullName} has {staticMethods.Count()} static & {methods.Count()} instance public Methods:");
+				Debug.Log($"{indent}{type.FullName} has {staticMethods?.Count()} static & {methods?.Count()} instance public Methods:");
 
-				foreach (var staticMethod in staticMethods)
-					LogMember(staticMethod, level, true);
-				foreach (var method in methods)
-					LogMember(method, level);
+				if (staticMethods != null)
+				{
+					foreach (var staticMethod in staticMethods)
+						LogMember(staticMethod, level, true);
+				}
+				if (methods != null)
+				{
+					foreach (var method in methods)
+						LogMember(method, level);
+				}
 			});
 		}
 
 		private void OnLogEvents()
 		{
-			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered.Where(type => !type.IsEnum));
+			var typeHierarchy = new ModuleTypeHierarchy(m_TypesFiltered?.Where(type => !type.IsEnum));
 			Debug.Log($"{typeHierarchy.Types.Count()} generatable Types (w/o Enums):");
 			typeHierarchy.Visit((node, level) =>
 			{
 				var type = node.Value;
 				var typeInfo = new GenTypeInfo(type);
-				var staticEvents = typeInfo.StaticMembers.Events;
-				var events = typeInfo.InstanceMembers.Events;
+				var staticEvents = typeInfo.StaticMembers?.Events;
+				var events = typeInfo.InstanceMembers?.Events;
 				var indent = new String('\t', level);
-				Debug.Log($"{indent}{type.FullName} has {staticEvents.Count()} static & {events.Count()} instance public Events:");
+				Debug.Log($"{indent}{type.FullName} has {staticEvents?.Count()} static & {events?.Count()} instance public Events:");
 
-				foreach (var staticEvent in staticEvents)
-					LogMember(staticEvent, level, true);
-				foreach (var evt in events)
-					LogMember(evt, level);
+				if (staticEvents != null)
+				{
+					foreach (var staticEvent in staticEvents)
+						LogMember(staticEvent, level, true);
+				}
+				if (events != null)
+				{
+					foreach (var evt in events)
+						LogMember(evt, level);
+				}
 			});
 		}
 

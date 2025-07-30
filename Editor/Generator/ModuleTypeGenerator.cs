@@ -107,12 +107,11 @@ namespace CodeSmileEditor.Luny.Generator
 			AddCloseTypeDeclaration(sb);
 		}
 
-
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
 			var isValueType = typeInfo.Type.IsValueType;
 			sb.AppendIndent("public ");
-			sb.Append(isLuaStaticType ? "sealed class " : isValueType ? "struct " : "class ");
+			sb.Append(isValueType ? "struct " : typeInfo.CanBeSealed ? "sealed class " : "class ");
 			sb.Append(isLuaStaticType ? typeInfo.StaticLuaTypeName : typeInfo.InstanceLuaTypeName);
 			sb.Append(" : ");
 			if (baseType != null)
@@ -160,8 +159,12 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public ");
 			sb.Append(typeInfo.StaticLuaTypeName);
 			sb.Append("(");
-			sb.Append(nameof(ILuaObjectFactory));
-			sb.AppendLine(" objectFactory) => m_ObjectFactory = objectFactory;");
+			sb.Append(nameof(LuaModuleLoader));
+			sb.Append(".");
+			sb.Append(nameof(LuaModuleLoader.ModuleParameters));
+			sb.Append(" parameters) => m_ObjectFactory = parameters.");
+			sb.Append(nameof(LuaModuleLoader.ModuleParameters.ObjectFactory));
+			sb.AppendLine(";");
 		}
 
 		private static void AddInstanceTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
@@ -189,12 +192,14 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendLine(";");
 			}
 		}
+
 		private static void AddObjectFactoryField(ScriptBuilder sb)
 		{
 			sb.AppendIndent("private ");
 			sb.Append(nameof(ILuaObjectFactory));
 			sb.AppendLine(" m_ObjectFactory;");
 		}
+
 		private static void AddInstanceOrValueFieldAndProperty(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			var fieldName = typeInfo.InstanceFieldName;
@@ -203,7 +208,7 @@ namespace CodeSmileEditor.Luny.Generator
 			// field
 			if (baseType == null)
 			{
-				sb.AppendIndent(typeInfo.Type.IsValueType ? "private " : "protected ");
+				sb.AppendIndent(typeInfo.CanBeSealed || typeInfo.Type.IsValueType ? "private " : "protected ");
 				sb.Append(bindTypeName);
 				sb.Append(" ");
 				sb.Append(fieldName);
@@ -668,9 +673,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType,
 			IList<String> getters)
 		{
-			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "public ");
-			if (isLuaStaticType == false && typeInfo.Type.IsValueType == false)
-				sb.Append(baseType != null ? "override " : "virtual ");
+			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
 			sb.AppendLine("System.Boolean GetLuaValue(System.String key, out LuaValue value)");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndentLine("switch (key)");
@@ -688,9 +691,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddSetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType,
 			IList<String> setters)
 		{
-			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "public ");
-			if (isLuaStaticType == false && typeInfo.Type.IsValueType == false)
-				sb.Append(baseType != null ? "override " : "virtual ");
+			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
 			sb.Append("System.Boolean SetLuaValue(System.String key, LuaValue value)");
 			if (setters.Count > 0)
 			{
@@ -709,6 +710,13 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			else
 				sb.AppendLine(" => false;");
+		}
+
+		private static void AddGetSetValueMethodClassifiers(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
+		{
+			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "public ");
+			if (isLuaStaticType == false && typeInfo.Type.IsValueType == false)
+				sb.Append(baseType != null ? "override " : typeInfo.CanBeSealed == false ? "virtual " : "");
 		}
 
 		private static String GenerateGetterCase(GenTypeInfo typeInfo, IList<String> getters, GenMethodOverloads overloads)

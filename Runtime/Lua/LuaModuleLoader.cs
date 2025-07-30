@@ -21,7 +21,7 @@ namespace CodeSmile.Luny
 			public IEnumerable<Type> ObjectTypes { get; }
 			public IEnumerable<Type> ValueTypes { get; }
 		}
-		public struct LoadParameters
+		public struct ModuleParameters
 		{
 			public LuaTable env;
 			public ILuaObjectFactory ObjectFactory;
@@ -49,6 +49,6 @@ namespace CodeSmile.Luny
 		}
 
 		public abstract IEnumerable<ModuleTypes> GetModuleTypes();
-		public abstract void Load(LoadParameters loadParameters);
+		public abstract void Load(ModuleParameters parameters);
 	}
 }

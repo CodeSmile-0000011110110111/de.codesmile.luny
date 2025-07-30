@@ -19,6 +19,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public readonly String StaticLuaTypeName;
 		public readonly String BindTypeFullName;
 		public readonly Boolean IsStatic;
+		public readonly Boolean CanBeSealed;
 		public readonly Boolean IsUnityObjectType;
 		public readonly Boolean IsUnityGameObjectType;
 		public readonly Boolean IsUnityComponentType;
@@ -29,7 +30,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public override String ToString() => Type?.ToString() ?? GetType().Name;
 
-		public GenTypeInfo(Type type, String onlyThisMethodName = null)
+		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
 		{
 			Type = type;
 			var typeFullName = type.FullName ?? type.Name;
@@ -43,6 +44,7 @@ namespace CodeSmileEditor.Luny.Generator
 			if (type.IsEnum == false)
 			{
 				IsStatic = type.IsAbstract && type.IsSealed;
+				CanBeSealed = type.IsValueType == false && (IsStatic || type.IsSealed || childTypes?.Count() == 0);
 				IsUnityObjectType = Type == typeof(UnityEngine.Object);
 				IsUnityGameObjectType = Type == typeof(GameObject);
 				IsUnityComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
@@ -71,8 +73,6 @@ namespace CodeSmileEditor.Luny.Generator
 		public IEnumerable<EventInfo> Events;
 		public IEnumerable<GenMethodOverloads> CtorOverloads;
 		public IEnumerable<GenMethodOverloads> MethodOverloads;
-		//public Boolean HasMembers;
-		//public Boolean IsStatic;
 
 		public GenMemberInfo(Type type, BindingFlags bindingFlags, String onlyThisMethodName)
 		{
@@ -88,8 +88,6 @@ namespace CodeSmileEditor.Luny.Generator
 			Events = type.GetEvents(bindingFlags).Where(e => !e.GetCustomAttributes(obsolete).Any()).OrderBy(e => e.Name);
 			CtorOverloads = GetMethodOverloads(Ctors, onlyThisMethodName);
 			MethodOverloads = GetMethodOverloads(Methods, onlyThisMethodName);
-			//HasMembers = Ctors.Any() || Events.Any() || Fields.Any() || Properties.Any() || Methods.Any();
-			//IsStatic = bindingFlags.HasFlag(BindingFlags.Static);
 		}
 
 		private IEnumerable<GenMethodOverloads> GetMethodOverloads(IEnumerable<MethodBase> methods, String onlyThisMethodName)
@@ -396,18 +394,5 @@ namespace CodeSmileEditor.Luny.Generator
 		public override Int32 GetHashCode() => Type != null ? Type.GetHashCode() : 0;
 
 		public override Boolean Equals(Object obj) => obj is GenParamInfo other && Equals(other);
-	}
-
-	[Obsolete]
-	internal struct OBSOLETE_GenMemberGroup : IEquatable<OBSOLETE_GenMemberGroup>
-	{
-		public String Name;
-		public List<MemberInfo> Overloads;
-
-		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
-		public Boolean Equals(OBSOLETE_GenMemberGroup other) => Equals(Name, other.Name);
-		public override Boolean Equals(Object obj) => obj is OBSOLETE_GenMemberGroup other && Equals(other);
-		public static Boolean operator ==(OBSOLETE_GenMemberGroup left, OBSOLETE_GenMemberGroup right) => left.Equals(right);
-		public static Boolean operator !=(OBSOLETE_GenMemberGroup left, OBSOLETE_GenMemberGroup right) => !left.Equals(right);
 	}
 }

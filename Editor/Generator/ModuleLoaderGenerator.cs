@@ -89,11 +89,10 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public override void ");
 			sb.Append(nameof(LuaModuleLoader.Load));
 			sb.Append("(");
-			sb.Append(nameof(LuaModuleLoader.LoadParameters));
+			sb.Append(nameof(LuaModuleLoader.ModuleParameters));
 			sb.AppendLine(" parameters)");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndentLine("var env = parameters.env;");
-			sb.AppendIndentLine("var objectFactory = parameters.ObjectFactory;");
 			GenerateTypeInitialization(sb, typeInfos, namespaces);
 			sb.AppendLine();
 			sb.CloseIndentBlock("}");
@@ -144,7 +143,7 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(typeInfo.Type.Name);
 					sb.Append("\"] = new ");
 					sb.Append(typeInfo.StaticLuaTypeName);
-					sb.AppendLine("(objectFactory);");
+					sb.AppendLine("(parameters);");
 				}
 			}
 		}

@@ -23,7 +23,6 @@ namespace CodeSmile.Luny
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
 		[SerializeReference] [HideInInspector] private LuaModuleLoader m_ModuleLoader;
-		[SerializeReference] [HideInInspector] private LuaObjectFactory m_ObjectFactory;
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String BindingsNamespace => $"Lua_{m_AssemblyName.Replace('.', '_')}";
@@ -48,7 +47,7 @@ namespace CodeSmile.Luny
 				var marker = new ProfilerMarker(ProfilerCategory.Scripts, m_ModuleLoader.GetType().Name);
 				marker.Begin();
 
-				var loadParams = new LuaModuleLoader.LoadParameters { env = lua.State.Environment, ObjectFactory = lua.ObjectFactory };
+				var loadParams = new LuaModuleLoader.ModuleParameters { env = lua.State.Environment, ObjectFactory = lua.ObjectFactory };
 				ModuleLoader.Load(loadParams);
 
 				var moduleTypes = ModuleLoader.GetModuleTypes();

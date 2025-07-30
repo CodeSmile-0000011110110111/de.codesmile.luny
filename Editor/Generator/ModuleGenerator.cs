@@ -60,7 +60,7 @@ namespace CodeSmileEditor.Luny.Generator
 						return;
 					}
 
-					var typeInfo = new GenTypeInfo(type, onlyThisMethodName);
+					var typeInfo = new GenTypeInfo(type, node.Children, onlyThisMethodName);
 					generatableTypeInfos.Add(typeInfo);
 					typeInfosByType.Add(type, typeInfo);
 				}

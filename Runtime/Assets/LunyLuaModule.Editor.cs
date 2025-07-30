@@ -76,7 +76,6 @@ namespace CodeSmile.Luny
 		{
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeName = null;
-			m_ObjectFactory = null;
 		}
 #endif
 	}

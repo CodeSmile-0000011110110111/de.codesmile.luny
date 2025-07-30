@@ -71,30 +71,29 @@ namespace CodeSmileEditor.Luny.Generator
 		public static IEnumerable<String> GetNamespacesFromTypes(IEnumerable<Type> types) =>
 			types.Select(type => type.Namespace).Distinct().OrderBy(s => s);
 
-		[Obsolete]
-		public static IEnumerable<OBSOLETE_GenMemberGroup> GetBindableMembers(Type type)
-		{
-			var members = type
-				.GetMembers(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
-				.Where(member => IsSupportedMember(member))
-				.OrderBy(member => member.Name);
-
-			var groups = new HashSet<OBSOLETE_GenMemberGroup>();
-			foreach (var member in members)
-			{
-				var group = new OBSOLETE_GenMemberGroup { Name = member.Name };
-				if (groups.TryGetValue(group, out var existingGroup) == false)
-				{
-					group.Overloads = new List<MemberInfo>();
-					groups.Add(group);
-					existingGroup = group;
-				}
-
-				existingGroup.Overloads.Add(member);
-			}
-
-			return groups.OrderBy(group => group.Name);
-		}
+		// [Obsolete] public static IEnumerable<OBSOLETE_GenMemberGroup> GetBindableMembers(Type type)
+		// {
+		// 	var members = type
+		// 		.GetMembers(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static)
+		// 		.Where(member => IsSupportedMember(member))
+		// 		.OrderBy(member => member.Name);
+		//
+		// 	var groups = new HashSet<OBSOLETE_GenMemberGroup>();
+		// 	foreach (var member in members)
+		// 	{
+		// 		var group = new OBSOLETE_GenMemberGroup { Name = member.Name };
+		// 		if (groups.TryGetValue(group, out var existingGroup) == false)
+		// 		{
+		// 			group.Overloads = new List<MemberInfo>();
+		// 			groups.Add(group);
+		// 			existingGroup = group;
+		// 		}
+		//
+		// 		existingGroup.Overloads.Add(member);
+		// 	}
+		//
+		// 	return groups.OrderBy(group => group.Name);
+		// }
 
 		public static Boolean ContentFolderPathExists(LunyLuaModule module) =>
 			AssetDatabase.AssetPathExists(AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid));
