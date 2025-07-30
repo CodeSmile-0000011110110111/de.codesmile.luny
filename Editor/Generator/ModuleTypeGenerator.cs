@@ -374,8 +374,9 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads, GenMethodInfo overload)
 		{
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
-			sb.Append(
-				$"{{\"{overloads.Name}\"}}: invalid argument #{{_lastArgPos}}: {{_lastArg}} ({{_lastArg.Type}}), expected: {{_expectedType.FullName}}");
+			sb.Append("{\""); // enclosing name in brackets intended to avoid making every message string unique
+			sb.Append(overloads.Name);
+			sb.Append("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}");
 			if (overloads.IsInstanceMethod)
 				sb.Append(", target: '{_this}'");
 			sb.AppendLine("\", 2);");
