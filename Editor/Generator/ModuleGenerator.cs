@@ -24,7 +24,7 @@ namespace CodeSmileEditor.Luny.Generator
 			if (types.Length > 0)
 			{
 				var assembly = GenUtil.FindAssembly(module.AssemblyName);
-				s_TypeInfosByType = CreateTypeInfos(assembly, types, out var namespaces, onlyThisMethodName, out var typeInfos);
+				s_TypeInfosByType = CreateTypeInfos(assembly, types, out var namespaces, out var typeInfos, onlyThisMethodName);
 				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
 
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
@@ -36,7 +36,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static Dictionary<Type, GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
-			String onlyThisMethodName, out List<GenTypeInfo> typeInfos)
+			out List<GenTypeInfo> typeInfos, String onlyThisMethodName)
 		{
 			var typeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
@@ -67,7 +67,6 @@ namespace CodeSmileEditor.Luny.Generator
 			});
 
 			namespaces = typeHierarchy.Namespaces.ToArray();
-
 			typeInfos = generatableTypeInfos;
 			return typeInfosByType;
 		}

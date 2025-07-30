@@ -1,11 +1,14 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -47,18 +50,51 @@ namespace CodeSmile.Luny
 				var marker = new ProfilerMarker(ProfilerCategory.Scripts, m_ModuleLoader.GetType().Name);
 				marker.Begin();
 
-				var loadParams = new LuaModuleLoader.ModuleParameters { env = lua.State.Environment, ObjectFactory = lua.ObjectFactory };
+				var loadParams = new LuaModuleLoader.ModuleParameters { ObjectFactory = lua.ObjectFactory, env = lua.State.Environment };
 				ModuleLoader.Load(loadParams);
 
+				var nsTables = CreateNamespaceTables(lua.State.Environment, ModuleLoader.GetNamespaces(), ModuleLoader.GetNamespaceParts());
 				var moduleTypes = ModuleLoader.GetModuleTypes();
-				Debug.Log($"{moduleTypes.Count()} types in {ModuleLoader.GetType().Name}");
-				foreach (var moduleType in moduleTypes)
-					Debug.Log(moduleType);
+				RegisterEnumTypes(moduleTypes, nsTables);
+
+				//Debug.Log($"{moduleTypes.Length} types in {ModuleLoader.GetType().Name}");
+				// foreach (var moduleType in moduleTypes)
+				// 	Debug.Log(moduleType);
 
 				marker.End();
 			}
 			else
 				Debug.LogWarning($"LuaModule '{name}' has no {nameof(LuaModuleLoader)} reference. Try generating the module again.");
+		}
+
+		private static void RegisterEnumTypes(LuaModuleLoader.ModuleTypes moduleTypes, Dictionary<String, LuaTable> nsTables)
+		{
+			LuaTable nsTable = null;
+			string lastNamespace = null;
+			foreach (var enumType in moduleTypes.EnumTypes)
+			{
+				if (lastNamespace != enumType.Namespace )
+				{
+					lastNamespace = enumType.Namespace;
+					nsTable = nsTables[enumType.Namespace];
+				}
+
+				nsTable[enumType.Name] = LuaEnumUtil.CreateEnumTable(enumType);
+			}
+		}
+
+		private Dictionary<string, LuaTable> CreateNamespaceTables(LuaTable env, String[] namespaces, String[][] namespaceParts)
+		{
+			Debug.Assert(namespaces.Length == namespaceParts.Length);
+
+			var tables = new Dictionary<string, LuaTable>();
+			for (int i = 0; i < namespaces.Length; i++)
+			{
+				var table = LuaTableUtil.GetOrCreateNamespaceTable(env, namespaceParts[i]);
+				tables.Add(namespaces[i], table);
+			}
+
+			return tables;
 		}
 
 #if UNITY_EDITOR

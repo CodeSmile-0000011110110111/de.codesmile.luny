@@ -3,10 +3,8 @@
 
 using Lua;
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-
 
 namespace CodeSmile.Luny
 {
@@ -14,41 +12,23 @@ namespace CodeSmile.Luny
 	[Serializable]
 	public abstract class LuaModuleLoader
 	{
+		public abstract String[] GetNamespaces();
+		public abstract String[][] GetNamespaceParts();
+		public abstract ModuleTypes GetModuleTypes();
+		public abstract void Load(ModuleParameters parameters);
+
 		public sealed class ModuleTypes
 		{
-			public IEnumerable<String> Namespace { get; }
-			public IEnumerable<Type> EnumTypes { get; }
-			public IEnumerable<Type> ObjectTypes { get; }
-			public IEnumerable<Type> ValueTypes { get; }
+			public Type[] ObjectTypes { get; set; }
+			public Type[] ValueTypes { get; set; }
+			public Type[] EnumTypes { get; set; }
 		}
+
 		public struct ModuleParameters
 		{
-			public LuaTable env;
+			[Obsolete] public LuaTable env;
+
 			public ILuaObjectFactory ObjectFactory;
 		}
-		public static LuaTable GetOrCreateNamespaceTable(LuaTable env, String[] namespaceParts)
-		{
-			var current = env;
-			if (namespaceParts != null && namespaceParts.Length > 0)
-			{
-				var namespaceCount = namespaceParts.Length;
-				for (var i = 0; i < namespaceCount; i++)
-				{
-					var name = namespaceParts[i];
-					if (current[name].TryRead(out LuaTable next) == false)
-					{
-						next = new LuaTable(0, 1);
-						current[name] = next;
-					}
-
-					current = next;
-				}
-			}
-
-			return current;
-		}
-
-		public abstract IEnumerable<ModuleTypes> GetModuleTypes();
-		public abstract void Load(ModuleParameters parameters);
 	}
 }

@@ -4,6 +4,7 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,15 +23,15 @@ namespace CodeSmileEditor.Luny.Generator
 			AddUsingStatements(sb, namespaces);
 			AddNamespaceBlock(sb, @namespace);
 			AddClassBlock(sb, className);
-			AddGetModuleTypes(sb, typeInfos, namespaces);
-			AddLoadMethod(sb, typeInfos, namespaces, className);
+			AddGetNamespaces(sb, namespaces);
+			AddGetModuleTypes(sb, typeInfos);
+			AddLoadMethod(sb, typeInfos, namespaces);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
 			var assetPath = $"{contentFolderPath}/_{className}.cs";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
-
 
 		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
@@ -69,22 +70,76 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddGetModuleTypes(ScriptBuilder sb, IList<GenTypeInfo> typeInfos, IEnumerable<string> namespaces)
+		private static void AddGetNamespaces(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
-			sb.AppendIndent("public override IEnumerable<");
-			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
-			sb.Append("> ");
-			sb.Append(nameof(LuaModuleLoader.GetModuleTypes));
-			sb.AppendLine("()");
+			sb.AppendIndent("public override System.String[] ");
+			sb.Append(nameof(LuaModuleLoader.GetNamespaces));
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndent("return new List<");
-			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
-			sb.AppendLine(">();");
-			sb.CloseIndentBlock("}");
+			foreach (var ns in namespaces)
+			{
+				sb.AppendIndent("\"");
+				sb.Append(ns);
+				sb.AppendLine("\",");
+			}
+			sb.CloseIndentBlock("};");
+
+			sb.AppendIndent("public override System.String[][] ");
+			sb.Append(nameof(LuaModuleLoader.GetNamespaceParts));
+			sb.AppendLine("() => new[]");
+			sb.OpenIndentBlock("{");
+			foreach (var ns in namespaces)
+			{
+				sb.AppendIndent("new[] { ");
+
+				var namespaceParts = ns.Split('.');
+				for (var i = 0; i < namespaceParts.Length; i++)
+				{
+					var part = namespaceParts[i];
+					if (i > 0)
+						sb.Append(", ");
+					sb.Append("\"");
+					sb.Append(part);
+					sb.Append("\"");
+				}
+
+				sb.AppendLine(" },");
+			}
+			sb.CloseIndentBlock("};");
 		}
 
-		private static void AddLoadMethod(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces,
-			String className)
+		private static void AddGetModuleTypes(ScriptBuilder sb, IList<GenTypeInfo> typeInfos)
+		{
+			sb.AppendIndent("public override ");
+			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
+			sb.Append(" ");
+			sb.Append(nameof(LuaModuleLoader.GetModuleTypes));
+			sb.AppendLine("() => new()");
+			sb.OpenIndentBlock("{");
+			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsValueType == false && t.Type.IsEnum == false),
+				nameof(LuaModuleLoader.ModuleTypes.ObjectTypes));
+			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsValueType && t.Type.IsEnum == false),
+				nameof(LuaModuleLoader.ModuleTypes.ValueTypes));
+			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsEnum),
+				nameof(LuaModuleLoader.ModuleTypes.EnumTypes));
+			sb.CloseIndentBlock("};");
+		}
+
+		private static void AddModuleTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, String fieldName)
+		{
+			sb.AppendIndent(fieldName);
+			sb.AppendLine(" = new System.Type[]");
+			sb.OpenIndentBlock("{");
+			foreach (var typeInfo in typeInfos)
+			{
+				sb.AppendIndent("typeof(");
+				sb.Append(typeInfo.BindTypeFullName);
+				sb.AppendLine("),");
+			}
+			sb.CloseIndentBlock("},");
+		}
+
+		private static void AddLoadMethod(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces)
 		{
 			sb.AppendIndent("public override void ");
 			sb.Append(nameof(LuaModuleLoader.Load));
@@ -109,7 +164,11 @@ namespace CodeSmileEditor.Luny.Generator
 
 				sb.AppendIndent("var ");
 				sb.Append(namespaceTableName);
-				sb.Append(" = GetOrCreateNamespaceTable(env, new[] { ");
+				sb.Append(" = ");
+				sb.Append(nameof(LuaTableUtil));
+				sb.Append(".");
+				sb.Append(nameof(LuaTableUtil.GetOrCreateNamespaceTable));
+				sb.Append("(env, new[] { ");
 
 				var firstPart = true;
 				var namespaceParts = @namespace.Split('.');
@@ -131,9 +190,12 @@ namespace CodeSmileEditor.Luny.Generator
 				var type = typeInfo.Type;
 				if (type.IsEnum)
 				{
-					sb.AppendIndent("LuaUtil.CreateEnumTable(typeof(");
-					sb.Append(typeInfo.BindTypeFullName);
-					sb.AppendLine("));");
+					// sb.AppendIndent(nameof(LuaEnumUtil));
+					// sb.Append(".");
+					// sb.Append(nameof(LuaEnumUtil.CreateEnumTable));
+					// sb.Append("(typeof(");
+					// sb.Append(typeInfo.BindTypeFullName);
+					// sb.AppendLine("));");
 				}
 				else
 				{

@@ -11,10 +11,10 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public static class LuaUtil
+	public static class LuaEnumUtil
 	{
-		private const String EnumValuesKey = "values";
-		private const String EnumValuesCountKey = "valuesCount";
+		private const String EnumValuesKey = "enumValues";
+		private const String EnumValuesCountKey = "enumValueCount";
 
 		private static readonly LuaFunction _enumLenFunc = new("enum.__len", (context, token) =>
 		{

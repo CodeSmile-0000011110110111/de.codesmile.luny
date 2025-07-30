@@ -433,12 +433,12 @@ MonoBehaviour:
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
   m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule
   m_ModuleLoader:
-    rid: 2561253650600558658
+    rid: 2561253650600558660
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: 2561253650600558658
+    - rid: 2561253650600558660
       type: {class: Lua_UnityEngine_CoreModule, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
       data: 

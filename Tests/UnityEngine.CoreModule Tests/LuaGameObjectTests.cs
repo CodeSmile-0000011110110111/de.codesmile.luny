@@ -3,6 +3,7 @@
 
 using CodeSmile.Luny;
 using Lua_UnityEngine_CoreModule;
+using Lua;
 using Lua.Unity;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -44,5 +45,28 @@ public class LuaGameObjectTests
 		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
 		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance.gameObject,
 			Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance));
+	}
+
+
+	[Test] public async Task Lua_Enum_Test()
+	{
+		var script = "for k, v in pairs(UnityEngine.ApplicationInstallMode) do print(k, v) end;" +
+		             "return UnityEngine, UnityEngine.ApplicationInstallMode, UnityEngine.ApplicationInstallMode.DeveloperBuild";
+		var retvals = await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, nameof(Lua_Enum_Test), null);
+		Assert.That(retvals[0], Is.Not.Null);
+		Assert.That(retvals[1], Is.Not.Null);
+		Debug.Log(retvals[0]);
+		Debug.Log(retvals[1]);
+		Debug.Log(retvals[2]);
+
+		foreach (var pair in retvals[1].Read<LuaTable>())
+		{
+			Debug.Log($"{pair.Key}: {pair.Value}");
+		}
+
+		Assert.That(retvals[0].Read<LuaTable>(), Is.Not.Null);
+		Assert.That(retvals[1].Read<LuaTable>(), Is.Not.Null);
+		Assert.That(retvals[2].Read<double>(), Is.EqualTo((double)ApplicationInstallMode.DeveloperBuild));
+		Assert.That(retvals[2].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
 	}
 }
