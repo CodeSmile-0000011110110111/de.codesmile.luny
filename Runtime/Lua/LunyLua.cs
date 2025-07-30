@@ -27,7 +27,7 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
-		LuaUnityObjectFactoryBase UnityObjectFactory { get; }
+		ILuaObjectFactory ObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
 		ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts);
@@ -65,10 +65,10 @@ namespace CodeSmile.Luny
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaFileWatcher m_FileWatcher;
-		private LuaUnityObjectFactoryBase m_UnityObjectFactory;
+		private ILuaObjectFactory m_ObjectFactory;
 
 		public LuaState State => m_LuaState;
-		public LuaUnityObjectFactoryBase UnityObjectFactory => m_UnityObjectFactory;
+		public ILuaObjectFactory ObjectFactory => m_ObjectFactory;
 		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
@@ -131,7 +131,7 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			ClearScripts();
-			m_UnityObjectFactory = null;
+			m_ObjectFactory = null;
 			m_FileWatcher?.Dispose();
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
@@ -141,6 +141,7 @@ namespace CodeSmile.Luny
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
 			m_FileWatcher = new LunyLuaFileWatcher(luaContext);
+			m_ObjectFactory = new LuaObjectFactory();
 
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
@@ -180,10 +181,7 @@ namespace CodeSmile.Luny
 
 			foreach (var module in luaContext.Modules)
 			{
-				module.Load(m_LuaState);
-
-				if (m_UnityObjectFactory == null && module.UnityUnityObjectFactory != null)
-					m_UnityObjectFactory = module.UnityUnityObjectFactory;
+				module.Load(this);
 			}
 		}
 

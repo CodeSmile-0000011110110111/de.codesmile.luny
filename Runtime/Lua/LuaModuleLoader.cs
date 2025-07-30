@@ -3,14 +3,29 @@
 
 using Lua;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+
 namespace CodeSmile.Luny
 {
+	// Is abstract instead of interface for serialization in LunyLuaModule asset
 	[Serializable]
-	public abstract class LunyLuaModuleLoader
+	public abstract class LuaModuleLoader
 	{
+		public sealed class ModuleTypes
+		{
+			public IEnumerable<String> Namespace { get; }
+			public IEnumerable<Type> EnumTypes { get; }
+			public IEnumerable<Type> ObjectTypes { get; }
+			public IEnumerable<Type> ValueTypes { get; }
+		}
+		public struct LoadParameters
+		{
+			public LuaTable env;
+			public ILuaObjectFactory ObjectFactory;
+		}
 		public static LuaTable GetOrCreateNamespaceTable(LuaTable env, String[] namespaceParts)
 		{
 			var current = env;
@@ -33,6 +48,7 @@ namespace CodeSmile.Luny
 			return current;
 		}
 
-		public virtual void Load(LuaTable env) {}
+		public abstract IEnumerable<ModuleTypes> GetModuleTypes();
+		public abstract void Load(LoadParameters loadParameters);
 	}
 }

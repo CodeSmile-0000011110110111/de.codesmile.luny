@@ -1027,10 +1027,10 @@ MonoBehaviour:
   - UnityEngine.LightTransport.ReferenceContext
   m_TypeBlacklist: []
   m_ContentFolderGuid: 7686cc73266dfe04ead8eb19dfb6a9d4
-  m_ModuleLoaderTypeName: Lua_UnityEditor.CoreModule.Lua_UnityEditor_CoreModule_Loader
+  m_ModuleLoaderTypeName: 
   m_UnityObjectFactoryTypeName: 
   m_ModuleLoader:
-    rid: 2561253608917827649
+    rid: -2
   m_UnityUnityObjectFactory:
     rid: -2
   m_GenerateOnlyThisType: 
@@ -1040,6 +1040,3 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 2561253608917827649
-      type: {class: Lua_UnityEditor_CoreModule_Loader, ns: Lua_UnityEditor.CoreModule, asm: Lua_UnityEditor.CoreModule}
-      data: 

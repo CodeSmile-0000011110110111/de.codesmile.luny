@@ -84,21 +84,29 @@ namespace CodeSmileEditor.Luny.Generator
 
 			AddOpenTypeDeclaration(sb, typeInfo, baseType, isLuaStaticType);
 			AddBindType(sb, typeInfo, isLuaStaticType);
-			if (isLuaStaticType == false)
+			if (isLuaStaticType)
+			{
+				AddObjectFactoryField(sb);
+				AddStaticTypeConstructor(sb, typeInfo);
+			}
+			else
 			{
 				AddInstanceOrValueFieldAndProperty(sb, typeInfo, baseType);
-				AddConstructor(sb, typeInfo, baseType);
+				AddInstanceTypeConstructor(sb, typeInfo, baseType);
 			}
-			AddToStringOverride(sb, typeInfo, isLuaStaticType);
 			AddImplicitLuaValueConversionOperator(sb, luaTypeName);
 			AddILuaUserDataImplementations(sb, baseType != null);
+			AddToStringOverride(sb, typeInfo, isLuaStaticType);
+			sb.AppendLine();
 			AddMemberBindings(sb, typeInfo, members, out var getters, out var setters);
 			AddIndexMetamethod(sb, luaTypeName);
 			AddNewIndexMetamethod(sb, luaTypeName, setters.Count > 0);
+			sb.AppendLine();
 			AddGetValueMethod(sb, typeInfo, baseType, isLuaStaticType, getters);
 			AddSetValueMethod(sb, typeInfo, baseType, isLuaStaticType, setters);
 			AddCloseTypeDeclaration(sb);
 		}
+
 
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
@@ -147,7 +155,16 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(");");
 		}
 
-		private static void AddConstructor(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
+		private static void AddStaticTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			sb.AppendIndent("public ");
+			sb.Append(typeInfo.StaticLuaTypeName);
+			sb.Append("(");
+			sb.Append(nameof(ILuaObjectFactory));
+			sb.AppendLine(" objectFactory) => m_ObjectFactory = objectFactory;");
+		}
+
+		private static void AddInstanceTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			sb.AppendIndent("public ");
 			sb.Append(typeInfo.InstanceLuaTypeName);
@@ -172,7 +189,12 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendLine(";");
 			}
 		}
-
+		private static void AddObjectFactoryField(ScriptBuilder sb)
+		{
+			sb.AppendIndent("private ");
+			sb.Append(nameof(ILuaObjectFactory));
+			sb.AppendLine(" m_ObjectFactory;");
+		}
 		private static void AddInstanceOrValueFieldAndProperty(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			var fieldName = typeInfo.InstanceFieldName;
@@ -367,19 +389,16 @@ namespace CodeSmileEditor.Luny.Generator
 			else
 			{
 				AddCloseRemainingMethodBlocks(sb, paramPos);
-				AddThrowRuntimeArgumentException(sb, overloads, overload);
+				AddThrowRuntimeArgumentException(sb, overloads);
 			}
 		}
 
-		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads, GenMethodInfo overload)
+		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads)
 		{
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
 			sb.Append("{\""); // enclosing name in brackets intended to avoid making every message string unique
 			sb.Append(overloads.Name);
-			sb.Append("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}");
-			if (overloads.IsInstanceMethod)
-				sb.Append(", target: '{_this}'");
-			sb.AppendLine("\", 2);");
+			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
 		private static void AddGetAndReadArguments(ScriptBuilder sb, Int32 argNum, Int32 luaArgOffset, Boolean needsGetArguments,

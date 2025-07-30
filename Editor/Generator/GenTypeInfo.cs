@@ -38,7 +38,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
 			InstanceLuaTypeName = $"Lua_{typeFullNameNoDots}";
-			StaticLuaTypeName = $"{InstanceLuaTypeName}_static";
+			StaticLuaTypeName = $"{InstanceLuaTypeName}_Type";
 
 			if (type.IsEnum == false)
 			{

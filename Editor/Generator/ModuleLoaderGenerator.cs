@@ -15,27 +15,29 @@ namespace CodeSmileEditor.Luny.Generator
 			IEnumerable<String> namespaces)
 		{
 			var @namespace = module.BindingsNamespace;
-			var loaderClassName = $"{@namespace}_Loader";
-			module.ModuleLoaderTypeName = $"{@namespace}.{loaderClassName}";
+			var className = @namespace;
+			module.ModuleLoaderTypeName = $"{@namespace}.{className}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 			AddUsingStatements(sb, namespaces);
 			AddNamespaceBlock(sb, @namespace);
-			AddClassBlock(sb, loaderClassName);
-			AddLoadMethod(sb, typeInfos, namespaces, loaderClassName);
+			AddClassBlock(sb, className);
+			AddGetModuleTypes(sb, typeInfos, namespaces);
+			AddLoadMethod(sb, typeInfos, namespaces, className);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
-			var assetPath = $"{contentFolderPath}/_{loaderClassName}.cs";
+			var assetPath = $"{contentFolderPath}/_{className}.cs";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
+
 
 		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
 			sb.AppendLine("#pragma warning disable 0105 // The using directive for '..' appeared previously in this namespace");
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua;");
-			sb.AppendLine("using Unity.Profiling;");
+			sb.AppendLine("using System.Collections.Generic;");
 			foreach (var ns in namespaces)
 			{
 				sb.Append("using ");
@@ -61,24 +63,39 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public sealed class ");
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
-			sb.AppendLine(nameof(LunyLuaModuleLoader));
+			sb.AppendLine(nameof(LuaModuleLoader));
 			sb.OpenIndentBlock("{");
 		}
 
 		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
 
+		private static void AddGetModuleTypes(ScriptBuilder sb, IList<GenTypeInfo> typeInfos, IEnumerable<string> namespaces)
+		{
+			sb.AppendIndent("public override IEnumerable<");
+			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
+			sb.Append("> ");
+			sb.Append(nameof(LuaModuleLoader.GetModuleTypes));
+			sb.AppendLine("()");
+			sb.OpenIndentBlock("{");
+			sb.AppendIndent("return new List<");
+			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
+			sb.AppendLine(">();");
+			sb.CloseIndentBlock("}");
+		}
+
 		private static void AddLoadMethod(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces,
 			String className)
 		{
-			sb.AppendIndentLine("public override void Load(LuaTable env)");
+			sb.AppendIndent("public override void ");
+			sb.Append(nameof(LuaModuleLoader.Load));
+			sb.Append("(");
+			sb.Append(nameof(LuaModuleLoader.LoadParameters));
+			sb.AppendLine(" parameters)");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndent("var marker = new ProfilerMarker(ProfilerCategory.Scripts, nameof(");
-			sb.Append(className);
-			sb.AppendLine("));");
-			sb.AppendIndentLine("marker.Begin();");
-			sb.AppendIndentLine("base.Load(env);");
+			sb.AppendIndentLine("var env = parameters.env;");
+			sb.AppendIndentLine("var objectFactory = parameters.ObjectFactory;");
 			GenerateTypeInitialization(sb, typeInfos, namespaces);
-			sb.AppendIndentLine("marker.End();");
+			sb.AppendLine();
 			sb.CloseIndentBlock("}");
 		}
 
@@ -127,8 +144,7 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(typeInfo.Type.Name);
 					sb.Append("\"] = new ");
 					sb.Append(typeInfo.StaticLuaTypeName);
-					sb.Append("(); // ");
-					sb.AppendLine(typeInfo.Type.FullName);
+					sb.AppendLine("(objectFactory);");
 				}
 			}
 		}

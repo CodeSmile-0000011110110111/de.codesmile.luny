@@ -26,7 +26,7 @@ namespace CodeSmileEditor.Luny.Generator
 			AddDefaultSettings(sb);
 			sb.CloseIndentBlock("}");
 
-			var assetPath = $"{contentFolderPath}/_{asmDefName.Replace('.', '_')}_Assembly.asmdef";
+			var assetPath = $"{contentFolderPath}/_{asmDefName.Replace('.', '_')}.asmdef";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 

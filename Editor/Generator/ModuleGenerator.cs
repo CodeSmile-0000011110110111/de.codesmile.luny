@@ -30,7 +30,6 @@ namespace CodeSmileEditor.Luny.Generator
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
 				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos);
 				ModuleLoaderGenerator.Generate(module, contentFolderPath, typeInfos, namespaces);
-				ModuleFactoryGenerator.Generate(module, contentFolderPath);
 
 				s_TypeInfosByType = null;
 			}

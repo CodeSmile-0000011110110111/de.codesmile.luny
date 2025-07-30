@@ -28,13 +28,8 @@ namespace CodeSmile.Luny
 			{
 				if (m_ModuleLoader == null)
 				{
-					m_ModuleLoader = TryInstantiateType<LunyLuaModuleLoader>(folderPath, m_ModuleLoaderTypeName);
+					m_ModuleLoader = TryInstantiateType<LuaModuleLoader>(folderPath, m_ModuleLoaderTypeName);
 					needsSaving = needsSaving || m_ModuleLoader != null;
-				}
-				if (m_UnityUnityObjectFactory == null)
-				{
-					m_UnityUnityObjectFactory = TryInstantiateType<LuaUnityObjectFactoryBase>(folderPath, m_UnityObjectFactoryTypeName);
-					needsSaving = needsSaving || m_UnityUnityObjectFactory != null;
 				}
 
 				if (needsSaving)
@@ -81,8 +76,7 @@ namespace CodeSmile.Luny
 		{
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeName = null;
-			m_UnityUnityObjectFactory = null;
-			m_UnityObjectFactoryTypeName = null;
+			m_ObjectFactory = null;
 		}
 #endif
 	}

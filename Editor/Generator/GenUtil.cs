@@ -123,8 +123,9 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public static IEnumerable<String> GetNamespacesExcept(IEnumerable<String> namespaces, IEnumerable<String> blacklist)
 		{
-			var startsWith = blacklist.Where(s => s.EndsWith('*'))
-				.Select(s => s.Substring(0, s.Length - 1));
+			var startsWith = blacklist.Where(s => s.EndsWith('*')).Select(s => s.Substring(0, s.Length - 1)).ToList();
+			// exclude sub-namespaces too
+			startsWith.AddRange(blacklist.Where(s => !s.EndsWith('*')).Select(s => $"{s}."));
 
 			var filtered = new List<String>();
 			foreach (var ns in namespaces.Except(blacklist))
@@ -148,8 +149,9 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public static IEnumerable<Type> GetTypesExcept(IEnumerable<Type> types, IEnumerable<String> blacklist)
 		{
-			var startsWith = blacklist.Where(s => s.EndsWith('*'))
-				.Select(s => s.Substring(0, s.Length - 1));
+			var startsWith = blacklist.Where(s => s.EndsWith('*')).Select(s => s.Substring(0, s.Length - 1)).ToList();
+			// exclude nested types too
+			startsWith.AddRange(blacklist.Where(s => !s.EndsWith('*')).Select(s => $"{s}."));
 
 			var filtered = new List<Type>();
 			foreach (var type in types.Where(type => blacklist.Contains(type.FullName) == false))

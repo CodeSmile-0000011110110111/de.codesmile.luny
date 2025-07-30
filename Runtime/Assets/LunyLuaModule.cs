@@ -1,8 +1,9 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using System;
+using System.Linq;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,9 +22,8 @@ namespace CodeSmile.Luny
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
-		[SerializeField] [ReadOnlyField] internal String m_UnityObjectFactoryTypeName;
-		[SerializeReference] [HideInInspector] private LunyLuaModuleLoader m_ModuleLoader;
-		[SerializeReference] [HideInInspector] private LuaUnityObjectFactoryBase m_UnityUnityObjectFactory;
+		[SerializeReference] [HideInInspector] private LuaModuleLoader m_ModuleLoader;
+		[SerializeReference] [HideInInspector] private LuaObjectFactory m_ObjectFactory;
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String BindingsNamespace => $"Lua_{m_AssemblyName.Replace('.', '_')}";
@@ -35,24 +35,31 @@ namespace CodeSmile.Luny
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeName { get => m_ModuleLoaderTypeName; set => m_ModuleLoaderTypeName = value; }
-		internal String UnityObjectFactoryTypeName { get => m_UnityObjectFactoryTypeName; set => m_UnityObjectFactoryTypeName = value; }
-		internal LunyLuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
-		internal LuaUnityObjectFactoryBase UnityUnityObjectFactory
-		{
-			get => m_UnityUnityObjectFactory;
-			set => m_UnityUnityObjectFactory = value;
-		}
+		internal LuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
 
-		public void Load(LuaState luaState)
+		public void Load(ILunyLua lua)
 		{
 #if UNITY_EDITOR
 			UpdateGeneratedReferences();
 #endif
 
-			if (ModuleLoader == null)
-				Debug.LogError($"LuaModule '{name}' has no loader reference. Try generating the module again.");
+			if (ModuleLoader != null)
+			{
+				var marker = new ProfilerMarker(ProfilerCategory.Scripts, m_ModuleLoader.GetType().Name);
+				marker.Begin();
 
-			ModuleLoader?.Load(luaState.Environment);
+				var loadParams = new LuaModuleLoader.LoadParameters { env = lua.State.Environment, ObjectFactory = lua.ObjectFactory };
+				ModuleLoader.Load(loadParams);
+
+				var moduleTypes = ModuleLoader.GetModuleTypes();
+				Debug.Log($"{moduleTypes.Count()} types in {ModuleLoader.GetType().Name}");
+				foreach (var moduleType in moduleTypes)
+					Debug.Log(moduleType);
+
+				marker.End();
+			}
+			else
+				Debug.LogWarning($"LuaModule '{name}' has no {nameof(LuaModuleLoader)} reference. Try generating the module again.");
 		}
 
 #if UNITY_EDITOR

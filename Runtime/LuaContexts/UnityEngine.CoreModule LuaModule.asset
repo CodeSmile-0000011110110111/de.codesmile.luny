@@ -15,42 +15,40 @@ MonoBehaviour:
   m_AssemblyName: UnityEngine.CoreModule
   m_NamespaceWhitelist:
   - Unity.IntegerTime
-  - Unity.Profiling
-  - Unity.Profiling.Memory
   - UnityEngine
-  - UnityEngine.Apple
   - UnityEngine.Device
   - UnityEngine.Events
   - UnityEngine.Playables
-  - UnityEngine.Profiling
   - UnityEngine.SceneManagement
   - UnityEngine.Sprites
   - UnityEngine.U2D
   m_NamespaceBlacklist:
   - JetBrains.Annotations
-  - Unity.Collections*
+  - Unity.Collections
   - Unity.Content
-  - Unity.IO.*
-  - Unity.Jobs*
-  - Unity.Profiling.LowLevel*
-  - UnityEditor.*
+  - Unity.IO
+  - Unity.Jobs
+  - Unity.Profiling
+  - UnityEditor
   - UnityEngine.Analytics
-  - UnityEngine.Assertions*
+  - UnityEngine.Apple
+  - UnityEngine.Assertions
   - UnityEngine.DedicatedServer
   - UnityEngine.Diagnostics
-  - UnityEngine.Experimental.*
+  - UnityEngine.Experimental
   - UnityEngine.iOS
   - UnityEngine.Jobs
   - UnityEngine.LowLevel
-  - UnityEngine.Networking*
+  - UnityEngine.Networking
   - UnityEngine.PlayerLoop
-  - UnityEngine.Rendering*
+  - UnityEngine.Profiling
+  - UnityEngine.Rendering
   - UnityEngine.Scripting
   - UnityEngine.Search
   - UnityEngine.Serialization
   - UnityEngine.TestTools
   - UnityEngine.tvOS
-  - UnityEngine.Windows*
+  - UnityEngine.Windows
   - UnityEngine.WSA
   - UnityEngineInternal
   - '---- below: to be included later ...'
@@ -60,25 +58,8 @@ MonoBehaviour:
   - Unity.IntegerTime.RationalTime
   - Unity.IntegerTime.RationalTime+TicksPerSecond
   - Unity.IntegerTime.RationalTimeExtensions
-  - Unity.Profiling.DebugScreenCapture
-  - Unity.Profiling.Memory.CaptureFlags
-  - Unity.Profiling.Memory.MemoryProfiler
-  - Unity.Profiling.Memory.MemorySnapshotMetadata
-  - Unity.Profiling.ProfilerCategory
-  - Unity.Profiling.ProfilerCategoryColor
-  - Unity.Profiling.ProfilerCategoryFlags
-  - Unity.Profiling.ProfilerCounterOptions
-  - Unity.Profiling.ProfilerFlowEventType
-  - Unity.Profiling.ProfilerMarker
-  - Unity.Profiling.ProfilerMarker+AutoScope
-  - Unity.Profiling.ProfilerMarkerDataUnit
-  - Unity.Profiling.ProfilerRecorder
-  - Unity.Profiling.ProfilerRecorderOptions
-  - Unity.Profiling.ProfilerRecorderSample
   - UnityEngine.AnimationCurve
   - UnityEngine.AnisotropicFiltering
-  - UnityEngine.Apple.FrameCapture
-  - UnityEngine.Apple.FrameCaptureDestination
   - UnityEngine.Application
   - UnityEngine.ApplicationInstallMode
   - UnityEngine.ApplicationMemoryUsage
@@ -207,6 +188,11 @@ MonoBehaviour:
   - UnityEngine.LayerMask
   - UnityEngine.LensFlare
   - UnityEngine.LightBakingOutput
+  - UnityEngine.LightingSettings+DenoiserType
+  - UnityEngine.LightingSettings+FilterMode
+  - UnityEngine.LightingSettings+FilterType
+  - UnityEngine.LightingSettings+Lightmapper
+  - UnityEngine.LightingSettings+Sampling
   - UnityEngine.LightmapBakeType
   - UnityEngine.LightmapCompression
   - UnityEngine.LightmapData
@@ -282,11 +268,6 @@ MonoBehaviour:
   - UnityEngine.PlayerPrefs
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
-  - UnityEngine.Profiling.CustomSampler
-  - UnityEngine.Profiling.Profiler
-  - UnityEngine.Profiling.ProfilerArea
-  - UnityEngine.Profiling.Recorder
-  - UnityEngine.Profiling.Sampler
   - UnityEngine.Projector
   - UnityEngine.PropertyName
   - UnityEngine.Quaternion
@@ -448,22 +429,20 @@ MonoBehaviour:
   - UnityEngine.Playables.PlayableGraph
   - UnityEngine.Light
   - UnityEngine.Caching
-  - UnityEngine.LightingSettings*
+  - UnityEngine.LightingSettings
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
-  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule_Loader
-  m_UnityObjectFactoryTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_Object_Factory
+  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule
   m_ModuleLoader:
-    rid: 2561253650600558650
-  m_UnityUnityObjectFactory:
-    rid: 2561253650600558651
+    rid: 2561253650600558654
+  m_ObjectFactory:
+    rid: -2
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: 2561253650600558650
-      type: {class: Lua_UnityEngine_CoreModule_Loader, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
-      data: 
-    - rid: 2561253650600558651
-      type: {class: Lua_UnityEngine_Object_Factory, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2561253650600558654
+      type: {class: Lua_UnityEngine_CoreModule, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
       data: 

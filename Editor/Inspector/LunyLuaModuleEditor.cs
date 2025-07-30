@@ -125,7 +125,7 @@ namespace CodeSmileEditor.Luny
 			if (Module.ModuleLoader != null)
 			{
 				var module = new LuaTable();
-				Module.ModuleLoader.Load(module);
+				Module.ModuleLoader.Load(new LuaModuleLoader.LoadParameters { env = module });
 				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
 			}
 		}
