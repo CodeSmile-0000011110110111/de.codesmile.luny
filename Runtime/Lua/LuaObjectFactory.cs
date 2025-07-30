@@ -13,54 +13,51 @@ namespace CodeSmile.Luny
 {
 	public interface ILuaObjectFactory
 	{
-		delegate bool CreateLuaObjectDelegate(object obj, Type luaType, out ILuaUserData luaObject);
+		delegate Boolean CreateLuaObjectDelegate(Object obj, Type luaType, out ILuaObject luaObject);
 
+		event Action<ILuaObject> OnLuaObjectCreated;
 		CreateLuaObjectDelegate OnCreateLuaObject { get; set; }
-
-		event Action<Object> OnLuaObjectCreated;
 		ILuaUserData CreateLuaObject([NotNull] Object obj);
-		//ILuaUserData CreateLuaValueType([NotNull] ValueType value);
+		void RegisterType(LuaModuleLoader.LuaTypeInfo typeInfo);
 	}
 
-	public interface ILuaGameObjectFactory
-	{
-		ILuaUnityGameObject CreateLuaGameObject([NotNull] GameObject gameObject);
-	}
-
-	public interface ILuaComponentFactory
-	{
-		ILuaUnityComponent CreateLuaUnityComponent([NotNull] Component component);
-	}
+	// public interface ILuaGameObjectFactory
+	// {
+	// 	ILuaUnityGameObject CreateLuaGameObject([NotNull] GameObject gameObject);
+	// }
+	//
+	// public interface ILuaComponentFactory
+	// {
+	// 	ILuaUnityComponent CreateLuaUnityComponent([NotNull] Component component);
+	// }
 
 	public sealed class LuaObjectFactory : ILuaObjectFactory //, ILuaGameObjectFactory, ILuaComponentFactory
 	{
+		public event Action<ILuaObject> OnLuaObjectCreated;
+
+		private readonly Dictionary<Type, LuaModuleLoader.LuaTypeInfo> m_LuaTypes = new();
 		public ILuaObjectFactory.CreateLuaObjectDelegate OnCreateLuaObject { get; set; }
-		public event Action<Object> OnLuaObjectCreated;
-
-		private readonly Dictionary<Type, Type> m_LuaTypes = new();
-
-		// public ILuaUnityComponent CreateLuaUnityComponent(Component component) => throw new NotImplementedException();
-		// public ILuaUnityGameObject CreateLuaGameObject(GameObject gameObject) => throw new NotImplementedException();
 
 		public ILuaUserData CreateLuaObject(Object obj)
 		{
-			var luaType = GetLuaType(obj);
+			var luaTypeInfo = GetLuaTypeInfo(obj);
+			var instanceType = luaTypeInfo.InstanceType;
 
-			if (OnCreateLuaObject == null || OnCreateLuaObject(obj, luaType, out var luaObject) == false)
+			if (OnCreateLuaObject == null || OnCreateLuaObject(obj, instanceType, out var userData) == false)
 			{
-				luaObject = (ILuaUserData)Activator.CreateInstance(luaType, obj);
+				//luaTypeInfo.CreateInstance(obj);
+				userData = (ILuaObject)Activator.CreateInstance(instanceType, obj);
 			}
 
-			OnLuaObjectCreated?.Invoke(luaObject);
-			return luaObject;
+			OnLuaObjectCreated?.Invoke(userData);
+			return userData;
 		}
 
-		private Type GetLuaType(Object obj)
+		public void RegisterType(LuaModuleLoader.LuaTypeInfo typeInfo) => m_LuaTypes[typeInfo.BindingType] = typeInfo;
+
+		private LuaModuleLoader.LuaTypeInfo GetLuaTypeInfo(Object obj)
 		{
 			var luaType = m_LuaTypes[obj.GetType()];
-			if (luaType == null)
-				throw new ArgumentNullException($"Missing Lua Type for {obj.GetType().FullName}");
-
 			return luaType;
 		}
 	}

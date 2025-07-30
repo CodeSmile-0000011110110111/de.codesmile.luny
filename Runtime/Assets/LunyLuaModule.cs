@@ -66,13 +66,14 @@ namespace CodeSmile.Luny
 				Debug.LogWarning($"LuaModule '{name}' has no {nameof(LuaModuleLoader)} reference. Try generating the module again.");
 		}
 
-		private void RegisterObjectTypes(ILunyLua lua, Dictionary<String, LuaTable> namespaceTables, LuaModuleLoader.LuaTypeInfo[] objectTypes)
+		private void RegisterObjectTypes(ILunyLua lua, Dictionary<String, LuaTable> namespaceTables, LuaModuleLoader.LuaTypeInfo[] typeInfos)
 		{
-			var createParams = new LuaModuleLoader.Parameters { ObjectFactory = lua.ObjectFactory };
+			var objectFactory = lua.ObjectFactory;
+			var createParams = new LuaModuleLoader.Parameters { ObjectFactory = objectFactory };
 
 			LuaTable nsTable = null;
 			String lastNamespace = null;
-			foreach (var typeInfo in objectTypes)
+			foreach (var typeInfo in typeInfos)
 			{
 				var bindType = typeInfo.BindingType;
 				if (lastNamespace != bindType.Namespace)
@@ -82,6 +83,7 @@ namespace CodeSmile.Luny
 				}
 
 				nsTable[bindType.Name] = typeInfo.CreateStatic(createParams);
+				objectFactory.RegisterType(typeInfo);
 			}
 		}
 
