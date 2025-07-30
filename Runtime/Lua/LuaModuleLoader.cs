@@ -14,20 +14,23 @@ namespace CodeSmile.Luny
 	{
 		public abstract String[] GetNamespaces();
 		public abstract String[][] GetNamespaceParts();
-		public abstract ModuleTypes GetModuleTypes();
-		public abstract void Load(ModuleParameters parameters);
+		public abstract LuaTypeInfo[] GetBindingTypes();
+		public abstract Type[] GetEnumTypes();
 
-		public sealed class ModuleTypes
+		public struct LuaTypeInfo
 		{
-			public Type[] ObjectTypes { get; set; }
-			public Type[] ValueTypes { get; set; }
-			public Type[] EnumTypes { get; set; }
+			public delegate LuaValue CreateLuaObjectTypeCallback(Parameters parameters);
+			public delegate LuaValue CreateLuaObjectCallback(Parameters parameters);
+
+			public Type BindingType;
+			public Type StaticType;
+			public Type InstanceType;
+			public CreateLuaObjectTypeCallback CreateStatic;
+			public CreateLuaObjectCallback CreateInstance;
 		}
 
-		public struct ModuleParameters
+		public struct Parameters
 		{
-			[Obsolete] public LuaTable env;
-
 			public ILuaObjectFactory ObjectFactory;
 		}
 	}

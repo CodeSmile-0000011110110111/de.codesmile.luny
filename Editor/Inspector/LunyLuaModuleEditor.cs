@@ -122,12 +122,13 @@ namespace CodeSmileEditor.Luny
 
 		private void OnLogModuleTable()
 		{
-			if (Module.ModuleLoader != null)
-			{
-				var module = new LuaTable();
-				Module.ModuleLoader.Load(new LuaModuleLoader.ModuleParameters { env = module });
-				Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
-			}
+			throw new NotImplementedException();
+			// if (Module.ModuleLoader != null)
+			// {
+			// 	var module = new LuaTable();
+			// 	Module.ModuleLoader.Load(new LuaModuleLoader.Parameters { env = module });
+			// 	Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
+			// }
 		}
 
 		private void OnEditorUpdate()

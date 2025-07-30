@@ -11,6 +11,5 @@ namespace CodeSmile.Luny
 	public interface ILuaBindingType
 	{
 		Type BindingType { get; }
-		//LuaValue ToLuaValue(ILuaBindingType instance);
 	}
 }

@@ -36,7 +36,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static Dictionary<Type, GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
-			out List<GenTypeInfo> typeInfos, String onlyThisMethodName)
+			out IEnumerable<GenTypeInfo> typeInfos, String onlyThisMethodName)
 		{
 			var typeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
@@ -67,7 +67,7 @@ namespace CodeSmileEditor.Luny.Generator
 			});
 
 			namespaces = typeHierarchy.Namespaces.ToArray();
-			typeInfos = generatableTypeInfos;
+			typeInfos = generatableTypeInfos.OrderBy(t => t.Type.Namespace).ThenBy(t => t.BindTypeFullName);
 			return typeInfosByType;
 		}
 	}

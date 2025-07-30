@@ -132,18 +132,11 @@ MonoBehaviour:
   - UnityEngine.Debug
   - UnityEngine.Debug+StartupLog
   - UnityEngine.DepthTextureMode
-  - UnityEngine.Device.Application
-  - UnityEngine.Device.Screen
-  - UnityEngine.Device.SystemInfo
   - UnityEngine.DeviceType
   - UnityEngine.Display
   - UnityEngine.DisplayInfo
   - UnityEngine.DrivenTransformProperties
   - UnityEngine.DynamicGI
-  - UnityEngine.Events.PersistentListenerMode
-  - UnityEngine.Events.UnityEvent
-  - UnityEngine.Events.UnityEventBase
-  - UnityEngine.Events.UnityEventCallState
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
   - UnityEngine.FindObjectsInactive
@@ -188,11 +181,6 @@ MonoBehaviour:
   - UnityEngine.LayerMask
   - UnityEngine.LensFlare
   - UnityEngine.LightBakingOutput
-  - UnityEngine.LightingSettings+DenoiserType
-  - UnityEngine.LightingSettings+FilterMode
-  - UnityEngine.LightingSettings+FilterType
-  - UnityEngine.LightingSettings+Lightmapper
-  - UnityEngine.LightingSettings+Sampling
   - UnityEngine.LightmapBakeType
   - UnityEngine.LightmapCompression
   - UnityEngine.LightmapData
@@ -247,24 +235,6 @@ MonoBehaviour:
   - UnityEngine.OperatingSystemFamily
   - UnityEngine.Ping
   - UnityEngine.Plane
-  - UnityEngine.Playables.DirectorUpdateMode
-  - UnityEngine.Playables.DirectorWrapMode
-  - UnityEngine.Playables.FrameData
-  - UnityEngine.Playables.FrameData+EvaluationType
-  - UnityEngine.Playables.Notification
-  - UnityEngine.Playables.Playable
-  - UnityEngine.Playables.PlayableAsset
-  - UnityEngine.Playables.PlayableBehaviour
-  - UnityEngine.Playables.PlayableBinding
-  - UnityEngine.Playables.PlayableExtensions
-  - UnityEngine.Playables.PlayableHandle
-  - UnityEngine.Playables.PlayableOutput
-  - UnityEngine.Playables.PlayableOutputExtensions
-  - UnityEngine.Playables.PlayableOutputHandle
-  - UnityEngine.Playables.PlayableTraversalMode
-  - UnityEngine.Playables.PlayState
-  - UnityEngine.Playables.ScriptPlayableBinding
-  - UnityEngine.Playables.ScriptPlayableOutput
   - UnityEngine.PlayerPrefs
   - UnityEngine.Pose
   - UnityEngine.PrimitiveType
@@ -308,15 +278,6 @@ MonoBehaviour:
   - UnityEngine.RuntimeInitializeLoadType
   - UnityEngine.RuntimePlatform
   - UnityEngine.ScalableBufferManager
-  - UnityEngine.SceneManagement.CreateSceneParameters
-  - UnityEngine.SceneManagement.LoadSceneMode
-  - UnityEngine.SceneManagement.LoadSceneParameters
-  - UnityEngine.SceneManagement.LocalPhysicsMode
-  - UnityEngine.SceneManagement.Scene
-  - UnityEngine.SceneManagement.SceneManager
-  - UnityEngine.SceneManagement.SceneManagerAPI
-  - UnityEngine.SceneManagement.SceneUtility
-  - UnityEngine.SceneManagement.UnloadSceneOptions
   - UnityEngine.Screen
   - UnityEngine.ScreenOrientation
   - UnityEngine.ScriptableObject
@@ -349,7 +310,6 @@ MonoBehaviour:
   - UnityEngine.SpritePackingMode
   - UnityEngine.SpritePackingRotation
   - UnityEngine.SpriteRenderer
-  - UnityEngine.Sprites.DataUtility
   - UnityEngine.SpriteSortPoint
   - UnityEngine.SpriteTileMode
   - UnityEngine.StackTraceLogType
@@ -383,13 +343,6 @@ MonoBehaviour:
   - UnityEngine.TransferFunction
   - UnityEngine.Transform
   - UnityEngine.TransparencySortMode
-  - UnityEngine.U2D.Light2DBase
-  - UnityEngine.U2D.PixelPerfectRendering
-  - UnityEngine.U2D.SpriteAtlas
-  - UnityEngine.U2D.SpriteAtlasManager
-  - UnityEngine.U2D.SpriteBone
-  - UnityEngine.U2D.SpriteDataAccessExtensions
-  - UnityEngine.U2D.SpriteRendererDataAccessExtensions
   - UnityEngine.UnityEventAwaitableExtensions
   - UnityEngine.UnityEventQueueSystem
   - UnityEngine.UserAuthorization
@@ -411,6 +364,48 @@ MonoBehaviour:
   - UnityEngine.WhitePoint
   - UnityEngine.WrapMode
   - UnityEngine.YieldInstruction
+  - UnityEngine.Device.Application
+  - UnityEngine.Device.Screen
+  - UnityEngine.Device.SystemInfo
+  - UnityEngine.Events.PersistentListenerMode
+  - UnityEngine.Events.UnityEvent
+  - UnityEngine.Events.UnityEventBase
+  - UnityEngine.Events.UnityEventCallState
+  - UnityEngine.Playables.DirectorUpdateMode
+  - UnityEngine.Playables.DirectorWrapMode
+  - UnityEngine.Playables.FrameData
+  - UnityEngine.Playables.FrameData+EvaluationType
+  - UnityEngine.Playables.Notification
+  - UnityEngine.Playables.Playable
+  - UnityEngine.Playables.PlayableAsset
+  - UnityEngine.Playables.PlayableBehaviour
+  - UnityEngine.Playables.PlayableBinding
+  - UnityEngine.Playables.PlayableExtensions
+  - UnityEngine.Playables.PlayableHandle
+  - UnityEngine.Playables.PlayableOutput
+  - UnityEngine.Playables.PlayableOutputExtensions
+  - UnityEngine.Playables.PlayableOutputHandle
+  - UnityEngine.Playables.PlayableTraversalMode
+  - UnityEngine.Playables.PlayState
+  - UnityEngine.Playables.ScriptPlayableBinding
+  - UnityEngine.Playables.ScriptPlayableOutput
+  - UnityEngine.SceneManagement.CreateSceneParameters
+  - UnityEngine.SceneManagement.LoadSceneMode
+  - UnityEngine.SceneManagement.LoadSceneParameters
+  - UnityEngine.SceneManagement.LocalPhysicsMode
+  - UnityEngine.SceneManagement.Scene
+  - UnityEngine.SceneManagement.SceneManager
+  - UnityEngine.SceneManagement.SceneManagerAPI
+  - UnityEngine.SceneManagement.SceneUtility
+  - UnityEngine.SceneManagement.UnloadSceneOptions
+  - UnityEngine.Sprites.DataUtility
+  - UnityEngine.U2D.Light2DBase
+  - UnityEngine.U2D.PixelPerfectRendering
+  - UnityEngine.U2D.SpriteAtlas
+  - UnityEngine.U2D.SpriteAtlasManager
+  - UnityEngine.U2D.SpriteBone
+  - UnityEngine.U2D.SpriteDataAccessExtensions
+  - UnityEngine.U2D.SpriteRendererDataAccessExtensions
   m_TypeBlacklist:
   - UnityEngine.AndroidActivityIndicatorStyle
   - UnityEngine.DrivenRectTransformTracker
@@ -421,6 +416,7 @@ MonoBehaviour:
   - UnityEngine.Handheld
   - UnityEngine.iPhoneSettings
   - UnityEngine.iPhoneUtils
+  - UnityEngine.LightingSettings
   - UnityEngine.Types
   - '-- below: to be included later ...'
   - UnityEngine.Material
@@ -429,16 +425,14 @@ MonoBehaviour:
   - UnityEngine.Playables.PlayableGraph
   - UnityEngine.Light
   - UnityEngine.Caching
-  - UnityEngine.LightingSettings
   m_ContentFolderGuid: cf860325703eb1e4e9619f3b026489cc
-  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule
+  m_ModuleLoaderTypeName: 
   m_ModuleLoader:
-    rid: 2561253650600558660
+    rid: -2
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: 2561253650600558660
-      type: {class: Lua_UnityEngine_CoreModule, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }

@@ -12,7 +12,7 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
-		public static void Generate(LunyLuaModule module, String contentFolderPath, IList<GenTypeInfo> typeInfos,
+		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos,
 			IEnumerable<String> namespaces)
 		{
 			var @namespace = module.BindingsNamespace;
@@ -24,8 +24,8 @@ namespace CodeSmileEditor.Luny.Generator
 			AddNamespaceBlock(sb, @namespace);
 			AddClassBlock(sb, className);
 			AddGetNamespaces(sb, namespaces);
-			AddGetModuleTypes(sb, typeInfos);
-			AddLoadMethod(sb, typeInfos, namespaces);
+			AddGetObjectTypes(sb, typeInfos);
+			AddGetEnumTypes(sb, typeInfos);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
@@ -35,17 +35,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
-			sb.AppendLine("#pragma warning disable 0105 // The using directive for '..' appeared previously in this namespace");
 			sb.AppendLine("using CodeSmile.Luny;");
-			sb.AppendLine("using Lua;");
-			sb.AppendLine("using System.Collections.Generic;");
-			foreach (var ns in namespaces)
-			{
-				sb.Append("using ");
-				sb.Append(ns);
-				sb.AppendLine(";");
-			}
-			sb.AppendLine("#pragma warning restore 0105");
 			sb.AppendLine();
 		}
 
@@ -108,106 +98,68 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentBlock("};");
 		}
 
-		private static void AddGetModuleTypes(ScriptBuilder sb, IList<GenTypeInfo> typeInfos)
+		private static void AddGetObjectTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			sb.AppendIndent("public override ");
-			sb.Append(nameof(LuaModuleLoader.ModuleTypes));
-			sb.Append(" ");
-			sb.Append(nameof(LuaModuleLoader.GetModuleTypes));
-			sb.AppendLine("() => new()");
+			sb.Append(nameof(LuaModuleLoader.LuaTypeInfo));
+			sb.Append("[] ");
+			sb.Append(nameof(LuaModuleLoader.GetBindingTypes));
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
-			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsValueType == false && t.Type.IsEnum == false),
-				nameof(LuaModuleLoader.ModuleTypes.ObjectTypes));
-			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsValueType && t.Type.IsEnum == false),
-				nameof(LuaModuleLoader.ModuleTypes.ValueTypes));
-			AddModuleTypes(sb, typeInfos.Where(t => t.Type.IsEnum),
-				nameof(LuaModuleLoader.ModuleTypes.EnumTypes));
+			foreach (var typeInfo in typeInfos.Where(t => t.Type.IsEnum == false))
+			{
+				sb.AppendIndent("new ");
+				sb.Append(nameof(LuaModuleLoader.LuaTypeInfo));
+				sb.Append/*Line*/(" { ");
+				//sb.IncrementIndent();
+
+				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.BindingType));
+				sb.Append(" = typeof(");
+				sb.Append(typeInfo.BindTypeFullName);
+				sb.Append/*Line*/("), ");
+				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.StaticType));
+				sb.Append(" = typeof(");
+				sb.Append(typeInfo.StaticLuaTypeName);
+				sb.Append/*Line*/("), ");
+				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.CreateStatic));
+				sb.Append(" = ");
+				sb.Append(typeInfo.StaticLuaTypeName);
+				sb.Append(".CreateInstance");
+
+				if (typeInfo.HasInstanceType)
+				{
+					sb.Append/*Line*/(", ");
+					sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.InstanceType));
+					sb.Append(" = typeof(");
+					sb.Append(typeInfo.InstanceLuaTypeName);
+					sb.Append(")");
+
+					// sb.AppendLine();
+					// sb.AppendIndent(nameof(LuaModuleLoader.LuaTypeInfo.CreateLuaObjectInstance));
+					// sb.Append(" = ");
+					// sb.Append(typeInfo.InstanceLuaTypeName);
+					// sb.Append(".CreateInstance");
+				}
+
+				sb.AppendLine(" },");
+				//sb.DecrementIndent();
+			}
 			sb.CloseIndentBlock("};");
 		}
 
-		private static void AddModuleTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, String fieldName)
+		private static void AddGetEnumTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
-			sb.AppendIndent(fieldName);
-			sb.AppendLine(" = new System.Type[]");
+			sb.AppendIndent("public override System.Type[] ");
+			sb.Append(nameof(LuaModuleLoader.GetEnumTypes));
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
-			foreach (var typeInfo in typeInfos)
+			foreach (var enumTypeInfo in typeInfos.Where(t => t.Type.IsEnum))
 			{
 				sb.AppendIndent("typeof(");
-				sb.Append(typeInfo.BindTypeFullName);
+				sb.Append(enumTypeInfo.BindTypeFullName);
 				sb.AppendLine("),");
 			}
-			sb.CloseIndentBlock("},");
-		}
-
-		private static void AddLoadMethod(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces)
-		{
-			sb.AppendIndent("public override void ");
-			sb.Append(nameof(LuaModuleLoader.Load));
-			sb.Append("(");
-			sb.Append(nameof(LuaModuleLoader.ModuleParameters));
-			sb.AppendLine(" parameters)");
-			sb.OpenIndentBlock("{");
-			sb.AppendIndentLine("var env = parameters.env;");
-			GenerateTypeInitialization(sb, typeInfos, namespaces);
-			sb.AppendLine();
-			sb.CloseIndentBlock("}");
-		}
-
-		private static void GenerateTypeInitialization(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos, IEnumerable<String> namespaces)
-		{
-			var namespaceTables = new Dictionary<String, String>();
-
-			foreach (var @namespace in namespaces)
-			{
-				var namespaceTableName = $"{@namespace.Replace(".", "")}Table";
-				namespaceTables.Add(@namespace, namespaceTableName);
-
-				sb.AppendIndent("var ");
-				sb.Append(namespaceTableName);
-				sb.Append(" = ");
-				sb.Append(nameof(LuaTableUtil));
-				sb.Append(".");
-				sb.Append(nameof(LuaTableUtil.GetOrCreateNamespaceTable));
-				sb.Append("(env, new[] { ");
-
-				var firstPart = true;
-				var namespaceParts = @namespace.Split('.');
-				foreach (var part in namespaceParts)
-				{
-					if (!firstPart)
-						sb.Append(", ");
-
-					sb.Append("\"");
-					sb.Append(part);
-					sb.Append("\"");
-					firstPart = false;
-				}
-				sb.AppendLine(" });");
-			}
-
-			foreach (var typeInfo in typeInfos)
-			{
-				var type = typeInfo.Type;
-				if (type.IsEnum)
-				{
-					// sb.AppendIndent(nameof(LuaEnumUtil));
-					// sb.Append(".");
-					// sb.Append(nameof(LuaEnumUtil.CreateEnumTable));
-					// sb.Append("(typeof(");
-					// sb.Append(typeInfo.BindTypeFullName);
-					// sb.AppendLine("));");
-				}
-				else
-				{
-					var namespaceTableName = namespaceTables[type.Namespace];
-					sb.AppendIndent(namespaceTableName);
-					sb.Append("[\"");
-					sb.Append(typeInfo.Type.Name);
-					sb.Append("\"] = new ");
-					sb.Append(typeInfo.StaticLuaTypeName);
-					sb.AppendLine("(parameters);");
-				}
-			}
+			sb.CloseIndentBlock("};");
 		}
 	}
 }

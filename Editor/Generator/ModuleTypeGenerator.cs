@@ -22,7 +22,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static readonly String[] Digits =
 			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
-		public static void Generate(LunyLuaModule module, String contentFolderPath, IList<GenTypeInfo> typeInfos)
+		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			foreach (var typeInfo in typeInfos)
 			{
@@ -35,7 +35,7 @@ namespace CodeSmileEditor.Luny.Generator
 				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb, typeInfo.Type.Namespace);
 				AddNamespaceBlock(sb, module.BindingsNamespace);
-				if (typeInfo.IsStatic == false)
+				if (typeInfo.HasInstanceType)
 					GenerateLuaType(sb, typeInfo, false);
 				GenerateLuaType(sb, typeInfo, true);
 				EndNamespaceBlock(sb);
@@ -83,18 +83,20 @@ namespace CodeSmileEditor.Luny.Generator
 				ModuleGenerator.TypeInfosByType.TryGetValue(typeInfo.Type.BaseType, out baseType);
 
 			AddOpenTypeDeclaration(sb, typeInfo, baseType, isLuaStaticType);
-			AddBindType(sb, typeInfo, isLuaStaticType);
 			if (isLuaStaticType)
 			{
-				AddObjectFactoryField(sb);
+				AddCreateInstanceMethod(sb, typeInfo);
 				AddStaticTypeConstructor(sb, typeInfo);
+				AddImplicitLuaValueConversionOperator(sb, luaTypeName);
+				AddObjectFactoryField(sb);
 			}
 			else
 			{
-				AddInstanceOrValueFieldAndProperty(sb, typeInfo, baseType);
 				AddInstanceTypeConstructor(sb, typeInfo, baseType);
+				AddImplicitLuaValueConversionOperator(sb, luaTypeName);
+				AddInstanceOrValueFieldAndProperty(sb, typeInfo, baseType);
 			}
-			AddImplicitLuaValueConversionOperator(sb, luaTypeName);
+			AddBindType(sb, typeInfo, isLuaStaticType);
 			AddILuaUserDataImplementations(sb, baseType != null);
 			AddToStringOverride(sb, typeInfo, isLuaStaticType);
 			sb.AppendLine();
@@ -106,6 +108,8 @@ namespace CodeSmileEditor.Luny.Generator
 			AddSetValueMethod(sb, typeInfo, baseType, isLuaStaticType, setters);
 			AddCloseTypeDeclaration(sb);
 		}
+
+
 
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
@@ -120,9 +124,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(", ");
 			}
 
-			sb.Append(nameof(ILuaUserData));
-			sb.Append(", ");
-			sb.Append(nameof(ILuaBindingType));
+			sb.Append(isLuaStaticType ? nameof(ILuaObjectType) : nameof(ILuaObject));
 
 			if (isLuaStaticType == false)
 			{
@@ -143,7 +145,16 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddCloseTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentBlock("}");
-
+		private static void AddCreateInstanceMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		{
+			sb.AppendIndent("public static LuaValue CreateInstance(");
+			sb.Append(nameof(LuaModuleLoader));
+			sb.Append(".");
+			sb.Append(nameof(LuaModuleLoader.Parameters));
+			sb.Append(" parameters) => new ");
+			sb.Append(typeInfo.StaticLuaTypeName);
+			sb.AppendLine("(parameters);");
+		}
 		private static void AddBindType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
 			sb.AppendIndent(isLuaStaticType || typeInfo.Type.IsValueType ? "public " : "public new ");
@@ -161,9 +172,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append("(");
 			sb.Append(nameof(LuaModuleLoader));
 			sb.Append(".");
-			sb.Append(nameof(LuaModuleLoader.ModuleParameters));
+			sb.Append(nameof(LuaModuleLoader.Parameters));
 			sb.Append(" parameters) => m_ObjectFactory = parameters.");
-			sb.Append(nameof(LuaModuleLoader.ModuleParameters.ObjectFactory));
+			sb.Append(nameof(LuaModuleLoader.Parameters.ObjectFactory));
 			sb.AppendLine(";");
 		}
 

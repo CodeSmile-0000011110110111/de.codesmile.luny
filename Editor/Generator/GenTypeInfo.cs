@@ -27,6 +27,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public String InstancePropertyName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
+		public Boolean HasInstanceType => IsStatic == false;
 
 		public override String ToString() => Type?.ToString() ?? GetType().Name;
 

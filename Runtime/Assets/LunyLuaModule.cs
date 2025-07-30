@@ -4,11 +4,9 @@
 using Lua;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -50,16 +48,17 @@ namespace CodeSmile.Luny
 				var marker = new ProfilerMarker(ProfilerCategory.Scripts, m_ModuleLoader.GetType().Name);
 				marker.Begin();
 
-				var loadParams = new LuaModuleLoader.ModuleParameters { ObjectFactory = lua.ObjectFactory, env = lua.State.Environment };
-				ModuleLoader.Load(loadParams);
+				//var loadParams = new LuaModuleLoader.Parameters { ObjectFactory = lua.ObjectFactory, env = lua.State.Environment };
+				//ModuleLoader.Load(loadParams);
 
-				var nsTables = CreateNamespaceTables(lua.State.Environment, ModuleLoader.GetNamespaces(), ModuleLoader.GetNamespaceParts());
-				var moduleTypes = ModuleLoader.GetModuleTypes();
-				RegisterEnumTypes(moduleTypes, nsTables);
+				var namespaces = ModuleLoader.GetNamespaces();
+				var namespaceParts = ModuleLoader.GetNamespaceParts();
+				var namespaceTables = CreateNamespaceTables(lua.State.Environment, namespaces, namespaceParts);
 
-				//Debug.Log($"{moduleTypes.Length} types in {ModuleLoader.GetType().Name}");
-				// foreach (var moduleType in moduleTypes)
-				// 	Debug.Log(moduleType);
+				var objectTypes = ModuleLoader.GetBindingTypes();
+				RegisterObjectTypes(lua, namespaceTables, objectTypes);
+				var enumTypes = ModuleLoader.GetEnumTypes();
+				RegisterEnumTypes(namespaceTables, enumTypes);
 
 				marker.End();
 			}
@@ -67,28 +66,47 @@ namespace CodeSmile.Luny
 				Debug.LogWarning($"LuaModule '{name}' has no {nameof(LuaModuleLoader)} reference. Try generating the module again.");
 		}
 
-		private static void RegisterEnumTypes(LuaModuleLoader.ModuleTypes moduleTypes, Dictionary<String, LuaTable> nsTables)
+		private void RegisterObjectTypes(ILunyLua lua, Dictionary<String, LuaTable> namespaceTables, LuaModuleLoader.LuaTypeInfo[] objectTypes)
 		{
+			var createParams = new LuaModuleLoader.Parameters { ObjectFactory = lua.ObjectFactory };
+
 			LuaTable nsTable = null;
-			string lastNamespace = null;
-			foreach (var enumType in moduleTypes.EnumTypes)
+			String lastNamespace = null;
+			foreach (var typeInfo in objectTypes)
 			{
-				if (lastNamespace != enumType.Namespace )
+				var bindType = typeInfo.BindingType;
+				if (lastNamespace != bindType.Namespace)
 				{
-					lastNamespace = enumType.Namespace;
-					nsTable = nsTables[enumType.Namespace];
+					lastNamespace = bindType.Namespace;
+					nsTable = namespaceTables[bindType.Namespace];
 				}
 
-				nsTable[enumType.Name] = LuaEnumUtil.CreateEnumTable(enumType);
+				nsTable[bindType.Name] = typeInfo.CreateStatic(createParams);
 			}
 		}
 
-		private Dictionary<string, LuaTable> CreateNamespaceTables(LuaTable env, String[] namespaces, String[][] namespaceParts)
+		private void RegisterEnumTypes(Dictionary<String, LuaTable> namespaceTables, Type[] enumTypes)
+		{
+			LuaTable nsTable = null;
+			String lastNamespace = null;
+			foreach (var typeInfo in enumTypes)
+			{
+				if (lastNamespace != typeInfo.Namespace)
+				{
+					lastNamespace = typeInfo.Namespace;
+					nsTable = namespaceTables[typeInfo.Namespace];
+				}
+
+				nsTable[typeInfo.Name] = LuaEnumUtil.CreateEnumTable(typeInfo);
+			}
+		}
+
+		private Dictionary<String, LuaTable> CreateNamespaceTables(LuaTable env, String[] namespaces, String[][] namespaceParts)
 		{
 			Debug.Assert(namespaces.Length == namespaceParts.Length);
 
-			var tables = new Dictionary<string, LuaTable>();
-			for (int i = 0; i < namespaces.Length; i++)
+			var tables = new Dictionary<String, LuaTable>();
+			for (var i = 0; i < namespaces.Length; i++)
 			{
 				var table = LuaTableUtil.GetOrCreateNamespaceTable(env, namespaceParts[i]);
 				tables.Add(namespaces[i], table);
