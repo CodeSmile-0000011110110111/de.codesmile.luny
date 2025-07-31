@@ -26,6 +26,16 @@ namespace CodeSmileEditor.Luny.Generator
 			AddDefaultSettings(sb);
 			sb.CloseIndentBlock("}");
 
+			/* TODO: consider adding version defines for current editor version
+    "versionDefines": [
+        {
+            "name": "Unity",
+            "expression": "[6000.0,6000.1)",
+            "define": "LUA_MODULE_VERSION_6_0"
+        }
+    ],
+			 */
+
 			var assetPath = $"{contentFolderPath}/_{asmDefName.Replace('.', '_')}.asmdef";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}

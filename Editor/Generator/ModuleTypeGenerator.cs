@@ -83,7 +83,7 @@ namespace CodeSmileEditor.Luny.Generator
 			AddOpenTypeDeclaration(sb, typeInfo, baseType, isLuaStaticType);
 			if (isLuaStaticType)
 			{
-				AddCreateInstanceMethod(sb, typeInfo);
+				AddStaticCreateMethod(sb, typeInfo, isLuaStaticType);
 				AddStaticTypeConstructor(sb, typeInfo);
 				AddImplicitLuaValueConversionOperator(sb, luaTypeName);
 				AddObjectFactoryField(sb);
@@ -143,12 +143,12 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddCloseTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentBlock("}");
-		private static void AddCreateInstanceMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddStaticCreateMethod(ScriptBuilder sb, GenTypeInfo typeInfo, bool isLuaStaticType)
 		{
-			sb.AppendIndent("public static LuaValue CreateInstance(");
-			sb.Append(nameof(LuaModuleLoader));
-			sb.Append(".");
-			sb.Append(nameof(LuaModuleLoader.Parameters));
+			sb.AppendIndent("public static LuaValue ");
+			sb.Append(isLuaStaticType ? nameof(LuaTypeInfo.CreateLuaType) : nameof(LuaTypeInfo.CreateLuaObject));
+			sb.Append("(");
+			sb.Append(nameof(CreateLuaTypeParameters));
 			sb.Append(" parameters) => new ");
 			sb.Append(typeInfo.StaticLuaTypeName);
 			sb.AppendLine("(parameters);");
@@ -157,7 +157,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent(isLuaStaticType || typeInfo.Type.IsValueType ? "public " : "public new ");
 			sb.Append("System.Type ");
-			sb.Append(nameof(ILuaBindingType.BindingType));
+			sb.Append(nameof(ILuaBindType.LuaBindType));
 			sb.Append(" => typeof(");
 			sb.Append(typeInfo.BindTypeFullName);
 			sb.AppendLine(");");
@@ -168,11 +168,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public ");
 			sb.Append(typeInfo.StaticLuaTypeName);
 			sb.Append("(");
-			sb.Append(nameof(LuaModuleLoader));
-			sb.Append(".");
-			sb.Append(nameof(LuaModuleLoader.Parameters));
+			sb.Append(nameof(CreateLuaTypeParameters));
 			sb.Append(" parameters) => m_ObjectFactory = parameters.");
-			sb.Append(nameof(LuaModuleLoader.Parameters.ObjectFactory));
+			sb.Append(nameof(CreateLuaTypeParameters.ObjectFactory));
 			sb.AppendLine(";");
 		}
 
@@ -248,7 +246,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public override System.String ToString() => ");
 			if (isLuaStaticType)
 			{
-				sb.Append(nameof(ILuaBindingType.BindingType));
+				sb.Append(nameof(ILuaBindType.LuaBindType));
 				sb.AppendLine(".FullName;");
 			}
 			else
@@ -291,8 +289,12 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("new ");
 			sb.AppendLine("LuaTable Metatable");
 			sb.OpenIndentBlock("{"); // { Metatable
-			sb.AppendIndentLine("get => s_Metatable ??= LunyUserdataMetatable.Create(__index, __newindex);");
-			sb.AppendIndentLine("set => throw new System.NotSupportedException(\"Metatable of bound types not assignable\");");
+			sb.AppendIndent("get => s_Metatable ??= ");
+			sb.Append(nameof(LuaObjectMetatable));
+			sb.Append(".");
+			sb.Append(nameof(LuaObjectMetatable.Create));
+			sb.AppendLine("(__index, __newindex);");
+			sb.AppendIndentLine("set => throw new System.NotSupportedException(\"LuaObject metatables cannot be modified\");");
 			sb.CloseIndentBlock("}"); // Metatable }
 			sb.AppendIndentLine("System.Span<LuaValue> ILuaUserData.UserValues => default;");
 		}
@@ -450,7 +452,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(argPosStr);
 			sb.Append("; ");
 			sb.Append("_expectedType = typeof(");
-			sb.Append(parameter.Type == typeof(Type) ? typeof(ILuaBindingType).FullName : parameter.TypeFullName);
+			sb.Append(parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName);
 			sb.AppendLine(");");
 
 			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
@@ -463,7 +465,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr,
 			Boolean useSignatureName = false)
 		{
-			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindingType).FullName : parameter.TypeFullName;
+			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName;
 			if (parameter.ParamInfo.HasDefaultValue)
 			{
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
@@ -550,7 +552,10 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(" = ");
 					sb.Append(parameters[paramIndex].VariableName);
 					if (parameters[paramIndex].Type == typeof(Type))
-						sb.Append(".BindingType");
+					{
+						sb.Append(".");
+						sb.Append(nameof(ILuaBindType.LuaBindType));
+					}
 					sb.AppendLine(";");
 				}
 				else
@@ -750,12 +755,14 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			throw new NotImplementedException();
 
+			/*
 			var isCtor = overloads.IsConstructor;
 			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
 			var bindFuncName = $"_{typeInfo.InstanceLuaTypeName}_{bindFuncNameSuffix}";
 			var indexCaseName = isCtor ? "new" : overloads.Name;
 			setters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; return true;");
 			return bindFuncName;
+		*/
 		}
 	}
 }

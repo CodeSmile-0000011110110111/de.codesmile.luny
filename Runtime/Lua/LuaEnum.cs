@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public static class LuaEnumUtil
+	public static class LuaEnum
 	{
 		private const String EnumValuesKey = "enumValues";
 		private const String EnumValuesCountKey = "enumValueCount";
@@ -42,7 +42,7 @@ namespace CodeSmile.Luny
 			return new ValueTask<Int32>(context.Return(_nextFunc, values, LuaValue.Nil));
 		});
 
-		public static LuaTable CreateEnumTable(Type enumType)
+		public static LuaTable Create(Type enumType)
 		{
 			Debug.Assert(enumType.IsEnum);
 

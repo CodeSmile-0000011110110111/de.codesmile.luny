@@ -28,7 +28,7 @@ namespace CodeSmile.Luny
 			{
 				if (m_ModuleLoader == null)
 				{
-					m_ModuleLoader = TryInstantiateType<LuaModuleLoader>(folderPath, m_ModuleLoaderTypeName);
+					m_ModuleLoader = TryInstantiateType<Loader>(folderPath, m_ModuleLoaderTypeName);
 					needsSaving = needsSaving || m_ModuleLoader != null;
 				}
 

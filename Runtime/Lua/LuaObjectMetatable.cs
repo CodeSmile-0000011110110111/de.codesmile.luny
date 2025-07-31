@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public static class LunyUserdataMetatable
+	public static class LuaObjectMetatable
 	{
 		private static readonly LuaFunction __tostring = new(Metamethods.ToString, (context, _) =>
 			{

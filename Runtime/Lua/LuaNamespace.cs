@@ -3,9 +3,9 @@ using System;
 
 namespace CodeSmile.Luny
 {
-	public static class LuaTableUtil
+	public static class LuaNamespace
 	{
-		public static LuaTable GetOrCreateNamespaceTable(LuaTable env, String[] namespaceParts)
+		public static LuaTable GetOrCreate(LuaTable env, String[] namespaceParts)
 		{
 			var current = env;
 			if (namespaceParts != null && namespaceParts.Length > 0)

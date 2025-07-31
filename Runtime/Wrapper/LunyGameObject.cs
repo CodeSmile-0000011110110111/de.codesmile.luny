@@ -20,8 +20,8 @@ namespace CodeSmile.Luny
 		public LunyGameObject(ILunyLua lua, GameObject gameObject)
 		{
 			throw new NotImplementedException(nameof(LunyGameObject));
-			m_LuaGameObject = lua.ObjectFactory.CreateLuaObject(m_UnityGameObject) as ILuaUnityGameObject;
-			m_UnityGameObject = gameObject;
+			//m_LuaGameObject = lua.ObjectFactory.CreateLuaObject(m_UnityGameObject) as ILuaUnityGameObject;
+			//m_UnityGameObject = gameObject;
 		}
 
 		internal void Dispose()

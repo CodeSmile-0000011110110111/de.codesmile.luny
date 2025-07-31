@@ -17,6 +17,22 @@ using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
+	[Flags]
+	public enum LuaLibraryFlags
+	{
+		// bit spacing is to maintain alphabetic sort order if libraries get added in the future
+		Basic = 1 << 2,
+		Bitwise = 1 << 5,
+		Coroutine = 1 << 8,
+		Debug = 1 << 11,
+		IO = 1 << 14,
+		Math = 1 << 17,
+		Module = 1 << 20,
+		OS = 1 << 23,
+		String = 1 << 26,
+		Table = 1 << 29,
+	}
+
 	/// <summary>
 	///     <a href="https://github.com/AnnulusGames/Lua-CSharp" target="_blank">Lua-CSharp</a> wrapper and Lua environment
 	///     initialization.
@@ -52,8 +68,8 @@ namespace CodeSmile.Luny
 				LuaValueType.Thread => "thread",
 				LuaValueType.LightUserData or LuaValueType.UserData =>
 					arg0.TryRead(out Object o) && o != null
-						? o is ILuaBindingType bt && bt.BindingType != null
-							? bt.BindingType.Name
+						? o is ILuaBindType bt && bt.LuaBindType != null
+							? bt.LuaBindType.Name
 							: o.GetType().Name
 						: "null",
 				LuaValueType.Table => "table",

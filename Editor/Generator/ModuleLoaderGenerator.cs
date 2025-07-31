@@ -54,7 +54,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public sealed class ");
 			sb.Append(loaderClassName);
 			sb.Append(" : ");
-			sb.AppendLine(nameof(LuaModuleLoader));
+			sb.Append(nameof(LunyLuaModule));
+			sb.Append(".");
+			sb.AppendLine(nameof(LunyLuaModule.Loader));
 			sb.OpenIndentBlock("{");
 		}
 
@@ -63,7 +65,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetNamespaces(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
 			sb.AppendIndent("public override System.String[] ");
-			sb.Append(nameof(LuaModuleLoader.GetNamespaces));
+			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaces));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
@@ -75,7 +77,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentBlock("};");
 
 			sb.AppendIndent("public override System.String[][] ");
-			sb.Append(nameof(LuaModuleLoader.GetNamespaceParts));
+			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceParts));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
@@ -101,35 +103,36 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetObjectTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			sb.AppendIndent("public override ");
-			sb.Append(nameof(LuaModuleLoader.LuaTypeInfo));
+			sb.Append(nameof(LuaTypeInfo));
 			sb.Append("[] ");
-			sb.Append(nameof(LuaModuleLoader.GetBindingTypes));
+			sb.Append(nameof(LunyLuaModule.Loader.GetBindingTypes));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var typeInfo in typeInfos.Where(t => t.Type.IsEnum == false))
 			{
 				sb.AppendIndent("new ");
-				sb.Append(nameof(LuaModuleLoader.LuaTypeInfo));
+				sb.Append(nameof(LuaTypeInfo));
 				sb.Append/*Line*/(" { ");
 				//sb.IncrementIndent();
 
-				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.BindingType));
+				sb.Append/*Indent*/(nameof(LuaTypeInfo.BindingType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.BindTypeFullName);
 				sb.Append/*Line*/("), ");
-				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.StaticType));
+				sb.Append/*Indent*/(nameof(LuaTypeInfo.LuaType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.StaticLuaTypeName);
 				sb.Append/*Line*/("), ");
-				sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.CreateStatic));
+				sb.Append/*Indent*/(nameof(LuaTypeInfo.CreateLuaType));
 				sb.Append(" = ");
 				sb.Append(typeInfo.StaticLuaTypeName);
-				sb.Append(".CreateInstance");
+				sb.Append(".");
+				sb.Append(nameof(LuaTypeInfo.CreateLuaType));
 
 				if (typeInfo.HasInstanceType)
 				{
 					sb.Append/*Line*/(", ");
-					sb.Append/*Indent*/(nameof(LuaModuleLoader.LuaTypeInfo.InstanceType));
+					sb.Append/*Indent*/(nameof(LuaTypeInfo.LuaObject));
 					sb.Append(" = typeof(");
 					sb.Append(typeInfo.InstanceLuaTypeName);
 					sb.Append(")");
@@ -150,7 +153,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetEnumTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			sb.AppendIndent("public override System.Type[] ");
-			sb.Append(nameof(LuaModuleLoader.GetEnumTypes));
+			sb.Append(nameof(LunyLuaModule.Loader.GetEnumTypes));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var enumTypeInfo in typeInfos.Where(t => t.Type.IsEnum))

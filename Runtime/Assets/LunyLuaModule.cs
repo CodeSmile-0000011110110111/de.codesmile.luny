@@ -23,7 +23,7 @@ namespace CodeSmile.Luny
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
 		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
-		[SerializeReference] [HideInInspector] private LuaModuleLoader m_ModuleLoader;
+		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String BindingsNamespace => $"Lua_{m_AssemblyName.Replace('.', '_')}";
@@ -35,7 +35,7 @@ namespace CodeSmile.Luny
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeName { get => m_ModuleLoaderTypeName; set => m_ModuleLoaderTypeName = value; }
-		internal LuaModuleLoader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
+		internal Loader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
 
 		public void Load(ILunyLua lua)
 		{
@@ -63,13 +63,13 @@ namespace CodeSmile.Luny
 				marker.End();
 			}
 			else
-				Debug.LogWarning($"LuaModule '{name}' has no {nameof(LuaModuleLoader)} reference. Try generating the module again.");
+				Debug.LogWarning($"{name} is missing the {nameof(Loader)} reference. Try generating this {nameof(LuaModule)} again.");
 		}
 
-		private void RegisterObjectTypes(ILunyLua lua, Dictionary<String, LuaTable> namespaceTables, LuaModuleLoader.LuaTypeInfo[] typeInfos)
+		private void RegisterObjectTypes(ILunyLua lua, Dictionary<String, LuaTable> namespaceTables, LuaTypeInfo[] typeInfos)
 		{
 			var objectFactory = lua.ObjectFactory;
-			var createParams = new LuaModuleLoader.Parameters { ObjectFactory = objectFactory };
+			var createParams = new CreateLuaTypeParameters { ObjectFactory = objectFactory };
 
 			LuaTable nsTable = null;
 			String lastNamespace = null;
@@ -82,7 +82,7 @@ namespace CodeSmile.Luny
 					nsTable = namespaceTables[bindType.Namespace];
 				}
 
-				nsTable[bindType.Name] = typeInfo.CreateStatic(createParams);
+				nsTable[bindType.Name] = typeInfo.CreateLuaType(createParams);
 				objectFactory.RegisterType(typeInfo);
 			}
 		}
@@ -99,7 +99,7 @@ namespace CodeSmile.Luny
 					nsTable = namespaceTables[typeInfo.Namespace];
 				}
 
-				nsTable[typeInfo.Name] = LuaEnumUtil.CreateEnumTable(typeInfo);
+				nsTable[typeInfo.Name] = LuaEnum.Create(typeInfo);
 			}
 		}
 
@@ -110,11 +110,21 @@ namespace CodeSmile.Luny
 			var tables = new Dictionary<String, LuaTable>();
 			for (var i = 0; i < namespaces.Length; i++)
 			{
-				var table = LuaTableUtil.GetOrCreateNamespaceTable(env, namespaceParts[i]);
+				var table = LuaNamespace.GetOrCreate(env, namespaceParts[i]);
 				tables.Add(namespaces[i], table);
 			}
 
 			return tables;
+		}
+
+		// Is abstract instead of interface for serialization in LunyLuaModule asset
+		[Serializable]
+		public abstract class Loader
+		{
+			public abstract String[] GetNamespaces();
+			public abstract String[][] GetNamespaceParts();
+			public abstract LuaTypeInfo[] GetBindingTypes();
+			public abstract Type[] GetEnumTypes();
 		}
 
 #if UNITY_EDITOR
