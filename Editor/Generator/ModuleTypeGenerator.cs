@@ -52,9 +52,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("using Lua.Runtime;");
 			sb.AppendLine("using Lua.Unity;");
 			sb.AppendLine("using System.Threading.Tasks;");
-			sb.Append("using ");
-			sb.Append(@namespace);
-			sb.AppendLine(";\n");
+			sb.AppendLine("using UnityEngine;");
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
@@ -99,6 +97,7 @@ namespace CodeSmileEditor.Luny.Generator
 			AddBindType(sb, typeInfo, isLuaStaticType);
 			AddILuaUserDataImplementations(sb, baseType != null);
 			AddToStringOverride(sb, typeInfo, isLuaStaticType);
+			AddResetStaticFields(sb);
 			sb.AppendLine();
 			AddMemberBindings(sb, typeInfo, members, out var getters, out var setters);
 			AddIndexMetamethod(sb, luaTypeName);
@@ -108,7 +107,6 @@ namespace CodeSmileEditor.Luny.Generator
 			AddSetValueMethod(sb, typeInfo, baseType, isLuaStaticType, setters);
 			AddCloseTypeDeclaration(sb);
 		}
-
 
 
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
@@ -268,6 +266,14 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.AppendLine(".ToString() : \"(null)\";");
 				}
 			}
+		}
+
+		private static void AddResetStaticFields(ScriptBuilder sb)
+		{
+			sb.AppendLine("#if UNITY_EDITOR");
+			sb.AppendIndentLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
+			sb.AppendIndentLine("private static void ResetStaticFields() => s_Metatable = null;");
+			sb.AppendLine("#endif");
 		}
 
 		private static void AddImplicitLuaValueConversionOperator(ScriptBuilder sb, String typeName)
