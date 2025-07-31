@@ -19,7 +19,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public readonly String StaticLuaTypeName;
 		public readonly String BindTypeFullName;
 		public readonly Boolean IsStatic;
-		public readonly Boolean CanBeSealed;
+		public readonly Boolean IsSealed;
 		public readonly Boolean IsUnityObjectType;
 		public readonly Boolean IsUnityGameObjectType;
 		public readonly Boolean IsUnityComponentType;
@@ -45,7 +45,7 @@ namespace CodeSmileEditor.Luny.Generator
 			if (type.IsEnum == false)
 			{
 				IsStatic = type.IsAbstract && type.IsSealed;
-				CanBeSealed = type.IsValueType == false && (IsStatic || type.IsSealed || childTypes?.Count() == 0);
+				IsSealed = type.IsValueType == false && (IsStatic || type.IsSealed || childTypes?.Count() == 0);
 				IsUnityObjectType = Type == typeof(UnityEngine.Object);
 				IsUnityGameObjectType = Type == typeof(GameObject);
 				IsUnityComponentType = Type.IsSubclassOf(typeof(Component)) || Type == typeof(Component);
@@ -260,7 +260,21 @@ namespace CodeSmileEditor.Luny.Generator
 						MethodInfo = overload,
 						ParamInfos = optionalParamInfos,
 					};
-					allMethods.Add(optionalParamMethod);
+
+					// avoid duplicate signatures
+					var shouldAdd = true;
+					foreach (var methodInfo in allMethods.Where(m => m.ParamInfos.Length == optionalParamInfos.Length))
+					{
+						var matchingParams = methodInfo.ParamInfos.Where((p, i) => p.Type == optionalParamInfos[i].Type);
+						if (matchingParams.Count() == optionalParamInfos.Length)
+						{
+							shouldAdd = false;
+							break;
+						}
+					}
+
+					if (shouldAdd)
+						allMethods.Add(optionalParamMethod);
 				}
 
 				allMethods.Add(overloadInfo);
@@ -332,7 +346,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var sb = new StringBuilder();
 			sb.Append(MethodInfo.Name);
-			sb.Append(" (");
+			sb.Append("(");
 
 			for (var i = 0; i < ParamInfos.Length; i++)
 			{
@@ -344,9 +358,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(paramInfo.Name);
 			}
 
-			sb.Append(")  ");
-			sb.Append(ParamCount);
-			sb.Append(" params");
+			sb.Append(")");
 
 			return sb.ToString();
 		}

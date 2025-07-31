@@ -9,6 +9,7 @@ using Lua.Unity;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -181,6 +182,7 @@ namespace CodeSmile.Luny
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
 			var standardIO = new LunyLuaStandardIO(luaContext);
 			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
+			m_LuaState.UserData = new LunyLuaStateData { ObjectFactory = ObjectFactory };
 			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
 
 			var libraries = luaContext.Libraries;
@@ -215,11 +217,12 @@ namespace CodeSmile.Luny
 
 			LuaModuleFactory.LoadModules(this, luaContext);
 
-			// Apply loaded namespaces and their types
+			// assign loaded namespaces and their types to global env
 			var env = m_LuaState.Environment;
 			foreach (var ns in Namespaces.Values)
 				env[ns.Name] = ns.Table;
 
+			// TODO: use env metatable to lookup namespace types
 			// var envMetatable = new LuaTable(0, 1);
 			// envMetatable[Metamethods.Index] = __indexEnvironment;
 			// m_LuaState.Environment.Metatable = envMetatable;
@@ -241,9 +244,6 @@ namespace CodeSmile.Luny
 			async ValueTask<Int32> LoadFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
 			{
 				var arg0 = context.GetArgument<String>(0);
-				// var mode = context.HasArgument(1)
-				// 	? context.GetArgument<string>(1)
-				// 	: "bt";
 				var arg2 = context.HasArgument(2)
 					? context.GetArgument<LuaTable>(2)
 					: null;
@@ -346,5 +346,8 @@ namespace CodeSmile.Luny
 		}
 
 		internal void ClearChangedScripts() => m_FileWatcher.ClearChangedFiles();
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static ILuaObjectFactory GetObjectFactory(LuaFunctionExecutionContext context) => ((LunyLuaStateData)context.State.UserData).ObjectFactory;
 	}
 }

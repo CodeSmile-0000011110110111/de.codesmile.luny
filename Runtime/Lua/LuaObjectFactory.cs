@@ -16,22 +16,10 @@ namespace CodeSmile.Luny
 		public ILuaObjectFactory ObjectFactory;
 	}
 
-	public struct CreateLuaObjectParameters
-	{
-		public Object Reference;
-		public ILuaObjectFactory ObjectFactory;
-	}
-
-	public struct CreateLuaValueTypeParameters
-	{
-		//public ILuaValueType Reference;
-		//public ILuaObjectFactory ObjectFactory;
-	}
-
 	public struct LuaTypeInfo
 	{
 		public delegate LuaValue CreateLuaTypeCallback(CreateLuaTypeParameters parameters);
-		public delegate LuaValue CreateLuaObjectCallback(CreateLuaObjectParameters parameters);
+		public delegate LuaValue CreateLuaObjectCallback(Object bindInstance);
 
 		public String Name; // this may in future differ from Type.Name (eg generics)
 		public Type BindType;
@@ -52,44 +40,23 @@ namespace CodeSmile.Luny
 
 	public interface ILuaObjectFactory
 	{
-		delegate ILuaObject CreateLuaObjectDelegate(CreateLuaObjectParameters createParameters);
-
-		// event Action<ILuaObject> OnLuaObjectCreated;
-		// CreateLuaObjectDelegate OnCreateLuaObject { get; set; }
-		//ILuaUserData CreateLuaValueType([NotNull] ILuaValueType valueType);
-		ILuaUserData CreateLuaObject([NotNull] Object obj, [NotNull] CreateLuaObjectDelegate createInstance);
+		LuaValue CreateLuaObjectInstance([NotNull] Object bindInstance);
 	}
 
-	/*
-	public struct LuaType
-	{
-		public LuaTypeInfo TypeInfo;
-		public LuaValue TypeInstance;
-		public LuaType(LuaTypeInfo typeInfo, LuaValue typeInstance)
-		{
-			TypeInfo = typeInfo;
-			TypeInstance = typeInstance;
-		}
-	}
-	*/
-
-	public sealed class LuaObjectFactory : ILuaObjectFactory
+	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
 	{
 		private readonly Dictionary<Type, LuaTypeInfo> m_LuaTypes = new();
 
-		public ILuaUserData CreateLuaObject(Object obj, ILuaObjectFactory.CreateLuaObjectDelegate createInstance)
-		{
-			var luaTypeInfo = GetLuaTypeInfo(obj);
-			var instanceType = luaTypeInfo.LuaObject;
+		public LuaTable Metatable { get; set; }
 
-			// if (OnCreateLuaObject == null || OnCreateLuaObject(obj, instanceType, out var userData) == false)
-			// {
-			// 	//luaTypeInfo.CreateInstance(obj);
-			// 	userData = (ILuaObject)Activator.CreateInstance(instanceType, obj);
-			// }
-			//
-			// OnLuaObjectCreated?.Invoke(userData);
-			return null;
+		public LuaValue CreateLuaObjectInstance(Object bindInstance)
+		{
+			Debug.Assert(bindInstance != null);
+			Debug.Assert(bindInstance.GetType().IsValueType == false, "should not be used with value types");
+
+			var luaTypeInfo = GetLuaTypeInfo(bindInstance);
+			var luaInstance = luaTypeInfo.CreateLuaObject(bindInstance);
+			return luaInstance;
 		}
 
 		private void AddLuaType(LuaTypeInfo luaType) => m_LuaTypes[luaType.BindType] = luaType;
@@ -111,10 +78,6 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		private LuaTypeInfo GetLuaTypeInfo(Object obj)
-		{
-			var luaType = m_LuaTypes[obj.GetType()];
-			return luaType;
-		}
+		private LuaTypeInfo GetLuaTypeInfo<T>(T obj) => m_LuaTypes[obj.GetType()];
 	}
 }

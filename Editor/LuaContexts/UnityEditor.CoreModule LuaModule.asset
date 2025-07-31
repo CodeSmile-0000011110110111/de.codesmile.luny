@@ -1027,14 +1027,13 @@ MonoBehaviour:
   - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
   m_TypeBlacklist: []
   m_ContentFolderGuid: d954174a17030aa4cb873cc3554a2470
-  m_ModuleLoaderTypeName: Lua_UnityEditor_CoreModule.Lua_UnityEditor_CoreModule
+  m_ModuleLoaderTypeName: 
   m_ModuleLoader:
-    rid: 2561253672414871798
+    rid: -2
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: 2561253672414871798
-      type: {class: Lua_UnityEditor_CoreModule, ns: Lua_UnityEditor_CoreModule, asm: Lua_UnityEditor_CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }

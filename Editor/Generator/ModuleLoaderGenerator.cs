@@ -138,13 +138,16 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append(nameof(LuaTypeInfo.LuaObject));
 					sb.Append(" = typeof(");
 					sb.Append(typeInfo.InstanceLuaTypeName);
-					sb.Append(")");
+					sb.Append("), ");
 
-					// sb.AppendLine();
-					// sb.AppendIndent(nameof(LuaModuleLoader.LuaTypeInfo.CreateLuaObjectInstance));
-					// sb.Append(" = ");
-					// sb.Append(typeInfo.InstanceLuaTypeName);
-					// sb.Append(".CreateInstance");
+					if (typeInfo.Type.IsValueType == false)
+					{
+						sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
+						sb.Append(" = ");
+						sb.Append(typeInfo.InstanceLuaTypeName);
+						sb.Append(".");
+						sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
+					}
 				}
 
 				sb.AppendLine(" },");
