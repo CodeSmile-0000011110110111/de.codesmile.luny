@@ -3,6 +3,7 @@
 
 using Lua;
 using Lua.Platforms;
+using Lua.Runtime;
 using Lua.Standard;
 using Lua.Unity;
 using System;
@@ -43,6 +44,8 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
+		LuaNamespaces Namespaces { get; }
+		LuaEnums Enums { get; }
 		ILuaObjectFactory ObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
@@ -78,14 +81,29 @@ namespace CodeSmile.Luny
 			return new ValueTask<Int32>(context.Return(typeName));
 		});
 
+		private static LuaFunction __indexEnvironment = new(Metamethods.Index, (context, _) =>
+		{
+			var env = context.GetArgument<LuaTable>(0);
+			var key = context.GetArgument(1);
+			if (env.TryGetValue(key, out var value))
+				return new ValueTask<Int32>(context.Return(value));
+
+			// TODO:
+			// lookup in usings, enums and namespaces
+			throw new NotImplementedException("env metatable lookup");
+
+			return new ValueTask<Int32>(context.Return(0));
+		});
+
 		private readonly LunyLuaScriptCollection m_Scripts;
 		private LuaState m_LuaState;
 		private LunyLuaFileWatcher m_FileWatcher;
-		private ILuaObjectFactory m_ObjectFactory;
 
 		public LuaState State => m_LuaState;
-		public ILuaObjectFactory ObjectFactory => m_ObjectFactory;
-		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
+		public LuaNamespaces Namespaces { get; } = new();
+		public LuaEnums Enums { get; } = new();
+		public ILuaObjectFactory ObjectFactory { get; private set; }
+		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
@@ -147,7 +165,7 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			ClearScripts();
-			m_ObjectFactory = null;
+			ObjectFactory = null;
 			m_FileWatcher?.Dispose();
 			m_FileWatcher = null;
 			m_LuaState.Environment.Clear();
@@ -157,7 +175,7 @@ namespace CodeSmile.Luny
 		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
 			m_FileWatcher = new LunyLuaFileWatcher(luaContext);
-			m_ObjectFactory = new LuaObjectFactory();
+			ObjectFactory = new LuaObjectFactory();
 
 			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LunyLuaOsEnvironment(luaContext);
@@ -195,10 +213,16 @@ namespace CodeSmile.Luny
 
 			AddAndOverrideGlobalFunctions();
 
-			foreach (var module in luaContext.Modules)
-			{
-				module.Load(this);
-			}
+			LuaModuleFactory.LoadModules(this, luaContext);
+
+			// Apply loaded namespaces and their types
+			var env = m_LuaState.Environment;
+			foreach (var ns in Namespaces.Values)
+				env[ns.Name] = ns.Table;
+
+			// var envMetatable = new LuaTable(0, 1);
+			// envMetatable[Metamethods.Index] = __indexEnvironment;
+			// m_LuaState.Environment.Metatable = envMetatable;
 		}
 
 		private void InstallBasicLibraryOverrides()

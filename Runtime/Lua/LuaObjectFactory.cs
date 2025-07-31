@@ -33,7 +33,8 @@ namespace CodeSmile.Luny
 		public delegate LuaValue CreateLuaTypeCallback(CreateLuaTypeParameters parameters);
 		public delegate LuaValue CreateLuaObjectCallback(CreateLuaObjectParameters parameters);
 
-		public Type BindingType;
+		public String Name; // this may in future differ from Type.Name (eg generics)
+		public Type BindType;
 		public Type LuaType;
 		public Type LuaObject;
 		public CreateLuaTypeCallback CreateLuaType;
@@ -57,27 +58,24 @@ namespace CodeSmile.Luny
 		// CreateLuaObjectDelegate OnCreateLuaObject { get; set; }
 		//ILuaUserData CreateLuaValueType([NotNull] ILuaValueType valueType);
 		ILuaUserData CreateLuaObject([NotNull] Object obj, [NotNull] CreateLuaObjectDelegate createInstance);
-		void RegisterType(LuaTypeInfo typeInfo);
 	}
 
-	// public interface ILuaGameObjectFactory
-	// {
-	// 	ILuaUnityGameObject CreateLuaGameObject([NotNull] GameObject gameObject);
-	// }
-	//
-	// public interface ILuaComponentFactory
-	// {
-	// 	ILuaUnityComponent CreateLuaUnityComponent([NotNull] Component component);
-	// }
-
-	public sealed class LuaObjectFactory : ILuaObjectFactory //, ILuaGameObjectFactory, ILuaComponentFactory
+	/*
+	public struct LuaType
 	{
-		// public event Action<ILuaObject> OnLuaObjectCreated;
+		public LuaTypeInfo TypeInfo;
+		public LuaValue TypeInstance;
+		public LuaType(LuaTypeInfo typeInfo, LuaValue typeInstance)
+		{
+			TypeInfo = typeInfo;
+			TypeInstance = typeInstance;
+		}
+	}
+	*/
 
+	public sealed class LuaObjectFactory : ILuaObjectFactory
+	{
 		private readonly Dictionary<Type, LuaTypeInfo> m_LuaTypes = new();
-		// public ILuaObjectFactory.CreateLuaObjectDelegate OnCreateLuaObject { get; set; }
-
-		public void RegisterType(LuaTypeInfo typeInfo) => m_LuaTypes[typeInfo.BindingType] = typeInfo;
 
 		public ILuaUserData CreateLuaObject(Object obj, ILuaObjectFactory.CreateLuaObjectDelegate createInstance)
 		{
@@ -92,6 +90,25 @@ namespace CodeSmile.Luny
 			//
 			// OnLuaObjectCreated?.Invoke(userData);
 			return null;
+		}
+
+		private void AddLuaType(LuaTypeInfo luaType) => m_LuaTypes[luaType.BindType] = luaType;
+
+		internal void LoadLuaTypes(LuaNamespaces namespaces, LuaTypeInfo[] luaTypeInfos)
+		{
+			var createParams = new CreateLuaTypeParameters { ObjectFactory = this };
+
+			foreach (var luaTypeInfo in luaTypeInfos)
+			{
+				var ns = luaTypeInfo.BindType.Namespace;
+				var luaNamespace = namespaces[ns];
+				if (luaNamespace == null)
+					throw new Exception($"Lua namespace does not exist: {ns}");
+
+				var typeInstance = luaTypeInfo.CreateLuaType(createParams);
+				luaNamespace.Table[luaTypeInfo.Name] = typeInstance;
+				AddLuaType(luaTypeInfo);
+			}
 		}
 
 		private LuaTypeInfo GetLuaTypeInfo(Object obj)

@@ -66,7 +66,8 @@ namespace CodeSmileEditor.Luny
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
 
-			DoAutoRunScripts().Preserve().GetAwaiter().GetResult();
+			// delayed, otherwise Editor may create Lua State "too early" after generating module code
+			EditorApplication.delayCall += () => DoAutoRunScripts().Preserve().GetAwaiter().GetResult();
 		}
 
 		// OnDisable runs before every domain reload

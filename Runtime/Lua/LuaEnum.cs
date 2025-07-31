@@ -5,13 +5,17 @@ using Lua;
 using Lua.Runtime;
 using Lua.Standard;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public static class LuaEnum
+	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
+	public sealed class LuaEnums : Dictionary<Type, LuaEnum> {}
+
+	public sealed class LuaEnum
 	{
 		private const String EnumValuesKey = "enumValues";
 		private const String EnumValuesCountKey = "enumValueCount";
@@ -42,10 +46,11 @@ namespace CodeSmile.Luny
 			return new ValueTask<Int32>(context.Return(_nextFunc, values, LuaValue.Nil));
 		});
 
-		public static LuaTable Create(Type enumType)
-		{
-			Debug.Assert(enumType.IsEnum);
+		public Type Type { get; }
+		public LuaTable Table { get; }
 
+		public static LuaEnum Create(Type enumType)
+		{
 			var enumNames = Enum.GetNames(enumType);
 			var enumValues = Enum.GetValues(enumType);
 			var valueCount = enumNames.Length;
@@ -63,7 +68,13 @@ namespace CodeSmile.Luny
 
 			var enumTable = new LuaTable(0, 0);
 			enumTable.Metatable = metatable;
-			return enumTable;
+			return new LuaEnum(enumType, enumTable);
+		}
+
+		private LuaEnum(Type type, LuaTable enumTable)
+		{
+			Type = type;
+			Table = enumTable;
 		}
 	}
 }

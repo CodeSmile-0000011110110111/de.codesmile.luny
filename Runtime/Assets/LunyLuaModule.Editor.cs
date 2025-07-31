@@ -19,15 +19,18 @@ namespace CodeSmile.Luny
 			// must delay because SerializationUtility & AssetDatabase cannot be used during serialization
 			EditorApplication.delayCall += () => UpdateGeneratedReferences();
 
-		private void UpdateGeneratedReferences()
+		public Boolean ContentFolderExists() => String.IsNullOrEmpty(m_ContentFolderGuid) == false &&
+		                                        AssetDatabase.IsValidFolder(AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid));
+
+		internal void UpdateGeneratedReferences()
 		{
 			var needsSaving = ClearMissingSerializeReferenceTypeWarning();
 
-			var folderPath = AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid);
-			if (AssetDatabase.IsValidFolder(folderPath))
+			if (ContentFolderExists())
 			{
 				if (m_ModuleLoader == null)
 				{
+					var folderPath = AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid);
 					m_ModuleLoader = TryInstantiateType<Loader>(folderPath, m_ModuleLoaderTypeName);
 					needsSaving = needsSaving || m_ModuleLoader != null;
 				}
@@ -74,6 +77,8 @@ namespace CodeSmile.Luny
 
 		internal void ClearGeneratedTypeReferences()
 		{
+			if (ContentFolderExists() == false)
+				m_ContentFolderGuid = null;
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeName = null;
 		}

@@ -65,7 +65,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetNamespaces(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
 			sb.AppendIndent("public override System.String[] ");
-			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaces));
+			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceNames));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
@@ -105,25 +105,28 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public override ");
 			sb.Append(nameof(LuaTypeInfo));
 			sb.Append("[] ");
-			sb.Append(nameof(LunyLuaModule.Loader.GetBindingTypes));
+			sb.Append(nameof(LunyLuaModule.Loader.GetLuaTypes));
 			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var typeInfo in typeInfos.Where(t => t.Type.IsEnum == false))
 			{
 				sb.AppendIndent("new ");
 				sb.Append(nameof(LuaTypeInfo));
-				sb.Append/*Line*/(" { ");
-				//sb.IncrementIndent();
+				sb.Append(" { ");
 
-				sb.Append/*Indent*/(nameof(LuaTypeInfo.BindingType));
+				sb.Append(nameof(LuaTypeInfo.Name));
+				sb.Append(" = \"");
+				sb.Append(typeInfo.Type.Name);
+				sb.Append("\", ");
+				sb.Append(nameof(LuaTypeInfo.BindType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.BindTypeFullName);
-				sb.Append/*Line*/("), ");
-				sb.Append/*Indent*/(nameof(LuaTypeInfo.LuaType));
+				sb.Append("), ");
+				sb.Append(nameof(LuaTypeInfo.LuaType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.StaticLuaTypeName);
-				sb.Append/*Line*/("), ");
-				sb.Append/*Indent*/(nameof(LuaTypeInfo.CreateLuaType));
+				sb.Append("), ");
+				sb.Append(nameof(LuaTypeInfo.CreateLuaType));
 				sb.Append(" = ");
 				sb.Append(typeInfo.StaticLuaTypeName);
 				sb.Append(".");
@@ -131,8 +134,8 @@ namespace CodeSmileEditor.Luny.Generator
 
 				if (typeInfo.HasInstanceType)
 				{
-					sb.Append/*Line*/(", ");
-					sb.Append/*Indent*/(nameof(LuaTypeInfo.LuaObject));
+					sb.Append(", ");
+					sb.Append(nameof(LuaTypeInfo.LuaObject));
 					sb.Append(" = typeof(");
 					sb.Append(typeInfo.InstanceLuaTypeName);
 					sb.Append(")");
@@ -145,7 +148,6 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 
 				sb.AppendLine(" },");
-				//sb.DecrementIndent();
 			}
 			sb.CloseIndentBlock("};");
 		}

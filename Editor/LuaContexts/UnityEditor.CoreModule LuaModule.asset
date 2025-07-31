@@ -83,15 +83,7 @@ MonoBehaviour:
   - Unity.Profiling.Editor.ProfilerModuleChartType
   - Unity.Profiling.Editor.ProfilerModuleViewController
   - UnityEditor.ActionOnDotNetUnhandledException
-  - UnityEditor.Actions.ContextMenuUtility
-  - UnityEditor.Actions.EditorAction
-  - UnityEditor.Actions.EditorActionResult
   - UnityEditor.ActiveEditorTracker
-  - UnityEditor.Advertisements.AdvertisementSettings
-  - UnityEditor.AI.NavMeshEditorHelpers
-  - UnityEditor.AI.NavMeshVisualizationSettings
-  - UnityEditor.Analytics.AnalyticsSettings
-  - UnityEditor.Analytics.PerformanceReportingSettings
   - UnityEditor.AndroidApplicationEntry
   - UnityEditor.AndroidArchitecture
   - UnityEditor.AndroidAssetPackImporter
@@ -110,25 +102,6 @@ MonoBehaviour:
   - UnityEditor.AnimationClipSettings
   - UnityEditor.AnimationMode
   - UnityEditor.AnimationModeDriver
-  - UnityEditor.Animations.AnimatorCondition
-  - UnityEditor.Animations.AnimatorConditionMode
-  - UnityEditor.Animations.AnimatorController
-  - UnityEditor.Animations.AnimatorControllerLayer
-  - UnityEditor.Animations.AnimatorLayerBlendingMode
-  - UnityEditor.Animations.AnimatorState
-  - UnityEditor.Animations.AnimatorStateMachine
-  - UnityEditor.Animations.AnimatorStateTransition
-  - UnityEditor.Animations.AnimatorTransition
-  - UnityEditor.Animations.AnimatorTransitionBase
-  - UnityEditor.Animations.BlendTree
-  - UnityEditor.Animations.BlendTreeType
-  - UnityEditor.Animations.ChildAnimatorState
-  - UnityEditor.Animations.ChildAnimatorStateMachine
-  - UnityEditor.Animations.ChildMotion
-  - UnityEditor.Animations.CurveFilterOptions
-  - UnityEditor.Animations.GameObjectRecorder
-  - UnityEditor.Animations.StateMachineBehaviourContext
-  - UnityEditor.Animations.TransitionInterruptionSource
   - UnityEditor.AnimationUtility
   - UnityEditor.AnimationUtility+CurveModifiedType
   - UnityEditor.AnimationUtility+TangentMode
@@ -147,25 +120,6 @@ MonoBehaviour:
   - UnityEditor.AssetDeleteResult
   - UnityEditor.AssetImporter
   - UnityEditor.AssetImporter+SourceAssetIdentifier
-  - UnityEditor.AssetImporters.AssetImportContext
-  - UnityEditor.AssetImporters.AssetImporterEditor
-  - UnityEditor.AssetImporters.CameraDescription
-  - UnityEditor.AssetImporters.FBXMaterialDescriptionPreprocessor
-  - UnityEditor.AssetImporters.ImportLog
-  - UnityEditor.AssetImporters.ImportLog+ImportLogEntry
-  - UnityEditor.AssetImporters.ImportLogFlags
-  - UnityEditor.AssetImporters.LightDescription
-  - UnityEditor.AssetImporters.MaterialDescription
-  - UnityEditor.AssetImporters.ScriptedImporter
-  - UnityEditor.AssetImporters.ScriptedImporterEditor
-  - UnityEditor.AssetImporters.SketchupMaterialDescriptionPreprocessor
-  - UnityEditor.AssetImporters.SourceTextureInformation
-  - UnityEditor.AssetImporters.SpriteImportData
-  - UnityEditor.AssetImporters.TextureGenerationOutput
-  - UnityEditor.AssetImporters.TextureGenerationSettings
-  - UnityEditor.AssetImporters.TextureGenerator
-  - UnityEditor.AssetImporters.TexturePropertyDescription
-  - UnityEditor.AssetImporters.ThreeDSMaterialDescriptionPreprocessor
   - UnityEditor.AssetModificationProcessor
   - UnityEditor.AssetMoveResult
   - UnityEditor.AssetPathToGUIDOptions
@@ -174,7 +128,6 @@ MonoBehaviour:
   - UnityEditor.AssetPreview
   - UnityEditor.AssetSettingsProvider
   - UnityEditor.AssetStoreAsset
-  - UnityEditor.Audio.AudioMixerEffectPlugin
   - UnityEditor.AudioCurveRendering
   - UnityEditor.AudioImporter
   - UnityEditor.AudioImporterSampleSettings
@@ -182,63 +135,6 @@ MonoBehaviour:
   - UnityEditor.BodyPart
   - UnityEditor.BoneState
   - UnityEditor.BrokenPrefabAsset
-  - UnityEditor.Build.BuildPipelineContext
-  - UnityEditor.Build.BuildPlayerContext
-  - UnityEditor.Build.BuildPlayerProcessor
-  - UnityEditor.Build.Content.AssetBundleInfo
-  - UnityEditor.Build.Content.AssetLoadInfo
-  - UnityEditor.Build.Content.BuildReferenceMap
-  - UnityEditor.Build.Content.BuildSettings
-  - UnityEditor.Build.Content.BuildUsageCache
-  - UnityEditor.Build.Content.BuildUsageTagGlobal
-  - UnityEditor.Build.Content.BuildUsageTagSet
-  - UnityEditor.Build.Content.ContentBuildFlags
-  - UnityEditor.Build.Content.ContentBuildInterface
-  - UnityEditor.Build.Content.ContentBuildProfileEvent
-  - UnityEditor.Build.Content.DependencyType
-  - UnityEditor.Build.Content.ExternalFileReference
-  - UnityEditor.Build.Content.FileType
-  - UnityEditor.Build.Content.GameManagerDependencyInfo
-  - UnityEditor.Build.Content.ObjectIdentifier
-  - UnityEditor.Build.Content.ObjectSerializedInfo
-  - UnityEditor.Build.Content.PreloadInfo
-  - UnityEditor.Build.Content.ProfileCaptureOptions
-  - UnityEditor.Build.Content.ProfileEventType
-  - UnityEditor.Build.Content.ResourceFile
-  - UnityEditor.Build.Content.SceneBundleInfo
-  - UnityEditor.Build.Content.SceneDependencyInfo
-  - UnityEditor.Build.Content.SceneLoadInfo
-  - UnityEditor.Build.Content.SerializationInfo
-  - UnityEditor.Build.Content.SerializedLocation
-  - UnityEditor.Build.Content.WriteCommand
-  - UnityEditor.Build.Content.WriteManagerParameters
-  - UnityEditor.Build.Content.WriteParameters
-  - UnityEditor.Build.Content.WriteResult
-  - UnityEditor.Build.Content.WriteSceneParameters
-  - UnityEditor.Build.Il2CppCodeGeneration
-  - UnityEditor.Build.NamedBuildTarget
-  - UnityEditor.Build.OSArchitecture
-  - UnityEditor.Build.OverrideTextureCompression
-  - UnityEditor.Build.Player.PlayerBuildInterface
-  - UnityEditor.Build.Player.ScriptCompilationOptions
-  - UnityEditor.Build.Player.ScriptCompilationResult
-  - UnityEditor.Build.Player.ScriptCompilationSettings
-  - UnityEditor.Build.Player.TypeDB
-  - UnityEditor.Build.Player.TypeDbHelper
-  - UnityEditor.Build.Profile.BuildProfile
-  - UnityEditor.Build.Reporting.BuildFile
-  - UnityEditor.Build.Reporting.BuildReport
-  - UnityEditor.Build.Reporting.BuildResult
-  - UnityEditor.Build.Reporting.BuildStep
-  - UnityEditor.Build.Reporting.BuildStepMessage
-  - UnityEditor.Build.Reporting.BuildSummary
-  - UnityEditor.Build.Reporting.BuildType
-  - UnityEditor.Build.Reporting.CommonRoles
-  - UnityEditor.Build.Reporting.PackedAssetInfo
-  - UnityEditor.Build.Reporting.PackedAssets
-  - UnityEditor.Build.Reporting.ScenesUsingAsset
-  - UnityEditor.Build.Reporting.ScenesUsingAssets
-  - UnityEditor.Build.Reporting.StrippingInfo
   - UnityEditor.BuildAssetBundleOptions
   - UnityEditor.BuildAssetBundlesParameters
   - UnityEditor.BuildOptions
@@ -253,7 +149,6 @@ MonoBehaviour:
   - UnityEditor.CacheServerConnectionChangedParameters
   - UnityEditor.CacheServerMode
   - UnityEditor.CacheServerValidationMode
-  - UnityEditor.Callbacks.OnOpenAssetAttributeMode
   - UnityEditor.CameraEditor
   - UnityEditor.CameraEditor+Settings
   - UnityEditor.CameraEditorUtils
@@ -275,29 +170,10 @@ MonoBehaviour:
   - UnityEditor.CommandExecuteContext
   - UnityEditor.CommandHint
   - UnityEditor.CommandService
-  - UnityEditor.Compilation.AssembliesType
-  - UnityEditor.Compilation.Assembly
-  - UnityEditor.Compilation.AssemblyBuilderFlags
-  - UnityEditor.Compilation.AssemblyBuilderStatus
-  - UnityEditor.Compilation.AssemblyDefinitionPlatform
-  - UnityEditor.Compilation.AssemblyDefinitionReferenceType
-  - UnityEditor.Compilation.AssemblyFlags
-  - UnityEditor.Compilation.CodeOptimization
-  - UnityEditor.Compilation.CompilationPipeline
-  - UnityEditor.Compilation.CompilationPipeline+PrecompiledAssemblySources
-  - UnityEditor.Compilation.CompilerMessage
-  - UnityEditor.Compilation.CompilerMessageType
-  - UnityEditor.Compilation.ReferencesOptions
-  - UnityEditor.Compilation.RequestScriptCompilationOptions
-  - UnityEditor.Compilation.ResponseFileData
-  - UnityEditor.Compilation.ScriptCompilerOptions
   - UnityEditor.ComputeShaderImporter
-  - UnityEditor.Connect.UnityOAuth
-  - UnityEditor.Connect.UnityOAuth+AuthCodeResponse
   - UnityEditor.ConsoleWindowUtility
   - UnityEditor.ConvertToPrefabInstanceSettings
   - UnityEditor.CoppaCompliance
-  - UnityEditor.CrashReporting.CrashReportingSettings
   - UnityEditor.CreateAssetObjectEventArgs
   - UnityEditor.CreateGameObjectHierarchyEventArgs
   - UnityEditor.D3D11FullscreenMode
@@ -349,38 +225,12 @@ MonoBehaviour:
   - UnityEditor.EditorSkin
   - UnityEditor.EditorSnapSettings
   - UnityEditor.EditorStyles
-  - UnityEditor.EditorTools.EditorTool
-  - UnityEditor.EditorTools.EditorToolContext
-  - UnityEditor.EditorTools.GameObjectToolContext
-  - UnityEditor.EditorTools.ToolManager
   - UnityEditor.EditorUserBuildSettings
   - UnityEditor.EditorUserSettings
   - UnityEditor.EditorUtility
   - UnityEditor.EditorWindow
   - UnityEditor.EmbeddedArchitecture
   - UnityEditor.EnterPlayModeOptions
-  - UnityEditor.Events.UnityEventTools
-  - UnityEditor.Experimental.ArtifactID
-  - UnityEditor.Experimental.ArtifactKey
-  - UnityEditor.Experimental.AssetDatabaseExperimental
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+CacheServerCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+Counter
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+ImportCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+OnDemandMode
-  - UnityEditor.Experimental.AssetMoveInfo
-  - UnityEditor.Experimental.AssetsModifiedProcessor
-  - UnityEditor.Experimental.EditorResources
-  - UnityEditor.Experimental.Licensing.EntitlementGroupInfo
-  - UnityEditor.Experimental.Licensing.EntitlementInfo
-  - UnityEditor.Experimental.Licensing.EntitlementStatus
-  - UnityEditor.Experimental.Licensing.LicensingUtility
-  - UnityEditor.Experimental.Lightmapping
-  - UnityEditor.Experimental.OnDemandProgress
-  - UnityEditor.Experimental.OnDemandState
-  - UnityEditor.Experimental.Rendering.SceneStateHash
-  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystem
-  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystemSettings
   - UnityEditor.ExportPackageOptions
   - UnityEditor.ExternalVersionControl
   - UnityEditor.FilePathAttribute+Location
@@ -402,12 +252,6 @@ MonoBehaviour:
   - UnityEditor.Handles+PositionHandleIds
   - UnityEditor.Handles+RotationHandleIds
   - UnityEditor.HandleUtility
-  - UnityEditor.Hardware.DevDevice
-  - UnityEditor.Hardware.DevDeviceFeatures
-  - UnityEditor.Hardware.DevDeviceList
-  - UnityEditor.Hardware.DevDeviceState
-  - UnityEditor.Hardware.Usb
-  - UnityEditor.Hardware.UsbDevice
   - UnityEditor.Help
   - UnityEditor.HierarchyDropFlags
   - UnityEditor.HierarchyProperty
@@ -423,33 +267,10 @@ MonoBehaviour:
   - UnityEditor.IHVImageFormatImporter
   - UnityEditor.Il2CppCompilerConfiguration
   - UnityEditor.Il2CppStacktraceInformation
-  - UnityEditor.IMGUI.Controls.AdvancedDropdown
-  - UnityEditor.IMGUI.Controls.AdvancedDropdownItem
-  - UnityEditor.IMGUI.Controls.AdvancedDropdownState
-  - UnityEditor.IMGUI.Controls.ArcHandle
-  - UnityEditor.IMGUI.Controls.BoxBoundsHandle
-  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle
-  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle+HeightAxis
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultGUI
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultStyles
-  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState
-  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState+Column
-  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle
-  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle+Axes
-  - UnityEditor.IMGUI.Controls.SearchField
-  - UnityEditor.IMGUI.Controls.SphereBoundsHandle
-  - UnityEditor.IMGUI.Controls.TreeView
-  - UnityEditor.IMGUI.Controls.TreeView+DefaultGUI
-  - UnityEditor.IMGUI.Controls.TreeView+DefaultStyles
-  - UnityEditor.IMGUI.Controls.TreeViewItem
-  - UnityEditor.IMGUI.Controls.TreeViewSelectionOptions
-  - UnityEditor.IMGUI.Controls.TreeViewState
   - UnityEditor.ImportAssetOptions
   - UnityEditor.InSceneAssetInformation
   - UnityEditor.InSceneAssetUtility
   - UnityEditor.InsecureHttpOption
-  - UnityEditor.Inspector.GraphicsSettingsInspectors.GraphicsSettingsInspectorUtility
   - UnityEditor.InspectorMode
   - UnityEditor.InteractionMode
   - UnityEditor.iOSAppInBackgroundBehavior
@@ -480,8 +301,6 @@ MonoBehaviour:
   - UnityEditor.LocalizationGroup
   - UnityEditor.LODUtility
   - UnityEditor.MacFullscreenMode
-  - UnityEditor.Macros.MacroEvaluator
-  - UnityEditor.Macros.MethodEvaluator
   - UnityEditor.ManagedReferenceMissingType
   - UnityEditor.ManagedStrippingLevel
   - UnityEditor.MaterialEditor
@@ -491,14 +310,6 @@ MonoBehaviour:
   - UnityEditor.MaterialProperty+PropType
   - UnityEditor.MaterialPropertyDrawer
   - UnityEditor.MathUtils
-  - UnityEditor.Media.AudioTrackAttributes
-  - UnityEditor.Media.H264EncoderAttributes
-  - UnityEditor.Media.MediaEncoder
-  - UnityEditor.Media.MediaRational
-  - UnityEditor.Media.MediaTime
-  - UnityEditor.Media.VideoTrackAttributes
-  - UnityEditor.Media.VideoTrackEncoderAttributes
-  - UnityEditor.Media.VP8EncoderAttributes
   - UnityEditor.Menu
   - UnityEditor.MenuCommand
   - UnityEditor.MeshDeformation
@@ -532,22 +343,6 @@ MonoBehaviour:
   - UnityEditor.MonoImporter
   - UnityEditor.MonoScript
   - UnityEditor.MouseCursor
-  - UnityEditor.MPE.ChannelClient
-  - UnityEditor.MPE.ChannelClientInfo
-  - UnityEditor.MPE.ChannelClientScope
-  - UnityEditor.MPE.ChannelInfo
-  - UnityEditor.MPE.ChannelScope
-  - UnityEditor.MPE.ChannelService
-  - UnityEditor.MPE.EventDataSerialization
-  - UnityEditor.MPE.EventService
-  - UnityEditor.MPE.ProcessEvent
-  - UnityEditor.MPE.ProcessLevel
-  - UnityEditor.MPE.ProcessService
-  - UnityEditor.MPE.ProcessState
-  - UnityEditor.Networking.PlayerConnection.ConnectedPlayer
-  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUI
-  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUILayout
-  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUIUtility
   - UnityEditor.NormalMapEncoding
   - UnityEditor.ObjectChangeEvents
   - UnityEditor.ObjectChangeEventStream
@@ -558,50 +353,13 @@ MonoBehaviour:
   - UnityEditor.ObjectNames
   - UnityEditor.ObjectPreview
   - UnityEditor.ObjectReferenceKeyframe
-  - UnityEditor.Overlays.DockPosition
-  - UnityEditor.Overlays.DockZone
-  - UnityEditor.Overlays.IMGUIOverlay
-  - UnityEditor.Overlays.Layout
-  - UnityEditor.Overlays.Overlay
-  - UnityEditor.Overlays.OverlayCanvas
-  - UnityEditor.Overlays.OverlayToolbar
-  - UnityEditor.Overlays.SaveData
-  - UnityEditor.Overlays.ToolbarOverlay
   - UnityEditor.PackageInfo
-  - UnityEditor.PackageManager.AuthorInfo
-  - UnityEditor.PackageManager.BuildUtilities
-  - UnityEditor.PackageManager.Client
-  - UnityEditor.PackageManager.DependencyInfo
-  - UnityEditor.PackageManager.Error
-  - UnityEditor.PackageManager.ErrorCode
-  - UnityEditor.PackageManager.Events
-  - UnityEditor.PackageManager.GitInfo
-  - UnityEditor.PackageManager.LogLevel
-  - UnityEditor.PackageManager.PackageCollection
-  - UnityEditor.PackageManager.PackageInfo
-  - UnityEditor.PackageManager.PackageRegistrationEventArgs
-  - UnityEditor.PackageManager.PackageSource
-  - UnityEditor.PackageManager.PackOperationResult
-  - UnityEditor.PackageManager.RegistryInfo
-  - UnityEditor.PackageManager.RepositoryInfo
-  - UnityEditor.PackageManager.Requests.ClearCacheRequest
-  - UnityEditor.PackageManager.Requests.RemoveRequest
-  - UnityEditor.PackageManager.Requests.Request
-  - UnityEditor.PackageManager.Requests.ResetToEditorDefaultsRequest
-  - UnityEditor.PackageManager.StatusCode
-  - UnityEditor.PackageManager.UI.PackageManagerExtensions
-  - UnityEditor.PackageManager.UI.Sample
-  - UnityEditor.PackageManager.UI.Sample+ImportOptions
-  - UnityEditor.PackageManager.UI.Window
-  - UnityEditor.PackageManager.VersionsInfo
   - UnityEditor.PauseState
   - UnityEditor.PickingIncludeExcludeList
   - UnityEditor.PivotMode
   - UnityEditor.PivotRotation
   - UnityEditor.PlatformIcon
   - UnityEditor.PlatformIconKind
-  - UnityEditor.Playables.PlayableOutputEditorExtensions
-  - UnityEditor.Playables.Utility
   - UnityEditor.PlayerConnectionInitiateMode
   - UnityEditor.PlayerSettings
   - UnityEditor.PlayerSettings+Android
@@ -652,86 +410,27 @@ MonoBehaviour:
   - UnityEditor.PrefabUtility
   - UnityEditor.PrefabUtility+EditPrefabContentsScope
   - UnityEditor.PreprocessorOverride
-  - UnityEditor.Presets.DefaultPreset
-  - UnityEditor.Presets.Preset
-  - UnityEditor.Presets.PresetType
   - UnityEditor.PreviewRenderUtility
   - UnityEditor.ProfilerWindow
-  - UnityEditor.Profiling.FrameDataView
-  - UnityEditor.Profiling.FrameDataView+GfxResourceInfo
-  - UnityEditor.Profiling.FrameDataView+MarkerInfo
-  - UnityEditor.Profiling.FrameDataView+MarkerMetadataInfo
-  - UnityEditor.Profiling.FrameDataView+MethodInfo
-  - UnityEditor.Profiling.FrameDataView+UnityObjectInfo
-  - UnityEditor.Profiling.FrameDataView+UnityObjectNativeTypeInfo
-  - UnityEditor.Profiling.HierarchyFrameDataView
-  - UnityEditor.Profiling.HierarchyFrameDataView+ViewModes
-  - UnityEditor.Profiling.ProfilerCategoryInfo
-  - UnityEditor.Profiling.ProfilerEditorUtility
-  - UnityEditor.Profiling.ProfilerTimeSampleSelection
-  - UnityEditor.Profiling.RawFrameDataView
-  - UnityEditor.Profiling.RawFrameDataView+FlowEvent
   - UnityEditor.Progress
   - UnityEditor.Progress+Item
   - UnityEditor.Progress+Options
   - UnityEditor.Progress+Priority
   - UnityEditor.Progress+Status
   - UnityEditor.Progress+TimeDisplayMode
-  - UnityEditor.ProjectWindowCallback.EndNameEditAction
   - UnityEditor.ProjectWindowUtil
   - UnityEditor.PropertyDrawer
   - UnityEditor.PropertyModification
   - UnityEditor.ProvisioningProfileType
   - UnityEditor.PS4BuildSubtarget
   - UnityEditor.PS4HardwareTarget
-  - UnityEditor.Purchasing.PurchasingSettings
   - UnityEditor.QNXOsVersion
   - UnityEditor.RemoveAssetOptions
-  - UnityEditor.Rendering.AlbedoSwatchInfo
-  - UnityEditor.Rendering.Analytics.GraphicsToolLifetimeAnalytic
-  - UnityEditor.Rendering.Analytics.GraphicsToolUsageAnalytic
-  - UnityEditor.Rendering.BatchRendererGroupStrippingMode
-  - UnityEditor.Rendering.EditorCameraUtils
-  - UnityEditor.Rendering.EditorGraphicsSettings
-  - UnityEditor.Rendering.RenderingLayersLimitSettings
-  - UnityEditor.Rendering.RenderPipelineEditorUtility
-  - UnityEditor.Rendering.RenderPipelineGlobalSettingsEditor
-  - UnityEditor.Rendering.RenderPipelineGraphicsSettingsEditorUtility
-  - UnityEditor.Rendering.ShaderCompilerData
-  - UnityEditor.Rendering.ShaderCompilerMessageSeverity
-  - UnityEditor.Rendering.ShaderCompilerPlatform
-  - UnityEditor.Rendering.ShaderQuality
-  - UnityEditor.Rendering.ShaderRequirements
-  - UnityEditor.Rendering.ShaderSnippetData
-  - UnityEditor.Rendering.ShaderType
-  - UnityEditor.Rendering.TierSettings
   - UnityEditor.RenderPickingArgs
   - UnityEditor.RenderPickingResult
   - UnityEditor.RenderPickingType
   - UnityEditor.SaveType
   - UnityEditor.SceneAsset
-  - UnityEditor.SceneManagement.AddedComponent
-  - UnityEditor.SceneManagement.AddedGameObject
-  - UnityEditor.SceneManagement.EditorSceneManager
-  - UnityEditor.SceneManagement.MainStage
-  - UnityEditor.SceneManagement.NewSceneMode
-  - UnityEditor.SceneManagement.NewSceneSetup
-  - UnityEditor.SceneManagement.ObjectOverride
-  - UnityEditor.SceneManagement.OpenSceneMode
-  - UnityEditor.SceneManagement.PrefabOverride
-  - UnityEditor.SceneManagement.PrefabStage
-  - UnityEditor.SceneManagement.PrefabStage+Mode
-  - UnityEditor.SceneManagement.PrefabStageUtility
-  - UnityEditor.SceneManagement.PreviewSceneStage
-  - UnityEditor.SceneManagement.RemovedComponent
-  - UnityEditor.SceneManagement.RemovedGameObject
-  - UnityEditor.SceneManagement.SceneCullingMasks
-  - UnityEditor.SceneManagement.SceneHierarchyHooks
-  - UnityEditor.SceneManagement.SceneHierarchyHooks+SubSceneInfo
-  - UnityEditor.SceneManagement.SceneSetup
-  - UnityEditor.SceneManagement.Stage
-  - UnityEditor.SceneManagement.StageHandle
-  - UnityEditor.SceneManagement.StageUtility
   - UnityEditor.SceneModeUtility
   - UnityEditor.SceneView
   - UnityEditor.SceneView+CameraMode
@@ -740,22 +439,10 @@ MonoBehaviour:
   - UnityEditor.SceneViewCameraWindow
   - UnityEditor.ScriptableWizard
   - UnityEditor.ScriptCallOptimizationLevel
-  - UnityEditor.Scripting.ManagedDebugger
   - UnityEditor.ScriptingImplementation
   - UnityEditor.SearchableEditorWindow
   - UnityEditor.SearchableEditorWindow+SearchMode
   - UnityEditor.SearchableEditorWindow+SearchModeHierarchyWindow
-  - UnityEditor.SearchService.AdvancedObjectSelectorEventType
-  - UnityEditor.SearchService.AdvancedObjectSelectorParameters
-  - UnityEditor.SearchService.ObjectSelectorSearch
-  - UnityEditor.SearchService.ObjectSelectorSearchContext
-  - UnityEditor.SearchService.ObjectSelectorSearchEndSessionModes
-  - UnityEditor.SearchService.ProjectSearch
-  - UnityEditor.SearchService.ProjectSearchContext
-  - UnityEditor.SearchService.SceneSearch
-  - UnityEditor.SearchService.SceneSearchContext
-  - UnityEditor.SearchService.SearchEngineScope
-  - UnityEditor.SearchService.VisibleObjects
   - UnityEditor.Selection
   - UnityEditor.SelectionMode
   - UnityEditor.SemanticMergeMode
@@ -781,31 +468,15 @@ MonoBehaviour:
   - UnityEditor.ShaderImporter
   - UnityEditor.ShaderInclude
   - UnityEditor.ShaderInfo
-  - UnityEditor.ShaderKeywordFilter.FilterAction
-  - UnityEditor.ShaderKeywordFilter.FilterAttribute+EvaluationMode
-  - UnityEditor.ShaderKeywordFilter.FilterAttribute+Precedence
   - UnityEditor.ShaderMessage
   - UnityEditor.ShaderPrecisionModel
   - UnityEditor.ShaderUtil
   - UnityEditor.ShaderUtil+ShaderPropertyType
-  - UnityEditor.ShortcutManagement.ActiveProfileChangedEventArgs
-  - UnityEditor.ShortcutManagement.KeyCombination
-  - UnityEditor.ShortcutManagement.ShortcutArguments
-  - UnityEditor.ShortcutManagement.ShortcutBinding
-  - UnityEditor.ShortcutManagement.ShortcutBindingChangedEventArgs
-  - UnityEditor.ShortcutManagement.ShortcutManager
-  - UnityEditor.ShortcutManagement.ShortcutModifiers
-  - UnityEditor.ShortcutManagement.ShortcutStage
-  - UnityEditor.SpeedTree.Importer.SpeedTree9Importer
   - UnityEditor.SpeedTreeImporter
   - UnityEditor.SpeedTreeImporter+MaterialLocation
   - UnityEditor.SpriteImportMode
   - UnityEditor.SpriteMetaData
   - UnityEditor.SpritePackerMode
-  - UnityEditor.Sprites.AtlasSettings
-  - UnityEditor.Sprites.Packer
-  - UnityEditor.Sprites.PackerJob
-  - UnityEditor.Sprites.SpriteUtility
   - UnityEditor.StandaloneBuildSubtarget
   - UnityEditor.StaticEditorFlags
   - UnityEditor.StaticOcclusionCulling
@@ -836,7 +507,6 @@ MonoBehaviour:
   - UnityEditor.TextureImporterType
   - UnityEditor.TextureResizeAlgorithm
   - UnityEditor.Tool
-  - UnityEditor.Toolbars.EditorToolbarUtility
   - UnityEditor.Tools
   - UnityEditor.TransformUtils
   - UnityEditor.tvOSSdkVersion
@@ -847,6 +517,375 @@ MonoBehaviour:
   - UnityEditor.TypeCache+MethodCollection+Enumerator
   - UnityEditor.TypeCache+TypeCollection
   - UnityEditor.TypeCache+TypeCollection+Enumerator
+  - UnityEditor.UIOrientation
+  - UnityEditor.Undo
+  - UnityEditor.UndoPropertyModification
+  - UnityEditor.UndoRedoInfo
+  - UnityEditor.UnityStats
+  - UnityEditor.Unsupported
+  - UnityEditor.UnwrapParam
+  - UnityEditor.Unwrapping
+  - UnityEditor.UpdatePrefabInstancesEventArgs
+  - UnityEditor.VersionControlSettings
+  - UnityEditor.VertexChannelCompressionFlags
+  - UnityEditor.VideoBitrateMode
+  - UnityEditor.VideoClipImporter
+  - UnityEditor.VideoCodec
+  - UnityEditor.VideoDeinterlaceMode
+  - UnityEditor.VideoEncodeAspectRatio
+  - UnityEditor.VideoEncodingProfile
+  - UnityEditor.VideoImporterTargetSettings
+  - UnityEditor.VideoResizeMode
+  - UnityEditor.VideoSpatialQuality
+  - UnityEditor.ViewTool
+  - UnityEditor.VisionOSSdkVersion
+  - UnityEditor.WebGLClientBrowserType
+  - UnityEditor.WebGLCompressionFormat
+  - UnityEditor.WebGLDebugSymbolMode
+  - UnityEditor.WebGLExceptionSupport
+  - UnityEditor.WebGLLinkerTarget
+  - UnityEditor.WebGLMemoryGrowthMode
+  - UnityEditor.WebGLPowerPreference
+  - UnityEditor.WebGLTextureSubtarget
+  - UnityEditor.WebGLWasmArithmeticExceptions
+  - UnityEditor.WindowsBuildAndRunDeployTarget
+  - UnityEditor.WindowsGamepadBackendHint
+  - UnityEditor.WSABuildAndRunDeployTarget
+  - UnityEditor.WSABuildType
+  - UnityEditor.WSASDK
+  - UnityEditor.WSAUWPBuildType
+  - UnityEditor.XboxBuildSubtarget
+  - UnityEditor.XcodeBuildConfig
+  - UnityEditor.Actions.ContextMenuUtility
+  - UnityEditor.Actions.EditorAction
+  - UnityEditor.Actions.EditorActionResult
+  - UnityEditor.Advertisements.AdvertisementSettings
+  - UnityEditor.AI.NavMeshEditorHelpers
+  - UnityEditor.AI.NavMeshVisualizationSettings
+  - UnityEditor.Analytics.AnalyticsSettings
+  - UnityEditor.Analytics.PerformanceReportingSettings
+  - UnityEditor.Animations.AnimatorCondition
+  - UnityEditor.Animations.AnimatorConditionMode
+  - UnityEditor.Animations.AnimatorController
+  - UnityEditor.Animations.AnimatorControllerLayer
+  - UnityEditor.Animations.AnimatorLayerBlendingMode
+  - UnityEditor.Animations.AnimatorState
+  - UnityEditor.Animations.AnimatorStateMachine
+  - UnityEditor.Animations.AnimatorStateTransition
+  - UnityEditor.Animations.AnimatorTransition
+  - UnityEditor.Animations.AnimatorTransitionBase
+  - UnityEditor.Animations.BlendTree
+  - UnityEditor.Animations.BlendTreeType
+  - UnityEditor.Animations.ChildAnimatorState
+  - UnityEditor.Animations.ChildAnimatorStateMachine
+  - UnityEditor.Animations.ChildMotion
+  - UnityEditor.Animations.CurveFilterOptions
+  - UnityEditor.Animations.GameObjectRecorder
+  - UnityEditor.Animations.StateMachineBehaviourContext
+  - UnityEditor.Animations.TransitionInterruptionSource
+  - UnityEditor.AssetImporters.AssetImportContext
+  - UnityEditor.AssetImporters.AssetImporterEditor
+  - UnityEditor.AssetImporters.CameraDescription
+  - UnityEditor.AssetImporters.FBXMaterialDescriptionPreprocessor
+  - UnityEditor.AssetImporters.ImportLog
+  - UnityEditor.AssetImporters.ImportLog+ImportLogEntry
+  - UnityEditor.AssetImporters.ImportLogFlags
+  - UnityEditor.AssetImporters.LightDescription
+  - UnityEditor.AssetImporters.MaterialDescription
+  - UnityEditor.AssetImporters.ScriptedImporter
+  - UnityEditor.AssetImporters.ScriptedImporterEditor
+  - UnityEditor.AssetImporters.SketchupMaterialDescriptionPreprocessor
+  - UnityEditor.AssetImporters.SourceTextureInformation
+  - UnityEditor.AssetImporters.SpriteImportData
+  - UnityEditor.AssetImporters.TextureGenerationOutput
+  - UnityEditor.AssetImporters.TextureGenerationSettings
+  - UnityEditor.AssetImporters.TextureGenerator
+  - UnityEditor.AssetImporters.TexturePropertyDescription
+  - UnityEditor.AssetImporters.ThreeDSMaterialDescriptionPreprocessor
+  - UnityEditor.Audio.AudioMixerEffectPlugin
+  - UnityEditor.Build.BuildPipelineContext
+  - UnityEditor.Build.BuildPlayerContext
+  - UnityEditor.Build.BuildPlayerProcessor
+  - UnityEditor.Build.Il2CppCodeGeneration
+  - UnityEditor.Build.NamedBuildTarget
+  - UnityEditor.Build.OSArchitecture
+  - UnityEditor.Build.OverrideTextureCompression
+  - UnityEditor.Build.Content.AssetBundleInfo
+  - UnityEditor.Build.Content.AssetLoadInfo
+  - UnityEditor.Build.Content.BuildReferenceMap
+  - UnityEditor.Build.Content.BuildSettings
+  - UnityEditor.Build.Content.BuildUsageCache
+  - UnityEditor.Build.Content.BuildUsageTagGlobal
+  - UnityEditor.Build.Content.BuildUsageTagSet
+  - UnityEditor.Build.Content.ContentBuildFlags
+  - UnityEditor.Build.Content.ContentBuildInterface
+  - UnityEditor.Build.Content.ContentBuildProfileEvent
+  - UnityEditor.Build.Content.DependencyType
+  - UnityEditor.Build.Content.ExternalFileReference
+  - UnityEditor.Build.Content.FileType
+  - UnityEditor.Build.Content.GameManagerDependencyInfo
+  - UnityEditor.Build.Content.ObjectIdentifier
+  - UnityEditor.Build.Content.ObjectSerializedInfo
+  - UnityEditor.Build.Content.PreloadInfo
+  - UnityEditor.Build.Content.ProfileCaptureOptions
+  - UnityEditor.Build.Content.ProfileEventType
+  - UnityEditor.Build.Content.ResourceFile
+  - UnityEditor.Build.Content.SceneBundleInfo
+  - UnityEditor.Build.Content.SceneDependencyInfo
+  - UnityEditor.Build.Content.SceneLoadInfo
+  - UnityEditor.Build.Content.SerializationInfo
+  - UnityEditor.Build.Content.SerializedLocation
+  - UnityEditor.Build.Content.WriteCommand
+  - UnityEditor.Build.Content.WriteManagerParameters
+  - UnityEditor.Build.Content.WriteParameters
+  - UnityEditor.Build.Content.WriteResult
+  - UnityEditor.Build.Content.WriteSceneParameters
+  - UnityEditor.Build.Player.PlayerBuildInterface
+  - UnityEditor.Build.Player.ScriptCompilationOptions
+  - UnityEditor.Build.Player.ScriptCompilationResult
+  - UnityEditor.Build.Player.ScriptCompilationSettings
+  - UnityEditor.Build.Player.TypeDB
+  - UnityEditor.Build.Player.TypeDbHelper
+  - UnityEditor.Build.Profile.BuildProfile
+  - UnityEditor.Build.Reporting.BuildFile
+  - UnityEditor.Build.Reporting.BuildReport
+  - UnityEditor.Build.Reporting.BuildResult
+  - UnityEditor.Build.Reporting.BuildStep
+  - UnityEditor.Build.Reporting.BuildStepMessage
+  - UnityEditor.Build.Reporting.BuildSummary
+  - UnityEditor.Build.Reporting.BuildType
+  - UnityEditor.Build.Reporting.CommonRoles
+  - UnityEditor.Build.Reporting.PackedAssetInfo
+  - UnityEditor.Build.Reporting.PackedAssets
+  - UnityEditor.Build.Reporting.ScenesUsingAsset
+  - UnityEditor.Build.Reporting.ScenesUsingAssets
+  - UnityEditor.Build.Reporting.StrippingInfo
+  - UnityEditor.Callbacks.OnOpenAssetAttributeMode
+  - UnityEditor.Compilation.AssembliesType
+  - UnityEditor.Compilation.Assembly
+  - UnityEditor.Compilation.AssemblyBuilderFlags
+  - UnityEditor.Compilation.AssemblyBuilderStatus
+  - UnityEditor.Compilation.AssemblyDefinitionPlatform
+  - UnityEditor.Compilation.AssemblyDefinitionReferenceType
+  - UnityEditor.Compilation.AssemblyFlags
+  - UnityEditor.Compilation.CodeOptimization
+  - UnityEditor.Compilation.CompilationPipeline
+  - UnityEditor.Compilation.CompilationPipeline+PrecompiledAssemblySources
+  - UnityEditor.Compilation.CompilerMessage
+  - UnityEditor.Compilation.CompilerMessageType
+  - UnityEditor.Compilation.ReferencesOptions
+  - UnityEditor.Compilation.RequestScriptCompilationOptions
+  - UnityEditor.Compilation.ResponseFileData
+  - UnityEditor.Compilation.ScriptCompilerOptions
+  - UnityEditor.Connect.UnityOAuth
+  - UnityEditor.Connect.UnityOAuth+AuthCodeResponse
+  - UnityEditor.CrashReporting.CrashReportingSettings
+  - UnityEditor.EditorTools.EditorTool
+  - UnityEditor.EditorTools.EditorToolContext
+  - UnityEditor.EditorTools.GameObjectToolContext
+  - UnityEditor.EditorTools.ToolManager
+  - UnityEditor.Events.UnityEventTools
+  - UnityEditor.Experimental.ArtifactID
+  - UnityEditor.Experimental.ArtifactKey
+  - UnityEditor.Experimental.AssetDatabaseExperimental
+  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters
+  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+CacheServerCounters
+  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+Counter
+  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+ImportCounters
+  - UnityEditor.Experimental.AssetDatabaseExperimental+OnDemandMode
+  - UnityEditor.Experimental.AssetMoveInfo
+  - UnityEditor.Experimental.AssetsModifiedProcessor
+  - UnityEditor.Experimental.EditorResources
+  - UnityEditor.Experimental.Lightmapping
+  - UnityEditor.Experimental.OnDemandProgress
+  - UnityEditor.Experimental.OnDemandState
+  - UnityEditor.Experimental.Licensing.EntitlementGroupInfo
+  - UnityEditor.Experimental.Licensing.EntitlementInfo
+  - UnityEditor.Experimental.Licensing.EntitlementStatus
+  - UnityEditor.Experimental.Licensing.LicensingUtility
+  - UnityEditor.Experimental.Rendering.SceneStateHash
+  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystem
+  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystemSettings
+  - UnityEditor.Hardware.DevDevice
+  - UnityEditor.Hardware.DevDeviceFeatures
+  - UnityEditor.Hardware.DevDeviceList
+  - UnityEditor.Hardware.DevDeviceState
+  - UnityEditor.Hardware.Usb
+  - UnityEditor.Hardware.UsbDevice
+  - UnityEditor.IMGUI.Controls.AdvancedDropdown
+  - UnityEditor.IMGUI.Controls.AdvancedDropdownItem
+  - UnityEditor.IMGUI.Controls.AdvancedDropdownState
+  - UnityEditor.IMGUI.Controls.ArcHandle
+  - UnityEditor.IMGUI.Controls.BoxBoundsHandle
+  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle
+  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle+HeightAxis
+  - UnityEditor.IMGUI.Controls.MultiColumnHeader
+  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultGUI
+  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultStyles
+  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState
+  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState+Column
+  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle
+  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle+Axes
+  - UnityEditor.IMGUI.Controls.SearchField
+  - UnityEditor.IMGUI.Controls.SphereBoundsHandle
+  - UnityEditor.IMGUI.Controls.TreeView
+  - UnityEditor.IMGUI.Controls.TreeView+DefaultGUI
+  - UnityEditor.IMGUI.Controls.TreeView+DefaultStyles
+  - UnityEditor.IMGUI.Controls.TreeViewItem
+  - UnityEditor.IMGUI.Controls.TreeViewSelectionOptions
+  - UnityEditor.IMGUI.Controls.TreeViewState
+  - UnityEditor.Inspector.GraphicsSettingsInspectors.GraphicsSettingsInspectorUtility
+  - UnityEditor.Macros.MacroEvaluator
+  - UnityEditor.Macros.MethodEvaluator
+  - UnityEditor.Media.AudioTrackAttributes
+  - UnityEditor.Media.H264EncoderAttributes
+  - UnityEditor.Media.MediaEncoder
+  - UnityEditor.Media.MediaRational
+  - UnityEditor.Media.MediaTime
+  - UnityEditor.Media.VideoTrackAttributes
+  - UnityEditor.Media.VideoTrackEncoderAttributes
+  - UnityEditor.Media.VP8EncoderAttributes
+  - UnityEditor.MPE.ChannelClient
+  - UnityEditor.MPE.ChannelClientInfo
+  - UnityEditor.MPE.ChannelClientScope
+  - UnityEditor.MPE.ChannelInfo
+  - UnityEditor.MPE.ChannelScope
+  - UnityEditor.MPE.ChannelService
+  - UnityEditor.MPE.EventDataSerialization
+  - UnityEditor.MPE.EventService
+  - UnityEditor.MPE.ProcessEvent
+  - UnityEditor.MPE.ProcessLevel
+  - UnityEditor.MPE.ProcessService
+  - UnityEditor.MPE.ProcessState
+  - UnityEditor.Networking.PlayerConnection.ConnectedPlayer
+  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUI
+  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUILayout
+  - UnityEditor.Networking.PlayerConnection.PlayerConnectionGUIUtility
+  - UnityEditor.Overlays.DockPosition
+  - UnityEditor.Overlays.DockZone
+  - UnityEditor.Overlays.IMGUIOverlay
+  - UnityEditor.Overlays.Layout
+  - UnityEditor.Overlays.Overlay
+  - UnityEditor.Overlays.OverlayCanvas
+  - UnityEditor.Overlays.OverlayToolbar
+  - UnityEditor.Overlays.SaveData
+  - UnityEditor.Overlays.ToolbarOverlay
+  - UnityEditor.PackageManager.AuthorInfo
+  - UnityEditor.PackageManager.BuildUtilities
+  - UnityEditor.PackageManager.Client
+  - UnityEditor.PackageManager.DependencyInfo
+  - UnityEditor.PackageManager.Error
+  - UnityEditor.PackageManager.ErrorCode
+  - UnityEditor.PackageManager.Events
+  - UnityEditor.PackageManager.GitInfo
+  - UnityEditor.PackageManager.LogLevel
+  - UnityEditor.PackageManager.PackageCollection
+  - UnityEditor.PackageManager.PackageInfo
+  - UnityEditor.PackageManager.PackageRegistrationEventArgs
+  - UnityEditor.PackageManager.PackageSource
+  - UnityEditor.PackageManager.PackOperationResult
+  - UnityEditor.PackageManager.RegistryInfo
+  - UnityEditor.PackageManager.RepositoryInfo
+  - UnityEditor.PackageManager.StatusCode
+  - UnityEditor.PackageManager.VersionsInfo
+  - UnityEditor.PackageManager.Requests.ClearCacheRequest
+  - UnityEditor.PackageManager.Requests.RemoveRequest
+  - UnityEditor.PackageManager.Requests.Request
+  - UnityEditor.PackageManager.Requests.ResetToEditorDefaultsRequest
+  - UnityEditor.PackageManager.UI.PackageManagerExtensions
+  - UnityEditor.PackageManager.UI.Sample
+  - UnityEditor.PackageManager.UI.Sample+ImportOptions
+  - UnityEditor.PackageManager.UI.Window
+  - UnityEditor.Playables.PlayableOutputEditorExtensions
+  - UnityEditor.Playables.Utility
+  - UnityEditor.Presets.DefaultPreset
+  - UnityEditor.Presets.Preset
+  - UnityEditor.Presets.PresetType
+  - UnityEditor.Profiling.FrameDataView
+  - UnityEditor.Profiling.FrameDataView+GfxResourceInfo
+  - UnityEditor.Profiling.FrameDataView+MarkerInfo
+  - UnityEditor.Profiling.FrameDataView+MarkerMetadataInfo
+  - UnityEditor.Profiling.FrameDataView+MethodInfo
+  - UnityEditor.Profiling.FrameDataView+UnityObjectInfo
+  - UnityEditor.Profiling.FrameDataView+UnityObjectNativeTypeInfo
+  - UnityEditor.Profiling.HierarchyFrameDataView
+  - UnityEditor.Profiling.HierarchyFrameDataView+ViewModes
+  - UnityEditor.Profiling.ProfilerCategoryInfo
+  - UnityEditor.Profiling.ProfilerEditorUtility
+  - UnityEditor.Profiling.ProfilerTimeSampleSelection
+  - UnityEditor.Profiling.RawFrameDataView
+  - UnityEditor.Profiling.RawFrameDataView+FlowEvent
+  - UnityEditor.ProjectWindowCallback.EndNameEditAction
+  - UnityEditor.Purchasing.PurchasingSettings
+  - UnityEditor.Rendering.AlbedoSwatchInfo
+  - UnityEditor.Rendering.BatchRendererGroupStrippingMode
+  - UnityEditor.Rendering.EditorCameraUtils
+  - UnityEditor.Rendering.EditorGraphicsSettings
+  - UnityEditor.Rendering.RenderingLayersLimitSettings
+  - UnityEditor.Rendering.RenderPipelineEditorUtility
+  - UnityEditor.Rendering.RenderPipelineGlobalSettingsEditor
+  - UnityEditor.Rendering.RenderPipelineGraphicsSettingsEditorUtility
+  - UnityEditor.Rendering.ShaderCompilerData
+  - UnityEditor.Rendering.ShaderCompilerMessageSeverity
+  - UnityEditor.Rendering.ShaderCompilerPlatform
+  - UnityEditor.Rendering.ShaderQuality
+  - UnityEditor.Rendering.ShaderRequirements
+  - UnityEditor.Rendering.ShaderSnippetData
+  - UnityEditor.Rendering.ShaderType
+  - UnityEditor.Rendering.TierSettings
+  - UnityEditor.Rendering.Analytics.GraphicsToolLifetimeAnalytic
+  - UnityEditor.Rendering.Analytics.GraphicsToolUsageAnalytic
+  - UnityEditor.SceneManagement.AddedComponent
+  - UnityEditor.SceneManagement.AddedGameObject
+  - UnityEditor.SceneManagement.EditorSceneManager
+  - UnityEditor.SceneManagement.MainStage
+  - UnityEditor.SceneManagement.NewSceneMode
+  - UnityEditor.SceneManagement.NewSceneSetup
+  - UnityEditor.SceneManagement.ObjectOverride
+  - UnityEditor.SceneManagement.OpenSceneMode
+  - UnityEditor.SceneManagement.PrefabOverride
+  - UnityEditor.SceneManagement.PrefabStage
+  - UnityEditor.SceneManagement.PrefabStage+Mode
+  - UnityEditor.SceneManagement.PrefabStageUtility
+  - UnityEditor.SceneManagement.PreviewSceneStage
+  - UnityEditor.SceneManagement.RemovedComponent
+  - UnityEditor.SceneManagement.RemovedGameObject
+  - UnityEditor.SceneManagement.SceneCullingMasks
+  - UnityEditor.SceneManagement.SceneHierarchyHooks
+  - UnityEditor.SceneManagement.SceneHierarchyHooks+SubSceneInfo
+  - UnityEditor.SceneManagement.SceneSetup
+  - UnityEditor.SceneManagement.Stage
+  - UnityEditor.SceneManagement.StageHandle
+  - UnityEditor.SceneManagement.StageUtility
+  - UnityEditor.Scripting.ManagedDebugger
+  - UnityEditor.SearchService.AdvancedObjectSelectorEventType
+  - UnityEditor.SearchService.AdvancedObjectSelectorParameters
+  - UnityEditor.SearchService.ObjectSelectorSearch
+  - UnityEditor.SearchService.ObjectSelectorSearchContext
+  - UnityEditor.SearchService.ObjectSelectorSearchEndSessionModes
+  - UnityEditor.SearchService.ProjectSearch
+  - UnityEditor.SearchService.ProjectSearchContext
+  - UnityEditor.SearchService.SceneSearch
+  - UnityEditor.SearchService.SceneSearchContext
+  - UnityEditor.SearchService.SearchEngineScope
+  - UnityEditor.SearchService.VisibleObjects
+  - UnityEditor.ShaderKeywordFilter.FilterAction
+  - UnityEditor.ShaderKeywordFilter.FilterAttribute+EvaluationMode
+  - UnityEditor.ShaderKeywordFilter.FilterAttribute+Precedence
+  - UnityEditor.ShortcutManagement.ActiveProfileChangedEventArgs
+  - UnityEditor.ShortcutManagement.KeyCombination
+  - UnityEditor.ShortcutManagement.ShortcutArguments
+  - UnityEditor.ShortcutManagement.ShortcutBinding
+  - UnityEditor.ShortcutManagement.ShortcutBindingChangedEventArgs
+  - UnityEditor.ShortcutManagement.ShortcutManager
+  - UnityEditor.ShortcutManagement.ShortcutModifiers
+  - UnityEditor.ShortcutManagement.ShortcutStage
+  - UnityEditor.SpeedTree.Importer.SpeedTree9Importer
+  - UnityEditor.Sprites.AtlasSettings
+  - UnityEditor.Sprites.Packer
+  - UnityEditor.Sprites.PackerJob
+  - UnityEditor.Sprites.SpriteUtility
+  - UnityEditor.Toolbars.EditorToolbarUtility
   - UnityEditor.U2D.ScriptablePacker
   - UnityEditor.U2D.ScriptablePacker+PackerData
   - UnityEditor.U2D.ScriptablePacker+PackTransform
@@ -885,16 +924,7 @@ MonoBehaviour:
   - UnityEditor.UIElements.ToolbarToggle
   - UnityEditor.UIElements.ToolbarToggle+UxmlSerializedData
   - UnityEditor.UIElements.UIElementsEntryPoint
-  - UnityEditor.UIOrientation
-  - UnityEditor.Undo
-  - UnityEditor.UndoPropertyModification
-  - UnityEditor.UndoRedoInfo
   - UnityEditor.UnityLinker.UnityLinkerBuildPipelineData
-  - UnityEditor.UnityStats
-  - UnityEditor.Unsupported
-  - UnityEditor.UnwrapParam
-  - UnityEditor.Unwrapping
-  - UnityEditor.UpdatePrefabInstancesEventArgs
   - UnityEditor.VersionControl.Asset
   - UnityEditor.VersionControl.Asset+States
   - UnityEditor.VersionControl.ChangeSet
@@ -916,37 +946,7 @@ MonoBehaviour:
   - UnityEditor.VersionControl.VersionControlManager
   - UnityEditor.VersionControl.VersionControlObject
   - UnityEditor.VersionControl.VersionControlUtils
-  - UnityEditor.VersionControlSettings
-  - UnityEditor.VertexChannelCompressionFlags
-  - UnityEditor.VideoBitrateMode
-  - UnityEditor.VideoClipImporter
-  - UnityEditor.VideoCodec
-  - UnityEditor.VideoDeinterlaceMode
-  - UnityEditor.VideoEncodeAspectRatio
-  - UnityEditor.VideoEncodingProfile
-  - UnityEditor.VideoImporterTargetSettings
-  - UnityEditor.VideoResizeMode
-  - UnityEditor.VideoSpatialQuality
-  - UnityEditor.ViewTool
-  - UnityEditor.VisionOSSdkVersion
   - UnityEditor.VisualStudioIntegration.SolutionGuidGenerator
-  - UnityEditor.WebGLClientBrowserType
-  - UnityEditor.WebGLCompressionFormat
-  - UnityEditor.WebGLDebugSymbolMode
-  - UnityEditor.WebGLExceptionSupport
-  - UnityEditor.WebGLLinkerTarget
-  - UnityEditor.WebGLMemoryGrowthMode
-  - UnityEditor.WebGLPowerPreference
-  - UnityEditor.WebGLTextureSubtarget
-  - UnityEditor.WebGLWasmArithmeticExceptions
-  - UnityEditor.WindowsBuildAndRunDeployTarget
-  - UnityEditor.WindowsGamepadBackendHint
-  - UnityEditor.WSABuildAndRunDeployTarget
-  - UnityEditor.WSABuildType
-  - UnityEditor.WSASDK
-  - UnityEditor.WSAUWPBuildType
-  - UnityEditor.XboxBuildSubtarget
-  - UnityEditor.XcodeBuildConfig
   - UnityEditorInternal.AssemblyDefinitionAsset
   - UnityEditorInternal.AssemblyDefinitionImporter
   - UnityEditorInternal.AssemblyDefinitionReferenceAsset
@@ -1019,24 +1019,22 @@ MonoBehaviour:
   - UnityEngine.LightTransport.IntegrationContext
   - UnityEngine.LightTransport.IProbeIntegrator+Result
   - UnityEngine.LightTransport.IProbeIntegrator+ResultType
-  - UnityEngine.LightTransport.PostProcessing.RadeonRaysProbePostProcessor
-  - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
   - UnityEngine.LightTransport.RadeonRaysContext
   - UnityEngine.LightTransport.RadeonRaysProbeIntegrator
   - UnityEngine.LightTransport.RadeonRaysWorld
   - UnityEngine.LightTransport.ReferenceContext
+  - UnityEngine.LightTransport.PostProcessing.RadeonRaysProbePostProcessor
+  - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
   m_TypeBlacklist: []
-  m_ContentFolderGuid: 7686cc73266dfe04ead8eb19dfb6a9d4
-  m_ModuleLoaderTypeName: 
-  m_UnityObjectFactoryTypeName: 
+  m_ContentFolderGuid: d954174a17030aa4cb873cc3554a2470
+  m_ModuleLoaderTypeName: Lua_UnityEditor_CoreModule.Lua_UnityEditor_CoreModule
   m_ModuleLoader:
-    rid: -2
-  m_UnityUnityObjectFactory:
-    rid: -2
+    rid: 2561253672414871798
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2561253672414871798
+      type: {class: Lua_UnityEditor_CoreModule, ns: Lua_UnityEditor_CoreModule, asm: Lua_UnityEditor_CoreModule}
+      data: 
