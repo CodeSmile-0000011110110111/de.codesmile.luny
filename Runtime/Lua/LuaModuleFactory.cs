@@ -10,13 +10,21 @@ namespace CodeSmile.Luny
 {
 	public sealed class LuaModuleFactory
 	{
-		public static void LoadModules(LunyLua lua, LunyLuaContext luaContext)
+		public static void LoadModules(ILunyLua lua, LunyLuaContext luaContext, out LuaNamespaces luaNamespaces, out LuaEnums luaEnums)
 		{
+			luaNamespaces = new LuaNamespaces();
+			luaEnums = new LuaEnums();
+
 			foreach (var module in luaContext.Modules)
-				LoadModule(lua, module);
+				LoadModule(module, (LuaObjectFactory)lua.ObjectFactory, luaNamespaces, luaEnums);
+
+			// assign loaded namespaces to global env
+			var env = lua.State.Environment;
+			foreach (var ns in luaNamespaces.Values)
+				env[ns.Name] = ns;
 		}
 
-		private static void LoadModule(ILunyLua lua, LunyLuaModule module)
+		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces, LuaEnums luaEnums)
 		{
 			if (module.ModuleLoader == null)
 			{
@@ -33,9 +41,9 @@ namespace CodeSmile.Luny
 
 			var namespaceNames = moduleLoader.GetNamespaceNames();
 			var namespaceParts = moduleLoader.GetNamespaceParts();
-			LoadModuleNamespaces(lua.Namespaces, namespaceNames, namespaceParts);
-			LoadModuleEnums(lua.Namespaces, lua.Enums, moduleLoader.GetEnumTypes());
-			(lua.ObjectFactory as LuaObjectFactory).LoadLuaTypes(lua.Namespaces, moduleLoader.GetLuaTypes());
+			LoadModuleNamespaces(luaNamespaces, namespaceNames, namespaceParts);
+			LoadModuleEnums(luaNamespaces, luaEnums, moduleLoader.GetEnumTypes());
+			objectFactory.LoadLuaTypes(luaNamespaces, moduleLoader.GetLuaTypes());
 
 			marker.End();
 		}
@@ -45,7 +53,7 @@ namespace CodeSmile.Luny
 			Debug.Assert(namespaceNames.Length == namespaceParts.Length);
 			for (var i = 0; i < namespaceNames.Length; i++)
 			{
-				if (namespaces.ContainsKey(namespaceNames[i]) == false)
+				if (namespaces.ContainsNamespace(namespaceNames[i]) == false)
 					namespaces.Add(namespaceNames[i], new LuaNamespace(namespaceNames[i]));
 			}
 		}
@@ -55,9 +63,12 @@ namespace CodeSmile.Luny
 			foreach (var enumType in enumTypes)
 			{
 				var luaEnum = LuaEnum.Create(enumType);
-				namespaces[enumType.Namespace][enumType.Name] = luaEnum.Table;
+				var enumNamespace = namespaces[enumType.Namespace];
+				enumNamespace[enumType.Name] = luaEnum.Table;
+				namespaces.AddTypeName(enumNamespace, enumType.Name);
 				luaEnums.Add(enumType, luaEnum);
 			}
 		}
+
 	}
 }

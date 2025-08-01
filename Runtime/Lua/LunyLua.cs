@@ -4,18 +4,12 @@
 using Lua;
 using Lua.Platforms;
 using Lua.Runtime;
-using Lua.Standard;
-using Lua.Unity;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Scripting;
-using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
@@ -35,6 +29,11 @@ namespace CodeSmile.Luny
 		Table = 1 << 29,
 	}
 
+	public sealed class LunyLuaStateData
+	{
+		public ILunyLua LunyLua { get; internal set; }
+	}
+
 	/// <summary>
 	///     <a href="https://github.com/AnnulusGames/Lua-CSharp" target="_blank">Lua-CSharp</a> wrapper and Lua environment
 	///     initialization.
@@ -45,8 +44,8 @@ namespace CodeSmile.Luny
 		///     The Lua state.
 		/// </summary>
 		LuaState State { get; }
-		LuaNamespaces Namespaces { get; }
-		LuaEnums Enums { get; }
+		ILuaNamespaces Namespaces { get; }
+		ILuaEnums Enums { get; }
 		ILuaObjectFactory ObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
@@ -58,58 +57,39 @@ namespace CodeSmile.Luny
 
 	public sealed class LunyLua : ILunyLua
 	{
-		[Preserve] private static readonly LuaFunction _typeof = new("typeof", (context, _) =>
-		{
-			var arg0 = context.GetArgument(0);
-
-			var typeName = arg0.Type switch
-			{
-				LuaValueType.Nil => "nil",
-				LuaValueType.Boolean => "boolean",
-				LuaValueType.String => "string",
-				LuaValueType.Number => "number",
-				LuaValueType.Function => "function",
-				LuaValueType.Thread => "thread",
-				LuaValueType.LightUserData or LuaValueType.UserData =>
-					arg0.TryRead(out Object o) && o != null
-						? o is ILuaBindType bt && bt.LuaBindType != null
-							? bt.LuaBindType.Name
-							: o.GetType().Name
-						: "null",
-				LuaValueType.Table => "table",
-				var _ => throw new NotImplementedException(),
-			};
-			return new ValueTask<Int32>(context.Return(typeName));
-		});
-
-		private static LuaFunction __indexEnvironment = new(Metamethods.Index, (context, _) =>
-		{
-			var env = context.GetArgument<LuaTable>(0);
-			var key = context.GetArgument(1);
-			if (env.TryGetValue(key, out var value))
-				return new ValueTask<Int32>(context.Return(value));
-
-			// TODO:
-			// lookup in usings, enums and namespaces
-			throw new NotImplementedException("env metatable lookup");
-
-			return new ValueTask<Int32>(context.Return(0));
-		});
-
-		private readonly LunyLuaScriptCollection m_Scripts;
+		private readonly LunyLuaScriptCollection m_Scripts = new();
+		private readonly LuaFileWatcher m_FileWatcher;
+		private readonly LuaNamespaces m_Namespaces;
+		private readonly LuaEnums m_Enums;
+		private readonly LuaObjectFactory m_ObjectFactory = new();
 		private LuaState m_LuaState;
-		private LunyLuaFileWatcher m_FileWatcher;
 
 		public LuaState State => m_LuaState;
-		public LuaNamespaces Namespaces { get; } = new();
-		public LuaEnums Enums { get; } = new();
-		public ILuaObjectFactory ObjectFactory { get; private set; }
-		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
+		public ILuaObjectFactory ObjectFactory => m_ObjectFactory;
+		public ILuaNamespaces Namespaces => m_Namespaces;
+		public ILuaEnums Enums => m_Enums;
+
+		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
+
+		private static LuaPlatform CreateLunyPlatform(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
+		{
+			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
+			var osEnv = new LunyLuaOsEnvironment(luaContext);
+			var standardIO = new LunyLuaStandardIO(luaContext);
+			var lunyPlatform = new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System);
+			return lunyPlatform;
+		}
 
 		public LunyLua(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{
-			m_Scripts = new LunyLuaScriptCollection();
-			InitLuaEnvironment(luaContext, fileSystemHook);
+			m_FileWatcher = new LuaFileWatcher(luaContext);
+			m_LuaState = LuaState.Create(CreateLunyPlatform(luaContext, fileSystemHook));
+			m_LuaState.UserData = new LunyLuaStateData { LunyLua = this };
+			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
+			m_LuaState.LoadBuiltInLibraries(luaContext.Libraries);
+			m_LuaState.ApplyLunyFunctionOverrides(luaContext.Libraries, luaContext.IsSandbox);
+			m_LuaState.SetLunyEnvironmentMetatable();
+			LuaModuleFactory.LoadModules(this, luaContext, out m_Namespaces, out m_Enums);
 		}
 
 		public async ValueTask AddAndRunScript(LunyLuaScript script)
@@ -166,98 +146,13 @@ namespace CodeSmile.Luny
 		public void Dispose()
 		{
 			ClearScripts();
-			ObjectFactory = null;
-			m_FileWatcher?.Dispose();
-			m_FileWatcher = null;
+
 			m_LuaState.Environment.Clear();
+			m_LuaState.UserData = null;
 			m_LuaState = null;
-		}
 
-		private void InitLuaEnvironment(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
-		{
-			m_FileWatcher = new LunyLuaFileWatcher(luaContext);
-			ObjectFactory = new LuaObjectFactory();
-
-			var fileSystem = new LunyLuaFileSystem(luaContext, fileSystemHook);
-			var osEnv = new LunyLuaOsEnvironment(luaContext);
-			var standardIO = new LunyLuaStandardIO(luaContext);
-			m_LuaState = LuaState.Create(new LuaPlatform(fileSystem, osEnv, standardIO, TimeProvider.System));
-			m_LuaState.UserData = new LunyLuaStateData { ObjectFactory = ObjectFactory };
-			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
-
-			var libraries = luaContext.Libraries;
-			if ((libraries & LuaLibraryFlags.Basic) != 0)
-			{
-				m_LuaState.OpenBasicLibrary();
-				InstallBasicLibraryOverrides();
-			}
-			if ((libraries & LuaLibraryFlags.Bitwise) != 0)
-				m_LuaState.OpenBitwiseLibrary();
-			if ((libraries & LuaLibraryFlags.Coroutine) != 0)
-				m_LuaState.OpenCoroutineLibrary();
-			if ((libraries & LuaLibraryFlags.Debug) != 0)
-				m_LuaState.OpenDebugLibrary();
-			if ((libraries & LuaLibraryFlags.IO) != 0)
-				m_LuaState.OpenIOLibrary();
-			if ((libraries & LuaLibraryFlags.Math) != 0)
-				m_LuaState.OpenMathLibrary();
-			if ((libraries & LuaLibraryFlags.Module) != 0)
-				m_LuaState.OpenModuleLibrary();
-			if ((libraries & LuaLibraryFlags.OS) != 0)
-				m_LuaState.OpenOperatingSystemLibrary();
-			if ((libraries & LuaLibraryFlags.String) != 0)
-				m_LuaState.OpenStringLibrary();
-			if ((libraries & LuaLibraryFlags.Table) != 0)
-				m_LuaState.OpenTableLibrary();
-
-			if (luaContext.IsSandbox)
-				RemovePotentiallyHarmfulFunctions();
-
-			AddAndOverrideGlobalFunctions();
-
-			LuaModuleFactory.LoadModules(this, luaContext);
-
-			// assign loaded namespaces and their types to global env
-			var env = m_LuaState.Environment;
-			foreach (var ns in Namespaces.Values)
-				env[ns.Name] = ns.Table;
-
-			// TODO: use env metatable to lookup namespace types
-			// var envMetatable = new LuaTable(0, 1);
-			// envMetatable[Metamethods.Index] = __indexEnvironment;
-			// m_LuaState.Environment.Metatable = envMetatable;
-		}
-
-		private void InstallBasicLibraryOverrides()
-		{
-			m_LuaState.Environment["dofile"] = new LuaFunction("dofile", DoFile);
-			m_LuaState.Environment["loadfile"] = new LuaFunction("loadfile", LoadFile);
-
-			async ValueTask<Int32> DoFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
-			{
-				var arg0 = context.GetArgument<String>(0);
-				context.Thread.Stack.PopUntil(context.ReturnFrameBase);
-				var closure = await context.State.LunyLoadFileAsync(arg0, null, cancellationToken);
-				return await context.Access.RunAsync(closure, cancellationToken);
-			}
-
-			async ValueTask<Int32> LoadFile(LuaFunctionExecutionContext context, CancellationToken cancellationToken)
-			{
-				var arg0 = context.GetArgument<String>(0);
-				var arg2 = context.HasArgument(2)
-					? context.GetArgument<LuaTable>(2)
-					: null;
-
-				// do not use LuaState.DoFileAsync as it uses the newExecutionContext
-				try
-				{
-					return context.Return(await context.State.LunyLoadFileAsync(arg0, arg2, cancellationToken));
-				}
-				catch (Exception ex)
-				{
-					return context.Return(LuaValue.Nil, ex.Message);
-				}
-			}
+			m_ObjectFactory?.Dispose();
+			m_FileWatcher?.Dispose();
 		}
 
 		private void DisposeScript(LunyLuaScript script)
@@ -277,22 +172,6 @@ namespace CodeSmile.Luny
 		{
 			RemoveScripts(m_Scripts);
 			m_Scripts.Clear();
-		}
-
-		private void RemovePotentiallyHarmfulFunctions()
-		{
-			var env = m_LuaState.Environment;
-			env.SetNil("load"); // disallow compiling and executing arbitrary strings
-		}
-
-		private void AddAndOverrideGlobalFunctions()
-		{
-			var env = m_LuaState.Environment;
-			env["print"] = LunyLogger.LuaLogInfo;
-			env["warn"] = LunyLogger.LuaLogWarn;
-			env["error"] = LunyLogger.LuaLogError;
-
-			env["typeof"] = _typeof;
 		}
 
 		internal void NotifyChangedScripts()
@@ -346,8 +225,5 @@ namespace CodeSmile.Luny
 		}
 
 		internal void ClearChangedScripts() => m_FileWatcher.ClearChangedFiles();
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ILuaObjectFactory GetObjectFactory(LuaFunctionExecutionContext context) => ((LunyLuaStateData)context.State.UserData).ObjectFactory;
 	}
 }

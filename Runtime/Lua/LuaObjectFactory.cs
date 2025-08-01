@@ -34,7 +34,7 @@ namespace CodeSmile.Luny
 		Type LuaBindType { get; }
 	}
 
-	public interface ILuaObject : ILuaUserData, ILuaBindType {}
+	public interface ILuaObject : ILuaBindType {}
 
 	public interface ILuaObjectType : ILuaObject {}
 
@@ -59,6 +59,12 @@ namespace CodeSmile.Luny
 			return luaInstance;
 		}
 
+		internal void Dispose()
+		{
+			m_LuaTypes.Clear();
+			Metatable = null;
+		}
+
 		private void AddLuaType(LuaTypeInfo luaType) => m_LuaTypes[luaType.BindType] = luaType;
 
 		internal void LoadLuaTypes(LuaNamespaces namespaces, LuaTypeInfo[] luaTypeInfos)
@@ -73,7 +79,8 @@ namespace CodeSmile.Luny
 					throw new Exception($"Lua namespace does not exist: {ns}");
 
 				var typeInstance = luaTypeInfo.CreateLuaType(createParams);
-				luaNamespace.Table[luaTypeInfo.Name] = typeInstance;
+				luaNamespace.Types[luaTypeInfo.Name] = typeInstance;
+				namespaces.AddTypeName(luaNamespace, luaTypeInfo.Name);
 				AddLuaType(luaTypeInfo);
 			}
 		}

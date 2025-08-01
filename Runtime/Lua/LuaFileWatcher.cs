@@ -11,12 +11,12 @@ using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
-	internal sealed class LunyLuaFileWatcher
+	internal sealed class LuaFileWatcher
 	{
 		private readonly List<String> m_WatchedPaths = new();
 
 		internal String[] ChangedFiles => LuaFileWatchers.ChangedFiles;
-		internal LunyLuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
+		internal LuaFileWatcher(LunyLuaContext luaContext) => InstallFileWatchers(luaContext.SearchPaths);
 		internal void RemoveChangedFile(String fullPath) => LuaFileWatchers.RemoveChangedFile(fullPath);
 
 		internal void ClearChangedFiles() => LuaFileWatchers.ClearChangedFiles();

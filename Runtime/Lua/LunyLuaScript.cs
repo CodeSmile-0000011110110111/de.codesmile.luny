@@ -21,7 +21,7 @@ namespace CodeSmile.Luny
 		public const String RuntimeTypeKey = "RuntimeType";
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
-		private readonly LunyLuaScriptEventHandlerCollection m_EventHandlers = new();
+		private readonly LunyScriptEventHandlerCollection m_EventHandlers = new();
 		public Action<LunyLuaScript> OnScriptChanged;
 
 		private LuaTable m_ScriptContext;
@@ -69,12 +69,12 @@ namespace CodeSmile.Luny
 			ScriptContext[ScriptPathKey] = path;
 		}
 
-		public LunyLuaScriptEventHandler<T> EventHandler<T>() where T : Enum
+		public LunyScriptEventHandler<T> EventHandler<T>() where T : Enum
 		{
 			var handler = m_EventHandlers.TryGet<T>();
 			if (handler == null)
 			{
-				handler = new LunyLuaScriptEventHandler<T>(ScriptContext);
+				handler = new LunyScriptEventHandler<T>(ScriptContext);
 				m_EventHandlers.Add(typeof(T), handler);
 			}
 

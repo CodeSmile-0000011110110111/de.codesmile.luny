@@ -12,10 +12,19 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
-	public sealed class LuaEnums : Dictionary<Type, LuaEnum> {}
+	public interface ILuaEnums
+	{
+	}
 
-	public sealed class LuaEnum
+	public interface ILuaEnum
+	{
+
+	}
+
+	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
+	public sealed class LuaEnums : Dictionary<Type, LuaEnum>, ILuaEnums {}
+
+	public sealed class LuaEnum : ILuaEnum
 	{
 		private const String EnumValuesKey = "enumValues";
 		private const String EnumValuesCountKey = "enumValueCount";

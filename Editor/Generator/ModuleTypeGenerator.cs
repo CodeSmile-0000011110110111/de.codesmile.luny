@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using Lua;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -121,6 +122,8 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			sb.Append(isLuaStaticType ? nameof(ILuaObjectType) : nameof(ILuaObject));
+			sb.Append(", ");
+			sb.Append(nameof(ILuaUserData));
 
 			if (isLuaStaticType == false)
 			{
@@ -296,9 +299,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("LuaTable Metatable");
 			sb.OpenIndentBlock("{"); // { Metatable
 			sb.AppendIndent("get => s_Metatable ??= ");
-			sb.Append(nameof(LuaObjectMetatable));
+			sb.Append(nameof(LuaMetatable));
 			sb.Append(".");
-			sb.Append(nameof(LuaObjectMetatable.Create));
+			sb.Append(nameof(LuaMetatable.Create));
 			sb.AppendLine("(__index, __newindex);");
 			sb.AppendIndentLine("set => throw new System.NotSupportedException(\"LuaObject metatables cannot be modified\");");
 			sb.CloseIndentBlock("}"); // Metatable }
@@ -635,10 +638,9 @@ namespace CodeSmileEditor.Luny.Generator
 					}
 					else
 					{
-						sb.Append(nameof(LunyLua));
-						sb.Append(".");
-						sb.Append(nameof(LunyLua.GetObjectFactory));
-						sb.Append("(_context).");
+						sb.Append("_context.");
+						sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
+						sb.Append("().");
 						sb.Append(nameof(ILuaObjectFactory.CreateLuaObjectInstance));
 						sb.Append("(");
 					}

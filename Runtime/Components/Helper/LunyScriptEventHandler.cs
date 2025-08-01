@@ -4,12 +4,14 @@
 using Lua;
 using Lua.Unity;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public abstract class LunyLuaScriptEventHandlerBase
+	public abstract class LunyScriptEventHandlerBase
 	{
 		private LuaCallbackFunctions m_Callbacks;
 
@@ -39,9 +41,27 @@ namespace CodeSmile.Luny
 		internal abstract void BindEventCallbacks(LuaTable context);
 	}
 
-	public sealed class LunyLuaScriptEventHandler<T> : LunyLuaScriptEventHandlerBase where T : Enum
+	public sealed class LunyScriptEventHandler<T> : LunyScriptEventHandlerBase where T : Enum
 	{
-		public LunyLuaScriptEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
+		public LunyScriptEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
 		internal override void BindEventCallbacks(LuaTable context) => BindEventCallbacks<T>(context);
+	}
+
+	public sealed class LunyScriptEventHandlerCollection : IEnumerable<LunyScriptEventHandlerBase>
+	{
+		private readonly Dictionary<Type, LunyScriptEventHandlerBase> m_EventHandlers = new();
+
+		public Int32 Count => m_EventHandlers.Count;
+		public Boolean IsReadOnly => false;
+
+		public IEnumerator<LunyScriptEventHandlerBase> GetEnumerator() => m_EventHandlers.Values.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+		public void Add(Type enumType, LunyScriptEventHandlerBase item) => m_EventHandlers.Add(enumType, item);
+
+		public LunyScriptEventHandler<T> TryGet<T>() where T : Enum => m_EventHandlers.TryGetValue(typeof(T), out var handler)
+			? (LunyScriptEventHandler<T>)handler
+			: null;
 	}
 }

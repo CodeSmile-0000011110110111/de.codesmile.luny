@@ -3,8 +3,11 @@
 
 namespace CodeSmile.Luny
 {
-	public sealed class LuaSystemType
+	public interface ILuaType {}
+
+	public sealed class LuaType : ILuaType
 	{
 		
 	}
+
 }
