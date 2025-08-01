@@ -103,8 +103,10 @@ namespace CodeSmileEditor.Luny.Generator
 			AddIndexMetamethod(sb, luaTypeName);
 			AddNewIndexMetamethod(sb, luaTypeName, setters.Count > 0);
 			sb.AppendLine();
-			AddGetValueMethod(sb, typeInfo, baseType, isLuaStaticType, getters);
-			AddSetValueMethod(sb, typeInfo, baseType, isLuaStaticType, setters);
+			AddGetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, getters);
+			AddGetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, getters, true);
+			AddSetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, setters);
+			AddSetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, setters, true);
 			AddCloseTypeDeclaration(sb);
 		}
 
@@ -112,7 +114,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var isValueType = typeInfo.Type.IsValueType;
 			sb.AppendIndent("public ");
-			sb.Append( isLuaStaticType || typeInfo.IsSealed ? "sealed class " : isValueType ? "struct " : "class ");
+			sb.Append(isLuaStaticType || typeInfo.IsSealed ? "sealed class " : isValueType ? "struct " : "class ");
 			sb.Append(isLuaStaticType ? typeInfo.StaticLuaTypeName : typeInfo.InstanceLuaTypeName);
 			sb.Append(" : ");
 			if (baseType != null)
@@ -325,19 +327,24 @@ namespace CodeSmileEditor.Luny.Generator
 				if (overloads.Count == 0)
 					continue;
 
-				var bindFuncName = GenerateGetterCase(typeInfo, getters, overloads);
-				AddOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? ".ctor" : overloads.Name);
-				AddReadArgumentCountAndErrorValues(sb);
+				var luaFuncName = overloads.IsConstructor ? "new" : overloads.Name;
+				var bindFuncName = CreateLuaBindFuncName(typeInfo, luaFuncName);
+				CreateMethodGetterCase(getters, luaFuncName, bindFuncName);
+
+				AddMethodOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? ".ctor" : overloads.Name);
+				AddMethodReadArgumentCountAndErrorValues(sb);
 				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
-					AddValueTypeParameterlessCtor(sb, typeInfo);
+					AddMethodParameterlessCtorCase(sb, typeInfo);
 				if (overloads.IsInstanceMethod)
-					AddGetInstanceFromLuaArguments(sb, typeInfo);
-				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, bindFuncName, overloads, 0, 0, null);
-				AddCloseLuaBindFunction(sb, typeInfo, bindFuncName);
+					AddMethodGetInstanceFromLuaArguments(sb, typeInfo);
+				AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, 0, 0, null);
+				AddMethodCloseLuaBindFunction(sb);
 			}
 		}
 
-		private static void AddOpenLuaBindFunction(ScriptBuilder sb, String funcName, String debugName)
+		private static String CreateLuaBindFuncName(GenTypeInfo typeInfo, String luaName) => $"_{typeInfo.InstanceLuaTypeName}_{luaName}";
+
+		private static void AddMethodOpenLuaBindFunction(ScriptBuilder sb, String funcName, String debugName)
 		{
 			sb.AppendIndent("private static readonly LuaFunction ");
 			sb.Append(funcName);
@@ -347,9 +354,9 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddCloseLuaBindFunction(ScriptBuilder sb, GenTypeInfo typeInfo, String bindFuncName) => sb.CloseIndentBlock("});");
+		private static void AddMethodCloseLuaBindFunction(ScriptBuilder sb) => sb.CloseIndentBlock("});");
 
-		private static void AddReadArgumentCountAndErrorValues(ScriptBuilder sb)
+		private static void AddMethodReadArgumentCountAndErrorValues(ScriptBuilder sb)
 		{
 			sb.AppendIndentLine("LuaValue _lastArg = default;");
 			sb.AppendIndentLine("System.Int32 _lastArgPos = default;");
@@ -357,7 +364,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 		}
 
-		private static void AddValueTypeParameterlessCtor(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddMethodParameterlessCtorCase(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndentLine("if (_argCount == 0)");
 			sb.OpenIndentBlock("{");
@@ -372,14 +379,14 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddGetInstanceFromLuaArguments(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddMethodGetInstanceFromLuaArguments(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeInfo.InstanceLuaTypeName);
 			sb.AppendLine(">(0);");
 		}
 
-		private static void AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo, String bindFuncName,
+		private static void AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
 			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature)
 		{
 			if (signature == null)
@@ -407,26 +414,31 @@ namespace CodeSmileEditor.Luny.Generator
 				signature.Add(parameter);
 				paramPos++;
 
-				AddGetAndReadArguments(sb, argNum, luaArgOffset, needsGetArguments, parameter);
+				if (needsGetArguments)
+					AddMethodGetArgumentFromLuaContext(sb, Digits[argNum], Digits[argNum + luaArgOffset]);
+				AddMethodReadValueConditional(sb, parameter, Digits[argNum]);
 			}
 
 			if (paramPos == paramCount)
 			{
-				AddRemainingParamsAndMethodCallAndReturn(sb, typeInfo, paramPos, hasParameters, overload, luaArgOffset);
+				AddMethodReadParametersAndCallAndReturn(sb, typeInfo, paramPos, hasParameters, overload, luaArgOffset);
 				methodIndex++;
 			}
 
 			var overloadCount = overloads.SortedMethods.Count;
 			if (methodIndex < overloadCount)
-				AddReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, bindFuncName, overloads, methodIndex, paramPos, signature);
+			{
+				AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(sb, typeInfo, overloads, methodIndex, paramPos,
+					signature);
+			}
 			else
 			{
-				AddCloseRemainingMethodBlocks(sb, paramPos);
-				AddThrowRuntimeArgumentException(sb, overloads);
+				AddMethodCloseRemainingBlocks(sb, paramPos);
+				AddMethodThrowRuntimeArgumentException(sb, overloads);
 			}
 		}
 
-		private static void AddThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads)
+		private static void AddMethodThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads)
 		{
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
 			sb.Append("{\""); // enclosing name in brackets intended to avoid making every message string unique
@@ -434,17 +446,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
-		private static void AddGetAndReadArguments(ScriptBuilder sb, Int32 argNum, Int32 luaArgOffset, Boolean needsGetArguments,
-			GenParamInfo parameter)
-		{
-			var argPosStr = Digits[argNum];
-			var luaArgPosStr = Digits[argNum + luaArgOffset];
-			if (needsGetArguments)
-				AddGetArgumentFromLuaContext(sb, argPosStr, luaArgPosStr);
-			AddReadValueConditional(sb, parameter, argPosStr);
-		}
-
-		private static void AddGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
+		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
 		{
 			sb.AppendIndent("var _arg");
 			sb.Append(argPosStr);
@@ -455,7 +457,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(") : LuaValue.Nil;");
 		}
 
-		private static void AddReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String argPosStr)
+		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String argPosStr)
 		{
 			sb.AppendIndent("_lastArgPos = ");
 			sb.Append(argPosStr);
@@ -466,12 +468,12 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
 			sb.AppendIndent(hasDefaultValue ? "var " : "if (");
-			AddReadLuaValueStatement(sb, parameter, argPosStr);
+			AddMethodReadLuaValueStatement(sb, parameter, argPosStr);
 			sb.AppendLine(hasDefaultValue ? ";" : ")");
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr,
+		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String argPosStr,
 			Boolean useSignatureName = false)
 		{
 			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName;
@@ -531,7 +533,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 		}
 
-		private static void AddRemainingParamsAndMethodCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Int32 paramPos,
+		private static void AddMethodReadParametersAndCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Int32 paramPos,
 			Boolean hasParameters, GenMethodInfo overload, Int32 luaArgOffset)
 		{
 			sb.AppendIndent("if (_argCount == ");
@@ -539,17 +541,17 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendLine(")");
 			sb.OpenIndentBlock("{");
 			if (hasParameters)
-				AddRemainingParametersReadsAndAssignments(sb, overload, luaArgOffset, paramPos - 1);
+				AddMethodReadRemainingAndAssignParameters(sb, overload, luaArgOffset, paramPos - 1);
 			AddMethodCallAndReturn(sb, typeInfo, overload);
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddRemainingParametersReadsAndAssignments(ScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
+		private static void AddMethodReadRemainingAndAssignParameters(ScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
 		{
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
 			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
-				AddGetArgumentFromLuaContext(sb, Digits[paramIndex], Digits[paramIndex + luaArgOffset]);
+				AddMethodGetArgumentFromLuaContext(sb, Digits[paramIndex], Digits[paramIndex + luaArgOffset]);
 
 			// re-assign variables for readability in method call
 			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
@@ -570,7 +572,7 @@ namespace CodeSmileEditor.Luny.Generator
 				else
 				{
 					sb.AppendIndent(parameters[paramIndex].ParamInfo.HasDefaultValue ? "var " : "");
-					AddReadLuaValueStatement(sb, parameters[paramIndex], Digits[paramIndex], true);
+					AddMethodReadLuaValueStatement(sb, parameters[paramIndex], Digits[paramIndex], true);
 					sb.AppendLine(";");
 				}
 			}
@@ -622,38 +624,8 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.AppendIndent("var _lret");
 				sb.Append(Digits[i]);
 				sb.Append(" = ");
-				if (returnType.IsPrimitive || returnType.IsEnum || returnType == typeof(String))
-				{
-					sb.Append("new LuaValue(");
-					if (returnType.IsEnum)
-						sb.Append("(System.Double)");
-				}
-				else if (ModuleGenerator.TypeInfosByType.TryGetValue(returnType, out var returnTypeInfo))
-				{
-					if (returnType.IsValueType)
-					{
-						sb.Append("new ");
-						sb.Append(returnTypeInfo.InstanceLuaTypeName);
-						sb.Append("(");
-					}
-					else
-					{
-						sb.Append("_context.");
-						sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
-						sb.Append("().");
-						sb.Append(nameof(ILuaObjectFactory.CreateLuaObjectInstance));
-						sb.Append("(");
-					}
-				}
-				else
-				{
-					Debug.LogWarning($"Using LuaValue.FromObject({typeInfo.BindTypeFullName}) in {typeInfo.InstanceLuaTypeName}.{overload}(..)");
-					sb.Append("LuaValue.FromObject((System.Object)");
-				}
-
-				sb.Append("_ret");
-				sb.Append(Digits[i]);
-				sb.AppendLine(");");
+				AddConversionToLuaValue(sb, typeInfo, returnType, $"_ret{Digits[i]}");
+				sb.AppendLine(";");
 			}
 
 			// return values
@@ -669,90 +641,210 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("return new ValueTask<System.Int32>(_retCount);");
 		}
 
-		private static void AddCloseRemainingMethodBlocks(ScriptBuilder sb, Int32 paramPos)
+		private static void AddConversionToLuaValue(ScriptBuilder sb, GenTypeInfo typeInfo, Type bindType, String varName)
+		{
+			if (bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String))
+			{
+				sb.Append("new LuaValue(");
+				if (bindType.IsEnum)
+					sb.Append("(System.Double)");
+			}
+			else if (ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var generatedType))
+			{
+				if (bindType.IsValueType)
+				{
+					sb.Append("new ");
+					sb.Append(generatedType.InstanceLuaTypeName);
+					sb.Append("(");
+				}
+				else
+				{
+					sb.Append("_context.");
+					sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
+					sb.Append("().");
+					sb.Append(nameof(ILuaObjectFactory.CreateLuaObjectInstance));
+					sb.Append("(");
+				}
+			}
+			else
+			{
+				Debug.LogWarning($"Using LuaValue.FromObject({typeInfo.BindTypeFullName}) in {typeInfo.InstanceLuaTypeName}");
+				sb.Append("LuaValue.FromObject((System.Object)");
+			}
+
+			sb.Append(varName);
+			sb.Append(")");
+		}
+
+		private static void AddMethodCloseRemainingBlocks(ScriptBuilder sb, Int32 paramPos)
 		{
 			for (; paramPos > 0; paramPos--)
 				sb.CloseIndentBlock("}");
 		}
+		private static void CreateMethodGetterCase(IList<String> getters, String luaName, String bindFuncName) =>
+			getters.Add($"case \"{luaName}\": _value = {bindFuncName}; return true;");
 
 		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine("private static readonly LuaFunction __index = new(Metamethods.Index, (context, _) =>");
+			sb.AppendIndentLine("private static readonly LuaFunction __index = new(Metamethods.Index, (_context, _) =>");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndent("var _this = context.GetArgument<");
+			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
-			sb.AppendIndentLine("var _key = context.GetArgument<System.String>(1);");
-			sb.AppendIndentLine("if (_this.GetLuaValue(_key, out LuaValue _value) == false)");
+			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
+			sb.AppendIndentLine("LuaValue _value = LuaValue.Nil;");
+			sb.AppendIndentLine("if (_key.TryRead<System.String>(out var _name) && !_this.GetLuaValue(_context, _name, out _value))");
 			sb.IncrementIndent();
-			sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, _this, 2);");
+			sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, _this, 2);");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("return new ValueTask<System.Int32>(context.Return(_value));");
+			sb.AppendIndentLine("else if (_key.TryRead<System.Int32>(out var _index) && !_this.GetLuaValue(_context, _index, out _value))");
+			sb.IncrementIndent();
+			sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, _this, 2);");
+			sb.DecrementIndent();
+			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_value));");
 			sb.CloseIndentBlock("});");
 		}
 
 		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName, Boolean hasSetters)
 		{
-			sb.AppendIndentLine("private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (context, _) =>");
+			sb.AppendIndentLine("private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (_context, _) =>");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndent("var _this = context.GetArgument<");
+			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
 			if (hasSetters)
 			{
-				sb.AppendIndentLine("var _key = context.GetArgument<System.String>(1);");
-				sb.AppendIndentLine("var _value = context.GetArgument(2);");
-				sb.AppendIndentLine("if (_this.SetLuaValue(_key, _value) == false)");
+				sb.AppendIndentLine("var _key = _context.GetArgument(1);");
+				sb.AppendIndentLine("var _value = _context.GetArgument(2);");
+				sb.AppendIndentLine("if (!_this.SetLuaValue(_context, _key, _value))");
 				sb.IncrementIndent();
-				sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, _this, 2);");
+				sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, _this, 2);");
 				sb.DecrementIndent();
-				sb.AppendIndentLine("return new ValueTask<System.Int32>(context.Return(0));");
+				sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(0));");
 			}
 			else
-				sb.AppendIndentLine("throw new LuaRuntimeException(context.Thread, _this, 2);");
+				sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, _this, 2);");
 			sb.CloseIndentBlock("});");
 		}
 
-		private static void AddGetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType,
-			IList<String> getters)
+		private static void AddGetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+			Boolean isLuaStaticType, IList<String> getters, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.AppendLine("System.Boolean GetLuaValue(System.String key, out LuaValue value)");
+			sb.Append("System.Boolean GetLuaValue(");
+			sb.Append(nameof(LuaFunctionExecutionContext));
+			sb.Append(" _context, ");
+			sb.Append(isIndexer ? "System.Int32" : "System.String");
+			sb.AppendLine(" _key, out LuaValue _value)");
 			sb.OpenIndentBlock("{");
-			sb.AppendIndentLine("switch (key)");
-			sb.OpenIndentBlock("{");
-			foreach (var getter in getters)
-				sb.AppendIndentLine(getter);
-			if (isLuaStaticType == false && baseType != null)
-				sb.AppendIndentLine("default: return base.GetLuaValue(key, out value);");
+			if (isIndexer)
+				AddGetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
 			else
-				sb.AppendIndentLine("default: value = LuaValue.Nil; return false;");
-			sb.CloseIndentBlock("}");
+			{
+				sb.AppendIndentLine("switch (_key)");
+				sb.OpenIndentBlock("{");
+				foreach (var getter in getters)
+					sb.AppendIndentLine(getter);
+				AddGetValueCasesForPropertiesAndFields(sb, typeInfo, members, isLuaStaticType);
+
+				if (isLuaStaticType == false && baseType != null)
+					sb.AppendIndentLine("default: return base.GetLuaValue(_context, _key, out _value);");
+				else
+					sb.AppendIndentLine("default: _value = LuaValue.Nil; return false;");
+				sb.CloseIndentBlock("}");
+			}
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddSetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType,
-			IList<String> setters)
+
+		private static void AddGetValueCasesForPropertiesAndFields(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
+			Boolean isLuaStaticType)
+		{
+			foreach (var property in members.Properties)
+			{
+				if (property.CanRead && property.GetMethod.IsPublic && property.IsIndexer() == false)
+				{
+					AddCaseStatement(sb, property.Name);
+					AddGetValueAndReturn(sb, typeInfo, property.PropertyType, property.Name, isLuaStaticType);
+				}
+			}
+
+			foreach (var field in members.Fields)
+			{
+				AddCaseStatement(sb, field.Name);
+				AddGetValueAndReturn(sb, typeInfo, field.FieldType, field.Name, isLuaStaticType);
+			}
+		}
+		private static void AddGetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+			Boolean isLuaStaticType)
+		{
+			var hasIndexer = false;
+			foreach (var property in members.Properties)
+			{
+				if (property.CanRead == false || property.GetMethod.IsPublic == false)
+					continue;
+
+				var indexParamCount = property.GetIndexParameters().Length;
+				if (indexParamCount == 1)
+				{
+					hasIndexer = true;
+					sb.AppendIndent();
+					AddGetValueAndReturn(sb, typeInfo, property.PropertyType, property.Name, isLuaStaticType, true);
+				}
+			}
+
+			if (hasIndexer == false)
+			{
+				if (isLuaStaticType == false && baseType != null)
+					sb.AppendIndentLine("return base.GetLuaValue(_context, _key, out _value);");
+				else
+					sb.AppendIndentLine("_value = LuaValue.Nil; return false;");
+			}
+		}
+
+		private static void AddCaseStatement(ScriptBuilder sb, String memberName)
+		{
+			sb.AppendIndent("case \"");
+			sb.Append(memberName);
+			sb.Append("\": ");
+		}
+
+		private static void AddGetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
+			Boolean isLuaStaticType, bool isIndexer = false)
+		{
+			sb.Append("_value = ");
+			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
+			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer?$"{accessor}[_key]":$"{accessor}.{memberName}");
+			sb.AppendLine("; return true;");
+		}
+
+		private static void AddSetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+			Boolean isLuaStaticType, IList<String> setters, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.Append("System.Boolean SetLuaValue(System.String key, LuaValue value)");
-			if (setters.Count > 0)
+			sb.Append("System.Boolean SetLuaValue(");
+			sb.Append(nameof(LuaFunctionExecutionContext));
+			sb.Append(" _context, ");
+			sb.Append(isIndexer ? "System.Int32" : "System.String");
+			sb.AppendLine(" _key, LuaValue _value)");
+			sb.OpenIndentBlock("{");
+			if (isIndexer)
+				AddSetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
+			else
 			{
-				sb.AppendLine();
-				sb.OpenIndentBlock("{");
-				sb.AppendIndentLine("switch (key)");
+				sb.AppendIndentLine("switch (_key)");
 				sb.OpenIndentBlock("{");
 				foreach (var setter in setters)
 					sb.AppendIndentLine(setter);
+				AddSetValueCasesForPropertiesAndFields(sb, typeInfo, members, isLuaStaticType);
+
 				if (isLuaStaticType == false && baseType != null && typeInfo.Type.IsValueType == false)
-					sb.AppendIndentLine("default: return base.SetLuaValue(key, value);");
+					sb.AppendIndentLine("default: return base.SetLuaValue(_context, _key, _value);");
 				else
 					sb.AppendIndentLine("default: return false;");
 				sb.CloseIndentBlock("}");
-				sb.CloseIndentBlock("}");
 			}
-			else
-				sb.AppendLine(" => false;");
+			sb.CloseIndentBlock("}");
 		}
 
 		private static void AddGetSetValueMethodClassifiers(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType,
@@ -763,25 +855,105 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(baseType != null ? "override " : typeInfo.IsSealed == false ? "virtual " : "");
 		}
 
-		private static String GenerateGetterCase(GenTypeInfo typeInfo, IList<String> getters, GenMethodOverloads overloads)
+		private static void AddSetValueCasesForPropertiesAndFields(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
+			Boolean isLuaStaticType)
 		{
-			var isCtor = overloads.IsConstructor;
-			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
-			var bindFuncName = $"_{typeInfo.InstanceLuaTypeName}_{bindFuncNameSuffix}";
-			var indexCaseName = isCtor ? "new" : overloads.Name;
-			getters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; return true;");
-			return bindFuncName;
+			foreach (var property in members.Properties)
+			{
+				if (property.CanWrite && property.SetMethod.IsPublic && property.IsIndexer() == false)
+				{
+					AddCaseStatement(sb, property.Name);
+					AddSetValueAndReturn(sb, typeInfo, property.PropertyType, property.Name, isLuaStaticType);
+				}
+			}
+
+			foreach (var field in members.Fields)
+			{
+				if (field.IsLiteral || field.IsInitOnly)
+					continue;
+
+				AddCaseStatement(sb, field.Name);
+				AddSetValueAndReturn(sb, typeInfo, field.FieldType, field.Name, isLuaStaticType);
+			}
+		}
+		private static void AddSetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+			Boolean isLuaStaticType)
+		{
+			var hasIndexer = false;
+			foreach (var property in members.Properties)
+			{
+				if (property.CanWrite == false || property.SetMethod.IsPublic == false)
+					continue;
+
+				var indexParamCount = property.GetIndexParameters().Length;
+				if (indexParamCount == 1)
+				{
+					hasIndexer = true;
+					sb.AppendIndent();
+					AddSetValueAndReturn(sb, typeInfo, property.PropertyType, property.Name, isLuaStaticType, true);
+				}
+			}
+
+			if (hasIndexer == false)
+			{
+				if (isLuaStaticType == false && baseType != null)
+					sb.AppendIndentLine("return base.SetLuaValue(_context, _key, _value);");
+				else
+					sb.AppendIndentLine("return false;");
+			}
 		}
 
-		private static String GenerateSetterCase(GenTypeInfo typeInfo, IList<String> setters, GenMethodOverloads overloads) =>
-			throw new NotImplementedException();
-		/*
-			var isCtor = overloads.IsConstructor;
-			var bindFuncNameSuffix = isCtor ? "ctor" : overloads.Name;
-			var bindFuncName = $"_{typeInfo.InstanceLuaTypeName}_{bindFuncNameSuffix}";
-			var indexCaseName = isCtor ? "new" : overloads.Name;
-			setters.Add($"case \"{indexCaseName}\": value = {bindFuncName}; return true;");
-			return bindFuncName;
-		*/
+		private static void AddSetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
+			Boolean isLuaStaticType, bool isIndexer = false)
+		{
+			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
+			if (typeInfo.Type.IsValueType && isLuaStaticType == false)
+			{
+				sb.Append("{var _temp = ");
+				sb.Append(typeInfo.InstancePropertyName);
+				sb.Append(";");
+				accessor = "_temp";
+			}
+
+			sb.Append(accessor);
+			if (isIndexer)
+				sb.Append("[_key]");
+			else
+			{
+				sb.Append(".");
+				sb.Append(memberName);
+			}
+			sb.Append(" = _value.Read<");
+
+			GenTypeInfo generatedType = null;
+			if (memberType.IsEnum)
+			{
+				sb.Append(memberType.FullName.Replace('+', '.'));
+			}
+			else if (ModuleGenerator.TypeInfosByType.TryGetValue(memberType, out generatedType))
+			{
+				sb.Append(generatedType.InstanceLuaTypeName);
+			}
+			else
+			{
+				sb.Append(memberType.FullName.Replace('+', '.'));
+			}
+			sb.Append(">()");
+			if (generatedType != null)
+			{
+				sb.Append(".");
+				sb.Append(generatedType.InstancePropertyName);
+			}
+			sb.Append(";");
+
+			if (typeInfo.Type.IsValueType && isLuaStaticType == false)
+			{
+				sb.Append(typeInfo.InstanceFieldName);
+				sb.Append(" = _temp;}");
+			}
+
+			sb.AppendLine(" return true;");
+		}
+
 	}
 }

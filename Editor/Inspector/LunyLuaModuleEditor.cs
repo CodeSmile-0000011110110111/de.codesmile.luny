@@ -66,8 +66,10 @@ namespace CodeSmileEditor.Luny
 			Module.ClearGeneratedTypeReferences();
 			Module.SaveAsset();
 			ResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
-			ResponseFile.Import();
 			GenUtil.TryDeleteContentFolderPath(Module);
+
+			// doing a full refresh because there might be other (non-generated) code changes and we want to pick those up too
+			AssetDatabase.Refresh();
 		}
 
 		private void OnGenerate()

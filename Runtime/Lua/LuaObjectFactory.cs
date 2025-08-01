@@ -51,7 +51,9 @@ namespace CodeSmile.Luny
 
 		public LuaValue CreateLuaObjectInstance(Object bindInstance)
 		{
-			Debug.Assert(bindInstance != null);
+			if (bindInstance == null)
+				return LuaValue.Nil;
+
 			Debug.Assert(bindInstance.GetType().IsValueType == false, "should not be used with value types");
 
 			var luaTypeInfo = GetLuaTypeInfo(bindInstance);

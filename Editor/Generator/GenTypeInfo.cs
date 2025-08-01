@@ -29,8 +29,6 @@ namespace CodeSmileEditor.Luny.Generator
 		public GenMemberInfo StaticMembers;
 		public Boolean HasInstanceType => IsStatic == false;
 
-		public override String ToString() => Type?.ToString() ?? GetType().Name;
-
 		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
 		{
 			Type = type;
@@ -63,6 +61,8 @@ namespace CodeSmileEditor.Luny.Generator
 				InstanceMembers.CtorOverloads = new GenMethodOverloads[0];
 			}
 		}
+
+		public override String ToString() => Type?.ToString() ?? GetType().Name;
 	}
 
 	internal sealed class GenMemberInfo
@@ -81,8 +81,22 @@ namespace CodeSmileEditor.Luny.Generator
 			Ctors = type.GetConstructors(bindingFlags)
 				.Where(c => !(type.IsAbstract || c.GetCustomAttributes(obsolete).Any()))
 				.OrderBy(c => c.GetParameters().Length);
-			Fields = type.GetFields(bindingFlags).Where(f => !f.GetCustomAttributes(obsolete).Any()).OrderBy(f => f.Name);
-			Properties = type.GetProperties(bindingFlags).Where(p => !p.GetCustomAttributes(obsolete).Any()).OrderBy(p => p.Name);
+			Fields = type.GetFields(bindingFlags)
+				.Where(f => !(f.FieldType.IsPointer ||
+				              f.FieldType == typeof(IntPtr) ||
+				              f.FieldType == typeof(UIntPtr) ||
+				              f.FieldType.IsGenericType ||
+				              f.FieldType.IsGenericParameter ||
+				              f.GetCustomAttributes(obsolete).Any()))
+				.OrderBy(f => f.Name);
+			Properties = type.GetProperties(bindingFlags)
+				.Where(p => !(p.PropertyType.IsPointer ||
+				              p.PropertyType == typeof(IntPtr) ||
+				              p.PropertyType == typeof(UIntPtr) ||
+				              p.PropertyType.IsGenericType ||
+				              p.PropertyType.IsGenericParameter ||
+				              p.GetCustomAttributes(obsolete).Any()))
+				.OrderBy(p => p.Name);
 			Methods = type.GetMethods(bindingFlags)
 				.Where(m => !(m.IsSpecialName || m.GetCustomAttributes(obsolete).Any()))
 				.OrderBy(m => m.Name);
@@ -161,8 +175,8 @@ namespace CodeSmileEditor.Luny.Generator
 			if (log)
 			{
 				GenUtil.Log($"Skip {reason}: {method.DeclaringType.FullName}::{method.Name}" +
-				                        $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
-				                        $"'{parameter.ParameterType.Name} {parameter.Name}'");
+				            $"({GenUtil.ToString(method.GetParameters())}) - unsupported: " +
+				            $"'{parameter.ParameterType.Name} {parameter.Name}'");
 			}
 			return true;
 		}

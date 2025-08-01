@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 				case LuaValueType.Thread: typeName = nameof(LuaThread); break;
 				case LuaValueType.UserData or LuaValueType.LightUserData:
 					if (arg0.TryRead(out Object userValue) && userValue != null)
-						typeName = userValue is ILuaBindType bt ? bt.LuaBindType?.Name : userValue.GetType().Name;
+						typeName = userValue is ILuaBindType bt ? bt.LuaBindType?.FullName : userValue.GetType().FullName;
 					else
 						typeName = "null";
 					break;

@@ -13,17 +13,13 @@ namespace CodeSmile.Luny
 {
 	public interface ILuaNamespaces
 	{
-		IEnumerable<LuaNamespace> Values { get; }
-
 		Boolean TryGetLuaType(String typeName, out LuaValue luaType);
-		//void MoveToBack(LuaTable usings);
 	}
 
 	public sealed class LuaNamespaces : ILuaNamespaces
 	{
 		private readonly Dictionary<String, LuaNamespace> m_NamespacesByName = new();
 		private readonly Dictionary<String, List<LuaNamespace>> m_NamespacesByTypeName = new();
-		//private readonly List<LuaNamespace> m_OrderedNamespaces = new();
 
 		public IEnumerable<LuaNamespace> Values => m_NamespacesByName.Values;
 		public LuaNamespace this[String namespaceName] => m_NamespacesByName[namespaceName];
@@ -38,6 +34,7 @@ namespace CodeSmile.Luny
 		{
 			if (m_NamespacesByTypeName.TryGetValue(typeName, out var namespacesWithType))
 			{
+				// TODO: need a "using" function in case of ambiguous types which would indicate the namespace preference
 				Debug.Assert(namespacesWithType.Count == 1, $"ambiguous type: {typeName} in {namespacesWithType.Count} namespaces");
 
 				var usingNamespace = namespacesWithType.FirstOrDefault();
@@ -51,37 +48,6 @@ namespace CodeSmile.Luny
 			luaType = LuaValue.Nil;
 			return false;
 		}
-
-		/*
-		public void MoveToBack(LuaTable usings)
-		{
-			var validUsingsInReverseOrder = new List<LuaNamespace>();
-
-				for (var i = usings.ArrayLength; i >= 0; i--) // Lua arrays are 1-based!
-				{
-					if (usings[i].TryRead(out LuaNamespace ns) && m_Namespaces.ContainsKey(ns.Name))
-					{
-						validUsingsInReverseOrder.Add(ns);
-						m_OrderedNamespaces.Remove(ns);
-					}
-				}
-
-				foreach (var ns in validUsingsInReverseOrder)
-					m_OrderedNamespaces.Add(ns);
-		}
-		*/
-		// [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		// private Boolean TryGet(LuaValue value, out LuaNamespace luaNamespace)
-		// {
-		// 	if (value.TryRead(out String namespaceName))
-		// 		return TryGet(namespaceName, out luaNamespace);
-		//
-		// 	luaNamespace = null;
-		// 	return false;
-		// }
-		//
-		// [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		// private Boolean TryGet(String namespaceName, out LuaNamespace luaNamespace) => (luaNamespace = m_Namespaces[namespaceName]) != null;
 
 		internal Boolean ContainsNamespace(String namespaceName) => m_NamespacesByName.ContainsKey(namespaceName);
 

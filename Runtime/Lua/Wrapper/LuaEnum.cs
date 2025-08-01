@@ -12,22 +12,18 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
-	public interface ILuaEnums
-	{
-	}
+	public interface ILuaEnums {}
 
-	public interface ILuaEnum
-	{
+	public interface ILuaEnum {}
 
-	}
-
-	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
 	public sealed class LuaEnums : Dictionary<Type, LuaEnum>, ILuaEnums {}
 
+	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
 	public sealed class LuaEnum : ILuaEnum
 	{
-		private const String EnumValuesKey = "enumValues";
-		private const String EnumValuesCountKey = "enumValueCount";
+		private const String EnumValuesKey = "values";
+		private const String EnumValuesCountKey = "count";
+		private const String EnumNameKey = "name";
 
 		private static readonly LuaFunction _enumLenFunc = new("enum.__len", (context, token) =>
 		{
@@ -68,6 +64,7 @@ namespace CodeSmile.Luny
 				values[enumNames[i]] = Convert.ToDouble(enumValues.GetValue(i));
 
 			var metatable = new LuaTable(0, 6);
+			//metatable[EnumNameKey] = enumType.Name;
 			metatable[EnumValuesKey] = values;
 			metatable[EnumValuesCountKey] = valueCount;
 			metatable[Metamethods.Index] = _enumIndexFunc;

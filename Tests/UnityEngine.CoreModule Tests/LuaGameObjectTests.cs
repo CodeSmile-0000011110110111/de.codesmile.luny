@@ -10,6 +10,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Task = System.Threading.Tasks.Task;
 
 public abstract class LuaModuleTestsBase
@@ -23,101 +24,100 @@ public abstract class LuaModuleTestsBase
 
 public sealed class LuaGameObjectTests : LuaModuleTestsBase
 {
-	// Tests:
-	// var go = new GameObject()
-	// var com1 = go.AddComponent(BoxCollider)
-	// var com2 = go.GetComponent(BoxCollider)
-	// com1 == com2
-
-	[Test] public async Task Lua_newGameObject_NoName()
+	[Test] public async Task Lua_newGameObject_InstanceNotNull()
 	{
 		var script = "return GameObject.new()";
-		var retvals = await DoStringAsync(script, nameof(Lua_newGameObject_NoName));
+		var retvals = await DoStringAsync(script, nameof(Lua_newGameObject_InstanceNotNull));
+
 		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance, Is.Not.Null);
 	}
 
-	[Test] public async Task Lua_newGameObject_WithName()
+	[Test] public async Task Lua_newGameObjectWithName_NameMatches()
 	{
 		var script = "return GameObject.new('new go')";
-		var retvals = await DoStringAsync(script, nameof(Lua_newGameObject_NoName));
+		var retvals = await DoStringAsync(script, nameof(Lua_newGameObjectWithName_NameMatches));
+
 		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.name, Is.EqualTo("new go"));
 	}
 
-	[Test] public async Task Lua_AddComponent_ComponentIsOfExpectedLuaType()
+	[Test] public async Task Lua_AddComponent_ComponentIsOfExpectedType()
 	{
 		var script = "local go = GameObject.new('go with MeshFilter');" +
 		             "local com = go:AddComponent(MeshFilter);" +
-		             "print(tostring(go));print(typeof(go));print(tostring(com));print(typeof(com));" +
 		             "return go, com;";
-		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_ComponentIsOfExpectedLuaType));
+		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_ComponentIsOfExpectedType));
+
 		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
-		Assert.That(retvals[1].TryRead<Lua_UnityEngine_MeshFilter>(out var _), Is.True);
+		Assert.That(retvals[1].TryRead<Lua_UnityEngine_MeshFilter>(out var _));
 		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance,
 			Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.GetComponent<MeshFilter>()));
 	}
-
-	[Test] public async Task Lua_Namespace_FindTypeWithoutNamespacePrefix()
+	[Test] public async Task Lua_AddComponent_GetComponentReturnsAddedComponent()
 	{
-		var script = "local go = GameObject.new('go');" +
-		             "local com = go:AddComponent(MeshFilter);" +
-		             "local v3 = Vector3.new(1,2,3);" +
-		             "return go, com, v3;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_FindTypeWithoutNamespacePrefix));
+		var script = "local go = GameObject.new('go with MeshFilter');" +
+		             "local added = go:AddComponent(MeshFilter);" +
+		             "local gotten = go:GetComponent(MeshFilter);" +
+		             "return go, added, gotten;";
+		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_GetComponentReturnsAddedComponent));
 
-		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance, Is.Not.Null);
-		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance, Is.Not.Null);
-		Assert.That(retvals[2].Read<Lua_UnityEngine_Vector3>().Value, Is.EqualTo(new Vector3(1, 2, 3)));
+		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
+		Assert.That(retvals[2].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
+		var com1 = retvals[1].Read<Lua_UnityEngine_MeshFilter>();
+		var com2 = retvals[2].Read<Lua_UnityEngine_MeshFilter>();
+		Assert.That(com1.Instance, Is.EqualTo(com2.Instance));
+		Assert.That(com1, Is.Not.EqualTo(com2)); // for as long as the component wrappers aren't being cached
 	}
 
-	/*[Test] public async Task Lua_Namespace_FindTypesWithUsings()
+	[Test] public async Task Lua_AddMultipleComponentsOfSameType_HasMultipleComponentsOfSameType()
 	{
-		var script = "using { UnityEngine };" +
-		             "local go = GameObject.new('go');" +
-		             "local com = go:AddComponent(MeshFilter);" +
-		             "local v3 = Vector3.new(1,2,3);" +
-		             "return go, com, v3;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_FindTypeWithoutNamespacePrefix));
+		var script = "local go = GameObject.new('go');" +
+		             "go:AddComponent(LunyScript);" +
+		             "go:AddComponent(LunyScript);" +
+		             "go:AddComponent(LunyScript);" +
+		             "return go;";
+		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_GetComponentReturnsAddedComponent));
 
-		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance, Is.Not.Null);
-		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance, Is.Not.Null);
-		Assert.That(retvals[2].Read<Lua_UnityEngine_Vector3>().Value, Is.EqualTo(new Vector3(1, 2, 3)));
-	}*/
+		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
+		var components = go.Instance.GetComponents<LunyScript>();
+		Assert.That(components.Length, Is.EqualTo(3));
+	}
 
-	[Test] public async Task Lua_Namespace_IsNamespaceType()
+	[Test] public async Task Lua_Namespace_IsLuaNamespaceType()
 	{
 		var script = "return UnityEngine;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_IsNamespaceType));
+		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_IsLuaNamespaceType));
 
 		Assert.That(retvals[0].TryRead<LuaNamespace>(out var _));
 		Assert.That(retvals[0].Read<LuaNamespace>().Name, Is.EqualTo(nameof(UnityEngine)));
 	}
 
-	[Test] public async Task Lua_Namespace_FindEnumWithoutNamespacePrefix()
+	[Test] public async Task Lua_Enum_IsLuaEnumType()
 	{
-		var script = "return UnityEngine.ApplicationInstallMode, ApplicationInstallMode, ApplicationInstallMode.DeveloperBuild;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_FindEnumWithoutNamespacePrefix));
+		var script = "return ApplicationInstallMode";
+		var retvals = await DoStringAsync(script, nameof(Lua_Enum_IsLuaEnumType));
 
-		Debug.Log(retvals[0]);
-		Debug.Log(retvals[1]);
-		Debug.Log(retvals[2]);
-
-		Assert.That(retvals[0].Read<LuaTable>(), Is.Not.Null);
-		Assert.That(retvals[1].Read<LuaTable>(), Is.Not.Null);
-		Assert.That(retvals[2].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
+		Assert.That(retvals[0].TryRead<LuaEnum>(out var _));
 	}
 
-	[Test] public async Task Lua_Enum_Test()
+	[Test] public async Task Lua_Enum_ReturnCorrectValue()
 	{
-		var script = "for k, v in pairs(ApplicationInstallMode) do print(k, v) end;" +
-		             "return UnityEngine, UnityEngine.ApplicationInstallMode, UnityEngine.ApplicationInstallMode.DeveloperBuild";
-		var retvals = await DoStringAsync(script, nameof(Lua_Enum_Test));
-		Assert.That(retvals[0], Is.Not.Null);
-		Assert.That(retvals[1], Is.Not.Null);
+		var script = "return ApplicationInstallMode.DeveloperBuild;";
+		var retvals = await DoStringAsync(script, nameof(Lua_Enum_ReturnCorrectValue));
 
-		// foreach (var pair in retvals[1].Read<LuaTable>())
-		// 	Debug.Log($"{pair.Key}: {pair.Value}");
+		Debug.Log(retvals[0]);
 
-		Assert.That(retvals[2].Read<Double>(), Is.EqualTo((Double)ApplicationInstallMode.DeveloperBuild));
-		Assert.That(retvals[2].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
+		Assert.That(retvals[0].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
+	}
+
+	[Test] public async Task Lua_GetSetIndexerValue_ReturnsCorrectValues()
+	{
+		var script = "local v3 = Vector3.new();" +
+		             "v3[0] = 1; v3[1] = 2; v3[2] = 3;" +
+		             "return v3[0], v3[1], v3[2];";
+		var retvals = await DoStringAsync(script, nameof(Lua_GetSetIndexerValue_ReturnsCorrectValues));
+
+		Assert.That(retvals[0].Read<float>(), Is.EqualTo(1));
+		Assert.That(retvals[1].Read<float>(), Is.EqualTo(2));
+		Assert.That(retvals[2].Read<float>(), Is.EqualTo(3));
 	}
 }
