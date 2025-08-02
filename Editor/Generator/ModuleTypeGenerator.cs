@@ -129,7 +129,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
-			var isValueType = typeInfo.Type.IsValueType;
+			var isValueType = typeInfo.IsValueType;
 			sb.AppendIndent("public ");
 			sb.Append(isLuaStaticType || typeInfo.IsSealed ? "sealed class " : isValueType ? "struct " : "class ");
 			sb.Append(isLuaStaticType ? typeInfo.StaticLuaTypeName : typeInfo.InstanceLuaTypeName);
@@ -214,7 +214,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddBindType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
-			sb.AppendIndent(isLuaStaticType || typeInfo.Type.IsValueType ? "public " : "public new ");
+			sb.AppendIndent(isLuaStaticType || typeInfo.IsValueType ? "public " : "public new ");
 			sb.Append("System.Type ");
 			sb.Append(nameof(ILuaBindType.LuaBindType));
 			sb.Append(" => typeof(");
@@ -266,7 +266,7 @@ namespace CodeSmileEditor.Luny.Generator
 			// field
 			if (baseType == null)
 			{
-				sb.AppendIndent(typeInfo.IsSealed || typeInfo.Type.IsValueType ? "private " : "protected ");
+				sb.AppendIndent(typeInfo.IsSealed || typeInfo.IsValueType ? "private " : "protected ");
 				sb.Append(bindTypeName);
 				sb.Append(" ");
 				sb.Append(fieldName);
@@ -302,7 +302,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			else
 			{
-				if (typeInfo.Type.IsValueType)
+				if (typeInfo.IsValueType)
 				{
 					sb.Append(typeInfo.InstancePropertyName);
 					sb.AppendNewLine(".ToString();");
@@ -373,7 +373,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 				AddMethodOpenLuaBindFunction(sb, bindFuncName, overloads.IsConstructor ? ".ctor" : overloads.Name);
 				AddMethodReadArgumentCountAndErrorValues(sb);
-				if (overloads.IsConstructor && typeInfo.Type.IsValueType)
+				if (overloads.IsConstructor && typeInfo.IsValueType)
 					AddMethodParameterlessCtorCase(sb, typeInfo);
 				if (overloads.IsInstanceMethod)
 					AddMethodGetInstanceFromLuaArguments(sb, typeInfo);
@@ -880,7 +880,7 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.AppendIndentLine(setter);
 				AddSetValueCasesForPropertiesAndFields(sb, typeInfo, members, isLuaStaticType);
 
-				if (isLuaStaticType == false && baseType != null && typeInfo.Type.IsValueType == false)
+				if (isLuaStaticType == false && baseType != null && typeInfo.IsValueType == false)
 					sb.AppendIndentLine("default: return base.SetLuaValue(_context, _key, _value);");
 				else
 					sb.AppendIndentLine("default: return false;");
@@ -892,8 +892,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddGetSetValueMethodClassifiers(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType,
 			Boolean isLuaStaticType)
 		{
-			sb.AppendIndent(typeInfo.IsStatic || typeInfo.Type.IsValueType ? "private " : "public ");
-			if (isLuaStaticType == false && typeInfo.Type.IsValueType == false)
+			sb.AppendIndent(typeInfo.IsStatic || typeInfo.IsValueType ? "private " : "public ");
+			if (isLuaStaticType == false && typeInfo.IsValueType == false)
 				sb.Append(baseType != null ? "override " : typeInfo.IsSealed == false ? "virtual " : "");
 		}
 
@@ -950,7 +950,7 @@ namespace CodeSmileEditor.Luny.Generator
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
-			if (typeInfo.Type.IsValueType && isLuaStaticType == false)
+			if (typeInfo.IsValueType && isLuaStaticType == false)
 			{
 				sb.Append("{var _temp = ");
 				sb.Append(typeInfo.InstancePropertyName);
@@ -983,7 +983,7 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			sb.Append(";");
 
-			if (typeInfo.Type.IsValueType && isLuaStaticType == false)
+			if (typeInfo.IsValueType && isLuaStaticType == false)
 			{
 				sb.Append(typeInfo.InstanceFieldName);
 				sb.Append(" = _temp;}");
