@@ -23,11 +23,12 @@ namespace CodeSmileEditor.Luny.Generator
 		public readonly Boolean IsUnityObjectType;
 		public readonly Boolean IsUnityGameObjectType;
 		public readonly Boolean IsUnityComponentType;
+		public Boolean HasInstanceType => IsStatic == false;
+		public Boolean IsValueType => Type.IsValueType;
 		public String InstanceFieldName;
 		public String InstancePropertyName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
-		public Boolean HasInstanceType => IsStatic == false;
 
 		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
 		{

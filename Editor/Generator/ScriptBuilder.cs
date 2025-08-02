@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -18,22 +19,57 @@ namespace CodeSmileEditor.Luny.Generator
 	/// </summary>
 	public sealed class ScriptBuilder
 	{
+		private static String[] s_Keywords;
+
 		private readonly StringBuilder m_StringBuilder;
-		private readonly List<String> m_Indent = new();
+		private readonly List<String> m_Indentations = new();
 		private readonly Char m_IndentChar;
 		private readonly Int32 m_IndentCharRepeat;
 
 		public Int32 IndentLevel { get; private set; }
+
+		private static void InitSymbolsLookupTable()
+		{
+			if (s_Keywords == null)
+			{
+				var keywords = Enum.GetNames(typeof(Keyword));
+				var keywordCount = keywords.Length;
+				s_Keywords = new String[keywordCount];
+
+				for (var i = 0; i < keywordCount; ++i)
+					s_Keywords[i] = keywords[i].ToLower();
+			}
+		}
+
+		private static String GetCharacter(Character character) => character switch
+		{
+			Character.ParensClose => ")",
+			Character.ParensOpen => "(",
+			Character.Semicolon => ";",
+			Character.Space => " ",
+			var _ => throw new ArgumentOutOfRangeException(nameof(character), character.ToString()),
+		};
+
+		private static String GetKeyword(Keyword keyword) => s_Keywords[(Int32)keyword];
+
+		private static String GetOperator(Operator op) => op switch
+		{
+			Operator.Assign => "=",
+			Operator.Equals => "==",
+			Operator.LambdaExpression => "=>",
+			var _ => throw new ArgumentOutOfRangeException(nameof(op), op.ToString()),
+		};
 
 		/// <summary>
 		///     Create a new StringBuilder with indentation support.
 		/// </summary>
 		public ScriptBuilder(String value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
 		{
+			InitSymbolsLookupTable();
 			m_StringBuilder = new StringBuilder(value);
 			m_IndentChar = indentChar;
 			m_IndentCharRepeat = Mathf.Max(1, indentCharRepeat);
-			m_Indent.Add(String.Empty); // level 0: no indentation
+			m_Indentations.Add(String.Empty); // level 0: no indentation
 		}
 
 		/// <summary>
@@ -55,7 +91,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public void Append(String text) => m_StringBuilder.Append(text);
 
 		/// <summary>
-		///     Appends each string in the array
+		///     Appends each string in the collection
 		/// </summary>
 		/// <param name="texts"></param>
 		public void Append(IEnumerable<String> texts)
@@ -63,6 +99,50 @@ namespace CodeSmileEditor.Luny.Generator
 			foreach (var text in texts)
 				m_StringBuilder.Append(text);
 		}
+
+		public void Append(String str, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		{
+			AppendPaddingBefore(padding, paddingChar);
+			m_StringBuilder.Append(str);
+			AppendPaddingAfter(padding, paddingChar);
+		}
+
+		public void Append(Character character, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		{
+			AppendPaddingBefore(padding, paddingChar);
+			m_StringBuilder.Append(GetCharacter(character));
+			AppendPaddingAfter(padding, paddingChar);
+		}
+
+		public void Append(Keyword keyword, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		{
+			AppendPaddingBefore(padding, paddingChar);
+			m_StringBuilder.Append(GetKeyword(keyword));
+			AppendPaddingAfter(padding, paddingChar);
+		}
+
+		public void Append(Operator @operator, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		{
+			AppendPaddingBefore(padding, paddingChar);
+			m_StringBuilder.Append(GetOperator(@operator));
+			AppendPaddingAfter(padding, paddingChar);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void AppendPaddingBefore(Padding padding, Character paddingChar)
+		{
+			if (padding == Padding.Before)
+				m_StringBuilder.Append(GetCharacter(paddingChar));
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void AppendPaddingAfter(Padding padding, Character paddingChar)
+		{
+			if (padding == Padding.After)
+				m_StringBuilder.Append(GetCharacter(paddingChar));
+		}
+
+		public void Append(Char c, Int32 count = 1) => m_StringBuilder.Append(new String(c, count));
 
 		/// <summary>
 		///     appends text with leading indentation based on current indent level
@@ -87,32 +167,33 @@ namespace CodeSmileEditor.Luny.Generator
 		/// <summary>
 		///     regular StringBuilder AppendLine()
 		/// </summary>
-		public void AppendLine() => m_StringBuilder.AppendLine();
+		public void AppendNewLine() => m_StringBuilder.AppendLine();
+		public void AppendNewLine(Character character) => m_StringBuilder.AppendLine(GetCharacter(character));
 
 		/// <summary>
 		///     appends 'count' number of empty lines
 		/// </summary>
 		/// <param name="count"></param>
-		public void AppendEmptyLines(Int32 count)
+		public void AppendLines(Int32 count)
 		{
 			for (var i = 0; i < count; i++)
-				AppendLine();
+				AppendNewLine();
 		}
 
 		/// <summary>
 		///     regular StringBuilder AppendLine("")
 		/// </summary>
 		/// <param name="text"></param>
-		public void AppendLine(String text) => m_StringBuilder.AppendLine(text);
+		public void AppendNewLine(String text) => m_StringBuilder.AppendLine(text);
 
 		/// <summary>
 		///     appends the texts, then adds a newline
 		/// </summary>
 		/// <param name="texts"></param>
-		public void AppendLine(IEnumerable<String> texts)
+		public void AppendNewLine(IEnumerable<String> texts)
 		{
 			foreach (var text in texts)
-				AppendLine(text);
+				AppendNewLine(text);
 		}
 
 		/// <summary>
@@ -122,7 +203,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public void AppendIndentLine(String text)
 		{
 			AppendIndentation();
-			AppendLine(text);
+			AppendNewLine(text);
 		}
 
 		/// <summary>
@@ -132,7 +213,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public void AppendIndentLine(IEnumerable<String> texts)
 		{
 			AppendIndentation();
-			AppendLine(texts);
+			AppendNewLine(texts);
 		}
 
 		public void IncrementIndent() => ++IndentLevel;
@@ -153,7 +234,7 @@ namespace CodeSmileEditor.Luny.Generator
 		public void OpenIndentBlock(String openCharacters)
 		{
 			AppendIndentation();
-			AppendLine(openCharacters);
+			AppendNewLine(openCharacters);
 			IncrementIndent();
 		}
 
@@ -164,19 +245,171 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			DecrementIndent();
 			AppendIndentation();
-			AppendLine(closeCharacters);
+			AppendNewLine(closeCharacters);
 		}
 
 		private void AppendIndentation() => m_StringBuilder.Append(GetIndentString());
 
 		private String GetIndentString()
 		{
-			while (IndentLevel >= m_Indent.Count)
+			// grow the lookup table dynamically
+			while (IndentLevel >= m_Indentations.Count)
 			{
-				m_Indent.Add(new String(m_IndentChar, m_Indent.Count * m_IndentCharRepeat));
+				m_Indentations.Add(new String(m_IndentChar, m_Indentations.Count * m_IndentCharRepeat));
 			}
 
-			return m_Indent[IndentLevel];
+			return m_Indentations[IndentLevel];
 		}
+	}
+
+	public enum Keyword
+	{
+		Abstract,
+		Add,
+		Alias,
+		Allows,
+		And,
+		Args,
+		As,
+		Ascending,
+		Async,
+		Await,
+		Base,
+		Bool,
+		Break,
+		By,
+		Byte,
+		Case,
+		Catch,
+		Char,
+		Checked,
+		Class,
+		Const,
+		Continue,
+		Decimal,
+		Default,
+		Delegate,
+		Descending,
+		Do,
+		Double,
+		Dynamic,
+		Else,
+		Enum,
+		Equals,
+		Event,
+		Explicit,
+		Extension,
+		Extern,
+		False,
+		Field,
+		File,
+		Finally,
+		Fixed,
+		Float,
+		For,
+		Foreach,
+		From,
+		Get,
+		Global,
+		Goto,
+		Group,
+		If,
+		Implicit,
+		In,
+		Init,
+		Int,
+		Interface,
+		Internal,
+		Into,
+		Is,
+		Join,
+		Let,
+		Lock,
+		Long,
+		Managed,
+		Nameof,
+		Namespace,
+		New,
+		Nint,
+		Not,
+		Notnull,
+		Nuint,
+		Null,
+		Object,
+		On,
+		Operator,
+		Or,
+		Orderby,
+		Out,
+		Override,
+		Params,
+		Partial,
+		Private,
+		Protected,
+		Public,
+		Readonly,
+		Record,
+		Ref,
+		Remove,
+		Required,
+		Return,
+		SByte,
+		Scoped,
+		Sealed,
+		Select,
+		Set,
+		Short,
+		Sizeof,
+		Stackalloc,
+		Static,
+		String,
+		Struct,
+		Switch,
+		This,
+		Throw,
+		True,
+		Try,
+		Typeof,
+		UInt,
+		ULong,
+		UShort,
+		Unchecked,
+		Unmanaged,
+		Unsafe,
+		Using,
+		Value,
+		Var,
+		Virtual,
+		Void,
+		Volatile,
+		When,
+		Where,
+		While,
+		With,
+		Yield,
+	}
+
+	[Flags]
+	public enum Padding
+	{
+		None = 0,
+		Before = 1 << 0,
+		After = 1 << 1,
+		BeforeAndAfter = Before | After,
+	}
+
+	public enum Character
+	{
+		ParensClose,
+		ParensOpen,
+		Semicolon,
+		Space,
+	}
+
+	public enum Operator
+	{
+		Assign,
+		Equals,
+		LambdaExpression
 	}
 }

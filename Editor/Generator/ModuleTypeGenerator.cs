@@ -8,19 +8,36 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 namespace CodeSmileEditor.Luny.Generator
 {
 	internal static class ModuleTypeGenerator
 	{
-		private const String DisabledWarningCodes = "0109, 0162, 0168, 0219";
 		// 0109 new keyword not required
 		// 0162 unreachable code
 		// 0168 declared but never used
 		// 0219 assigned but never used
-		private static readonly Type SystemType = typeof(Type);
-		private static readonly String[] Digits =
-			{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
+		private const String DisabledWarningCodes = "0109, 0162, 0168, 0219";
+
+		private const Int32 MaxArgumentCount = 16;
+		private static readonly String[] Digits;
+		private static readonly String[] Args;
+		private static readonly String[] Params;
+		private static readonly String[] RetVals;
+		private static readonly String[] LuaRetVals;
+		private static readonly string VarContext = "_context";
+		private static readonly string VarArgCount = "_argCount";
+		private static readonly string VarArg = "_arg";
+		private static readonly string VarParam = "_p";
+		private static readonly string VarRetVal = "_ret";
+		private static readonly string VarLuaRetVal = "_lret";
+		private static readonly string VarTempValueType = "_temp";
+		private static readonly string VarCreateMethodParameters = "parameters";
+		private static readonly string VarMethodInstanceParameter = "instance";
+		private static readonly string ErrVarLastArg = "_lastArg";
+		private static readonly string ErrVarLastArgPos = "_lastArgPos";
+		private static readonly string ErrVarExpectedType = "_expectedType";
 
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos)
 		{
@@ -47,21 +64,21 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(ScriptBuilder sb, String @namespace)
 		{
-			sb.AppendLine("using CodeSmile.Luny;");
-			sb.AppendLine("using Lua;");
-			sb.AppendLine("using Lua.Runtime;");
-			sb.AppendLine("using Lua.Unity;");
-			sb.AppendLine("using System.Threading.Tasks;");
-			sb.AppendLine("using UnityEngine;");
+			sb.AppendNewLine("using CodeSmile.Luny;");
+			sb.AppendNewLine("using Lua;");
+			sb.AppendNewLine("using Lua.Runtime;");
+			sb.AppendNewLine("using Lua.Unity;");
+			sb.AppendNewLine("using System.Threading.Tasks;");
+			sb.AppendNewLine("using UnityEngine;");
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
 			sb.Append("#pragma warning disable ");
-			sb.AppendLine(DisabledWarningCodes);
-			sb.AppendLine();
+			sb.AppendNewLine(DisabledWarningCodes);
+			sb.AppendNewLine();
 			sb.Append("namespace ");
-			sb.AppendLine(@namespace);
+			sb.AppendNewLine(@namespace);
 			sb.OpenIndentBlock("{"); // { namespace
 		}
 
@@ -69,7 +86,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.CloseIndentBlock("}"); // namespace }
 			sb.Append("#pragma warning restore ");
-			sb.AppendLine(DisabledWarningCodes);
+			sb.AppendNewLine(DisabledWarningCodes);
 		}
 
 		private static void GenerateLuaType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
@@ -98,11 +115,11 @@ namespace CodeSmileEditor.Luny.Generator
 			AddILuaUserDataImplementations(sb, baseType != null);
 			AddToStringOverride(sb, typeInfo, isLuaStaticType);
 			AddResetStaticFields(sb);
-			sb.AppendLine();
+			sb.AppendNewLine();
 			AddMemberBindings(sb, typeInfo, members, out var getters, out var setters);
 			AddIndexMetamethod(sb, luaTypeName);
 			AddNewIndexMetamethod(sb, luaTypeName, setters.Count > 0);
-			sb.AppendLine();
+			sb.AppendNewLine();
 			AddGetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, getters);
 			AddGetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, getters, true);
 			AddSetValueMethod(sb, typeInfo, baseType, members, isLuaStaticType, setters);
@@ -141,7 +158,7 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 			}
 
-			sb.AppendLine();
+			sb.AppendNewLine();
 			sb.OpenIndentBlock("{");
 		}
 
@@ -149,27 +166,50 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddCreateLuaTypeMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			sb.AppendIndent("public static LuaValue ");
+			sb.AppendIndent();
+			sb.Append(Keyword.Public, Padding.After);
+			sb.Append(Keyword.Static, Padding.After);
+			sb.Append(nameof(LuaValue), Padding.After);
 			sb.Append(nameof(LuaTypeInfo.CreateLuaType));
-			sb.Append("(");
+			sb.Append(Character.ParensOpen);
 			sb.Append(nameof(CreateLuaTypeParameters));
-			sb.Append(" parameters) => new ");
+			sb.Append(Character.Space);
+			sb.Append(VarCreateMethodParameters);
+			sb.Append(Character.ParensClose);
+			sb.Append(Operator.LambdaExpression, Padding.BeforeAndAfter);
+			sb.Append(Keyword.New, Padding.After);
 			sb.Append(typeInfo.StaticLuaTypeName);
-			sb.AppendLine("(parameters);");
+			sb.Append(Character.ParensOpen);
+			sb.Append(VarCreateMethodParameters);
+			sb.Append(Character.ParensClose);
+			sb.AppendNewLine(Character.Semicolon);
 		}
 
 		private static void AddCreateLuaObjectMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			if (typeInfo.Type.IsValueType)
+			if (typeInfo.IsValueType)
 				return;
 
-			sb.AppendIndent("public new static LuaValue ");
+			sb.AppendIndent();
+			sb.Append(Keyword.Public, Padding.After);
+			sb.Append(Keyword.New, Padding.After);
+			sb.Append(Keyword.Static, Padding.After);
+			sb.Append(nameof(LuaValue), Padding.After);
 			sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
-			sb.Append("(System.Object instance) => new ");
+			sb.Append(Character.ParensOpen);
+			sb.Append(typeof(System.Object).FullName, Padding.After);
+			sb.Append(VarMethodInstanceParameter);
+			sb.Append(Character.ParensClose);
+			sb.Append(Operator.LambdaExpression, Padding.BeforeAndAfter);
+			sb.Append(Keyword.New, Padding.After);
 			sb.Append(typeInfo.InstanceLuaTypeName);
-			sb.Append("((");
+			sb.Append(Character.ParensOpen);
+			sb.Append(Character.ParensOpen);
 			sb.Append(typeInfo.BindTypeFullName);
-			sb.AppendLine(")instance);");
+			sb.Append(Character.ParensClose);
+			sb.Append(VarMethodInstanceParameter);
+			sb.Append(Character.ParensClose);
+			sb.AppendNewLine(Character.Semicolon);
 		}
 
 		private static void AddBindType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
@@ -179,7 +219,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(nameof(ILuaBindType.LuaBindType));
 			sb.Append(" => typeof(");
 			sb.Append(typeInfo.BindTypeFullName);
-			sb.AppendLine(");");
+			sb.AppendNewLine(");");
 		}
 
 		private static void AddStaticTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
@@ -188,7 +228,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(typeInfo.StaticLuaTypeName);
 			sb.Append("(");
 			sb.Append(nameof(CreateLuaTypeParameters));
-			sb.AppendLine(" parameters) {}");
+			sb.AppendNewLine(" parameters) {}");
 		}
 
 		private static void AddInstanceTypeConstructors(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
@@ -206,7 +246,7 @@ namespace CodeSmileEditor.Luny.Generator
 			{
 				sb.Append(" : base(");
 				sb.Append(paramName);
-				sb.AppendLine(") {}");
+				sb.AppendNewLine(") {}");
 			}
 			else
 			{
@@ -214,7 +254,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(typeInfo.InstanceFieldName);
 				sb.Append(" = ");
 				sb.Append(paramName);
-				sb.AppendLine(";");
+				sb.AppendNewLine(";");
 			}
 		}
 
@@ -230,7 +270,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(bindTypeName);
 				sb.Append(" ");
 				sb.Append(fieldName);
-				sb.AppendLine(";");
+				sb.AppendNewLine(";");
 			}
 
 			// property
@@ -249,7 +289,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(")");
 			}
 			sb.Append(fieldName);
-			sb.AppendLine(";");
+			sb.AppendNewLine(";");
 		}
 
 		private static void AddToStringOverride(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
@@ -258,38 +298,38 @@ namespace CodeSmileEditor.Luny.Generator
 			if (isLuaStaticType)
 			{
 				sb.Append(nameof(ILuaBindType.LuaBindType));
-				sb.AppendLine(".FullName;");
+				sb.AppendNewLine(".FullName;");
 			}
 			else
 			{
 				if (typeInfo.Type.IsValueType)
 				{
 					sb.Append(typeInfo.InstancePropertyName);
-					sb.AppendLine(".ToString();");
+					sb.AppendNewLine(".ToString();");
 				}
 				else
 				{
 					sb.Append(typeInfo.InstanceFieldName);
 					sb.Append(" != null ? ");
 					sb.Append(typeInfo.InstancePropertyName);
-					sb.AppendLine(".ToString() : \"(null)\";");
+					sb.AppendNewLine(".ToString() : \"(null)\";");
 				}
 			}
 		}
 
 		private static void AddResetStaticFields(ScriptBuilder sb)
 		{
-			sb.AppendLine("#if UNITY_EDITOR");
+			sb.AppendNewLine("#if UNITY_EDITOR");
 			sb.AppendIndentLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
 			sb.AppendIndentLine("private static void ResetStaticFields() => s_Metatable = null;");
-			sb.AppendLine("#endif");
+			sb.AppendNewLine("#endif");
 		}
 
 		private static void AddImplicitLuaValueConversionOperator(ScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndent("public static implicit operator LuaValue(");
 			sb.Append(typeName);
-			sb.AppendLine(" value) => new(value);");
+			sb.AppendNewLine(" value) => new(value);");
 		}
 
 		private static void AddILuaUserDataImplementations(ScriptBuilder sb, Boolean hasBaseClass)
@@ -298,13 +338,13 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public ");
 			if (hasBaseClass)
 				sb.Append("new ");
-			sb.AppendLine("LuaTable Metatable");
+			sb.AppendNewLine("LuaTable Metatable");
 			sb.OpenIndentBlock("{"); // { Metatable
 			sb.AppendIndent("get => s_Metatable ??= ");
 			sb.Append(nameof(LuaMetatable));
 			sb.Append(".");
 			sb.Append(nameof(LuaMetatable.Create));
-			sb.AppendLine("(__index, __newindex);");
+			sb.AppendNewLine("(__index, __newindex);");
 			sb.AppendIndentLine("set => throw new System.NotSupportedException(\"LuaObject metatables cannot be modified\");");
 			sb.CloseIndentBlock("}"); // Metatable }
 			sb.AppendIndentLine("System.Span<LuaValue> ILuaUserData.UserValues => default;");
@@ -350,7 +390,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(funcName);
 			sb.Append(" = new(\"");
 			sb.Append(debugName);
-			sb.AppendLine("\", (_context, _) =>");
+			sb.AppendNewLine("\", (_context, _) =>");
 			sb.OpenIndentBlock("{");
 		}
 
@@ -370,10 +410,10 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _ret0 = new ");
 			sb.Append(typeInfo.BindTypeFullName);
-			sb.AppendLine("();");
+			sb.AppendNewLine("();");
 			sb.AppendIndent("var _lret0 = new LuaValue(new ");
 			sb.Append(typeInfo.InstanceLuaTypeName);
-			sb.AppendLine("(_ret0));");
+			sb.AppendNewLine("(_ret0));");
 			sb.AppendIndentLine("var _retCount = _context.Return(_lret0);");
 			sb.AppendIndentLine("return new ValueTask<System.Int32>(_retCount);");
 			sb.CloseIndentBlock("}");
@@ -383,7 +423,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeInfo.InstanceLuaTypeName);
-			sb.AppendLine(">(0);");
+			sb.AppendNewLine(">(0);");
 		}
 
 		private static void AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
@@ -415,7 +455,7 @@ namespace CodeSmileEditor.Luny.Generator
 				paramPos++;
 
 				if (needsGetArguments)
-					AddMethodGetArgumentFromLuaContext(sb, Digits[argNum], Digits[argNum + luaArgOffset]);
+					AddMethodGetArgumentFromLuaContext(sb, argNum, argNum + luaArgOffset);
 				AddMethodReadValueConditional(sb, parameter, Digits[argNum]);
 			}
 
@@ -443,18 +483,18 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("throw new LuaRuntimeException(_context.Thread, $\"");
 			sb.Append("{\""); // enclosing name in brackets intended to avoid making every message string unique
 			sb.Append(overloads.Name);
-			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
+			sb.AppendNewLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
-		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, String argPosStr, String luaArgPosStr)
+		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, Int32 argNum, Int32 luaArgIndex)
 		{
-			sb.AppendIndent("var _arg");
-			sb.Append(argPosStr);
+			sb.AppendIndent("var ");
+			sb.Append(Args[argNum]);
 			sb.Append(" = _lastArg = _argCount > ");
-			sb.Append(luaArgPosStr);
+			sb.Append(Digits[luaArgIndex]);
 			sb.Append(" ? _context.GetArgument(");
-			sb.Append(luaArgPosStr);
-			sb.AppendLine(") : LuaValue.Nil;");
+			sb.Append(Digits[luaArgIndex]);
+			sb.AppendNewLine(") : LuaValue.Nil;");
 		}
 
 		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String argPosStr)
@@ -464,12 +504,12 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append("; ");
 			sb.Append("_expectedType = typeof(");
 			sb.Append(parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName);
-			sb.AppendLine(");");
+			sb.AppendNewLine(");");
 
 			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
 			sb.AppendIndent(hasDefaultValue ? "var " : "if (");
 			AddMethodReadLuaValueStatement(sb, parameter, argPosStr);
-			sb.AppendLine(hasDefaultValue ? ";" : ")");
+			sb.AppendNewLine(hasDefaultValue ? ";" : ")");
 			sb.OpenIndentBlock("{");
 		}
 
@@ -538,7 +578,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("if (_argCount == ");
 			sb.Append(Digits[paramPos + luaArgOffset]);
-			sb.AppendLine(")");
+			sb.AppendNewLine(")");
 			sb.OpenIndentBlock("{");
 			if (hasParameters)
 				AddMethodReadRemainingAndAssignParameters(sb, overload, luaArgOffset, paramPos - 1);
@@ -551,7 +591,7 @@ namespace CodeSmileEditor.Luny.Generator
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
 			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
-				AddMethodGetArgumentFromLuaContext(sb, Digits[paramIndex], Digits[paramIndex + luaArgOffset]);
+				AddMethodGetArgumentFromLuaContext(sb, paramIndex, paramIndex + luaArgOffset);
 
 			// re-assign variables for readability in method call
 			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
@@ -567,13 +607,13 @@ namespace CodeSmileEditor.Luny.Generator
 						sb.Append(".");
 						sb.Append(nameof(ILuaBindType.LuaBindType));
 					}
-					sb.AppendLine(";");
+					sb.AppendNewLine(";");
 				}
 				else
 				{
 					sb.AppendIndent(parameters[paramIndex].ParamInfo.HasDefaultValue ? "var " : "");
 					AddMethodReadLuaValueStatement(sb, parameters[paramIndex], Digits[paramIndex], true);
-					sb.AppendLine(";");
+					sb.AppendNewLine(";");
 				}
 			}
 		}
@@ -616,7 +656,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 				sb.Append(overload.ParamInfos[i].Name);
 			}
-			sb.AppendLine(");");
+			sb.AppendNewLine(");");
 
 			// convert method return values to LuaValue
 			for (var i = 0; i < returnCount; i++)
@@ -625,7 +665,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(Digits[i]);
 				sb.Append(" = ");
 				AddConversionToLuaValue(sb, typeInfo, returnType, $"_ret{Digits[i]}");
-				sb.AppendLine(";");
+				sb.AppendNewLine(";");
 			}
 
 			// return values
@@ -637,7 +677,7 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append("_lret");
 				sb.Append(Digits[i]);
 			}
-			sb.AppendLine(");");
+			sb.AppendNewLine(");");
 			sb.AppendIndentLine("return new ValueTask<System.Int32>(_retCount);");
 		}
 
@@ -668,7 +708,8 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 			else
 			{
-				Debug.LogWarning($"Using LuaValue.FromObject({typeInfo.BindTypeFullName}) in {typeInfo.InstanceLuaTypeName}");
+				if (typeInfo.IsValueType)
+					Debug.LogWarning($"Using 'LuaValue.FromObject' for value-type '{typeInfo.BindTypeFullName}' in '{typeInfo.InstanceLuaTypeName}' (boxing allocation)");
 				sb.Append("LuaValue.FromObject((System.Object)");
 			}
 
@@ -681,6 +722,7 @@ namespace CodeSmileEditor.Luny.Generator
 			for (; paramPos > 0; paramPos--)
 				sb.CloseIndentBlock("}");
 		}
+
 		private static void CreateMethodGetterCase(IList<String> getters, String luaName, String bindFuncName) =>
 			getters.Add($"case \"{luaName}\": _value = {bindFuncName}; return true;");
 
@@ -690,7 +732,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
-			sb.AppendLine(">(0);");
+			sb.AppendNewLine(">(0);");
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
 			sb.AppendIndentLine("LuaValue _value = LuaValue.Nil;");
 			sb.AppendIndentLine("if (_key.TryRead<System.String>(out var _name) && !_this.GetLuaValue(_context, _name, out _value))");
@@ -711,7 +753,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
-			sb.AppendLine(">(0);");
+			sb.AppendNewLine(">(0);");
 			if (hasSetters)
 			{
 				sb.AppendIndentLine("var _key = _context.GetArgument(1);");
@@ -735,7 +777,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(nameof(LuaFunctionExecutionContext));
 			sb.Append(" _context, ");
 			sb.Append(isIndexer ? "System.Int32" : "System.String");
-			sb.AppendLine(" _key, out LuaValue _value)");
+			sb.AppendNewLine(" _key, out LuaValue _value)");
 			sb.OpenIndentBlock("{");
 			if (isIndexer)
 				AddGetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
@@ -756,7 +798,6 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-
 		private static void AddGetValueCasesForPropertiesAndFields(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
@@ -775,6 +816,7 @@ namespace CodeSmileEditor.Luny.Generator
 				AddGetValueAndReturn(sb, typeInfo, field.FieldType, field.Name, isLuaStaticType);
 			}
 		}
+
 		private static void AddGetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
@@ -810,12 +852,12 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddGetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
-			Boolean isLuaStaticType, bool isIndexer = false)
+			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			sb.Append("_value = ");
 			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
-			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer?$"{accessor}[_key]":$"{accessor}.{memberName}");
-			sb.AppendLine("; return true;");
+			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer ? $"{accessor}[_key]" : $"{accessor}.{memberName}");
+			sb.AppendNewLine("; return true;");
 		}
 
 		private static void AddSetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
@@ -826,7 +868,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(nameof(LuaFunctionExecutionContext));
 			sb.Append(" _context, ");
 			sb.Append(isIndexer ? "System.Int32" : "System.String");
-			sb.AppendLine(" _key, LuaValue _value)");
+			sb.AppendNewLine(" _key, LuaValue _value)");
 			sb.OpenIndentBlock("{");
 			if (isIndexer)
 				AddSetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
@@ -876,6 +918,7 @@ namespace CodeSmileEditor.Luny.Generator
 				AddSetValueAndReturn(sb, typeInfo, field.FieldType, field.Name, isLuaStaticType);
 			}
 		}
+
 		private static void AddSetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
@@ -904,7 +947,7 @@ namespace CodeSmileEditor.Luny.Generator
 		}
 
 		private static void AddSetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
-			Boolean isLuaStaticType, bool isIndexer = false)
+			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
 			if (typeInfo.Type.IsValueType && isLuaStaticType == false)
@@ -927,17 +970,11 @@ namespace CodeSmileEditor.Luny.Generator
 
 			GenTypeInfo generatedType = null;
 			if (memberType.IsEnum)
-			{
 				sb.Append(memberType.FullName.Replace('+', '.'));
-			}
 			else if (ModuleGenerator.TypeInfosByType.TryGetValue(memberType, out generatedType))
-			{
 				sb.Append(generatedType.InstanceLuaTypeName);
-			}
 			else
-			{
 				sb.Append(memberType.FullName.Replace('+', '.'));
-			}
 			sb.Append(">()");
 			if (generatedType != null)
 			{
@@ -952,8 +989,26 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(" = _temp;}");
 			}
 
-			sb.AppendLine(" return true;");
+			sb.AppendNewLine(" return true;");
 		}
 
+		static ModuleTypeGenerator()
+		{
+			Digits = new String[MaxArgumentCount];
+			Args = new String[MaxArgumentCount];
+			Params = new String[MaxArgumentCount];
+			RetVals = new String[MaxArgumentCount];
+			LuaRetVals = new String[MaxArgumentCount];
+
+			for (var i = 0; i < MaxArgumentCount; i++)
+			{
+				var iStr = i.ToString();
+				Digits[i] = iStr;
+				Args[i] = $"{VarArg}{iStr}";
+				Params[i] = $"{VarParam}{iStr}";
+				RetVals[i] = $"{VarRetVal}{iStr}";
+				LuaRetVals[i] = $"{VarLuaRetVal}{iStr}";
+			}
+		}
 	}
 }

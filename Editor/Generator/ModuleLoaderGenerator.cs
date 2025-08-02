@@ -35,14 +35,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
-			sb.AppendLine("using CodeSmile.Luny;");
-			sb.AppendLine();
+			sb.AppendNewLine("using CodeSmile.Luny;");
+			sb.AppendNewLine();
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
 			sb.AppendIndent("namespace ");
-			sb.AppendLine(@namespace);
+			sb.AppendNewLine(@namespace);
 			sb.OpenIndentBlock("{");
 		}
 
@@ -56,7 +56,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(" : ");
 			sb.Append(nameof(LunyLuaModule));
 			sb.Append(".");
-			sb.AppendLine(nameof(LunyLuaModule.Loader));
+			sb.AppendNewLine(nameof(LunyLuaModule.Loader));
 			sb.OpenIndentBlock("{");
 		}
 
@@ -66,19 +66,19 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("public override System.String[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceNames));
-			sb.AppendLine("() => new[]");
+			sb.AppendNewLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
 			{
 				sb.AppendIndent("\"");
 				sb.Append(ns);
-				sb.AppendLine("\",");
+				sb.AppendNewLine("\",");
 			}
 			sb.CloseIndentBlock("};");
 
 			sb.AppendIndent("public override System.String[][] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceParts));
-			sb.AppendLine("() => new[]");
+			sb.AppendNewLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
 			{
@@ -95,7 +95,7 @@ namespace CodeSmileEditor.Luny.Generator
 					sb.Append("\"");
 				}
 
-				sb.AppendLine(" },");
+				sb.AppendNewLine(" },");
 			}
 			sb.CloseIndentBlock("};");
 		}
@@ -106,7 +106,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(nameof(LuaTypeInfo));
 			sb.Append("[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetLuaTypes));
-			sb.AppendLine("() => new[]");
+			sb.AppendNewLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var typeInfo in typeInfos.Where(t => t.Type.IsEnum == false))
 			{
@@ -150,7 +150,7 @@ namespace CodeSmileEditor.Luny.Generator
 					}
 				}
 
-				sb.AppendLine(" },");
+				sb.AppendNewLine(" },");
 			}
 			sb.CloseIndentBlock("};");
 		}
@@ -159,13 +159,13 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("public override System.Type[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetEnumTypes));
-			sb.AppendLine("() => new[]");
+			sb.AppendNewLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var enumTypeInfo in typeInfos.Where(t => t.Type.IsEnum))
 			{
 				sb.AppendIndent("typeof(");
 				sb.Append(enumTypeInfo.BindTypeFullName);
-				sb.AppendLine("),");
+				sb.AppendNewLine("),");
 			}
 			sb.CloseIndentBlock("};");
 		}

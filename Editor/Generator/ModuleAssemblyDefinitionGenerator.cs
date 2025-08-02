@@ -44,11 +44,11 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("\"name\": \"");
 			sb.Append(asmDefName);
-			sb.AppendLine("\",");
+			sb.AppendNewLine("\",");
 
 			sb.AppendIndent("\"rootNamespace\": \"");
 			sb.Append(asmDefName);
-			sb.AppendLine("\",");
+			sb.AppendNewLine("\",");
 		}
 
 		private static void AddReferences(ScriptBuilder sb, IEnumerable<String> namespaces, AssemblyDefinitionAssets asmdefAssets,
@@ -59,13 +59,13 @@ namespace CodeSmileEditor.Luny.Generator
 
 			sb.AppendIndent("\"GUID:");
 			sb.Append(GetGuidForReference(asmdefAssets, "CodeSmile.Luny"));
-			sb.AppendLine("\",");
+			sb.AppendNewLine("\",");
 			sb.AppendIndent("\"GUID:");
 			sb.Append(GetGuidForReference(asmdefAssets, "Lua.Unity"));
 			sb.Append("\"");
 			if (isEditorModule)
 			{
-				sb.AppendLine(",");
+				sb.AppendNewLine(",");
 				sb.AppendIndent("\"GUID:");
 				sb.Append(GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny"));
 				sb.Append("\"");
@@ -76,14 +76,14 @@ namespace CodeSmileEditor.Luny.Generator
 				var asmdefGuid = GetGuidForReference(asmdefAssets, ns);
 				if (String.IsNullOrEmpty(asmdefGuid) == false)
 				{
-					sb.AppendLine(",");
+					sb.AppendNewLine(",");
 					sb.AppendIndent("\"GUID:");
 					sb.Append(asmdefGuid);
 					sb.Append("\"");
 				}
 			}
 
-			sb.AppendLine();
+			sb.AppendNewLine();
 			sb.CloseIndentBlock("],");
 		}
 
