@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
+using Object = System.Object;
 
 namespace CodeSmileEditor.Luny.Generator
 {
@@ -26,18 +26,24 @@ namespace CodeSmileEditor.Luny.Generator
 		private static readonly String[] Params;
 		private static readonly String[] RetVals;
 		private static readonly String[] LuaRetVals;
-		private static readonly string VarContext = "_context";
-		private static readonly string VarArgCount = "_argCount";
-		private static readonly string VarArg = "_arg";
-		private static readonly string VarParam = "_p";
-		private static readonly string VarRetVal = "_ret";
-		private static readonly string VarLuaRetVal = "_lret";
-		private static readonly string VarTempValueType = "_temp";
-		private static readonly string VarCreateMethodParameters = "parameters";
-		private static readonly string VarMethodInstanceParameter = "instance";
-		private static readonly string ErrVarLastArg = "_lastArg";
-		private static readonly string ErrVarLastArgPos = "_lastArgPos";
-		private static readonly string ErrVarExpectedType = "_expectedType";
+		private static readonly String VarContext = "_context";
+		private static readonly String VarArgCount = "_argCount";
+		private static readonly String VarArg = "_arg";
+		private static readonly String VarParam = "_p";
+		private static readonly String VarRetVal = "_ret";
+		private static readonly String VarLuaRetVal = "_lret";
+		private static readonly String VarTempValueType = "_temp";
+		private static readonly String VarCreateMethodParameters = "parameters";
+		private static readonly String VarMethodInstanceParameter = "instance";
+		private static readonly String ErrVarLastArg = "_lastArg";
+		private static readonly String ErrVarLastArgPos = "_lastArgPos";
+		private static readonly String ErrVarExpectedType = "_expectedType";
+
+		public static String Int32TypeName => typeof(Int32).FullName;
+		public static String StringTypeName => typeof(String).FullName;
+		public static String SystemObjectTypeName => typeof(Object).FullName;
+		public static String SystemTypeTypeName => typeof(Type).FullName;
+		public static String LuaValueTypeName => typeof(LuaValue).FullName;
 
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos)
 		{
@@ -169,7 +175,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent();
 			sb.Append(Keyword.Public, Padding.After);
 			sb.Append(Keyword.Static, Padding.After);
-			sb.Append(nameof(LuaValue), Padding.After);
+			sb.Append(LuaValueTypeName, Padding.After);
 			sb.Append(nameof(LuaTypeInfo.CreateLuaType));
 			sb.Append(Character.ParensOpen);
 			sb.Append(nameof(CreateLuaTypeParameters));
@@ -194,10 +200,10 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(Keyword.Public, Padding.After);
 			sb.Append(Keyword.New, Padding.After);
 			sb.Append(Keyword.Static, Padding.After);
-			sb.Append(nameof(LuaValue), Padding.After);
+			sb.Append(LuaValueTypeName, Padding.After);
 			sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
 			sb.Append(Character.ParensOpen);
-			sb.Append(typeof(System.Object).FullName, Padding.After);
+			sb.Append(SystemObjectTypeName, Padding.After);
 			sb.Append(VarMethodInstanceParameter);
 			sb.Append(Character.ParensClose);
 			sb.Append(Operator.LambdaExpression, Padding.BeforeAndAfter);
@@ -709,7 +715,8 @@ namespace CodeSmileEditor.Luny.Generator
 			else
 			{
 				if (typeInfo.IsValueType)
-					Debug.LogWarning($"Using 'LuaValue.FromObject' for value-type '{typeInfo.BindTypeFullName}' in '{typeInfo.InstanceLuaTypeName}' (boxing allocation)");
+					Debug.LogWarning(
+						$"Using 'LuaValue.FromObject' for value-type '{typeInfo.BindTypeFullName}' in '{typeInfo.InstanceLuaTypeName}' (boxing allocation)");
 				sb.Append("LuaValue.FromObject((System.Object)");
 			}
 
