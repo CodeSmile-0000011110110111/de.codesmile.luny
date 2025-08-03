@@ -8,7 +8,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace CodeSmileEditor.Luny.Generator.CSharp
 {
 	/// <summary>
 	///     Wrapper for StringBuilder that makes it easy to create indent formatted text files, like scripts.
@@ -100,45 +100,57 @@ namespace CodeSmileEditor.Luny.Generator
 				m_StringBuilder.Append(text);
 		}
 
-		public void Append(String str, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		public void Append(String text, Space space = Space.None, Character paddingChar = Character.Space)
 		{
-			AppendPaddingBefore(padding, paddingChar);
-			m_StringBuilder.Append(str);
-			AppendPaddingAfter(padding, paddingChar);
+			AppendPaddingBefore(space, paddingChar);
+			m_StringBuilder.Append(text);
+			AppendPaddingAfter(space, paddingChar);
 		}
 
-		public void Append(Character character, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		public void Append(Character character, Space space = Space.None, Character paddingChar = Character.Space)
 		{
-			AppendPaddingBefore(padding, paddingChar);
+			AppendPaddingBefore(space, paddingChar);
 			m_StringBuilder.Append(GetCharacter(character));
-			AppendPaddingAfter(padding, paddingChar);
+			AppendPaddingAfter(space, paddingChar);
 		}
 
-		public void Append(Keyword keyword, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		public void Append(Keyword keyword, Space space = Space.None, Character paddingChar = Character.Space)
 		{
-			AppendPaddingBefore(padding, paddingChar);
+			AppendPaddingBefore(space, paddingChar);
 			m_StringBuilder.Append(GetKeyword(keyword));
-			AppendPaddingAfter(padding, paddingChar);
+			AppendPaddingAfter(space, paddingChar);
 		}
 
-		public void Append(Operator @operator, Padding padding = Padding.None, Character paddingChar = Character.Space)
+		public void Append(Operator @operator, Space space = Space.None, Character paddingChar = Character.Space)
 		{
-			AppendPaddingBefore(padding, paddingChar);
+			AppendPaddingBefore(space, paddingChar);
 			m_StringBuilder.Append(GetOperator(@operator));
-			AppendPaddingAfter(padding, paddingChar);
+			AppendPaddingAfter(space, paddingChar);
+		}
+
+		public void Append(params Keyword[] keywords)
+		{
+			foreach (var keyword in keywords)
+				Append(GetKeyword(keyword), Space.After);
+		}
+
+		public void Append(params String[] texts)
+		{
+			foreach (var text in texts)
+				Append(text, Space.After);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void AppendPaddingBefore(Padding padding, Character paddingChar)
+		private void AppendPaddingBefore(Space space, Character paddingChar)
 		{
-			if (padding == Padding.Before)
+			if (space == Space.Before)
 				m_StringBuilder.Append(GetCharacter(paddingChar));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void AppendPaddingAfter(Padding padding, Character paddingChar)
+		private void AppendPaddingAfter(Space space, Character paddingChar)
 		{
-			if (padding == Padding.After)
+			if (space == Space.After)
 				m_StringBuilder.Append(GetCharacter(paddingChar));
 		}
 
@@ -168,6 +180,7 @@ namespace CodeSmileEditor.Luny.Generator
 		///     regular StringBuilder AppendLine()
 		/// </summary>
 		public void AppendNewLine() => m_StringBuilder.AppendLine();
+
 		public void AppendNewLine(Character character) => m_StringBuilder.AppendLine(GetCharacter(character));
 
 		/// <summary>
@@ -390,7 +403,7 @@ namespace CodeSmileEditor.Luny.Generator
 	}
 
 	[Flags]
-	public enum Padding
+	public enum Space
 	{
 		None = 0,
 		Before = 1 << 0,
@@ -410,6 +423,6 @@ namespace CodeSmileEditor.Luny.Generator
 	{
 		Assign,
 		Equals,
-		LambdaExpression
+		LambdaExpression,
 	}
 }

@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile.Luny;
+using CodeSmileEditor.Luny.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
