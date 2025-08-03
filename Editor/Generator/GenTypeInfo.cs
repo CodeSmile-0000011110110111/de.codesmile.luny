@@ -148,12 +148,12 @@ namespace CodeSmileEditor.Luny.Generator
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
 
-		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter)
+		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter, bool isReturnParam = false)
 		{
 			var paramType = parameter.ParameterType;
 			if (paramType.IsByRef)
 				return Unsupported(method, parameter, "byref param", false);
-			if (paramType.IsArray)
+			if (paramType.IsArray && !isReturnParam)
 				return Unsupported(method, parameter, "array param", false);
 			if (paramType.IsGenericParameter)
 				return Unsupported(method, parameter, "generic param", false);
@@ -188,7 +188,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		public void AddOverload(MethodBase method)
 		{
-			if (method is MethodInfo methodInfo && IsUnsupported(method, methodInfo.ReturnParameter))
+			if (method is MethodInfo methodInfo && IsUnsupported(method, methodInfo.ReturnParameter, true))
 				return;
 
 			foreach (var parameter in method.GetParameters())

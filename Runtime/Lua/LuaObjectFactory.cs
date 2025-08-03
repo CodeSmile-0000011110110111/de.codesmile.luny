@@ -4,29 +4,25 @@
 using Lua;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
-	public struct CreateLuaTypeParameters
-	{
-		public ILuaObjectFactory ObjectFactory;
-	}
-
 	public struct LuaTypeInfo
 	{
-		public delegate LuaValue CreateLuaTypeCallback(CreateLuaTypeParameters parameters);
-		public delegate LuaValue CreateLuaObjectCallback(Object bindInstance);
+		public delegate LuaValue BindTypeToLuaCallback();
+		public delegate LuaValue BindInstanceToLuaCallback(Object bindInstance);
+		public delegate LuaValue BindInstancesListToLuaCallback(IList<Object> bindInstances);
 
 		public String Name; // this may in future differ from Type.Name (eg generics)
 		public Type BindType;
 		public Type LuaType;
-		public Type LuaObject;
-		public CreateLuaTypeCallback CreateLuaType;
-		public CreateLuaObjectCallback CreateLuaObject;
+		public Type LuaInstanceType;
+		public BindTypeToLuaCallback BindTypeToLua;
+		public BindInstanceToLuaCallback BindInstanceToLua;
+		public BindInstancesListToLuaCallback BindInstancesListToLua;
 	}
 
 	public interface ILuaBindType
@@ -40,7 +36,8 @@ namespace CodeSmile.Luny
 
 	public interface ILuaObjectFactory
 	{
-		LuaValue CreateLuaObjectInstance([NotNull] Object bindInstance);
+		LuaValue CreateLuaInstance(Object instance);
+		LuaValue CreateLuaInstances(IList<Object> instances);
 	}
 
 	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
@@ -49,16 +46,27 @@ namespace CodeSmile.Luny
 
 		public LuaTable Metatable { get; set; }
 
-		public LuaValue CreateLuaObjectInstance(Object bindInstance)
+		public LuaValue CreateLuaInstance(Object instance)
 		{
-			if (bindInstance == null)
+			if (instance == null)
 				return LuaValue.Nil;
 
-			Debug.Assert(bindInstance.GetType().IsValueType == false, "should not be used with value types");
-
-			var luaTypeInfo = GetLuaTypeInfo(bindInstance);
-			var luaInstance = luaTypeInfo.CreateLuaObject(bindInstance);
+			var luaTypeInfo = GetLuaTypeInfo(instance);
+			var luaInstance = luaTypeInfo.BindInstanceToLua(instance);
 			return luaInstance;
+		}
+
+		public LuaValue CreateLuaInstances(IList<Object> instances)
+		{
+			if (instances == null)
+				return LuaValue.Nil;
+			if (instances.Count == 0)
+				return new LuaTable(0, 0);
+
+			var elementType = instances.GetType().GetElementType();
+			var luaTypeInfo = GetLuaTypeInfo(elementType);
+			var table = luaTypeInfo.BindInstancesListToLua(instances);
+			return table;
 		}
 
 		internal void Dispose()
@@ -71,8 +79,6 @@ namespace CodeSmile.Luny
 
 		internal void LoadLuaTypes(LuaNamespaces namespaces, LuaTypeInfo[] luaTypeInfos)
 		{
-			var createParams = new CreateLuaTypeParameters { ObjectFactory = this };
-
 			foreach (var luaTypeInfo in luaTypeInfos)
 			{
 				var ns = luaTypeInfo.BindType.Namespace;
@@ -80,7 +86,7 @@ namespace CodeSmile.Luny
 				if (luaNamespace == null)
 					throw new Exception($"Lua namespace does not exist: {ns}");
 
-				var typeInstance = luaTypeInfo.CreateLuaType(createParams);
+				var typeInstance = luaTypeInfo.BindTypeToLua();
 				luaNamespace.Types[luaTypeInfo.Name] = typeInstance;
 				namespaces.AddTypeName(luaNamespace, luaTypeInfo.Name);
 				AddLuaType(luaTypeInfo);

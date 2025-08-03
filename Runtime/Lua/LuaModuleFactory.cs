@@ -43,7 +43,7 @@ namespace CodeSmile.Luny
 			var namespaceParts = moduleLoader.GetNamespaceParts();
 			LoadModuleNamespaces(luaNamespaces, namespaceNames, namespaceParts);
 			LoadModuleEnums(luaNamespaces, luaEnums, moduleLoader.GetEnumTypes());
-			objectFactory.LoadLuaTypes(luaNamespaces, moduleLoader.GetLuaTypes());
+			objectFactory.LoadLuaTypes(luaNamespaces, moduleLoader.GetBindTypeInfos());
 
 			marker.End();
 		}

@@ -179,9 +179,9 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		/// <summary>
 		///     regular StringBuilder AppendLine()
 		/// </summary>
-		public void AppendNewLine() => m_StringBuilder.AppendLine();
+		public void AppendLine() => m_StringBuilder.AppendLine();
 
-		public void AppendNewLine(Character character) => m_StringBuilder.AppendLine(GetCharacter(character));
+		public void AppendLine(Character character) => m_StringBuilder.AppendLine(GetCharacter(character));
 
 		/// <summary>
 		///     appends 'count' number of empty lines
@@ -190,23 +190,23 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		public void AppendLines(Int32 count)
 		{
 			for (var i = 0; i < count; i++)
-				AppendNewLine();
+				AppendLine();
 		}
 
 		/// <summary>
 		///     regular StringBuilder AppendLine("")
 		/// </summary>
 		/// <param name="text"></param>
-		public void AppendNewLine(String text) => m_StringBuilder.AppendLine(text);
+		public void AppendLine(String text) => m_StringBuilder.AppendLine(text);
 
 		/// <summary>
 		///     appends the texts, then adds a newline
 		/// </summary>
 		/// <param name="texts"></param>
-		public void AppendNewLine(IEnumerable<String> texts)
+		public void AppendLine(IEnumerable<String> texts)
 		{
 			foreach (var text in texts)
-				AppendNewLine(text);
+				AppendLine(text);
 		}
 
 		/// <summary>
@@ -216,7 +216,7 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		public void AppendIndentLine(String text)
 		{
 			AppendIndentation();
-			AppendNewLine(text);
+			AppendLine(text);
 		}
 
 		/// <summary>
@@ -226,7 +226,7 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		public void AppendIndentLine(IEnumerable<String> texts)
 		{
 			AppendIndentation();
-			AppendNewLine(texts);
+			AppendLine(texts);
 		}
 
 		public void IncrementIndent() => ++IndentLevel;
@@ -247,7 +247,7 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		public void OpenIndentBlock(String openCharacters)
 		{
 			AppendIndentation();
-			AppendNewLine(openCharacters);
+			AppendLine(openCharacters);
 			IncrementIndent();
 		}
 
@@ -258,7 +258,7 @@ namespace CodeSmileEditor.Luny.Generator.CSharp
 		{
 			DecrementIndent();
 			AppendIndentation();
-			AppendNewLine(closeCharacters);
+			AppendLine(closeCharacters);
 		}
 
 		private void AppendIndentation() => m_StringBuilder.Append(GetIndentString());

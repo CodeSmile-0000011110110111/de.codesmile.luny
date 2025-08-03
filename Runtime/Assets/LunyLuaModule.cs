@@ -43,8 +43,8 @@ namespace CodeSmile.Luny
 		{
 			public abstract String[] GetNamespaceNames();
 			public abstract String[][] GetNamespaceParts();
-			public abstract LuaTypeInfo[] GetLuaTypes();
 			public abstract Type[] GetEnumTypes();
+			public abstract LuaTypeInfo[] GetBindTypeInfos();
 		}
 
 #if UNITY_EDITOR

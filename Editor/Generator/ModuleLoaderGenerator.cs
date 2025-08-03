@@ -13,6 +13,8 @@ namespace CodeSmileEditor.Luny.Generator
 {
 	internal sealed class ModuleLoaderGenerator
 	{
+		private const String CommaAndSpace = ", ";
+
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos,
 			IEnumerable<String> namespaces)
 		{
@@ -25,8 +27,8 @@ namespace CodeSmileEditor.Luny.Generator
 			AddNamespaceBlock(sb, @namespace);
 			AddClassBlock(sb, className);
 			AddGetNamespaces(sb, namespaces);
-			AddGetObjectTypes(sb, typeInfos);
 			AddGetEnumTypes(sb, typeInfos);
+			AddGetObjectTypes(sb, typeInfos);
 			EndClassBlock(sb);
 			EndNamespaceBlock(sb);
 
@@ -36,14 +38,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(ScriptBuilder sb, IEnumerable<String> namespaces)
 		{
-			sb.AppendNewLine("using CodeSmile.Luny;");
-			sb.AppendNewLine();
+			sb.AppendLine("using CodeSmile.Luny;");
+			sb.AppendLine();
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String @namespace)
 		{
 			sb.AppendIndent("namespace ");
-			sb.AppendNewLine(@namespace);
+			sb.AppendLine(@namespace);
 			sb.OpenIndentBlock("{");
 		}
 
@@ -57,7 +59,7 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.Append(" : ");
 			sb.Append(nameof(LunyLuaModule));
 			sb.Append(".");
-			sb.AppendNewLine(nameof(LunyLuaModule.Loader));
+			sb.AppendLine(nameof(LunyLuaModule.Loader));
 			sb.OpenIndentBlock("{");
 		}
 
@@ -67,19 +69,19 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("public override System.String[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceNames));
-			sb.AppendNewLine("() => new[]");
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
 			{
 				sb.AppendIndent("\"");
 				sb.Append(ns);
-				sb.AppendNewLine("\",");
+				sb.AppendLine("\",");
 			}
 			sb.CloseIndentBlock("};");
 
 			sb.AppendIndent("public override System.String[][] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceParts));
-			sb.AppendNewLine("() => new[]");
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var ns in namespaces)
 			{
@@ -90,13 +92,13 @@ namespace CodeSmileEditor.Luny.Generator
 				{
 					var part = namespaceParts[i];
 					if (i > 0)
-						sb.Append(", ");
+						sb.Append(CommaAndSpace);
 					sb.Append("\"");
 					sb.Append(part);
 					sb.Append("\"");
 				}
 
-				sb.AppendNewLine(" },");
+				sb.AppendLine(" },");
 			}
 			sb.CloseIndentBlock("};");
 		}
@@ -106,8 +108,8 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("public override ");
 			sb.Append(nameof(LuaTypeInfo));
 			sb.Append("[] ");
-			sb.Append(nameof(LunyLuaModule.Loader.GetLuaTypes));
-			sb.AppendNewLine("() => new[]");
+			sb.Append(nameof(LunyLuaModule.Loader.GetBindTypeInfos));
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var typeInfo in typeInfos.Where(t => t.Type.IsEnum == false))
 			{
@@ -118,40 +120,54 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(nameof(LuaTypeInfo.Name));
 				sb.Append(" = \"");
 				sb.Append(typeInfo.Type.Name);
-				sb.Append("\", ");
+				sb.Append("\"");
+
+				sb.Append(CommaAndSpace);
 				sb.Append(nameof(LuaTypeInfo.BindType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.BindTypeFullName);
-				sb.Append("), ");
+				sb.Append(")");
+
+				sb.Append(CommaAndSpace);
 				sb.Append(nameof(LuaTypeInfo.LuaType));
 				sb.Append(" = typeof(");
 				sb.Append(typeInfo.StaticLuaTypeName);
-				sb.Append("), ");
-				sb.Append(nameof(LuaTypeInfo.CreateLuaType));
-				sb.Append(" = ");
-				sb.Append(typeInfo.StaticLuaTypeName);
-				sb.Append(".");
-				sb.Append(nameof(LuaTypeInfo.CreateLuaType));
+				sb.Append(")");
 
 				if (typeInfo.HasInstanceType)
 				{
-					sb.Append(", ");
-					sb.Append(nameof(LuaTypeInfo.LuaObject));
+					sb.Append(CommaAndSpace);
+					sb.Append(nameof(LuaTypeInfo.LuaInstanceType));
 					sb.Append(" = typeof(");
 					sb.Append(typeInfo.InstanceLuaTypeName);
-					sb.Append("), ");
-
-					if (typeInfo.Type.IsValueType == false)
-					{
-						sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
-						sb.Append(" = ");
-						sb.Append(typeInfo.InstanceLuaTypeName);
-						sb.Append(".");
-						sb.Append(nameof(LuaTypeInfo.CreateLuaObject));
-					}
+					sb.Append(")");
 				}
 
-				sb.AppendNewLine(" },");
+				sb.Append(CommaAndSpace);
+				sb.Append(nameof(LuaTypeInfo.BindTypeToLua));
+				sb.Append(" = ");
+				sb.Append(typeInfo.StaticLuaTypeName);
+				sb.Append(".");
+				sb.Append(nameof(LuaTypeInfo.BindTypeToLua));
+
+				if (typeInfo.HasInstanceType)
+				{
+					sb.Append(CommaAndSpace);
+					sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
+					sb.Append(" = ");
+					sb.Append(typeInfo.InstanceLuaTypeName);
+					sb.Append(".");
+					sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
+
+					sb.Append(CommaAndSpace);
+					sb.Append(nameof(LuaTypeInfo.BindInstancesListToLua));
+					sb.Append(" = ");
+					sb.Append(typeInfo.InstanceLuaTypeName);
+					sb.Append(".");
+					sb.Append(nameof(LuaTypeInfo.BindInstancesListToLua));
+				}
+
+				sb.AppendLine(" },");
 			}
 			sb.CloseIndentBlock("};");
 		}
@@ -160,13 +176,13 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.AppendIndent("public override System.Type[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetEnumTypes));
-			sb.AppendNewLine("() => new[]");
+			sb.AppendLine("() => new[]");
 			sb.OpenIndentBlock("{");
 			foreach (var enumTypeInfo in typeInfos.Where(t => t.Type.IsEnum))
 			{
 				sb.AppendIndent("typeof(");
 				sb.Append(enumTypeInfo.BindTypeFullName);
-				sb.AppendNewLine("),");
+				sb.AppendLine("),");
 			}
 			sb.CloseIndentBlock("};");
 		}
