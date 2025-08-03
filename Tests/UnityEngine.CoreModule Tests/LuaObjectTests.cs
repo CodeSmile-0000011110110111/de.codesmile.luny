@@ -4,25 +4,12 @@
 using CodeSmile.Luny;
 using Lua_UnityEngine_CoreModule;
 using Lua;
-using Lua.Unity;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Task = System.Threading.Tasks.Task;
 
-public abstract class LuaModuleTestsBase
-{
-	// [SetUp] public void SetUp() => m_LuaState = LunyRuntime.Singleton.RuntimeLua.State;
-	// [TearDown] public void TearDown() => m_LuaState = null;
-
-	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName) =>
-		await LunyRuntime.Singleton.RuntimeLua.State.DoStringAsync(script, chunkName, null);
-}
-
-public sealed class LuaGameObjectTests : LuaModuleTestsBase
+public sealed class LuaObjectTests : LuaModuleTestsBase
 {
 	[Test] public async Task Lua_newGameObject_InstanceNotNull()
 	{
@@ -52,6 +39,7 @@ public sealed class LuaGameObjectTests : LuaModuleTestsBase
 		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance,
 			Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.GetComponent<MeshFilter>()));
 	}
+
 	[Test] public async Task Lua_AddComponent_GetComponentReturnsAddedComponent()
 	{
 		var script = "local go = GameObject.new('go with MeshFilter');" +
@@ -68,18 +56,37 @@ public sealed class LuaGameObjectTests : LuaModuleTestsBase
 		Assert.That(com1, Is.Not.EqualTo(com2)); // for as long as the component wrappers aren't being cached
 	}
 
-	[Test] public async Task Lua_AddMultipleComponentsOfSameType_HasMultipleComponentsOfSameType()
+	[Test] public async Task Lua_AddMultipleComponents_HasMultipleComponents()
 	{
 		var script = "local go = GameObject.new('go');" +
-		             "go:AddComponent(LunyScript);" +
-		             "go:AddComponent(LunyScript);" +
-		             "go:AddComponent(LunyScript);" +
+		             "go:AddComponent(Skybox);" +
+		             "go:AddComponent(Skybox);" +
+		             "go:AddComponent(Skybox);" +
 		             "return go;";
-		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_GetComponentReturnsAddedComponent));
+		var retvals = await DoStringAsync(script, nameof(Lua_AddMultipleComponents_HasMultipleComponents));
 
 		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
-		var components = go.Instance.GetComponents<LunyScript>();
+		var components = go.Instance.GetComponents<Skybox>();
 		Assert.That(components.Length, Is.EqualTo(3));
+	}
+
+	[Test] public async Task Lua_GetComponents_ReturnsTableWithComponents()
+	{
+		var script = "local go = GameObject.new('go');" +
+		             "go:AddComponent(Skybox);" +
+		             "go:GetComponent(Skybox);" +
+		             "go:GetComponent(Skybox);" +
+		             "return go, go:GetComponents(Skybox);";
+		var retvals = await DoStringAsync(script, nameof(Lua_GetComponents_ReturnsTableWithComponents));
+
+		Assert.That(retvals[1].TryRead<LuaTable>(out var _), Is.True);
+		Assert.That(retvals[1].Read<LuaTable>().ArrayLength, Is.EqualTo(3));
+
+		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
+		var components = go.Instance.GetComponents<Skybox>();
+		var componentsTable = retvals[1].Read<LuaTable>();
+		for (var i = 1; i <= 3; i++)
+			Assert.That(componentsTable[i].Read<Lua_UnityEngine_Skybox>().Instance, Is.EqualTo(components[i - 1]));
 	}
 
 	[Test] public async Task Lua_Namespace_IsLuaNamespaceType()
@@ -96,7 +103,8 @@ public sealed class LuaGameObjectTests : LuaModuleTestsBase
 		var script = "return ApplicationInstallMode";
 		var retvals = await DoStringAsync(script, nameof(Lua_Enum_IsLuaEnumType));
 
-		Assert.That(retvals[0].TryRead<LuaEnum>(out var _));
+		Assert.That(retvals[0].TryRead<LuaTable>(out var _));
+		Assert.That(retvals[0].TryRead<LuaCustomTypes>(out var _)); // TODO
 	}
 
 	[Test] public async Task Lua_Enum_ReturnCorrectValue()
@@ -107,17 +115,5 @@ public sealed class LuaGameObjectTests : LuaModuleTestsBase
 		Debug.Log(retvals[0]);
 
 		Assert.That(retvals[0].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
-	}
-
-	[Test] public async Task Lua_GetSetIndexerValue_ReturnsCorrectValues()
-	{
-		var script = "local v3 = Vector3.new();" +
-		             "v3[0] = 1; v3[1] = 2; v3[2] = 3;" +
-		             "return v3[0], v3[1], v3[2];";
-		var retvals = await DoStringAsync(script, nameof(Lua_GetSetIndexerValue_ReturnsCorrectValues));
-
-		Assert.That(retvals[0].Read<float>(), Is.EqualTo(1));
-		Assert.That(retvals[1].Read<float>(), Is.EqualTo(2));
-		Assert.That(retvals[2].Read<float>(), Is.EqualTo(3));
 	}
 }

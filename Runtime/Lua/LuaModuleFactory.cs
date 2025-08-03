@@ -62,7 +62,7 @@ namespace CodeSmile.Luny
 		{
 			foreach (var enumType in enumTypes)
 			{
-				var luaEnum = LuaEnum.Create(enumType);
+				var luaEnum = LuaCustomTypes.Create(enumType);
 				var enumNamespace = namespaces[enumType.Namespace];
 				enumNamespace[enumType.Name] = luaEnum.Table;
 				namespaces.AddTypeName(enumNamespace, enumType.Name);
