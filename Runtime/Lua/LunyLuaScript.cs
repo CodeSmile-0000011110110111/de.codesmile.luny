@@ -69,7 +69,7 @@ namespace CodeSmile.Luny
 			ScriptContext[ScriptPathKey] = path;
 		}
 
-		public LunyScriptEventHandler<T> EventHandler<T>() where T : Enum
+		internal LunyScriptEventHandler<T> EventHandler<T>() where T : Enum
 		{
 			var handler = m_EventHandlers.TryGet<T>();
 			if (handler == null)
@@ -98,7 +98,7 @@ namespace CodeSmile.Luny
 
 		public override String FullPath => m_LuaAsset.FullPath;
 
-		public static IEnumerable<LunyLuaAssetScript> CreateAll(IEnumerable<LunyLuaAsset> luaAssets)
+		public static IEnumerable<LunyLuaAssetScript> CreateScripts(IEnumerable<LunyLuaAsset> luaAssets)
 		{
 			var scripts = new List<LunyLuaAssetScript>();
 			if (luaAssets != null)
@@ -106,11 +106,13 @@ namespace CodeSmile.Luny
 				foreach (var luaAsset in luaAssets)
 				{
 					if (luaAsset != null)
-						scripts.Add(new LunyLuaAssetScript(luaAsset));
+						scripts.Add(CreateScript(luaAsset));
 				}
 			}
 			return scripts;
 		}
+
+		public static LunyLuaAssetScript CreateScript(LunyLuaAsset luaAsset) => new LunyLuaAssetScript(luaAsset);
 
 		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable scriptContext = null)
 			: base(scriptContext)

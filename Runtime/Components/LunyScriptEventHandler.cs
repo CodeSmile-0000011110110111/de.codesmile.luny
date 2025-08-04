@@ -17,7 +17,7 @@ namespace CodeSmile.Luny
 
 		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) => m_Callbacks?.TryInvoke(luaState, eventIndex, args);
 
-		private LuaCallbackFunctions CreateCallbacks<T>(LuaTable context) where T : Enum
+		private LuaCallbackFunctions CreateCallbacks<T>(LuaTable scriptContext) where T : Enum
 		{
 			var functionNames = Enum.GetNames(typeof(T));
 			var functionCount = functionNames.Length;
@@ -26,7 +26,7 @@ namespace CodeSmile.Luny
 			var callbackCount = 0;
 			for (var i = 0; i < functionCount; i++)
 			{
-				var func = context.GetFunction(functionNames[i]);
+				var func = scriptContext.GetFunction(functionNames[i]);
 				if (func != null)
 				{
 					callbackFunctions[i] = func;
@@ -37,14 +37,14 @@ namespace CodeSmile.Luny
 			return callbackCount > 0 ? new LuaCallbackFunctions(callbackFunctions) : null;
 		}
 
-		internal void BindEventCallbacks<T>(LuaTable context) where T : Enum => m_Callbacks = CreateCallbacks<T>(context);
-		internal abstract void BindEventCallbacks(LuaTable context);
+		internal void BindEventCallbacks<T>(LuaTable scriptContext) where T : Enum => m_Callbacks = CreateCallbacks<T>(scriptContext);
+		internal abstract void BindEventCallbacks(LuaTable scriptContext);
 	}
 
 	public sealed class LunyScriptEventHandler<T> : LunyScriptEventHandlerBase where T : Enum
 	{
-		public LunyScriptEventHandler(LuaTable context) => BindEventCallbacks<T>(context);
-		internal override void BindEventCallbacks(LuaTable context) => BindEventCallbacks<T>(context);
+		public LunyScriptEventHandler(LuaTable scriptContext) => BindEventCallbacks<T>(scriptContext);
+		internal override void BindEventCallbacks(LuaTable scriptContext) => BindEventCallbacks<T>(scriptContext);
 	}
 
 	public sealed class LunyScriptEventHandlerCollection : IEnumerable<LunyScriptEventHandlerBase>
@@ -65,8 +65,8 @@ namespace CodeSmile.Luny
 			: null;
 	}
 
-		// Unsupported events
-	// OnGUI => This is for (legacy) IMGUI which should not be used anymore. I don't intend to support IMGUI in any way.
+	// Unsupported events
+	// OnGUI => This is for (legacy) IMGUI which should not be used anymore.
 	// OnMouse* => These are outdated and should not be used anymore.
 	// OnParticleUpdateJobScheduled => This makes only sense in combination with Jobs.
 	// OnRenderImage => This is a legacy Built-In Render Pipeline method. It won't work with Scriptable Render Pipelines.

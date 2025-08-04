@@ -18,5 +18,6 @@
     "de.codesmile.core": "1.0.4",
     "com.unity.test-framework": "1.5.1"
   },
-  "relatedPackages": {}
+  "relatedPackages": {},
+  "hideInEditor": false
 }

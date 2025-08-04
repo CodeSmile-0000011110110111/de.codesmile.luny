@@ -5,19 +5,17 @@ using CodeSmile.Luny;
 using Lua_UnityEngine_CoreModule;
 using Lua;
 using NUnit.Framework;
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public sealed class LuaListTests : LuaModuleTestsBase
 {
+	protected override String ScriptPath => $"{TestsRootPath}/UnityEngine.CoreModule Tests/{GetType().Name}.lua";
+
 	[Test] public async Task Lua_GetComponents_ReturnsLuaList()
 	{
-		var script = "local go = GameObject.new('go');" +
-		             "go:AddComponent(Skybox);" +
-		             "go:AddComponent(Skybox);" +
-		             "go:AddComponent(Skybox);" +
-		             "return go, go:GetComponents(Skybox);";
-		var retvals = await DoStringAsync(script, nameof(Lua_GetComponents_ReturnsLuaList));
+		var retvals = DoFunction(nameof(Lua_GetComponents_ReturnsLuaList));
 
 		Assert.That(retvals[1].TryRead<LuaList<Component>>(out var _), Is.True);
 		Assert.That(retvals[1].Read<LuaList<Component>>().ManagedList.Count, Is.EqualTo(3));
@@ -33,7 +31,6 @@ public sealed class LuaListTests : LuaModuleTestsBase
 		             "return go, #go:GetComponents(Skybox);";
 		var retvals = await DoStringAsync(script, nameof(Lua_GetComponents_CanGetLength));
 
-		Debug.Log(retvals[1]);
 		Assert.That(retvals[1], Is.Not.Null);
 		Assert.That(retvals[1].Type, Is.Not.EqualTo(LuaValueType.Nil));
 		Assert.That(retvals[1].Read<int>(), Is.EqualTo(3));

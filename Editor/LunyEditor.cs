@@ -79,7 +79,7 @@ namespace CodeSmileEditor.Luny
 		private async ValueTask DoAutoRunScripts()
 		{
 			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
-			var scripts = LunyLuaAssetScript.CreateAll(autorunScripts);
+			var scripts = LunyLuaAssetScript.CreateScripts(autorunScripts);
 
 			if (Lua != null)
 				await Lua.AddAndRunScripts(scripts);

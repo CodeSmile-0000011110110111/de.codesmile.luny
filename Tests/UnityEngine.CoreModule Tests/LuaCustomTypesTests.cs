@@ -33,8 +33,6 @@ public sealed class LuaCustomTypesTests : LuaModuleTestsBase
 		var script = "return ApplicationInstallMode.DeveloperBuild;";
 		var retvals = await DoStringAsync(script, nameof(Lua_Enum_ReturnCorrectValue));
 
-		Debug.Log(retvals[0]);
-
 		Assert.That(retvals[0].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
 	}
 }

@@ -6,3 +6,4 @@ using UnityEditor;
 using UnityEngine;
 
 [assembly: InternalsVisibleTo("CodeSmileEditor.Luny")]
+[assembly: InternalsVisibleTo("Lua.UnityEngine.CoreModule.Tests")]

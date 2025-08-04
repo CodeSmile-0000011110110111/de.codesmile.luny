@@ -5,6 +5,7 @@ using CodeSmile.Luny;
 using Lua;
 using Lua.Runtime;
 using Lua.Unity;
+using NUnit.Framework;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,21 +14,18 @@ using UnityEngine;
 
 public abstract class LuaModuleTestsBase
 {
-	// [SetUp] public void SetUp() => m_LuaState = LunyRuntime.Singleton.RuntimeLua.State;
 	// [TearDown] public void TearDown() => m_LuaState = null;
+	protected const String TestsRootPath = "Packages/de.codesmile.luny/Tests";
+	private LunyLuaScript m_TestScript;
 
-	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
+	protected virtual String ScriptPath { get; }
+
+	private static void DebugChunk(Prototype chunk, Int32 id)
 	{
-		var state = LunyRuntime.Singleton.RuntimeLua.State;
-		return await state.DoStringAsync(script, chunkName, null);
-	}
-	
-	static void DebugChunk(Prototype chunk, int id)
-	{
-		Debug.Log($"Chunk[{id}]" + new string('=', 50));
+		Debug.Log($"Chunk[{id}]" + new String('=', 50));
 		Debug.Log($"Parameters:{chunk.ParameterCount}");
 
-		Debug.Log("Code " + new string('-', 50));
+		Debug.Log("Code " + new String('-', 50));
 		var index = 0;
 		foreach (var inst in chunk.Code)
 		{
@@ -35,7 +33,7 @@ public abstract class LuaModuleTestsBase
 			index++;
 		}
 
-		Debug.Log("LocalVariables " + new string('-', 50));
+		Debug.Log("LocalVariables " + new String('-', 50));
 		index = 0;
 		foreach (var local in chunk.LocalVariables)
 		{
@@ -43,7 +41,7 @@ public abstract class LuaModuleTestsBase
 			index++;
 		}
 
-		Debug.Log("Constants " + new string('-', 50));
+		Debug.Log("Constants " + new String('-', 50));
 		index = 0;
 		foreach (var constant in chunk.Constants.ToArray())
 		{
@@ -51,7 +49,7 @@ public abstract class LuaModuleTestsBase
 			index++;
 		}
 
-		Debug.Log("UpValues " + new string('-', 50));
+		Debug.Log("UpValues " + new String('-', 50));
 		index = 0;
 		foreach (var upValue in chunk.UpValues.ToArray())
 		{
@@ -67,5 +65,51 @@ public abstract class LuaModuleTestsBase
 			DebugChunk(localChunk, nestedChunkId);
 			nestedChunkId++;
 		}
+	}
+
+	[OneTimeSetUp] public async Task OneTimeSetUp()
+	{
+		Debug.Log($"OneTimeSetUp {GetType().FullName}");
+
+		var luny = LunyRuntime.Singleton;
+		var script = luny.AssetRegistry.GetRuntimeLuaAsset(ScriptPath);
+		if (script == null)
+			Debug.LogError($"cannot find test script: {ScriptPath}");
+
+		m_TestScript = LunyLuaAssetScript.CreateScript(script);
+		await m_TestScript.DoScriptAsync(luny.RuntimeLua.State);
+	}
+
+	protected LuaValue[] DoFunction(String funcName, params LuaValue[] args)
+	{
+		var testFunction = m_TestScript.ScriptContext.GetFunction(funcName);
+		Assert.That(testFunction, Is.Not.Null, $"function {funcName}() not found");
+
+		return TryInvokeTestFunc(LunyRuntime.Singleton.RuntimeLua.State, testFunction, args);
+	}
+
+	public LuaValue[] TryInvokeTestFunc(LuaState luaState, LuaFunction func, params LuaValue[] args)
+	{
+		var access = luaState.RootAccess;
+
+		// push any function arguments onto stack
+		var argCount = args.Length;
+		if (argCount > 0)
+		{
+			var stack = access.Thread.Stack;
+			foreach (var arg in args)
+				stack.Push(arg);
+		}
+
+		// force synchronous execution
+		var resultCount = access.RunAsync(func, argCount).Preserve().GetAwaiter().GetResult();
+		using var results = access.ReadTopValues(resultCount);
+		return results.AsSpan().ToArray();
+	}
+
+	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
+	{
+		var state = LunyRuntime.Singleton.RuntimeLua.State;
+		return await state.DoStringAsync(script, chunkName, null);
 	}
 }

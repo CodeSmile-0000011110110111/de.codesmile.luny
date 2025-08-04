@@ -12,6 +12,7 @@ namespace CodeSmile.Luny
 	{
 		ILunyLua RuntimeLua { get; }
 		ILunyLua ModdingLua { get; }
+		ILunyRuntimeAssetRegistry AssetRegistry { get; }
 	}
 
 	internal interface ILunyRuntimeInternal
@@ -40,6 +41,7 @@ namespace CodeSmile.Luny
 #endif
 
 		private LunyRuntimeAssetRegistry m_AssetRegistry;
+		public ILunyRuntimeAssetRegistry AssetRegistry => m_AssetRegistry;
 
 		// TODO: consider splitting into LunyRuntime and LunyModding, or array of states
 		private LunyLua m_RuntimeLua;
@@ -129,9 +131,9 @@ namespace CodeSmile.Luny
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-			var runtimeAutoRunScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.RuntimeAutoRunLuaAssets);
+			var runtimeAutoRunScripts = LunyLuaAssetScript.CreateScripts(m_AssetRegistry.RuntimeAutoRunLuaAssets);
 			m_RuntimeLua.AddAndRunScripts(runtimeAutoRunScripts);
-			var moddingAutoRunScripts = LunyLuaAssetScript.CreateAll(m_AssetRegistry.ModdingAutoRunLuaAssets);
+			var moddingAutoRunScripts = LunyLuaAssetScript.CreateScripts(m_AssetRegistry.ModdingAutoRunLuaAssets);
 			m_ModdingLua.AddAndRunScripts(moddingAutoRunScripts);
 #pragma warning restore CS4014
 

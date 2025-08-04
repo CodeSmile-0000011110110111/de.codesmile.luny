@@ -1,5 +1,5 @@
 {
-    "name": "Lua.UnityEngine.CoreModule Tests",
+    "name": "Lua.UnityEngine.CoreModule.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",

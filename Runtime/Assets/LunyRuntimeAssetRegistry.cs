@@ -7,11 +7,19 @@ using UnityEngine;
 
 namespace CodeSmile.Luny
 {
+	public interface ILunyRuntimeAssetRegistry
+	{
+		LuaAssetCollection RuntimeLuaAssets { get; }
+		LuaAssetCollection ModdingLuaAssets { get; }
+		LunyLuaAsset GetRuntimeLuaAsset(String assetPath);
+		LunyLuaAsset GetModdingLuaAsset(String assetPath);
+	}
+
 	/// <summary>
 	/// Maintains a list of project-wide LuaAsset (*.lua) assets in support of 'load bundled script by name/path'.
 	/// </summary>
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyAssetRegistryIcon.png")]
-	public sealed class LunyRuntimeAssetRegistry : ScriptableObject
+	public sealed class LunyRuntimeAssetRegistry : ScriptableObject, ILunyRuntimeAssetRegistry
 	{
 		private static LunyRuntimeAssetRegistry s_Singleton;
 		private static Boolean s_SingletonAssigned;
@@ -67,19 +75,19 @@ namespace CodeSmile.Luny
 				ResetSingletonFields();
 		}
 
-		public LunyLuaAsset GetRuntimeLuaAsset(String assetNameOrPath)
+		public LunyLuaAsset GetRuntimeLuaAsset(String assetPath)
 		{
-			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetNameOrPath);
+			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetPath);
 			return index >= 0 ? m_RuntimeLuaAssets.Assets[index] : null;
 		}
 
-		public LunyLuaAsset GetModdingLuaAsset(String assetNameOrPath)
+		public LunyLuaAsset GetModdingLuaAsset(String assetPath)
 		{
-			var index = m_ModdingLuaAssets.Paths.IndexOf(assetNameOrPath);
+			var index = m_ModdingLuaAssets.Paths.IndexOf(assetPath);
 			return index >= 0 ? m_ModdingLuaAssets.Assets[index] : null;
 		}
 
-		public void Save()
+		internal void Save()
 		{
 #if UNITY_EDITOR
 			// delay to avoid "worker: import error code (4)" when called from ctor/InitOnLoad
