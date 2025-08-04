@@ -21,7 +21,7 @@ namespace CodeSmile.Luny
 			return metatable;
 		}
 
-		public static LuaTable CreateWithFunctions(Dictionary<String, LuaFunction> metaFunctions)
+		public static LuaTable Create(Dictionary<String, LuaFunction> metaFunctions)
 		{
 			var metatable = new LuaTable(0, metaFunctions.Count);
 			foreach (var nameAndFunction in metaFunctions)

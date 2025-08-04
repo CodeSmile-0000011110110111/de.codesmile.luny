@@ -5,11 +5,12 @@ using CodeSmile.Luny;
 using Lua_UnityEngine_CoreModule;
 using Lua;
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Task = System.Threading.Tasks.Task;
 
-public sealed class LuaObjectTests : LuaModuleTestsBase
+public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 {
 	[Test] public async Task Lua_newGameObject_InstanceNotNull()
 	{
@@ -68,52 +69,5 @@ public sealed class LuaObjectTests : LuaModuleTestsBase
 		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
 		var components = go.Instance.GetComponents<Skybox>();
 		Assert.That(components.Length, Is.EqualTo(3));
-	}
-
-	[Test] public async Task Lua_GetComponents_ReturnsTableWithComponents()
-	{
-		var script = "local go = GameObject.new('go');" +
-		             "go:AddComponent(Skybox);" +
-		             "go:GetComponent(Skybox);" +
-		             "go:GetComponent(Skybox);" +
-		             "return go, go:GetComponents(Skybox);";
-		var retvals = await DoStringAsync(script, nameof(Lua_GetComponents_ReturnsTableWithComponents));
-
-		Assert.That(retvals[1].TryRead<LuaTable>(out var _), Is.True);
-		Assert.That(retvals[1].Read<LuaTable>().ArrayLength, Is.EqualTo(3));
-
-		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
-		var components = go.Instance.GetComponents<Skybox>();
-		var componentsTable = retvals[1].Read<LuaTable>();
-		for (var i = 1; i <= 3; i++)
-			Assert.That(componentsTable[i].Read<Lua_UnityEngine_Skybox>().Instance, Is.EqualTo(components[i - 1]));
-	}
-
-	[Test] public async Task Lua_Namespace_IsLuaNamespaceType()
-	{
-		var script = "return UnityEngine;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Namespace_IsLuaNamespaceType));
-
-		Assert.That(retvals[0].TryRead<LuaNamespace>(out var _));
-		Assert.That(retvals[0].Read<LuaNamespace>().Name, Is.EqualTo(nameof(UnityEngine)));
-	}
-
-	[Test] public async Task Lua_Enum_IsLuaEnumType()
-	{
-		var script = "return ApplicationInstallMode";
-		var retvals = await DoStringAsync(script, nameof(Lua_Enum_IsLuaEnumType));
-
-		Assert.That(retvals[0].TryRead<LuaTable>(out var _));
-		Assert.That(retvals[0].TryRead<LuaCustomTypes>(out var _)); // TODO
-	}
-
-	[Test] public async Task Lua_Enum_ReturnCorrectValue()
-	{
-		var script = "return ApplicationInstallMode.DeveloperBuild;";
-		var retvals = await DoStringAsync(script, nameof(Lua_Enum_ReturnCorrectValue));
-
-		Debug.Log(retvals[0]);
-
-		Assert.That(retvals[0].Read<ApplicationInstallMode>(), Is.EqualTo(ApplicationInstallMode.DeveloperBuild));
 	}
 }

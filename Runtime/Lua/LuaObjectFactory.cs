@@ -10,7 +10,7 @@ using Object = System.Object;
 
 namespace CodeSmile.Luny
 {
-	public struct LuaTypeInfo
+	public sealed class LuaTypeInfo
 	{
 		public delegate LuaValue BindTypeToLuaCallback();
 		public delegate LuaValue BindInstanceToLuaCallback(Object bindInstance);
@@ -25,7 +25,7 @@ namespace CodeSmile.Luny
 		public BindInstancesListToLuaCallback BindInstancesListToLua;
 	}
 
-	public interface ILuaBindType
+	public interface ILuaBindType : ILuaUserData
 	{
 		Type LuaBindType { get; }
 	}
@@ -37,7 +37,7 @@ namespace CodeSmile.Luny
 	public interface ILuaObjectFactory
 	{
 		LuaValue CreateLuaInstance(Object instance);
-		LuaValue CreateLuaInstances(IList<Object> instances);
+		LuaValue CreateLuaCollection<T>(IList<T> instances);
 	}
 
 	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
@@ -51,22 +51,23 @@ namespace CodeSmile.Luny
 			if (instance == null)
 				return LuaValue.Nil;
 
-			var luaTypeInfo = GetLuaTypeInfo(instance);
-			var luaInstance = luaTypeInfo.BindInstanceToLua(instance);
-			return luaInstance;
+			var bindType = instance.GetType();
+			var luaTypeInfo = TryGetLuaTypeInfo(bindType);
+			return luaTypeInfo != null && luaTypeInfo.BindInstanceToLua != null
+				? luaTypeInfo.BindInstanceToLua(instance)
+				: LuaValue.FromObject(instance);
 		}
 
-		public LuaValue CreateLuaInstances(IList<Object> instances)
+		public LuaValue CreateLuaCollection<T>(IList<T> instances)
 		{
 			if (instances == null)
 				return LuaValue.Nil;
-			if (instances.Count == 0)
-				return new LuaTable(0, 0);
 
-			var elementType = instances.GetType().GetElementType();
-			var luaTypeInfo = GetLuaTypeInfo(elementType);
-			var table = luaTypeInfo.BindInstancesListToLua(instances);
-			return table;
+			var bindType = instances.GetType().GetElementType();
+			var luaTypeInfo = TryGetLuaTypeInfo(bindType);
+			return luaTypeInfo != null && luaTypeInfo.BindInstancesListToLua != null
+				? new LuaList<T>(instances) //luaTypeInfo.BindInstancesListToLua(instances)
+				: LuaValue.FromObject(instances);
 		}
 
 		internal void Dispose()
@@ -93,6 +94,6 @@ namespace CodeSmile.Luny
 			}
 		}
 
-		private LuaTypeInfo GetLuaTypeInfo<T>(T obj) => m_LuaTypes[obj.GetType()];
+		private LuaTypeInfo TryGetLuaTypeInfo(Type bindType) => m_LuaTypes.TryGetValue(bindType, out var luaTypeInfo) ? luaTypeInfo : null;
 	}
 }

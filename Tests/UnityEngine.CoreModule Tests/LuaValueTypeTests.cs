@@ -7,9 +7,6 @@ using UnityEngine;
 
 public class LuaValueTypeTests : LuaModuleTestsBase
 {
-	//[SetUp] public void SetUp() => Debug.Log("MINIMAL Test SetUp runs ...");
-	//[TearDown] public void TearDown() => Debug.Log("MINIMAL Test TearDown runs ...");
-
 	[Test] public async Task Lua_newVector4_0Params()
 	{
 		var script = "return UnityEngine.Vector4.new()";
@@ -40,8 +37,7 @@ public class LuaValueTypeTests : LuaModuleTestsBase
 
 	[Test] public async Task Lua_IndexerGet_ReturnsCorrectValues()
 	{
-		var script = "local v3 = Vector3.new(1, 2, 3);" +
-		             "return v3[0], v3[1], v3[2];";
+		var script = "local v3 = Vector3.new(1, 2, 3); return v3[0], v3[1], v3[2];";
 		var retvals = await DoStringAsync(script, nameof(Lua_IndexerGet_ReturnsCorrectValues));
 
 		Assert.That(retvals[0].Read<Single>(), Is.EqualTo(1));
@@ -51,15 +47,7 @@ public class LuaValueTypeTests : LuaModuleTestsBase
 
 	[Test] public async Task Lua_IndexerSet_ReturnsCorrectValues()
 	{
-		var script = "local v3 = Vector3.new();" +
-		             "print(tostring(v3));" +
-		             "v3[0] = 1; " +
-		             "print(tostring(v3));" +
-		             "v3[1] = 2; " +
-		             "print(tostring(v3));" +
-		             "v3[2] = 3;" +
-		             "print(tostring(v3));" +
-		             "return v3;";
+		var script = "local v3 = Vector3.new(); v3[0] = 1; v3[1] = 2; v3[2] = 3; return v3;";
 		var retvals = await DoStringAsync(script, nameof(Lua_IndexerSet_ReturnsCorrectValues));
 
 		Assert.That(retvals[0].Read<Lua_UnityEngine_Vector3>().Value, Is.EqualTo(new Vector3(1, 2, 3)));

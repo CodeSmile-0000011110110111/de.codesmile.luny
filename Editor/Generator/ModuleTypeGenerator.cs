@@ -143,8 +143,6 @@ namespace CodeSmileEditor.Luny.Generator
 			}
 
 			sb.Append(isLuaStaticType ? nameof(ILuaObjectType) : nameof(ILuaObject));
-			sb.Append(CommaAndSpace);
-			sb.Append(nameof(ILuaUserData));
 
 			if (isLuaStaticType == false)
 			{
@@ -676,31 +674,21 @@ namespace CodeSmileEditor.Luny.Generator
 				if (bindType.IsEnum)
 					sb.Append("(System.Double)");
 			}
-			else if (ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var generatedType))
+			else if (bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var generatedType))
 			{
-				if (bindType.IsValueType)
-				{
-					sb.Append("new ");
-					sb.Append(generatedType.InstanceLuaTypeName);
-					sb.Append("(");
-				}
-				else
-				{
-					sb.Append("_context.");
-					sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
-					sb.Append("().");
-					sb.Append(nameof(ILuaObjectFactory.CreateLuaInstance));
-					sb.Append("(");
-				}
+				sb.Append("new ");
+				sb.Append(generatedType.InstanceLuaTypeName);
+				sb.Append("(");
 			}
 			else
 			{
-				if (typeInfo.IsValueType)
-				{
-					Debug.LogWarning(
-						$"Using 'LuaValue.FromObject' for value-type '{typeInfo.BindTypeFullName}' in '{typeInfo.InstanceLuaTypeName}' (boxing allocation)");
-				}
-				sb.Append("LuaValue.FromObject((System.Object)");
+				sb.Append("_context.");
+				sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
+				sb.Append("().");
+				sb.Append(typeof(IList<object>).IsAssignableFrom(bindType)
+					? nameof(ILuaObjectFactory.CreateLuaCollection)
+					: nameof(ILuaObjectFactory.CreateLuaInstance));
+				sb.Append("(");
 			}
 
 			sb.Append(varName);
