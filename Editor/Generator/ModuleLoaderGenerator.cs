@@ -41,7 +41,7 @@ namespace CodeSmileEditor.Luny.Generator
 			// sb.AppendLine();
 		}
 
-		private static void AddNamespaceBlock(ScriptBuilder sb, string bindingsAssemblyName)
+		private static void AddNamespaceBlock(ScriptBuilder sb, String bindingsAssemblyName)
 		{
 			sb.AppendIndent("namespace ");
 			sb.AppendLine(bindingsAssemblyName);
@@ -149,33 +149,33 @@ namespace CodeSmileEditor.Luny.Generator
 				}
 
 				sb.Append(CommaAndSpace);
-				sb.Append(nameof(LuaTypeInfo.BindTypeToLua));
+				sb.Append(nameof(LuaTypeInfo.TypeToLua));
 				sb.Append(" = ");
 				sb.Append(typeInfo.LuaInstanceTypeNamespace);
 				sb.Append(".");
 				sb.Append(typeInfo.LuaStaticTypeName);
 				sb.Append(".");
-				sb.Append(nameof(LuaTypeInfo.BindTypeToLua));
+				sb.Append(nameof(ILuaObjectFactory.Bind));
 
 				if (typeInfo.HasInstanceType)
 				{
 					sb.Append(CommaAndSpace);
-					sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
+					sb.Append(nameof(LuaTypeInfo.InstanceToLua));
 					sb.Append(" = ");
 					sb.Append(typeInfo.LuaInstanceTypeNamespace);
 					sb.Append(".");
 					sb.Append(typeInfo.LuaInstanceTypeName);
 					sb.Append(".");
-					sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
+					sb.Append(nameof(ILuaObjectFactory.Bind));
 
 					sb.Append(CommaAndSpace);
-					sb.Append(nameof(LuaTypeInfo.BindInstancesListToLua));
+					sb.Append(nameof(LuaTypeInfo.InstanceListToLua));
 					sb.Append(" = ");
 					sb.Append(typeInfo.LuaInstanceTypeNamespace);
 					sb.Append(".");
 					sb.Append(typeInfo.LuaInstanceTypeName);
 					sb.Append(".");
-					sb.Append(nameof(LuaTypeInfo.BindInstancesListToLua));
+					sb.Append(nameof(ILuaObjectFactory.Bind));
 				}
 
 				sb.AppendLine(" },");

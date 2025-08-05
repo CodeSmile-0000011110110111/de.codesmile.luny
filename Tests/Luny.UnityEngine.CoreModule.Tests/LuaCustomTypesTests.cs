@@ -25,7 +25,7 @@ public sealed class LuaCustomTypesTests : LuaModuleTestsBase
 		var retvals = await DoStringAsync(script, nameof(Lua_Enum_IsLuaEnumType));
 
 		Assert.That(retvals[0].TryRead<LuaTable>(out var _));
-		Assert.That(retvals[0].TryRead<LuaCustomTypes>(out var _)); // TODO
+		Assert.That(retvals[0].TryRead<LuaEnum>(out var _)); // TODO
 	}
 
 	[Test] public async Task Lua_Enum_ReturnCorrectValue()

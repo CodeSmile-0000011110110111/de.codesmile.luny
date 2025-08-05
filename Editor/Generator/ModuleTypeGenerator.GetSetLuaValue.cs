@@ -17,7 +17,8 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine("private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
+			sb.AppendIndentLine(
+				"private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
@@ -34,13 +35,15 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine("throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndentLine(
+				"throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 
 		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine("private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
+			sb.AppendIndentLine(
+				"private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
@@ -57,7 +60,8 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine("throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndentLine(
+				"throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 

@@ -27,7 +27,7 @@ namespace CodeSmile.Luny
 				throw new LuaRuntimeException(context.Thread, $"index {index} out of range [1, {list.Count}]");
 
 			var managedItem = list[index - 1];
-			var value = context.GetObjectFactory().ToLuaValue(managedItem);
+			var value = context.GetObjectFactory().Bind(managedItem);
 			return new ValueTask<Int32>(context.Return(value));
 		});
 
@@ -52,7 +52,7 @@ namespace CodeSmile.Luny
 				if (luaValue.Type == LuaValueType.Nil)
 				{
 					var managedObject = self[managedIndex];
-					luaValue = context.GetObjectFactory().ToLuaValue(managedObject);
+					luaValue = context.GetObjectFactory().Bind(managedObject);
 					self.m_LuaValues[managedIndex] = luaValue;
 				}
 				return new(context.Return(luaIndex, luaValue));

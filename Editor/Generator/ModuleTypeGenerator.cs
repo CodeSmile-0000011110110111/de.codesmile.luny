@@ -64,15 +64,14 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddUsingStatements(ScriptBuilder sb)
 		{
+			sb.Append("#pragma warning disable ");
+			sb.AppendLine(DisabledWarningCodes);
 			sb.AppendLine("using CodeSmile.Luny;");
 			sb.AppendLine("using Lua.Unity;"); // for Lua extensions
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			sb.Append("#pragma warning disable ");
-			sb.AppendLine(DisabledWarningCodes);
-			sb.AppendLine();
 			sb.Append("namespace ");
 			sb.AppendLine(typeInfo.LuaInstanceTypeNamespace);
 			sb.OpenIndentBlock("{");
@@ -164,7 +163,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddBindTypeToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public static global::Lua.LuaValue ");
-			sb.Append(nameof(LuaTypeInfo.BindTypeToLua));
+			sb.Append(nameof(ILuaObjectFactory.Bind));
 			sb.Append("() => new ");
 			sb.Append(typeInfo.LuaStaticTypeName);
 			sb.AppendLine("();");
@@ -173,15 +172,15 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddBindInstanceToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public new static global::Lua.LuaValue ");
-			sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
-			sb.Append(typeInfo.IsValueType ? "(in ": "(");
+			sb.Append(nameof(ILuaObjectFactory.Bind));
+			sb.Append(typeInfo.IsValueType ? "(in " : "(");
 			sb.Append(typeInfo.BindTypeFullName);
 			sb.Append(" instance) => new ");
 			sb.Append(typeInfo.LuaInstanceTypeName);
 			sb.AppendLine("(instance);");
 
 			sb.AppendIndent("public new static global::Lua.LuaValue ");
-			sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
+			sb.Append(nameof(ILuaObjectFactory.Bind));
 			sb.Append("(global::System.Object instance) => new ");
 			sb.Append(typeInfo.LuaInstanceTypeName);
 			sb.Append("((");
@@ -192,7 +191,7 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddBindInstancesListToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public new static global::Lua.LuaValue ");
-			sb.Append(nameof(LuaTypeInfo.BindInstancesListToLua));
+			sb.Append(nameof(ILuaObjectFactory.Bind));
 			sb.AppendLine("(global::System.Collections.Generic.IList<global::System.Object> instances)");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndentLine("var count = instances.Count;");
@@ -221,7 +220,7 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddStaticTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			sb.AppendIndent("public ");
+			sb.AppendIndent("private ");
 			sb.Append(typeInfo.LuaStaticTypeName);
 			sb.AppendLine("() {}");
 		}
@@ -229,9 +228,9 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddInstanceTypeConstructors(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			// Ctor with instance
-			sb.AppendIndent("public ");
+			sb.AppendIndent(typeInfo.IsSealed || typeInfo.IsValueType ? "private " : "protected ");
 			sb.Append(typeInfo.LuaInstanceTypeName);
-			sb.Append(typeInfo.IsValueType? "(in " : "(");
+			sb.Append(typeInfo.IsValueType ? "(in " : "(");
 			sb.Append(typeInfo.BindTypeFullName);
 			sb.Append(" ");
 			var paramName = typeInfo.InstancePropertyName.ToLower();
@@ -315,7 +314,8 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddResetStaticFields(ScriptBuilder sb)
 		{
 			sb.AppendLine("#if UNITY_EDITOR");
-			sb.AppendIndentLine("[global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]");
+			sb.AppendIndentLine(
+				"[global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]");
 			sb.AppendIndentLine("private static void ResetStaticFields() => s_Metatable = null;");
 			sb.AppendLine("#endif");
 		}
@@ -404,9 +404,11 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndent("var _ret0 = new ");
 			sb.Append(typeInfo.BindTypeFullName);
 			sb.AppendLine("();");
-			sb.AppendIndent("var _lret0 = new global::Lua.LuaValue(new ");
-			sb.Append(typeInfo.LuaInstanceTypeName);
-			sb.AppendLine("(_ret0));");
+			sb.AppendIndent("var _lret0 = ");
+			sb.Append(typeInfo.LuaInstanceTypeFullName);
+			sb.Append(".");
+			sb.Append(nameof(ILuaObjectFactory.Bind));
+			sb.AppendLine("(_ret0);");
 			sb.AppendIndentLine("var _retCount = _context.Return(_lret0);");
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_retCount);");
 			sb.CloseIndentBlock("}");
@@ -677,27 +679,24 @@ namespace CodeSmileEditor.Luny.Generator
 		private static void AddConversionToLuaValue(ScriptBuilder sb, GenTypeInfo typeInfo, Type bindType, String varName)
 		{
 			if (bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String))
-			{
-				sb.Append("new global::Lua.LuaValue(");
-				if (bindType.IsEnum)
-					sb.Append("(global::System.Double)");
-			}
+				sb.Append("new global::Lua.LuaValue");
 			else if (bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var generatedType))
 			{
 				sb.Append(generatedType.LuaInstanceTypeFullName);
 				sb.Append(".");
-				sb.Append(nameof(LuaTypeInfo.BindInstanceToLua));
-				sb.Append("(");
+				sb.Append(nameof(ILuaObjectFactory.Bind));
 			}
 			else
 			{
 				sb.Append("_context.");
 				sb.Append(nameof(LuaFunctionExecutionContextExt.GetObjectFactory));
 				sb.Append("().");
-				sb.Append(nameof(ILuaObjectFactory.ToLuaValue));
-				sb.Append("(");
+				sb.Append(nameof(ILuaObjectFactory.Bind));
 			}
 
+			sb.Append("(");
+			if (bindType.IsEnum)
+				sb.Append("(global::System.Double)");
 			sb.Append(varName);
 			sb.Append(")");
 		}
