@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile;
+using Lua;
 using System;
 using System.IO;
 using UnityEditor;
@@ -12,7 +13,9 @@ namespace Luny
 	public interface ILunyRuntime
 	{
 		ILunyLua RuntimeLua { get; }
+		LuaState RuntimeLuaState { get; }
 		ILunyLua ModdingLua { get; }
+		LuaState ModdingLuaState { get; }
 		ILunyRuntimeAssetRegistry AssetRegistry { get; }
 	}
 
@@ -42,15 +45,17 @@ namespace Luny
 #endif
 
 		private LunyRuntimeAssetRegistry m_AssetRegistry;
-		public ILunyRuntimeAssetRegistry AssetRegistry => m_AssetRegistry;
 
 		// TODO: consider splitting into LunyRuntime and LunyModding, or array of states
 		private LunyLua m_RuntimeLua;
 		private LunyLua m_ModdingLua;
+		public ILunyRuntimeAssetRegistry AssetRegistry => m_AssetRegistry;
 
 		public static ILunyRuntime Singleton => s_SingletonAssigned ? s_Singleton : s_Singleton = CreateInstance();
 		public ILunyLua RuntimeLua => m_RuntimeLua;
+		public LuaState RuntimeLuaState => RuntimeLua.State;
 		public ILunyLua ModdingLua => m_ModdingLua;
+		public LuaState ModdingLuaState => ModdingLua.State;
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void ResetStaticFields()

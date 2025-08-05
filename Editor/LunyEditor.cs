@@ -3,6 +3,7 @@
 
 using CodeSmile;
 using CodeSmileEditor.Luny;
+using Lua;
 using Luny;
 using System;
 using System.IO;
@@ -15,6 +16,7 @@ namespace LunyEditor
 	public interface ILunyEditor
 	{
 		ILunyLua Lua { get; }
+		LuaState LuaState { get; }
 	}
 
 	[FilePath("ProjectSettings/LunyEditorState.asset", FilePathAttribute.Location.ProjectFolder)]
@@ -31,6 +33,7 @@ namespace LunyEditor
 		private LunyLua m_Lua;
 
 		public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
+		public LuaState LuaState => Lua.State;
 		public static ILunyEditor Singleton => instance; // for consistency
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
