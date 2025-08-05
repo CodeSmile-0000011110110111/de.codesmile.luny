@@ -11,8 +11,6 @@ using UnityEngine;
 
 public sealed class LuaListTests : LuaModuleTestsBase
 {
-	protected override String ScriptPath => $"{TestsRootPath}/UnityEngine.CoreModule Tests/{GetType().Name}.lua";
-
 	[Test] public async Task Lua_GetComponents_ReturnsLuaList()
 	{
 		var retvals = DoFunction(nameof(Lua_GetComponents_ReturnsLuaList));
