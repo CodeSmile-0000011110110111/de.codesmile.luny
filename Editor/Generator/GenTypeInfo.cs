@@ -1,6 +1,7 @@
 // Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmileEditor.Luny.Generator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace LunyEditor.Generator
 {
 	internal sealed class GenTypeInfo
 	{

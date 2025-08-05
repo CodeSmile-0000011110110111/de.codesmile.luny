@@ -1,3 +1,4 @@
+using CodeSmileEditor;
 using Luny;
 using System;
 using System.IO;
@@ -5,7 +6,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[ScriptedImporter(1, "lua")]
 	public sealed class LunyLuaImporter : ScriptedImporter

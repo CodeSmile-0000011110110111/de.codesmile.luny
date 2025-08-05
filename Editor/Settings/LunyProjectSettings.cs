@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[FilePath("ProjectSettings/LunySettings.asset", FilePathAttribute.Location.ProjectFolder)]
 	internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSettings>

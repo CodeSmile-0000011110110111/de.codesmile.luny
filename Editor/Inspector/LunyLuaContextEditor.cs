@@ -5,7 +5,7 @@ using Luny;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[CustomEditor(typeof(LunyLuaContext))]
 	[CanEditMultipleObjects]

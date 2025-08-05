@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	public enum EditorEvent
 	{

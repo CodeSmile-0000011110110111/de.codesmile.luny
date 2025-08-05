@@ -9,7 +9,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[CustomPropertyDrawer(typeof(SerializedLuaValue))]
 	public sealed class SerializedLuaValueDrawer : PropertyDrawer

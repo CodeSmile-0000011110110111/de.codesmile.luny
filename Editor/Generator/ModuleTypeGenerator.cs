@@ -1,15 +1,15 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmileEditor.Luny.Generator.CSharp;
 using Luny;
+using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace LunyEditor.Generator
 {
 	internal static partial class ModuleTypeGenerator
 	{

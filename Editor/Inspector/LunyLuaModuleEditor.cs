@@ -1,23 +1,22 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmileEditor;
 using CodeSmileEditor.Luny.Generator;
-using Lua;
-using Lua.Unity;
 using Luny;
+using LunyEditor.Generator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Assembly = System.Reflection.Assembly;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[CustomEditor(typeof(LunyLuaModule))]
 	[CanEditMultipleObjects]

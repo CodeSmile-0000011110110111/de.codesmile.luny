@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	//[FilePath("ProjectSettings/LunyScriptableSingletonState.asset", FilePathAttribute.Location.ProjectFolder)]
 	internal sealed class LunyScriptableSingletonScripts : ScriptableSingleton<LunyScriptableSingletonScripts>, ILuaUserData

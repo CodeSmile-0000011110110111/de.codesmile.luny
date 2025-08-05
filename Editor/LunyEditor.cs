@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile;
+using CodeSmileEditor.Luny;
 using Luny;
 using System;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	public interface ILunyEditor
 	{

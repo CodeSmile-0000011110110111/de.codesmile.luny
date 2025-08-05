@@ -6,7 +6,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace LunyEditor.Generator
 {
 	internal static class Extensions
 	{

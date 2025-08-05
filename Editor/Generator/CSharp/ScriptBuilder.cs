@@ -8,7 +8,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.Generator.CSharp
+namespace LunyEditor.Generator.CSharp
 {
 	/// <summary>
 	///     Wrapper for StringBuilder that makes it easy to create indent formatted text files, like scripts.

@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmileEditor.Luny.Generator
+namespace LunyEditor.Generator
 {
 	internal static class GenUtil
 	{

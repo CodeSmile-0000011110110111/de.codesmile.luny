@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny
+namespace LunyEditor
 {
 	[CustomEditor(typeof(LunyLuaAsset), true)]
 	public sealed class LunyLuaAssetEditor : Editor
