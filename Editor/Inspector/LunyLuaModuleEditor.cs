@@ -79,14 +79,6 @@ namespace CodeSmileEditor.Luny
 			// just to avoid losing most recent Inspector changes on generator errors
 			Module.SaveAsset();
 
-			/*// re-generate from scratch if generated code has errors
-			if (CompilationState.HasErrors(Module.BindingsNamespace))
-			{
-				OnDeleteGeneratedContent();
-				CompilationPipeline.RequestScriptCompilation();
-				return;
-			}*/
-
 			try
 			{
 				ResponseFile.AddScriptingDefineSymbol(Module.ScriptingDefineSymbol);

@@ -634,13 +634,14 @@ MonoBehaviour:
   - UnityEngine.Types
   - '-- below: to be included later ...'
   m_ContentFolderGuid: f7d166e6154c54b41b084dbef96f5736
-  m_ModuleLoaderTypeName: 
+  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule
   m_ModuleLoader:
-    rid: -2
+    rid: 3323315797573238842
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3323315797573238842
+      type: {class: Lua_UnityEngine_CoreModule, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
+      data: 

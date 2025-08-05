@@ -92,7 +92,7 @@ namespace CodeSmileEditor.Luny
 			foreach (var luaAsset in runtimeAutoRunScripts)
 			{
 				if (luaAsset != null)
-					assets.Add(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
+					assets.AddOrUpdate(luaAsset, AssetDatabase.GetAssetPath(luaAsset));
 			}
 			return assets;
 		}

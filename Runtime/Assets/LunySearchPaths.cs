@@ -72,7 +72,7 @@ namespace CodeSmile.Luny
 		{
 			ThrowIfPathIsNull(relativePath);
 
-			if (relativePath.StartsWith("Assets/"))
+			if (relativePath.StartsWith("Assets/") || relativePath.StartsWith("Packages/"))
 				return relativePath;
 
 			var pathCount = m_Paths.Count;

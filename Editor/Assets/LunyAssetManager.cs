@@ -3,7 +3,6 @@
 
 using CodeSmile.Luny;
 using System;
-using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -89,12 +88,12 @@ namespace CodeSmileEditor.Luny
 			foreach (var autorunScript in settings.RuntimeAutoRunLuaAssets)
 			{
 				if (autorunScript != null)
-					registry.RuntimeAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
+					registry.RuntimeAutoRunLuaAssets.AddOrUpdate(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
 			foreach (var autorunScript in settings.ModdingAutoRunLuaAssets)
 			{
 				if (autorunScript != null)
-					registry.ModdingAutoRunLuaAssets.Add(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
+					registry.ModdingAutoRunLuaAssets.AddOrUpdate(autorunScript, AssetDatabase.GetAssetPath(autorunScript));
 			}
 
 			var pathRoot = "Assets/Luny/Resources";
@@ -141,7 +140,7 @@ namespace CodeSmileEditor.Luny
 
 		private static void FindAndRegisterAllLuaAssets(LuaAssetCollection luaAssets, Type assetType)
 		{
-			luaAssets.ClearMissingAssets();
+			luaAssets.RemoveNullReferences();
 
 			var luaAssetGuids = AssetDatabase.FindAssets($"t:{assetType.Name}");
 			var luaAssetCount = luaAssetGuids.Length;
@@ -150,7 +149,7 @@ namespace CodeSmileEditor.Luny
 				var assetPath = AssetDatabase.GUIDToAssetPath(luaAssetGuids[i]);
 				var luaAsset = AssetDatabase.LoadAssetAtPath(assetPath, assetType);
 				if (luaAsset != null)
-					luaAssets.Add((LunyLuaAsset)luaAsset, assetPath);
+					luaAssets.AddOrUpdate((LunyLuaAsset)luaAsset, assetPath);
 			}
 		}
 
@@ -176,14 +175,14 @@ namespace CodeSmileEditor.Luny
 							else
 							{
 								var luaAssets = GetLuaAssets(isMmoddingLuaAsset, runtimeRegistry);
-								luaAssets.Add(luaAsset, assetPath);
+								luaAssets.AddOrUpdate(luaAsset, assetPath);
 								runtimeRegistry.Save();
 							}
 						}
 						else if (luaAsset is LunyEditorLuaAsset editorLuaAsset)
 						{
 							var editorRegistry = LunyEditorAssetRegistry.Singleton;
-							editorRegistry.EditorLuaAssets.Add(editorLuaAsset, assetPath);
+							editorRegistry.EditorLuaAssets.AddOrUpdate(editorLuaAsset, assetPath);
 							editorRegistry.Save();
 						}
 					};
@@ -226,16 +225,22 @@ namespace CodeSmileEditor.Luny
 
 			private static AssetMoveResult OnWillMoveAsset(String sourcePath, String destinationPath)
 			{
-				if (EditorAssetUtility.IsLuaScript(sourcePath))
+				// delay to ensure asset is already moved/renamed
+				EditorApplication.delayCall += () =>
 				{
-					// delay to ensure asset is already moved/renamed
-					EditorApplication.delayCall += () =>
-					{
-						// moving does not cause a re-import so we need to do so manually to update the asset's path and type
-						var isRename = Path.GetDirectoryName(sourcePath) == Path.GetDirectoryName(destinationPath);
-						if (!isRename)
-							AssetDatabase.ImportAsset(destinationPath);
+					// moving does not cause a re-import, thus import manually to update the asset's path and type
+					AssetDatabase.ImportAsset(destinationPath);
 
+					if (EditorAssetUtility.IsFolder(destinationPath))
+					{
+						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
+						if (runtimeRegistry == null)
+							InitRuntimeRegistry();
+						else
+							RegisterAllLunyAssets(); // full update, moved folder hierarchy may contain Lua scripts
+					}
+					else if (EditorAssetUtility.IsLuaScript(destinationPath))
+					{
 						var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(destinationPath);
 						var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
 						var isModdingLuaAsset = luaAsset is LunyModdingLuaAsset;
@@ -249,11 +254,11 @@ namespace CodeSmileEditor.Luny
 								var luaAssets = GetLuaAssets(isModdingLuaAsset, runtimeRegistry);
 								if (luaAssets.Remove(luaAsset))
 								{
-									luaAssets.Add(luaAsset, destinationPath);
+									luaAssets.AddOrUpdate(luaAsset, destinationPath);
 
 									var autorunLuaAssets = GetAutoRunLuaAssets(isModdingLuaAsset, runtimeRegistry);
 									if (autorunLuaAssets.Remove(luaAsset))
-										autorunLuaAssets.Add(luaAsset, destinationPath);
+										autorunLuaAssets.AddOrUpdate(luaAsset, destinationPath);
 
 									runtimeRegistry.Save();
 								}
@@ -263,11 +268,11 @@ namespace CodeSmileEditor.Luny
 						{
 							var editorRegistry = LunyEditorAssetRegistry.Singleton;
 							if (editorRegistry.EditorLuaAssets.Remove(editorLuaAsset))
-								editorRegistry.EditorLuaAssets.Add(editorLuaAsset, destinationPath);
+								editorRegistry.EditorLuaAssets.AddOrUpdate(editorLuaAsset, destinationPath);
 							editorRegistry.Save();
 						}
-					};
-				}
+					}
+				};
 				return AssetMoveResult.DidNotMove;
 			}
 

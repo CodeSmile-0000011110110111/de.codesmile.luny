@@ -25,18 +25,24 @@ namespace CodeSmile.Luny
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		internal void Add(LunyLuaAsset luaAsset, String assetPath)
+		internal Boolean AddOrUpdate(LunyLuaAsset luaAsset, String assetPath)
 		{
 			Debug.Assert(luaAsset != null);
 			Debug.Assert(String.IsNullOrEmpty(assetPath) == false);
 
-			if (m_LuaAssets.Contains(luaAsset) == false)
+			var existingAssetIndex = m_LuaAssets.IndexOf(luaAsset);
+			if (existingAssetIndex != -1)
 			{
-				m_LuaAssets.Add(luaAsset);
-				m_LuaAssetPaths.Add(assetPath);
-
-				OnAdd?.Invoke(luaAsset);
+				// still update asset path, it may have changed due to a rename
+				m_LuaAssetPaths[existingAssetIndex] = assetPath;
+				return false;
 			}
+
+			m_LuaAssets.Add(luaAsset);
+			m_LuaAssetPaths.Add(assetPath);
+
+			OnAdd?.Invoke(luaAsset);
+			return true;
 		}
 
 		internal Boolean Remove(LunyLuaAsset luaAsset)
@@ -56,7 +62,7 @@ namespace CodeSmile.Luny
 			return false;
 		}
 
-		internal void ClearMissingAssets()
+		internal void RemoveNullReferences()
 		{
 			for (var i = m_LuaAssets.Count - 1; i >= 0; i--)
 			{
