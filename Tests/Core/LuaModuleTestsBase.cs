@@ -23,7 +23,7 @@ public abstract class LuaModuleTestsBase
 
 	[OneTimeSetUp] public async Task OneTimeSetUp()
 	{
-		var luaState = LunyRuntime.Singleton.LuaState;
+		var luaState = LunyRuntime.Singleton.Lua.State;
 
 		var baseScript = LunyLuaScript.Load(BaseScriptPath);
 		Assert.That(baseScript, Is.Not.Null, $"missing tests base script: {baseScript}");
@@ -40,7 +40,7 @@ public abstract class LuaModuleTestsBase
 		var testFunction = m_TestScript.ScriptContext.GetFunction(funcName);
 		Assert.That(testFunction, Is.Not.Null, $"missing test function {funcName}() in script: {ScriptPath}");
 
-		return TryInvokeTestFunc(LunyRuntime.Singleton.LuaState, testFunction, args);
+		return TryInvokeTestFunc(LunyRuntime.Singleton.Lua.State, testFunction, args);
 	}
 
 	public LuaValue[] TryInvokeTestFunc(LuaState luaState, LuaFunction func, params LuaValue[] args)
@@ -64,7 +64,7 @@ public abstract class LuaModuleTestsBase
 
 	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
 	{
-		var state = LunyRuntime.Singleton.LuaState;
+		var state = LunyRuntime.Singleton.Lua.State;
 		return await state.DoStringAsync(script, chunkName, null);
 	}
 

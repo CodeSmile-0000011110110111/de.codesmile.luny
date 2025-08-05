@@ -13,9 +13,7 @@ namespace Luny
 	public interface ILunyRuntime
 	{
 		ILunyLua Lua { get; }
-		LuaState LuaState { get; }
 		ILunyLua ModdingLua { get; }
-		LuaState ModdingLuaState { get; }
 		ILunyRuntimeAssetRegistry AssetRegistry { get; }
 	}
 
@@ -53,9 +51,7 @@ namespace Luny
 
 		public static ILunyRuntime Singleton => s_SingletonAssigned ? s_Singleton : s_Singleton = CreateInstance();
 		public ILunyLua Lua => m_RuntimeLua;
-		public LuaState LuaState => Lua.State;
 		public ILunyLua ModdingLua => m_ModdingLua;
-		public LuaState ModdingLuaState => ModdingLua.State;
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void ResetStaticFields()
