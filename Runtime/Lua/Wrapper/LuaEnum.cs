@@ -16,10 +16,10 @@ namespace CodeSmile.Luny
 
 	public interface ILuaEnum {}
 
-	public sealed class LuaEnums : Dictionary<Type, LuaCustomTypes>, ILuaEnums {}
+	public sealed class LuaEnums : Dictionary<Type, LuaEnum>, ILuaEnums {}
 
 	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
-	public sealed class LuaCustomTypes : ILuaEnum
+	public sealed class LuaEnum : ILuaEnum
 	{
 		private const String EnumValuesKey = "values";
 		private const String EnumValuesCountKey = "count";
@@ -54,7 +54,7 @@ namespace CodeSmile.Luny
 		public Type Type { get; }
 		public LuaTable Table { get; }
 
-		public static LuaCustomTypes Create(Type enumType)
+		public static LuaEnum Create(Type enumType)
 		{
 			var enumNames = Enum.GetNames(enumType);
 			var enumValues = Enum.GetValues(enumType);
@@ -74,10 +74,10 @@ namespace CodeSmile.Luny
 
 			var enumTable = new LuaTable(0, 0);
 			enumTable.Metatable = metatable;
-			return new LuaCustomTypes(enumType, enumTable);
+			return new LuaEnum(enumType, enumTable);
 		}
 
-		private LuaCustomTypes(Type type, LuaTable enumTable)
+		private LuaEnum(Type type, LuaTable enumTable)
 		{
 			Type = type;
 			Table = enumTable;
