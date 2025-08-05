@@ -31,7 +31,7 @@ namespace CodeSmile.Luny
 				if (m_ModuleLoader == null)
 				{
 					var folderPath = AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid);
-					m_ModuleLoader = TryInstantiateType<Loader>(folderPath, m_ModuleLoaderTypeName);
+					m_ModuleLoader = TryInstantiateType<Loader>(folderPath, m_ModuleLoaderTypeFullName);
 					needsSaving = needsSaving || m_ModuleLoader != null;
 				}
 
@@ -58,7 +58,7 @@ namespace CodeSmile.Luny
 						return Activator.CreateInstance(type) as T;
 				}
 
-				LunyLogger.LogWarn($"Generated type '{typeName}' not found in: {folderPath}");
+				LunyLogger.LogWarn($"{typeName} not found in {moduleAssembly?.GetName().Name}: {folderPath}");
 			}
 
 			return default;
@@ -80,7 +80,7 @@ namespace CodeSmile.Luny
 			if (ContentFolderExists() == false)
 				m_ContentFolderGuid = null;
 			m_ModuleLoader = null;
-			m_ModuleLoaderTypeName = null;
+			m_ModuleLoaderTypeFullName = null;
 		}
 #endif
 	}

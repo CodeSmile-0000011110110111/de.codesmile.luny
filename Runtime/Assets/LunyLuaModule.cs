@@ -22,19 +22,19 @@ namespace CodeSmile.Luny
 
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
-		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeName;
+		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeFullName;
 		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
-		internal String BindingsNamespace => $"Lua_{m_AssemblyName.Replace('.', '_')}";
-		internal String ScriptingDefineSymbol => BindingsNamespace.ToUpper();
+		internal String BindingsAssemblyName => $"Luny.{m_AssemblyName}";
+		internal String ScriptingDefineSymbol => BindingsAssemblyName.Replace('.', '_').ToUpper();
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 		internal String[] NamespaceBlacklist => m_NamespaceBlacklist;
 		internal String[] TypeBlacklist => m_TypeBlacklist;
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
-		internal String ModuleLoaderTypeName { get => m_ModuleLoaderTypeName; set => m_ModuleLoaderTypeName = value; }
+		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }
 		internal Loader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
 
 		// Is abstract instead of interface for serialization in LunyLuaModule asset

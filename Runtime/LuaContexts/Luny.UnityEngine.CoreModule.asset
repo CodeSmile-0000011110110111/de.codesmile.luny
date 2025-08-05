@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9ef0096777774146b9e7b2d74261174, type: 3}
-  m_Name: Lua UnityEngine.CoreModule
+  m_Name: Luny.UnityEngine.CoreModule
   m_EditorClassIdentifier: 
   m_AssemblyName: UnityEngine.CoreModule
   m_NamespaceWhitelist:
@@ -633,15 +633,14 @@ MonoBehaviour:
   - UnityEngine.LightingSettings
   - UnityEngine.Types
   - '-- below: to be included later ...'
-  m_ContentFolderGuid: f7d166e6154c54b41b084dbef96f5736
-  m_ModuleLoaderTypeName: Lua_UnityEngine_CoreModule.Lua_UnityEngine_CoreModule
+  m_ContentFolderGuid: 35d079f3bba53734282dfcd88854ba0b
+  m_ModuleLoaderTypeFullName: 
   m_ModuleLoader:
-    rid: 3323315797573238842
-  m_GenerateOnlyThisType: //UnityEngine.GameObject
-  m_GenerateOnlyThisMethod: .ctor
+    rid: -2
+  m_GenerateOnlyThisType: //UnityEngine.Skybox
+  m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: 3323315797573238842
-      type: {class: Lua_UnityEngine_CoreModule, ns: Lua_UnityEngine_CoreModule, asm: Lua_UnityEngine_CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }

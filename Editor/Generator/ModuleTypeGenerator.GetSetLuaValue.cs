@@ -17,30 +17,30 @@ namespace CodeSmileEditor.Luny.Generator
 
 		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine("private static readonly LuaFunction __index = new(Metamethods.Index, (_context, _) =>");
+			sb.AppendIndentLine("private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
-			sb.AppendIndentLine("LuaValue _value = LuaValue.Nil;");
+			sb.AppendIndentLine("global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;");
 
-			sb.AppendIndentLine("if (_key.TryRead<System.Int32>(out var _index) && _this.GetLuaValue(_context, _index, out _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.GetLuaValue(_context, _index, out _value))");
 			sb.IncrementIndent();
-			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_value));");
+			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<System.String>(out var _name) && _this.GetLuaValue(_context, _name, out _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.GetLuaValue(_context, _name, out _value))");
 			sb.IncrementIndent();
-			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_value));");
+			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, $\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndentLine("throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 
 		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine("private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (_context, _) =>");
+			sb.AppendIndentLine("private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
@@ -48,16 +48,16 @@ namespace CodeSmileEditor.Luny.Generator
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
 			sb.AppendIndentLine("var _value = _context.GetArgument(2);");
 
-			sb.AppendIndentLine("if (_key.TryRead<System.Int32>(out var _index) && _this.SetLuaValue(_context, _index, _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.SetLuaValue(_context, _index, _value))");
 			sb.IncrementIndent();
-			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_value));");
+			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<System.String>(out var _name) && _this.SetLuaValue(_context, _name, _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.SetLuaValue(_context, _name, _value))");
 			sb.IncrementIndent();
-			sb.AppendIndentLine("return new ValueTask<System.Int32>(_context.Return(_value));");
+			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine("throw new LuaRuntimeException(_context.Thread, $\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndentLine("throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 
@@ -65,11 +65,11 @@ namespace CodeSmileEditor.Luny.Generator
 			Boolean isLuaStaticType, IList<String> getters, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.Append("System.Boolean GetLuaValue(");
-			sb.Append(nameof(LuaFunctionExecutionContext));
+			sb.Append("global::System.Boolean GetLuaValue(global::");
+			sb.Append(typeof(LuaFunctionExecutionContext).FullName);
 			sb.Append(" _context, ");
-			sb.Append(isIndexer ? "System.Int32" : "System.String");
-			sb.AppendLine(" _key, out LuaValue _value)");
+			sb.Append(isIndexer ? "global::System.Int32" : "global::System.String");
+			sb.AppendLine(" _key, out global::Lua.LuaValue _value)");
 			sb.OpenIndentBlock("{");
 			if (isIndexer)
 				AddGetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
@@ -84,7 +84,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (isLuaStaticType == false && baseType != null)
 					sb.AppendIndentLine("default: return base.GetLuaValue(_context, _key, out _value);");
 				else
-					sb.AppendIndentLine("default: _value = LuaValue.Nil; return false;");
+					sb.AppendIndentLine("default: _value = global::Lua.LuaValue.Nil; return false;");
 				sb.CloseIndentBlock("}");
 			}
 			sb.CloseIndentBlock("}");
@@ -132,7 +132,7 @@ namespace CodeSmileEditor.Luny.Generator
 				if (isLuaStaticType == false && baseType != null)
 					sb.AppendIndentLine("return base.GetLuaValue(_context, _key, out _value);");
 				else
-					sb.AppendIndentLine("_value = LuaValue.Nil; return false;");
+					sb.AppendIndentLine("_value = global::Lua.LuaValue.Nil; return false;");
 			}
 		}
 
@@ -156,11 +156,11 @@ namespace CodeSmileEditor.Luny.Generator
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.Append("System.Boolean SetLuaValue(");
-			sb.Append(nameof(LuaFunctionExecutionContext));
+			sb.Append("global::System.Boolean SetLuaValue(global::");
+			sb.Append(typeof(LuaFunctionExecutionContext).FullName);
 			sb.Append(" _context, ");
-			sb.Append(isIndexer ? "System.Int32" : "System.String");
-			sb.AppendLine(" _key, LuaValue _value)");
+			sb.Append(isIndexer ? "global::System.Int32" : "global::System.String");
+			sb.AppendLine(" _key, global::Lua.LuaValue _value)");
 			sb.OpenIndentBlock("{");
 			if (isIndexer)
 				AddSetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
@@ -256,22 +256,24 @@ namespace CodeSmileEditor.Luny.Generator
 				sb.Append(".");
 				sb.Append(memberName);
 			}
+
+			ModuleGenerator.TypeInfosByType.TryGetValue(memberType, out var generatedType);
 			sb.Append(" = _value.Read<");
 
-			GenTypeInfo generatedType = null;
-			if (memberType.IsEnum)
-				sb.Append(memberType.FullName.Replace('+', '.'));
-			else if (ModuleGenerator.TypeInfosByType.TryGetValue(memberType, out generatedType))
-				sb.Append(generatedType.InstanceLuaTypeName);
-			else
-				sb.Append(memberType.FullName.Replace('+', '.'));
-			sb.Append(">()");
-			if (generatedType != null)
+			if (generatedType != null && memberType.IsEnum == false)
 			{
+				sb.Append(generatedType.LuaInstanceTypeFullName);
+				sb.Append(">()");
 				sb.Append(".");
 				sb.Append(generatedType.InstancePropertyName);
+				sb.Append("; ");
 			}
-			sb.Append("; ");
+			else
+			{
+				sb.Append("global::");
+				sb.Append(memberType.FullName.Replace('+', '.'));
+				sb.Append(">(); ");
+			}
 
 			if (typeInfo.IsValueType && isLuaStaticType == false)
 			{

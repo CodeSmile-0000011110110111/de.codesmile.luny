@@ -1,12 +1,13 @@
 {
-    "name": "Lua.UnityEngine.CoreModule.Tests",
+    "name": "Luny.UnityEngine.CoreModule.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Lua.Unity",
         "CodeSmile.Luny",
-        "Lua_UnityEngine_CoreModule"
+        "CodeSmile.Luny.Tests.Core",
+        "Luny.UnityEngine.CoreModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -19,7 +20,7 @@
     "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS",
-        "LUA_UNITYENGINE_COREMODULE"
+        "LUNY_UNITYENGINE_COREMODULE"
     ],
     "versionDefines": [],
     "noEngineReferences": false

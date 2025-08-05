@@ -81,21 +81,6 @@ namespace CodeSmileEditor.Luny.Generator
 				AssetDatabase.DeleteAsset(contentFolderPath);
 		}
 
-		public static String GetOrCreateContentFolderPath(LunyLuaModule module)
-		{
-			var contentFolderPath = AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid);
-			if (AssetDatabase.AssetPathExists(contentFolderPath) == false)
-			{
-				var modulePath = AssetDatabase.GetAssetPath(module);
-				contentFolderPath = modulePath.Replace($"{module.name}.asset", $"{module.AssemblyName} Bindings");
-				EditorIO.TryCreateAndImportPath(contentFolderPath);
-				module.ContentFolderGuid = AssetDatabase.AssetPathToGUID(contentFolderPath);
-				EditorUtility.SetDirty(module);
-			}
-
-			return contentFolderPath;
-		}
-
 		public static IEnumerable<String> GetNamespacesExcept(IEnumerable<String> namespaces, IEnumerable<String> blacklist)
 		{
 			var startsWith = blacklist.Where(s => s.EndsWith('*')).Select(s => s.Substring(0, s.Length - 1)).ToList();

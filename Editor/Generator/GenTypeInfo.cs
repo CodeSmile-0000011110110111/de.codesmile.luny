@@ -15,8 +15,11 @@ namespace CodeSmileEditor.Luny.Generator
 	internal sealed class GenTypeInfo
 	{
 		public readonly Type Type;
-		public readonly String InstanceLuaTypeName;
-		public readonly String StaticLuaTypeName;
+		public readonly String LuaInstanceTypeNamespace;
+		public readonly String LuaInstanceTypeName;
+		public readonly String LuaStaticTypeName;
+		public readonly String LuaInstanceTypeFullName;
+		public readonly String LuaStaticTypeFullName;
 		public readonly String BindTypeFullName;
 		public readonly Boolean IsStatic;
 		public readonly Boolean IsSealed;
@@ -35,11 +38,13 @@ namespace CodeSmileEditor.Luny.Generator
 			Type = type;
 			var typeFullName = type.FullName ?? type.Name;
 			var typeFullNameNoPlus = typeFullName.Replace('+', '.');
-			BindTypeFullName = typeFullNameNoPlus;
+			BindTypeFullName = $"global::{typeFullNameNoPlus}";
 
-			var typeFullNameNoDots = typeFullNameNoPlus.Replace('.', '_');
-			InstanceLuaTypeName = $"Lua_{typeFullNameNoDots}";
-			StaticLuaTypeName = $"{InstanceLuaTypeName}_Type";
+			LuaInstanceTypeNamespace = $"Luny.{Type.Namespace}";
+			LuaInstanceTypeName = $"Lua{type.Name}";
+			LuaStaticTypeName = $"Lua{type.Name}Type";
+			LuaInstanceTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaInstanceTypeName}";
+			LuaStaticTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaStaticTypeName}";
 
 			if (type.IsEnum == false)
 			{

@@ -1,0 +1,17 @@
+{
+    "name": "CodeSmile.Luny.Tests.Core",
+    "rootNamespace": "CodeSmile.Luny.Tests.Core",
+    "references": [
+        "GUID:f2ddabe9e0aaa1c499a086b54a197337",
+        "GUID:a3eac051004cc4c6b92cb1b018e08311"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -4,6 +4,7 @@
 using CodeSmile.Luny;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -23,9 +24,11 @@ namespace CodeSmileEditor.Luny.Generator
 
 			if (types.Length > 0)
 			{
+				Debug.Log($"Generating {module.name} assembly: {module.AssemblyName}");
+
 				var assembly = GenUtil.FindAssembly(module.AssemblyName);
 				s_TypeInfosByType = CreateTypeInfos(assembly, types, out var namespaces, out var typeInfos, onlyThisMethodName);
-				var contentFolderPath = GenUtil.GetOrCreateContentFolderPath(module);
+				var contentFolderPath = GetOrCreateContentFolderPath(module);
 
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
 				ModuleTypeGenerator.Generate(module, contentFolderPath, typeInfos);
@@ -69,6 +72,21 @@ namespace CodeSmileEditor.Luny.Generator
 			namespaces = typeHierarchy.Namespaces.ToArray();
 			typeInfos = generatableTypeInfos.OrderBy(t => t.Type.Namespace).ThenBy(t => t.BindTypeFullName);
 			return typeInfosByType;
+		}
+
+		private static String GetOrCreateContentFolderPath(LunyLuaModule module)
+		{
+			var contentFolderPath = AssetDatabase.GUIDToAssetPath(module.ContentFolderGuid);
+			if (AssetDatabase.AssetPathExists(contentFolderPath) == false)
+			{
+				var modulePath = AssetDatabase.GetAssetPath(module);
+				contentFolderPath = Path.ChangeExtension(modulePath, null);
+				EditorIO.TryCreateAndImportPath(contentFolderPath);
+				module.ContentFolderGuid = AssetDatabase.AssetPathToGUID(contentFolderPath);
+				EditorUtility.SetDirty(module);
+			}
+
+			return contentFolderPath;
 		}
 	}
 }

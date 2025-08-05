@@ -4,11 +4,7 @@
 namespace CodeSmile.Luny
 {
 	// placeholder
-	public interface ILuaType {}
-
-	public sealed class LuaType : ILuaType
+	public sealed class LuaManagedObject
 	{
-		
 	}
-
 }

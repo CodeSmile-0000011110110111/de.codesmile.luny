@@ -18,20 +18,21 @@ public abstract class LuaModuleTestsBase
 	protected const String TestsRootPath = "Packages/de.codesmile.luny/Tests";
 	private LunyLuaScript m_TestScript;
 
+	private String BaseScriptPath => $"{TestsRootPath}/Core/{nameof(LuaModuleTestsBase)}.lua";
 	private String ScriptPath => $"{TestsRootPath}/{GetType().Assembly.GetName().Name}/{GetType().Name}.lua";
 
 	[OneTimeSetUp] public async Task OneTimeSetUp()
 	{
+		var luaState = LunyRuntime.Singleton.RuntimeLua.State;
+
+		var baseScript = LunyLuaScript.Load(BaseScriptPath);
+		Assert.That(baseScript, Is.Not.Null, $"missing tests base script: {baseScript}");
+		await baseScript.DoScriptAsync(luaState);
+
 		var scriptPath = ScriptPath;
-		Debug.Log($"OneTimeSetUp: {scriptPath}");
-		Debug.Log(AssetDatabase.IsValidFolder(TestsRootPath+$"/{GetType().Assembly.GetName().Name}"));
-
-		var luny = LunyRuntime.Singleton;
-		var script = luny.AssetRegistry.GetRuntimeLuaAsset(scriptPath);
-		Assert.That(script, Is.Not.Null, $"missing test script: {scriptPath}");
-
-		m_TestScript = LunyLuaFileScript.Load(scriptPath);
-		await m_TestScript.DoScriptAsync(luny.RuntimeLua.State);
+		m_TestScript = LunyLuaScript.Load(scriptPath);
+		Assert.That(m_TestScript, Is.Not.Null, $"missing test script: {scriptPath}");
+		await m_TestScript.DoScriptAsync(luaState);
 	}
 
 	protected LuaValue[] DoFunction(String funcName, params LuaValue[] args)

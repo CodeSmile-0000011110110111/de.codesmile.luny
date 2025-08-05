@@ -1,11 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Luny;
-using Lua_UnityEngine_CoreModule;
-using Lua;
+using Luny.UnityEngine;
 using NUnit.Framework;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Task = System.Threading.Tasks.Task;
@@ -17,7 +14,7 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		var script = "return GameObject.new()";
 		var retvals = await DoStringAsync(script, nameof(Lua_newGameObject_InstanceNotNull));
 
-		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance, Is.Not.Null);
+		Assert.That(retvals[0].Read<LuaGameObject>().Instance, Is.Not.Null);
 	}
 
 	[Test] public async Task Lua_newGameObjectWithName_NameMatches()
@@ -25,7 +22,7 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		var script = "return GameObject.new('new go')";
 		var retvals = await DoStringAsync(script, nameof(Lua_newGameObjectWithName_NameMatches));
 
-		Assert.That(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.name, Is.EqualTo("new go"));
+		Assert.That(retvals[0].Read<LuaGameObject>().Instance.name, Is.EqualTo("new go"));
 	}
 
 	[Test] public async Task Lua_AddComponent_ComponentIsOfExpectedType()
@@ -35,10 +32,10 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		             "return go, com;";
 		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_ComponentIsOfExpectedType));
 
-		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
-		Assert.That(retvals[1].TryRead<Lua_UnityEngine_MeshFilter>(out var _));
-		Assert.That(retvals[1].Read<Lua_UnityEngine_MeshFilter>().Instance,
-			Is.EqualTo(retvals[0].Read<Lua_UnityEngine_GameObject>().Instance.GetComponent<MeshFilter>()));
+		Assert.That(retvals[1].Read<LuaComponent>().Instance is MeshFilter);
+		Assert.That(retvals[1].TryRead<LuaMeshFilter>(out var _));
+		Assert.That(retvals[1].Read<LuaMeshFilter>().Instance,
+			Is.EqualTo(retvals[0].Read<LuaGameObject>().Instance.GetComponent<MeshFilter>()));
 	}
 
 	[Test] public async Task Lua_AddComponent_GetComponentReturnsAddedComponent()
@@ -49,10 +46,10 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		             "return go, added, gotten;";
 		var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_GetComponentReturnsAddedComponent));
 
-		Assert.That(retvals[1].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
-		Assert.That(retvals[2].Read<Lua_UnityEngine_Component>().Instance is MeshFilter);
-		var com1 = retvals[1].Read<Lua_UnityEngine_MeshFilter>();
-		var com2 = retvals[2].Read<Lua_UnityEngine_MeshFilter>();
+		Assert.That(retvals[1].Read<LuaComponent>().Instance is MeshFilter);
+		Assert.That(retvals[2].Read<LuaComponent>().Instance is MeshFilter);
+		var com1 = retvals[1].Read<LuaMeshFilter>();
+		var com2 = retvals[2].Read<LuaMeshFilter>();
 		Assert.That(com1.Instance, Is.EqualTo(com2.Instance));
 		Assert.That(com1, Is.Not.EqualTo(com2)); // for as long as the component wrappers aren't being cached
 	}
@@ -66,7 +63,7 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		             "return go;";
 		var retvals = await DoStringAsync(script, nameof(Lua_AddMultipleComponents_HasMultipleComponents));
 
-		var go = retvals[0].Read<Lua_UnityEngine_GameObject>();
+		var go = retvals[0].Read<LuaGameObject>();
 		var components = go.Instance.GetComponents<Skybox>();
 		Assert.That(components.Length, Is.EqualTo(3));
 	}

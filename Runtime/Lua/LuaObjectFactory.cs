@@ -36,8 +36,8 @@ namespace CodeSmile.Luny
 
 	public interface ILuaObjectFactory
 	{
-		LuaValue CreateLuaInstance(Object instance);
-		LuaValue CreateLuaCollection<T>(IList<T> instances);
+		LuaValue ToLuaValue(Object instance);
+		LuaValue ToLuaValue<T>(IList<T> instances);
 	}
 
 	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
@@ -46,7 +46,7 @@ namespace CodeSmile.Luny
 
 		public LuaTable Metatable { get; set; }
 
-		public LuaValue CreateLuaInstance(Object instance)
+		public LuaValue ToLuaValue(Object instance)
 		{
 			if (instance == null)
 				return LuaValue.Nil;
@@ -58,7 +58,7 @@ namespace CodeSmile.Luny
 				: LuaValue.FromObject(instance);
 		}
 
-		public LuaValue CreateLuaCollection<T>(IList<T> instances)
+		public LuaValue ToLuaValue<T>(IList<T> instances)
 		{
 			if (instances == null)
 				return LuaValue.Nil;
@@ -66,7 +66,7 @@ namespace CodeSmile.Luny
 			var bindType = instances.GetType().GetElementType();
 			var luaTypeInfo = TryGetLuaTypeInfo(bindType);
 			return luaTypeInfo != null && luaTypeInfo.BindInstancesListToLua != null
-				? new LuaList<T>(instances) //luaTypeInfo.BindInstancesListToLua(instances)
+				? new LuaList<T>(instances)
 				: LuaValue.FromObject(instances);
 		}
 

@@ -17,11 +17,11 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
 			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
-			var asmDefName = module.BindingsNamespace;
+			var asmDefName = module.BindingsAssemblyName;
 
 			var sb = new ScriptBuilder();
 			sb.OpenIndentBlock("{");
-			AddNameAndNamespace(sb, asmDefName);
+			AddName(sb, asmDefName);
 			AddReferences(sb, namespaces, asmdefAssets, isEditorModule);
 			AddIncludedPlatforms(sb, modulePath);
 			AddDefaultSettings(sb);
@@ -37,17 +37,13 @@ namespace CodeSmileEditor.Luny.Generator
     ],
 			 */
 
-			var assetPath = $"{contentFolderPath}/_{asmDefName.Replace('.', '_')}.asmdef";
+			var assetPath = $"{contentFolderPath}/{asmDefName}.asmdef";
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddNameAndNamespace(ScriptBuilder sb, String asmDefName)
+		private static void AddName(ScriptBuilder sb, String asmDefName)
 		{
 			sb.AppendIndent("\"name\": \"");
-			sb.Append(asmDefName);
-			sb.AppendLine("\",");
-
-			sb.AppendIndent("\"rootNamespace\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
 		}
