@@ -29,7 +29,7 @@ namespace Luny
 			if (module.ModuleLoader == null)
 			{
 				if (module.ContentFolderExists())
-					throw new ArgumentNullException($"Cannot load {module.name}, module loader reference is null.");
+					throw new ArgumentNullException(nameof(module), $"{module.name}: ModuleLoader is null ({module.ModuleLoaderTypeFullName})");
 
 				Debug.LogWarning($"Cannot load {module.name}, it has not been generated.");
 				return;

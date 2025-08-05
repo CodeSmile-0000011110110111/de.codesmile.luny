@@ -33,7 +33,7 @@ namespace Luny
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }
-		internal Loader ModuleLoader { get => m_ModuleLoader; set => m_ModuleLoader = value; }
+		internal Loader ModuleLoader { get => m_ModuleLoader; }
 
 		// Is abstract instead of interface for serialization in LunyLuaModule asset
 		[Serializable]

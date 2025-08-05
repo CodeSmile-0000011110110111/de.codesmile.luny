@@ -9,10 +9,10 @@ using Task = System.Threading.Tasks.Task;
 
 public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 {
-	[Test] public async Task Lua_newGameObject_InstanceNotNull()
+	[Test] public async Task LuaGameObject_new_InstanceNotNull()
 	{
 		var script = "return GameObject.new()";
-		var retvals = await DoStringAsync(script, nameof(Lua_newGameObject_InstanceNotNull));
+		var retvals = await DoStringAsync(script, nameof(LuaGameObject_new_InstanceNotNull));
 
 		Assert.That(retvals[0].Read<LuaGameObject>().Instance, Is.Not.Null);
 	}

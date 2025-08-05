@@ -18,11 +18,12 @@ namespace LunyEditor.Generator
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos,
 			IEnumerable<String> namespaces)
 		{
-			var loaderClassName = $"Lua{module.AssemblyName.Replace(".", "")}Loader";
-			module.ModuleLoaderTypeFullName = $"{module.BindingsAssemblyName}.{loaderClassName}";
+			var loaderClassName = "LuaModuleLoader";// $"Lua{module.AssemblyName.Replace(".", "")}Loader";
+			var namespaceName = $"{module.BindingsAssemblyName}.Internal";
+			module.ModuleLoaderTypeFullName = $"{namespaceName}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
-			AddNamespaceBlock(sb, module.BindingsAssemblyName);
+			AddNamespaceBlock(sb, namespaceName);
 			AddClassBlock(sb, loaderClassName);
 			AddGetNamespaces(sb, namespaces);
 			AddGetEnumTypes(sb, typeInfos);
@@ -34,10 +35,10 @@ namespace LunyEditor.Generator
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddNamespaceBlock(ScriptBuilder sb, String bindingsAssemblyName)
+		private static void AddNamespaceBlock(ScriptBuilder sb, String namespaceName)
 		{
 			sb.AppendIndent("namespace ");
-			sb.AppendLine(bindingsAssemblyName);
+			sb.AppendLine(namespaceName);
 			sb.OpenIndentBlock("{");
 		}
 
@@ -125,9 +126,7 @@ namespace LunyEditor.Generator
 				sb.Append(CommaAndSpace);
 				sb.Append(nameof(LuaTypeInfo.LuaType));
 				sb.Append(" = typeof(");
-				sb.Append(typeInfo.LuaInstanceTypeNamespace);
-				sb.Append(".");
-				sb.Append(typeInfo.LuaStaticTypeName);
+				sb.Append(typeInfo.LuaStaticTypeFullName);
 				sb.Append(")");
 
 				if (typeInfo.HasInstanceType)
@@ -135,18 +134,14 @@ namespace LunyEditor.Generator
 					sb.Append(CommaAndSpace);
 					sb.Append(nameof(LuaTypeInfo.LuaInstanceType));
 					sb.Append(" = typeof(");
-					sb.Append(typeInfo.LuaInstanceTypeNamespace);
-					sb.Append(".");
-					sb.Append(typeInfo.LuaInstanceTypeName);
+					sb.Append(typeInfo.LuaInstanceTypeFullName);
 					sb.Append(")");
 				}
 
 				sb.Append(CommaAndSpace);
 				sb.Append(nameof(LuaTypeInfo.TypeToLua));
 				sb.Append(" = ");
-				sb.Append(typeInfo.LuaInstanceTypeNamespace);
-				sb.Append(".");
-				sb.Append(typeInfo.LuaStaticTypeName);
+				sb.Append(typeInfo.LuaStaticTypeFullName);
 				sb.Append(".");
 				sb.Append(nameof(ILuaObjectFactory.Bind));
 
@@ -155,18 +150,14 @@ namespace LunyEditor.Generator
 					sb.Append(CommaAndSpace);
 					sb.Append(nameof(LuaTypeInfo.InstanceToLua));
 					sb.Append(" = ");
-					sb.Append(typeInfo.LuaInstanceTypeNamespace);
-					sb.Append(".");
-					sb.Append(typeInfo.LuaInstanceTypeName);
+					sb.Append(typeInfo.LuaInstanceTypeFullName);
 					sb.Append(".");
 					sb.Append(nameof(ILuaObjectFactory.Bind));
 
 					sb.Append(CommaAndSpace);
 					sb.Append(nameof(LuaTypeInfo.InstanceListToLua));
 					sb.Append(" = ");
-					sb.Append(typeInfo.LuaInstanceTypeNamespace);
-					sb.Append(".");
-					sb.Append(typeInfo.LuaInstanceTypeName);
+					sb.Append(typeInfo.LuaInstanceTypeFullName);
 					sb.Append(".");
 					sb.Append(nameof(ILuaObjectFactory.Bind));
 				}

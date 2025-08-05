@@ -66,8 +66,9 @@ namespace LunyEditor.Generator
 		{
 			sb.Append("#pragma warning disable ");
 			sb.AppendLine(DisabledWarningCodes);
-			sb.Append("using Luny;");
+			sb.AppendLine("using Luny;");
 			sb.AppendLine("using Lua.Unity;"); // for Lua extensions
+			sb.AppendLine();
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, GenTypeInfo typeInfo)

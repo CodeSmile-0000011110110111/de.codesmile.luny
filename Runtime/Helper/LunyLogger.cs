@@ -56,8 +56,6 @@ namespace Luny
 
 		[Preserve] private static String GetLuaMessageAndTraceback(LuaFunctionExecutionContext context)
 		{
-			// FIXME: I lost that callback code in the LuaCSharp framework since I hadn't committed it, dang!
-
 			var contextMsg = context.ArgumentsToString();
 			var msg = Traceback.CreateTracebackMessage(context.Thread, contextMsg, 1,
 				(String chunkName, Int32 line, out String openTag, out String closeTag) =>

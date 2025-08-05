@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Luny
 {
 	// placeholder
-	public sealed class LuaManagedObject
+	public sealed class LuaObject
 	{
 	}
 }

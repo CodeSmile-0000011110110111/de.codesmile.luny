@@ -251,7 +251,9 @@ namespace Luny
 			: base(scriptContext)
 		{
 			if (String.IsNullOrEmpty(filePath))
-				throw new ArgumentException(nameof(filePath));
+				throw new ArgumentNullException(nameof(filePath));
+			if (File.Exists(filePath) == false)
+				throw new FileNotFoundException(filePath);
 
 			m_FullPath = Path.GetFullPath(filePath).ToForwardSlashes();
 			m_ScriptPath = File.Exists(filePath) ? filePath : m_FullPath;
