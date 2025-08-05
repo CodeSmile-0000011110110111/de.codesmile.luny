@@ -6,8 +6,10 @@ using Lua.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor;
+using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	public sealed partial class LuaList<T>
 	{

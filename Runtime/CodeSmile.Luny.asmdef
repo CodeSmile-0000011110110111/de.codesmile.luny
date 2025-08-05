@@ -1,6 +1,6 @@
 {
     "name": "CodeSmile.Luny",
-    "rootNamespace": "CodeSmile.Luny",
+    "rootNamespace": "Luny",
     "references": [
         "GUID:a3eac051004cc4c6b92cb1b018e08311",
         "GUID:af85cdf119646ff4c8e82685ee06a142",

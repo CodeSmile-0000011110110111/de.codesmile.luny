@@ -8,7 +8,7 @@ using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	[Serializable]
 	public sealed class SerializedLuaTable : ISerializationCallbackReceiver

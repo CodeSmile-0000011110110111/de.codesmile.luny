@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	/// <summary>
 	/// Contains settings for a Lua context and instantiates an instance of Lua.

@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using Object = System.Object;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	internal static class LuaFunctions
 	{

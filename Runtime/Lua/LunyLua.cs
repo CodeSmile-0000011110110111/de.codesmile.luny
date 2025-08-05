@@ -1,9 +1,9 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using CodeSmile;
 using Lua;
 using Lua.Platforms;
-using Lua.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	[Flags]
 	public enum LuaLibraryFlags

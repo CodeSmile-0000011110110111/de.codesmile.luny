@@ -6,7 +6,7 @@ using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	public sealed class LuaModuleFactory
 	{

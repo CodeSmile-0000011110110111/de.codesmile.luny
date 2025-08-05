@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	public interface ILuaList {}
 

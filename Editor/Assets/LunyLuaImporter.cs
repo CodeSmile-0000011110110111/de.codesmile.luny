@@ -1,4 +1,4 @@
-using CodeSmile.Luny;
+using Luny;
 using System;
 using System.IO;
 using UnityEditor;

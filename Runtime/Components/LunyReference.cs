@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	/// <summary>
 	///     Provides access to Luny and LunyGameObject references.

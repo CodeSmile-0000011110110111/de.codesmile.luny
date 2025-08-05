@@ -2,7 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile;
-using CodeSmile.Luny;
+using Luny;
 using System;
 using System.IO;
 using System.Threading.Tasks;

@@ -1,14 +1,14 @@
 // Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Luny;
 using Lua;
+using Luny;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-public sealed class LuaCustomTypesTests : LuaModuleTestsBase
+public sealed class LuaNamespacesAndEnumsTests : LuaModuleTestsBase
 {
 	[Test] public async Task Lua_Namespace_IsLuaNamespaceType()
 	{

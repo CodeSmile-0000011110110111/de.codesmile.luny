@@ -11,7 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	// NOTE: The name of class and methods must follow a specific scheme (class ends with "Logger", methods start with "Log")
 	// see: https://www.reddit.com/r/Unity3D/comments/17eikh0/i_found_a_way_to_go_to_the_right_line_in_your/

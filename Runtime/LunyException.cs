@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	[Preserve]
 	public sealed class LunyException : Exception

@@ -6,7 +6,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	/// <summary>
 	///     Internal use only: Forwards Unity messages (eg Awake, Update, ..) to Lua script.

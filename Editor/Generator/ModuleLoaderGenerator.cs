@@ -1,8 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator.CSharp;
+using Luny;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,6 @@ namespace CodeSmileEditor.Luny.Generator
 			module.ModuleLoaderTypeFullName = $"{module.BindingsAssemblyName}.{loaderClassName}";
 
 			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
-			AddUsingStatements(sb);
 			AddNamespaceBlock(sb, module.BindingsAssemblyName);
 			AddClassBlock(sb, loaderClassName);
 			AddGetNamespaces(sb, namespaces);
@@ -33,12 +32,6 @@ namespace CodeSmileEditor.Luny.Generator
 
 			var assetPath = $"{contentFolderPath}/{loaderClassName}.cs";
 			GenUtil.WriteFile(assetPath, sb.ToString());
-		}
-
-		private static void AddUsingStatements(ScriptBuilder sb)
-		{
-			// sb.AppendLine("using CodeSmile.Luny;");
-			// sb.AppendLine();
 		}
 
 		private static void AddNamespaceBlock(ScriptBuilder sb, String bindingsAssemblyName)

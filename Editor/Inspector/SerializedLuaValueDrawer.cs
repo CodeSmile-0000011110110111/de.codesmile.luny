@@ -1,8 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Luny;
 using Lua;
+using Luny;
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;

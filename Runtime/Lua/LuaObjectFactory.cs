@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmile.Luny
+namespace Luny
 {
 	public sealed class LuaTypeInfo
 	{

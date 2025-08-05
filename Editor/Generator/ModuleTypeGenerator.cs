@@ -1,8 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Luny;
 using CodeSmileEditor.Luny.Generator.CSharp;
+using Luny;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -66,7 +66,7 @@ namespace CodeSmileEditor.Luny.Generator
 		{
 			sb.Append("#pragma warning disable ");
 			sb.AppendLine(DisabledWarningCodes);
-			sb.AppendLine("using CodeSmile.Luny;");
+			sb.Append("using Luny;");
 			sb.AppendLine("using Lua.Unity;"); // for Lua extensions
 		}
 
