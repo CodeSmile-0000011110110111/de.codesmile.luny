@@ -33,6 +33,73 @@ namespace CodeSmile.Luny
 
 		public String EditorType => m_ScriptContext[EditorTypeKey].TryRead(out String editorType) ? editorType : null;
 
+		public static LunyLuaScript Load(LunyLuaAsset luaAsset) => new LunyLuaAssetScript(luaAsset);
+
+		public static IEnumerable<LunyLuaScript> Load(IEnumerable<LunyLuaAsset> luaAssets)
+		{
+			var scripts = new List<LunyLuaScript>();
+			if (luaAssets != null)
+			{
+				foreach (var luaAsset in luaAssets)
+				{
+					if (luaAsset != null)
+						scripts.Add(Load(luaAsset));
+				}
+			}
+			return scripts;
+		}
+
+		public static LunyLuaScript Load(String filePath) => String.IsNullOrEmpty(filePath) == false ? new LunyLuaFileScript(filePath) : null;
+
+		public static IEnumerable<LunyLuaScript> Load(IEnumerable<String> filePaths)
+		{
+			var scripts = new List<LunyLuaScript>();
+			if (filePaths != null)
+			{
+				foreach (var filePath in filePaths)
+				{
+					if (String.IsNullOrEmpty(filePath) == false)
+						scripts.Add(Load(filePath));
+				}
+			}
+			return scripts;
+		}
+
+		public static LunyLuaScript LoadFromStreamingAssets(String streamingAssetsPath) => String.IsNullOrEmpty(streamingAssetsPath) == false
+			? new LunyLuaStreamingAssetsScript(streamingAssetsPath)
+			: null;
+
+		public static IEnumerable<LunyLuaScript> LoadFromStreamingAssets(IEnumerable<String> streamingAssetsPaths)
+		{
+			var scripts = new List<LunyLuaScript>();
+			if (streamingAssetsPaths != null)
+			{
+				foreach (var streamingAssetsPath in streamingAssetsPaths)
+				{
+					if (String.IsNullOrEmpty(streamingAssetsPath) == false)
+						scripts.Add(LoadFromStreamingAssets(streamingAssetsPath));
+				}
+			}
+			return scripts;
+		}
+
+		public static LunyLuaScript LoadFromResources(String resourcesPath) =>
+			String.IsNullOrEmpty(resourcesPath) == false ? new LunyLuaStreamingAssetsScript(resourcesPath) : null;
+
+		public static IEnumerable<LunyLuaScript> LoadFromResources(IEnumerable<String> resourcesPaths)
+		{
+			var scripts = new List<LunyLuaScript>();
+			if (resourcesPaths != null)
+			{
+				foreach (var resourcesPath in resourcesPaths)
+				{
+					if (String.IsNullOrEmpty(resourcesPath) == false)
+						scripts.Add(LoadFromResources(resourcesPath));
+				}
+			}
+			return scripts;
+		}
+
 		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? new LuaTable(0, 4);
 
 		internal void Dispose() => m_ScriptContext = null;
@@ -91,30 +158,14 @@ namespace CodeSmile.Luny
 		public override String ToString() => $"{m_ScriptName} ({GetType().Name})";
 	}
 
-	public sealed class LunyLuaAssetScript : LunyLuaScript
+	internal sealed class LunyLuaAssetScript : LunyLuaScript
 	{
 		private readonly LunyLuaAsset m_LuaAsset;
 		public LunyLuaAsset LuaAsset => m_LuaAsset;
 
 		public override String FullPath => m_LuaAsset.FullPath;
 
-		public static IEnumerable<LunyLuaAssetScript> CreateScripts(IEnumerable<LunyLuaAsset> luaAssets)
-		{
-			var scripts = new List<LunyLuaAssetScript>();
-			if (luaAssets != null)
-			{
-				foreach (var luaAsset in luaAssets)
-				{
-					if (luaAsset != null)
-						scripts.Add(CreateScript(luaAsset));
-				}
-			}
-			return scripts;
-		}
-
-		public static LunyLuaAssetScript CreateScript(LunyLuaAsset luaAsset) => new LunyLuaAssetScript(luaAsset);
-
-		public LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable scriptContext = null)
+		internal LunyLuaAssetScript(LunyLuaAsset luaAsset, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
 			if (luaAsset == null)
@@ -131,27 +182,13 @@ namespace CodeSmile.Luny
 		}
 	}
 
-	public sealed class LunyLuaResourcesScript : LunyLuaScript
+	internal sealed class LunyLuaResourcesScript : LunyLuaScript
 	{
 		private readonly String m_ScriptPath;
 
 		public override String FullPath => m_ScriptPath;
 
-		public static IEnumerable<LunyLuaResourcesScript> CreateAll(IEnumerable<String> paths)
-		{
-			var scripts = new List<LunyLuaResourcesScript>();
-			if (paths != null)
-			{
-				foreach (var path in paths)
-				{
-					if (String.IsNullOrEmpty(path) == false)
-						scripts.Add(new LunyLuaResourcesScript(path));
-				}
-			}
-			return scripts;
-		}
-
-		public LunyLuaResourcesScript(String resourcesPath, LuaTable scriptContext = null)
+		internal LunyLuaResourcesScript(String resourcesPath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
 			if (String.IsNullOrEmpty(resourcesPath))
@@ -172,28 +209,14 @@ namespace CodeSmile.Luny
 		}
 	}
 
-	public sealed class LunyLuaStreamingAssetsScript : LunyLuaScript
+	internal sealed class LunyLuaStreamingAssetsScript : LunyLuaScript
 	{
 		private readonly String m_FullPath;
 		private readonly String m_ScriptPath;
 
 		public override String FullPath => m_FullPath;
 
-		public static IEnumerable<LunyLuaStreamingAssetsScript> CreateAll(IEnumerable<String> paths)
-		{
-			var scripts = new List<LunyLuaStreamingAssetsScript>();
-			if (paths != null)
-			{
-				foreach (var path in paths)
-				{
-					if (String.IsNullOrEmpty(path) == false)
-						scripts.Add(new LunyLuaStreamingAssetsScript(path));
-				}
-			}
-			return scripts;
-		}
-
-		public LunyLuaStreamingAssetsScript(String relativePath, LuaTable scriptContext = null)
+		internal LunyLuaStreamingAssetsScript(String relativePath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
 			if (String.IsNullOrEmpty(relativePath))
@@ -216,28 +239,14 @@ namespace CodeSmile.Luny
 		}
 	}
 
-	public sealed class LunyLuaFileScript : LunyLuaScript
+	internal sealed class LunyLuaFileScript : LunyLuaScript
 	{
 		private readonly String m_FullPath;
 		private readonly String m_ScriptPath;
 
 		public override String FullPath => m_FullPath;
 
-		public static IEnumerable<LunyLuaFileScript> CreateAll(IEnumerable<String> paths)
-		{
-			var scripts = new List<LunyLuaFileScript>();
-			if (paths != null)
-			{
-				foreach (var path in paths)
-				{
-					if (String.IsNullOrEmpty(path) == false)
-						scripts.Add(new LunyLuaFileScript(path));
-				}
-			}
-			return scripts;
-		}
-
-		public LunyLuaFileScript(String filePath, LuaTable scriptContext = null)
+		internal LunyLuaFileScript(String filePath, LuaTable scriptContext = null)
 			: base(scriptContext)
 		{
 			if (String.IsNullOrEmpty(filePath))

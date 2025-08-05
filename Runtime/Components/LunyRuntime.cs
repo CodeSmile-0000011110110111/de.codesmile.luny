@@ -131,9 +131,9 @@ namespace CodeSmile.Luny
 			m_ModdingLua = new LunyLua(moddingContext, new RuntimeFileSystem(moddingContext, m_AssetRegistry));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-			var runtimeAutoRunScripts = LunyLuaAssetScript.CreateScripts(m_AssetRegistry.RuntimeAutoRunLuaAssets);
+			var runtimeAutoRunScripts = LunyLuaAssetScript.Load(m_AssetRegistry.RuntimeAutoRunLuaAssets);
 			m_RuntimeLua.AddAndRunScripts(runtimeAutoRunScripts);
-			var moddingAutoRunScripts = LunyLuaAssetScript.CreateScripts(m_AssetRegistry.ModdingAutoRunLuaAssets);
+			var moddingAutoRunScripts = LunyLuaAssetScript.Load(m_AssetRegistry.ModdingAutoRunLuaAssets);
 			m_ModdingLua.AddAndRunScripts(moddingAutoRunScripts);
 #pragma warning restore CS4014
 

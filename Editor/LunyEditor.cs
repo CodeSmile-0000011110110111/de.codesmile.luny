@@ -34,7 +34,7 @@ namespace CodeSmileEditor.Luny
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
 
-		private static void RegisterEditorScriptByType(LunyLuaAssetScript script)
+		private static void RegisterEditorScriptByType(LunyLuaScript script)
 		{
 			switch (script.EditorType)
 			{
@@ -79,7 +79,7 @@ namespace CodeSmileEditor.Luny
 		private async ValueTask DoAutoRunScripts()
 		{
 			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
-			var scripts = LunyLuaAssetScript.CreateScripts(autorunScripts);
+			var scripts = LunyLuaScript.Load(autorunScripts);
 
 			if (Lua != null)
 				await Lua.AddAndRunScripts(scripts);
