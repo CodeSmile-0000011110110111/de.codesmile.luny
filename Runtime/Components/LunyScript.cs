@@ -120,8 +120,8 @@ namespace Luny
 		}
 
 		private ILunyLua GetModdingOrRuntimeLuaInstance() => m_LuaAsset is LunyModdingLuaAsset
-			? LunyRef.Luny.ModdingLua
-			: LunyRef.Luny.RuntimeLua;
+			? LunyRuntime.Singleton.ModdingLua
+			: LunyRuntime.Singleton.Lua;
 
 		private LunyReference GetOrAddLunyReference()
 		{

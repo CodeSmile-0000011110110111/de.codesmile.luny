@@ -18,12 +18,12 @@ namespace Luny
 	public sealed class LunyReference : MonoBehaviour
 	{
 		private LunyGameObject m_LunyGameObject;
-		public ILunyRuntime Luny => LunyRuntime.Singleton;
 		private ILunyRuntimeInternal LunyInternal => (ILunyRuntimeInternal)LunyRuntime.Singleton;
+
 		/// <summary>
 		/// The LunyGameObject instance that wraps this GameObject for use with Luny scripts.
 		/// </summary>
-		public ILunyGameObject LunyGameObject => m_LunyGameObject ??= new LunyGameObject(Luny.RuntimeLua, gameObject);
+		public ILunyGameObject LunyGameObject => m_LunyGameObject ??= new LunyGameObject(LunyRuntime.Singleton.Lua, gameObject);
 
 		private void Awake()
 		{
