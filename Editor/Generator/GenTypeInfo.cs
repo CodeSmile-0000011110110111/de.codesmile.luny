@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using Object = System.Object;
 
 namespace LunyEditor.Generator
@@ -27,25 +29,35 @@ namespace LunyEditor.Generator
 		public readonly Boolean IsUnityObjectType;
 		public readonly Boolean IsUnityGameObjectType;
 		public readonly Boolean IsUnityComponentType;
-		public Boolean HasInstanceType => IsStatic == false;
-		public Boolean IsValueType => Type.IsValueType;
 		public String InstanceFieldName;
 		public String InstancePropertyName;
 		public GenMemberInfo InstanceMembers;
 		public GenMemberInfo StaticMembers;
+		public Boolean HasInstanceType => IsStatic == false;
+		public Boolean IsValueType => Type.IsValueType;
 
 		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
 		{
 			Type = type;
 			var typeFullName = type.FullName ?? type.Name;
 			var typeFullNameNoPlus = typeFullName.Replace('+', '.');
-			BindTypeFullName = $"global::{typeFullNameNoPlus}";
 
+			BindTypeFullName = $"global::{typeFullNameNoPlus}";
 			LuaInstanceTypeNamespace = $"Luny.{Type.Namespace}";
-			LuaInstanceTypeName = $"Lua{type.Name}";
-			LuaStaticTypeName = $"Lua{type.Name}Type";
+			LuaInstanceTypeName = type.IsNested
+				? type.DeclaringType.IsNested
+					? $"Lua{type.DeclaringType.DeclaringType.Name}{type.DeclaringType.Name}{type.Name}"
+					: $"Lua{type.DeclaringType.Name}{type.Name}"
+				: $"Lua{type.Name}";
+			LuaStaticTypeName = $"{LuaInstanceTypeName}Type";
 			LuaInstanceTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaInstanceTypeName}";
 			LuaStaticTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaStaticTypeName}";
+
+			if (type.IsNested && type.DeclaringType.IsNested && type.DeclaringType.DeclaringType.IsNested)
+			{
+				throw new NotSupportedException(
+					$"heavily nested types not supported: {type.DeclaringType.DeclaringType.FullName}.{type.DeclaringType.Name}.{type.Name}");
+			}
 
 			if (type.IsEnum == false)
 			{
@@ -154,17 +166,16 @@ namespace LunyEditor.Generator
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
 
-		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter, bool isReturnParam = false)
+		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter, Boolean isReturnParam = false)
 		{
 			var paramType = parameter.ParameterType;
-			if (paramType.IsByRef)
-				return Unsupported(method, parameter, "byref param", false);
+
 			if (paramType.IsArray && !isReturnParam)
 				return Unsupported(method, parameter, "array param", false);
+			if (paramType.IsByRef)
+				return Unsupported(method, parameter, "byref param", false);
 			if (paramType.IsGenericParameter)
 				return Unsupported(method, parameter, "generic param", false);
-			if (method.IsGenericMethod)
-				return Unsupported(method, parameter, "generic method", false);
 			if (paramType.IsGenericType)
 				return Unsupported(method, parameter, "generic type", false);
 			if (paramType.IsInterface)
@@ -173,6 +184,10 @@ namespace LunyEditor.Generator
 				return Unsupported(method, parameter, "IntPtr param", false);
 			if (paramType.IsPointer)
 				return Unsupported(method, parameter, "pointer param", false);
+			if (method.IsGenericMethod)
+				return Unsupported(method, parameter, "generic method", false);
+			if (GenUtil.IsObsolete(paramType))
+				return Unsupported(method, parameter, "obsolete param");
 
 			return false;
 		}
@@ -212,8 +227,8 @@ namespace LunyEditor.Generator
 		public void Postprocess()
 		{
 			// sort by total parameter count first (this becomes the secondary sort order)
-			// Note: may be superfluous, but docs state that prior to .NET 7 there is no guaranteed method order
-			m_Methods.Sort((m1, m2) => m1.GetParameters().Length.CompareTo(m2.GetParameters().Length));
+			// Note: may be superfluous, but docs state that prior to .NET 7 there is no guaranteed MethodInfo order for overloads
+			m_Methods.Sort(new MethodBaseParameterComparer());
 
 			var paramsByPosition = new List<HashSet<GenParamInfo>>();
 			var allMethods = new List<GenMethodInfo>();
@@ -302,12 +317,12 @@ namespace LunyEditor.Generator
 			}
 
 			var signature = new List<GenParamInfo>();
-			FindOverloadsByTypeRecursive(allMethods, 0, paramsByPosition, signature);
+			CreateSortedMethodsListRecursive(allMethods, 0, paramsByPosition, signature);
 
 			m_Methods = null;
 		}
 
-		private void FindOverloadsByTypeRecursive(List<GenMethodInfo> methods, Int32 paramPos, List<HashSet<GenParamInfo>> paramsByPosition,
+		private void CreateSortedMethodsListRecursive(List<GenMethodInfo> methods, Int32 paramPos, List<HashSet<GenParamInfo>> paramsByPosition,
 			List<GenParamInfo> signature)
 		{
 			//Debug.Log($"[{pos}] {signature.Count}/{MaxParamCount} {paramsByPosition.Count} => ({DebugSignatureToString(signature)})");
@@ -325,13 +340,165 @@ namespace LunyEditor.Generator
 				{
 					var nextSignature = new List<GenParamInfo>(signature);
 					nextSignature.Add(parameter);
-					FindOverloadsByTypeRecursive(methods, paramPos + 1, paramsByPosition, nextSignature);
+					CreateSortedMethodsListRecursive(methods, paramPos + 1, paramsByPosition, nextSignature);
 				}
 			}
 		}
 
 		public override Int32 GetHashCode() => Name != null ? Name.GetHashCode() : 0;
 		public override Boolean Equals(Object obj) => obj is GenMethodOverloads other && Equals(other);
+
+		public sealed class MethodBaseParameterComparer : IComparer<MethodBase>
+		{
+			public Int32 Compare(MethodBase m1, MethodBase m2)
+			{
+				var m1Params = m1.GetParameters();
+				var m2Params = m2.GetParameters();
+				var m1ParamCount = m1Params.Length;
+				var m2ParamCount = m2Params.Length;
+
+				var result = m1ParamCount.CompareTo(m2ParamCount);
+				if (result != 0 || m1ParamCount == 0)
+					return result;
+
+				// same param count, sort by prioritizing certain types
+				for (var i = 0; i < m1ParamCount; i++)
+				{
+					var m1ParamType = m1Params[i].ParameterType;
+					var m2ParamType = m2Params[i].ParameterType;
+
+					// same type? try the next
+					if (m1ParamType == m2ParamType)
+						continue;
+
+					// primitives take precedence over everything
+					if (m1ParamType.IsPrimitive && m2ParamType.IsPrimitive)
+					{
+						// order of primitives, prefer most "wide" types
+						if (m1ParamType == typeof(Single))
+							return -1; // prefer float since Lua number is double & Unity fractionals are 99% float
+						if (m2ParamType == typeof(Single)) return 1;
+						if (m1ParamType == typeof(Double)) return -1;
+						if (m2ParamType == typeof(Double)) return 1;
+						if (m1ParamType == typeof(Int64)) return -1;
+						if (m2ParamType == typeof(Int64)) return 1;
+						if (m1ParamType == typeof(UInt64)) return -1;
+						if (m2ParamType == typeof(UInt64)) return 1;
+						if (m1ParamType == typeof(Int32)) return -1;
+						if (m2ParamType == typeof(Int32)) return 1;
+						if (m1ParamType == typeof(UInt32)) return -1;
+						if (m2ParamType == typeof(UInt32)) return 1;
+						if (m1ParamType == typeof(Boolean)) return -1; // Bool is a 32-bit type
+						if (m2ParamType == typeof(Boolean)) return 1;
+						if (m1ParamType == typeof(Char)) return -1; // Char is a 16-bit type
+						if (m2ParamType == typeof(Char)) return 1;
+						if (m1ParamType == typeof(Int16)) return -1;
+						if (m2ParamType == typeof(Int16)) return 1;
+						if (m1ParamType == typeof(UInt16)) return -1;
+						if (m2ParamType == typeof(UInt16)) return 1;
+						if (m1ParamType == typeof(SByte)) return -1;
+						if (m2ParamType == typeof(SByte)) return 1;
+						if (m1ParamType == typeof(Byte)) return -1;
+						if (m2ParamType == typeof(Byte)) return 1;
+						if (m1ParamType == typeof(Decimal)) return -1; // Decimal at the bottom because games don't really use these
+						if (m2ParamType == typeof(Decimal)) return 1;
+						if (m1ParamType == typeof(IntPtr)) return -1; // Ptr types will get sorted out anyway
+						if (m2ParamType == typeof(IntPtr)) return 1;
+						if (m1ParamType == typeof(UIntPtr)) return -1;
+						if (m2ParamType == typeof(UIntPtr)) return 1;
+					}
+					else if (m1ParamType.IsPrimitive) return -1;
+					else if (m2ParamType.IsPrimitive) return 1;
+
+					// value types (incl. enums) take precedence over reference types
+					if (m1ParamType.IsValueType && m2ParamType.IsValueType)
+					{
+						if (m1ParamType.IsEnum && !m2ParamType.IsEnum) return -1;
+						if (!m1ParamType.IsEnum && m2ParamType.IsEnum) return 1;
+
+						if (m1ParamType == typeof(Vector2)) return -1;
+						if (m2ParamType == typeof(Vector2)) return 1;
+						if (m1ParamType == typeof(Vector2Int)) return -1;
+						if (m2ParamType == typeof(Vector2Int)) return 1;
+						if (m1ParamType == typeof(Vector3)) return -1;
+						if (m2ParamType == typeof(Vector3)) return 1;
+						if (m1ParamType == typeof(Vector3Int)) return -1;
+						if (m2ParamType == typeof(Vector3Int)) return 1;
+						if (m1ParamType == typeof(Vector4)) return -1;
+						if (m2ParamType == typeof(Vector4)) return 1;
+
+						if (m1ParamType == typeof(GraphicsFormat)) return -1;
+						if (m2ParamType == typeof(GraphicsFormat)) return 1;
+						if (m1ParamType == typeof(TextureFormat)) return -1;
+						if (m2ParamType == typeof(TextureFormat)) return 1;
+						if (m1ParamType == typeof(RenderTextureFormat)) return -1;
+						if (m2ParamType == typeof(RenderTextureFormat)) return 1;
+						if (m1ParamType == typeof(DefaultFormat)) return -1;
+						if (m2ParamType == typeof(DefaultFormat)) return 1;
+						if (m1ParamType == typeof(LocalKeyword)) return -1;
+						if (m2ParamType == typeof(LocalKeyword)) return 1;
+						if (m1ParamType == typeof(GlobalKeyword)) return -1;
+						if (m2ParamType == typeof(GlobalKeyword)) return 1;
+						if (m1ParamType == typeof(ShaderKeyword)) return -1;
+						if (m2ParamType == typeof(ShaderKeyword)) return 1;
+						if (m1ParamType == typeof(RenderBuffer)) return -1;
+						if (m2ParamType == typeof(RenderBuffer)) return 1;
+						if (m1ParamType == typeof(RenderTargetIdentifier)) return -1;
+						if (m2ParamType == typeof(RenderTargetIdentifier)) return 1;
+						if (m1ParamType == typeof(SynchronisationStageFlags)) return -1;
+						if (m2ParamType == typeof(SynchronisationStageFlags)) return 1;
+						if (m1ParamType == typeof(SynchronisationStage)) return -1;
+						if (m2ParamType == typeof(SynchronisationStage)) return 1;
+					}
+					else if (m1ParamType.IsValueType) return -1;
+					else if (m2ParamType.IsValueType) return 1;
+
+					// System.Object goes last
+					if (m1ParamType == typeof(Object)) return 1;
+					if (m2ParamType == typeof(Object)) return -1;
+
+					// delegate goes 2nd to last
+					if (m1ParamType == typeof(Delegate)) return 1;
+					if (m2ParamType == typeof(Delegate)) return -1;
+
+					// strings take precedence
+					if (m1ParamType == typeof(String)) return -1;
+					if (m2ParamType == typeof(String)) return 1;
+
+					if (m1ParamType == typeof(Texture2D)) return -1;
+					if (m2ParamType == typeof(Texture2D)) return 1;
+					if (m1ParamType == typeof(Texture3D)) return -1;
+					if (m2ParamType == typeof(Texture3D)) return 1;
+					if (m1ParamType == typeof(Texture2DArray)) return -1;
+					if (m2ParamType == typeof(Texture2DArray)) return 1;
+					if (m1ParamType == typeof(RenderTexture)) return -1;
+					if (m2ParamType == typeof(RenderTexture)) return 1;
+					if (m1ParamType == typeof(GraphicsTexture)) return -1;
+					if (m2ParamType == typeof(GraphicsTexture)) return 1;
+					if (m1ParamType == typeof(Texture)) return -1;
+					if (m2ParamType == typeof(Texture)) return 1;
+					if (m1ParamType == typeof(Material)) return -1;
+					if (m2ParamType == typeof(Material)) return 1;
+					if (m1ParamType == typeof(Shader)) return -1;
+					if (m2ParamType == typeof(Shader)) return 1;
+					if (m1ParamType == typeof(ComputeShader)) return -1;
+					if (m2ParamType == typeof(ComputeShader)) return 1;
+					if (m1ParamType == typeof(ComputeBuffer)) return -1;
+					if (m2ParamType == typeof(ComputeBuffer)) return 1;
+					if (m1ParamType == typeof(GraphicsBuffer)) return -1;
+					if (m2ParamType == typeof(GraphicsBuffer)) return 1;
+					if (m1ParamType == typeof(Cubemap)) return -1;
+					if (m2ParamType == typeof(Cubemap)) return 1;
+
+					// and the remaining types prefer inherited types over their base types
+					if (m1ParamType.IsAssignableFrom(m2ParamType)) return 1;
+					if (m2ParamType.IsAssignableFrom(m1ParamType)) return -1;
+				}
+
+				Debug.LogWarning($"undecided sort order: {m1} <==> {m2}\n\n{m1}\n{m2}\n");
+				return 0;
+			}
+		}
 	}
 
 	internal sealed class GenMethodInfo : IEquatable<GenMethodInfo>
@@ -409,9 +576,10 @@ namespace LunyEditor.Generator
 		public ParameterInfo ParamInfo;
 		public String Name { get; set; }
 		public Type Type => ParamInfo?.ParameterType;
-		public String TypeFullName => m_TypeFullName ??= ParamInfo.ParameterType.FullName?.Replace('+', '.');
+		public String TypeFullName => m_TypeFullName ??= $"global::{ParamInfo.ParameterType.FullName?.Replace('+', '.')}";
 		public Int32 Position => ParamInfo.Position;
-		public Boolean IsUserData => !(Type.IsPrimitive || Type == typeof(String));
+		public Boolean IsGeneratedType { get; set; }
+		public string GeneratedTypeFullName { get; set; }
 		public String VariableName { get; set; }
 		public GenMethodInfo MethodInfo { get; set; }
 

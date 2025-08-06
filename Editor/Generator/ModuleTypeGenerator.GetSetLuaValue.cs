@@ -151,7 +151,8 @@ namespace LunyEditor.Generator
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			sb.Append("_value = ");
-			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
+			var isValueType = typeInfo.IsValueType;
+			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : isValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
 			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer ? $"{accessor}[_key]" : $"{accessor}.{memberName}");
 			sb.AppendLine("; return true;");
 		}
@@ -243,11 +244,12 @@ namespace LunyEditor.Generator
 		private static void AddSetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
-			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName;
-			if (typeInfo.IsValueType && isLuaStaticType == false)
+			var isValueType = typeInfo.IsValueType;
+			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : GetFieldOrPropertyName(typeInfo);
+			if (isValueType && isLuaStaticType == false)
 			{
 				sb.Append("{ var _temp = ");
-				sb.Append(typeInfo.InstancePropertyName);
+				sb.Append(typeInfo.InstanceFieldName);
 				sb.Append("; ");
 				accessor = "_temp";
 			}
@@ -287,5 +289,7 @@ namespace LunyEditor.Generator
 
 			sb.AppendLine(" return true;");
 		}
+
+		private static String GetFieldOrPropertyName(GenTypeInfo typeInfo) => typeInfo.IsValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
 	}
 }

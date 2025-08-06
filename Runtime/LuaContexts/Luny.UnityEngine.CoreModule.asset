@@ -633,11 +633,11 @@ MonoBehaviour:
   - UnityEngine.LightingSettings
   - UnityEngine.Types
   - '-- below: to be included later ...'
-  m_ContentFolderGuid: 35d079f3bba53734282dfcd88854ba0b
+  m_ContentFolderGuid: 68381279a0839214087b434fb033332f
   m_ModuleLoaderTypeFullName: 
   m_ModuleLoader:
     rid: -2
-  m_GenerateOnlyThisType: //UnityEngine.Skybox
+  m_GenerateOnlyThisType: //UnityEngine.Debug
   m_GenerateOnlyThisMethod: 
   references:
     version: 2

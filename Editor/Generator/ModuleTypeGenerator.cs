@@ -38,6 +38,7 @@ namespace LunyEditor.Generator
 		// private static readonly String ErrVarLastArg = "_lastArg";
 		// private static readonly String ErrVarLastArgPos = "_lastArgPos";
 		// private static readonly String ErrVarExpectedType = "_expectedType";
+		private static readonly String ILuaBindTypeFullName = $"global::{typeof(ILuaBindType).FullName}";
 
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos)
 		{
@@ -127,7 +128,7 @@ namespace LunyEditor.Generator
 		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
 			sb.AppendIndent("public ");
-			sb.Append(isLuaStaticType || typeInfo.IsSealed ? "sealed class " : "class ");
+			sb.Append(isLuaStaticType || typeInfo.IsSealed || typeInfo.IsValueType ? "sealed class " : "class ");
 			sb.Append(isLuaStaticType ? typeInfo.LuaStaticTypeName : typeInfo.LuaInstanceTypeName);
 			sb.Append(" : ");
 			if (baseType != null)
@@ -299,7 +300,7 @@ namespace LunyEditor.Generator
 			{
 				if (typeInfo.IsValueType)
 				{
-					sb.Append(typeInfo.InstancePropertyName);
+					sb.Append(typeInfo.InstanceFieldName);
 					sb.AppendLine(".ToString();");
 				}
 				else
@@ -307,7 +308,7 @@ namespace LunyEditor.Generator
 					sb.Append(typeInfo.InstanceFieldName);
 					sb.Append(" != null ? ");
 					sb.Append(typeInfo.InstancePropertyName);
-					sb.AppendLine(".ToString() : \"(null)\";");
+					sb.AppendLine(".ToString() : \"{GetType().Name}(null)\";");
 				}
 			}
 		}
@@ -382,7 +383,7 @@ namespace LunyEditor.Generator
 		{
 			sb.AppendIndent("private static readonly global::Lua.LuaFunction ");
 			sb.Append(fieldName);
-			sb.Append(" = new(\"");
+			sb.Append(" = new global::Lua.LuaFunction(\"");
 			sb.Append(luaFuncName);
 			sb.AppendLine("\", (_context, _) =>");
 			sb.OpenIndentBlock("{");
@@ -452,7 +453,9 @@ namespace LunyEditor.Generator
 
 				if (needsGetArguments)
 					AddMethodGetArgumentFromLuaContext(sb, argNum, argNum + luaArgOffset);
-				AddMethodReadValueConditional(sb, parameter, argNum);
+
+				var paramTypeName = GetParameterTypeFullName(parameter);
+				AddMethodReadValueConditional(sb, parameter, paramTypeName, argNum);
 			}
 
 			if (paramPos == paramCount)
@@ -482,7 +485,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
-		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, Int32 argNum, Int32 luaArgIndex)
+		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, Int32 argNum, Int32 luaArgIndex, GenParamInfo parameter = null)
 		{
 			sb.AppendIndent("var ");
 			sb.Append(Args[argNum]);
@@ -490,41 +493,60 @@ namespace LunyEditor.Generator
 			sb.Append(Digits[luaArgIndex]);
 			sb.Append(" ? _context.GetArgument(");
 			sb.Append(Digits[luaArgIndex]);
-			sb.AppendLine(") : global::Lua.LuaValue.Nil;");
+			sb.Append(")");
+			if (TryGetGeneratedType(parameter, out var _))
+				sb.Append(parameter.Type.IsValueType ? ".Value" : ".Instance");
+			sb.AppendLine(" : global::Lua.LuaValue.Nil;");
 		}
 
-		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, Int32 argNum)
+		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, string paramTypeName, Int32 argNum)
 		{
 			sb.AppendIndent("_lastArgPos = ");
 			sb.Append(Digits[argNum]);
 			sb.Append("; ");
-			sb.Append("_expectedType = typeof(global::");
-			sb.Append(parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName);
+			sb.Append("_expectedType = typeof(");
+			sb.Append(paramTypeName);
 			sb.AppendLine(");");
 
 			var hasDefaultValue = parameter.ParamInfo.HasDefaultValue;
 			sb.AppendIndent(hasDefaultValue ? "var " : "if (");
-			AddMethodReadLuaValueStatement(sb, parameter, argNum);
+			AddMethodReadLuaValueStatement(sb, parameter, paramTypeName, argNum);
 			sb.AppendLine(hasDefaultValue ? ";" : ")");
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, Int32 argNum,
+		private static bool TryGetGeneratedType(GenParamInfo parameter, out GenTypeInfo generatedTypeInfo)
+		{
+			generatedTypeInfo = null;
+			return parameter != null && parameter.Type.IsEnum == false && ModuleGenerator.TypeInfosByType.TryGetValue(parameter.Type, out generatedTypeInfo);
+		}
+
+		private static String GetParameterTypeFullName(GenParamInfo parameter)
+		{
+			if (TryGetGeneratedType(parameter, out var generatedTypeInfo))
+			{
+				parameter.IsGeneratedType = true;
+				parameter.GeneratedTypeFullName = generatedTypeInfo.LuaInstanceTypeFullName;
+			}
+
+			var paramTypeName = parameter.IsGeneratedType ? parameter.GeneratedTypeFullName :
+				parameter.Type == typeof(Type) ? ILuaBindTypeFullName : parameter.TypeFullName;
+			return paramTypeName;
+		}
+
+		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, string paramTypeName, Int32 argNum,
 			Boolean useSignatureName = false)
 		{
-			var paramTypeName = parameter.Type == typeof(Type) ? typeof(ILuaBindType).FullName : parameter.TypeFullName;
 			if (parameter.ParamInfo.HasDefaultValue)
 			{
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
 				sb.Append(" = ");
 				sb.Append(Args[argNum]);
 				sb.Append(".ReadValue<");
-				sb.Append("global::");
 				sb.Append(paramTypeName);
 				sb.Append(">(");
 				if (parameter.Type.IsEnum)
 				{
-					sb.Append("global::");
 					sb.Append(paramTypeName);
 					sb.Append(".");
 					sb.Append(parameter.ParamInfo.DefaultValue.ToString());
@@ -536,7 +558,6 @@ namespace LunyEditor.Generator
 					{
 						// avoid implicit conversions from using the wrong overload, or throwing conversion errors
 						sb.Append("(");
-						sb.Append("global::");
 						sb.Append(paramTypeName);
 						sb.Append(")");
 					}
@@ -562,7 +583,7 @@ namespace LunyEditor.Generator
 			else
 			{
 				sb.Append(Args[argNum]);
-				sb.Append(".TryRead<global::");
+				sb.Append(".TryRead<");
 				sb.Append(paramTypeName);
 				sb.Append(">(out var ");
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
@@ -588,18 +609,25 @@ namespace LunyEditor.Generator
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
 			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
-				AddMethodGetArgumentFromLuaContext(sb, paramIndex, paramIndex + luaArgOffset);
+			{
+				AddMethodGetArgumentFromLuaContext(sb, paramIndex, paramIndex + luaArgOffset, parameters[paramIndex]);
+			}
 
 			// re-assign variables for readability in method call
 			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
 			{
+				var parameter = parameters[paramIndex];
 				if (paramIndex <= pos)
 				{
 					sb.AppendIndent("var ");
-					sb.Append(parameters[paramIndex].Name);
+					sb.Append(parameter.Name);
 					sb.Append(" = ");
-					sb.Append(parameters[paramIndex].VariableName);
-					if (parameters[paramIndex].Type == typeof(Type))
+					sb.Append(parameter.VariableName);
+					if (TryGetGeneratedType(parameter, out var _))
+					{
+						sb.Append(parameter.Type.IsValueType ? ".Value" : ".Instance");
+					}
+					else if (parameter.Type == typeof(Type))
 					{
 						sb.Append(".");
 						sb.Append(nameof(ILuaBindType.LuaBindType));
@@ -608,8 +636,9 @@ namespace LunyEditor.Generator
 				}
 				else
 				{
-					sb.AppendIndent(parameters[paramIndex].ParamInfo.HasDefaultValue ? "var " : "");
-					AddMethodReadLuaValueStatement(sb, parameters[paramIndex], paramIndex, true);
+					sb.AppendIndent(parameter.ParamInfo.HasDefaultValue ? "var " : "");
+					var paramTypeName = GetParameterTypeFullName(parameter);
+					AddMethodReadLuaValueStatement(sb, parameter, paramTypeName, paramIndex, true);
 					sb.AppendLine(";");
 				}
 			}
@@ -637,7 +666,7 @@ namespace LunyEditor.Generator
 				sb.Append("new ");
 			else if (isStatic == false)
 				sb.Append("_this.");
-			sb.Append(isStatic || isCtor ? typeInfo.BindTypeFullName : typeInfo.InstancePropertyName);
+			sb.Append(isStatic || isCtor ? typeInfo.BindTypeFullName : GetFieldOrPropertyName(typeInfo));
 			if (isCtor == false)
 			{
 				sb.Append(".");
