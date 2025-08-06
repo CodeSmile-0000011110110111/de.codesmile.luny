@@ -634,13 +634,14 @@ MonoBehaviour:
   - UnityEngine.Types
   - '-- below: to be included later ...'
   m_ContentFolderGuid: 68381279a0839214087b434fb033332f
-  m_ModuleLoaderTypeFullName: 
+  m_ModuleLoaderTypeFullName: Luny.UnityEngine.CoreModule.Internal.LuaModuleLoader
   m_ModuleLoader:
-    rid: -2
+    rid: 3323315820562481213
   m_GenerateOnlyThisType: //UnityEngine.Debug
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3323315820562481213
+      type: {class: LuaModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
+      data: 
