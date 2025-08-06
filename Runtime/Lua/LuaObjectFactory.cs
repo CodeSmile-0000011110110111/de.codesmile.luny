@@ -36,8 +36,9 @@ namespace Luny
 
 	public interface ILuaObjectFactory
 	{
+		// FIXME: can I make these generic?
 		LuaValue Bind(Object instance);
-		LuaValue Bind<T>(IList<T> instances);
+		LuaValue Bind(IList<Object> instances);
 	}
 
 	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
@@ -58,7 +59,7 @@ namespace Luny
 				: LuaValue.FromObject(instance);
 		}
 
-		public LuaValue Bind<T>(IList<T> instances)
+		public LuaValue Bind(IList<Object> instances)
 		{
 			if (instances == null)
 				return LuaValue.Nil;
@@ -66,7 +67,7 @@ namespace Luny
 			var bindType = instances.GetType().GetElementType();
 			var luaTypeInfo = TryGetLuaTypeInfo(bindType);
 			return luaTypeInfo != null && luaTypeInfo.InstanceListToLua != null
-				? new LuaList<T>(instances)
+				? luaTypeInfo.InstanceListToLua(instances)
 				: LuaValue.FromObject(instances);
 		}
 

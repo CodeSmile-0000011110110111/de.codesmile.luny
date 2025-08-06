@@ -170,7 +170,10 @@ namespace LunyEditor.Generator
 		{
 			var paramType = parameter.ParameterType;
 
-			if (paramType.IsArray && !isReturnParam)
+			if (paramType.IsArray)
+				Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
+
+			if (paramType.IsArray)
 				return Unsupported(method, parameter, "array param", false);
 			if (paramType.IsByRef)
 				return Unsupported(method, parameter, "byref param", false);

@@ -15,75 +15,68 @@ namespace Luny
 	{
 		private static readonly LuaFunction __index = new(Metamethods.Index, (context, _) =>
 		{
-			var self = context.GetArgument<LuaList<T>>(0);
+			var list = context.GetArgument<LuaList<T>>(0);
 			var key = context.GetArgument(1);
 
-			if (!key.TryRead<Int32>(out var index))
+			if (!key.TryRead<Int32>(out var luaIndex))
 				throw new LuaRuntimeException(context.Thread, $"index must be a number, got: {key.Type}");
 
-			var list = self.ManagedObjects;
-			if (list == null)
+			var objects = list.ManagedObjects;
+			if (objects == null)
 				throw new LuaRuntimeException(context.Thread, "managed list is null.");
 
-			if (index < 1 || index > list.Count)
-				throw new LuaRuntimeException(context.Thread, $"index {index} out of range [1, {list.Count}]");
+			if (luaIndex < 1 || luaIndex > objects.Count)
+				throw new LuaRuntimeException(context.Thread, $"index {luaIndex} out of range [1, {objects.Count}]");
 
-			var managedItem = list[index - 1];
-			var value = context.GetObjectFactory().Bind(managedItem);
+			var value = list.GetLuaValue(luaIndex, context.GetObjectFactory());
 			return new ValueTask<Int32>(context.Return(value));
 		});
 
 		private static readonly LuaFunction __len = new(Metamethods.Len, (context, _) =>
 		{
-			var self = context.GetArgument<LuaList<T>>(0);
-			var value = self.ManagedObjects?.Count ?? 0;
-			return new ValueTask<Int32>(context.Return(value));
+			var list = context.GetArgument<LuaList<T>>(0);
+			var count = list.ManagedObjects?.Count ?? 0;
+			return new ValueTask<Int32>(context.Return(count));
+		});
+
+		private static readonly LuaFunction __pairs = new(Metamethods.Pairs, (context, _) =>
+		{
+			var arg0 = context.GetArgument(0);
+			return new ValueTask<Int32>(context.Return(LuaListIterator, arg0, LuaValue.Nil));
 		});
 
 		private static readonly LuaFunction __ipairs = new(Metamethods.IPairs, (context, _) =>
 		{
-			// ipairs
-			var self = context.GetArgument<LuaList<T>>(0);
-			var luaIndex = context.GetArgument<int>(1);
+			var arg0 = context.GetArgument(0);
+			return new ValueTask<Int32>(context.Return(LuaListIterator, arg0, LuaValue.Nil));
+		});
 
-			luaIndex++;
-			if (luaIndex >= 0 && luaIndex <= self.Count)
+		private static readonly LuaFunction LuaListIterator = new(nameof(LuaListIterator), (context, token) =>
+		{
+			var list = context.GetArgument<LuaList<T>>(0);
+			var key = context.HasArgument(1) ? context.Arguments[1] : LuaValue.Nil;
+
+			var luaIndex = -1;
+			if (key.Type is LuaValueType.Nil)
+				luaIndex = 0;
+			else if (key.TryRead(out Int32 number) && number > 0 && number < list.Count)
+				luaIndex = number;
+
+			if (luaIndex != -1)
 			{
-				var managedIndex = luaIndex - 1;
-				var luaValue = self.m_LuaValues[managedIndex];
-				if (luaValue.Type == LuaValueType.Nil)
-				{
-					var managedObject = self[managedIndex];
-					luaValue = context.GetObjectFactory().Bind(managedObject);
-					self.m_LuaValues[managedIndex] = luaValue;
-				}
-				return new(context.Return(luaIndex, luaValue));
+				luaIndex++;
+				var value = list.GetLuaValue(luaIndex, context.GetObjectFactory());
+				return new ValueTask<Int32>(context.Return(luaIndex, value));
 			}
 
-			return new(context.Return(LuaValue.Nil, LuaValue.Nil));
-
-			// pairs
-			/*
-			var arg0 = context.GetArgument<LuaTable>(0);
-			var arg1 = context.HasArgument(1) ? context.Arguments[1] : LuaValue.Nil;
-
-			if (arg0.TryGetNext(arg1, out var kv))
-			{
-				return new(context.Return(kv.Key, kv.Value));
-			}
-			else
-			{
-				return new(context.Return(LuaValue.Nil));
-			}
-			*/
-
+			return new ValueTask<Int32>(context.Return(LuaValue.Nil));
 		});
 
 		private static LuaTable s_Metatable = LuaMetatable.Create(new Dictionary<String, LuaFunction>
 		{
 			{ Metamethods.Index, __index },
 			{ Metamethods.Len, __len },
-			{ Metamethods.Pairs, __ipairs },
+			{ Metamethods.Pairs, __pairs },
 			{ Metamethods.IPairs, __ipairs },
 		});
 

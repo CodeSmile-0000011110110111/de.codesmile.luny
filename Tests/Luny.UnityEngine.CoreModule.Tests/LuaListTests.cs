@@ -49,6 +49,10 @@ public sealed class LuaListTests : LuaModuleTestsBase
 		var componentsList = retvals[1].Read<LuaList<Component>>();
 		var enumeratedValues = retvals[2].Read<LuaTable>();
 		for (var i = 1; i <= 3; i++)
-			Assert.That(enumeratedValues[i].Read<LuaComponent>(), Is.EqualTo(componentsList[i]));
+		{
+			var actual = enumeratedValues[i].Read<LuaComponent>().Instance;
+			var expected = componentsList[i - 1];
+			Assert.That(actual.GetInstanceID(), Is.EqualTo(expected.GetInstanceID()));
+		}
 	}
 }

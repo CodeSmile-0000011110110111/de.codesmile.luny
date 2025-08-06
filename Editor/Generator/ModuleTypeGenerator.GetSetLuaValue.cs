@@ -152,7 +152,8 @@ namespace LunyEditor.Generator
 		{
 			sb.Append("_value = ");
 			var isValueType = typeInfo.IsValueType;
-			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName : isValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
+			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName :
+				isValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
 			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer ? $"{accessor}[_key]" : $"{accessor}.{memberName}");
 			sb.AppendLine("; return true;");
 		}
@@ -290,6 +291,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine(" return true;");
 		}
 
-		private static String GetFieldOrPropertyName(GenTypeInfo typeInfo) => typeInfo.IsValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
+		private static String GetFieldOrPropertyName(GenTypeInfo typeInfo) =>
+			typeInfo.IsValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
 	}
 }

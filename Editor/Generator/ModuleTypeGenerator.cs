@@ -192,22 +192,19 @@ namespace LunyEditor.Generator
 
 		private static void AddBindInstancesListToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
 		{
-			sb.AppendIndent("public new static global::Lua.LuaValue ");
-			sb.Append(nameof(ILuaObjectFactory.Bind));
-			sb.AppendLine("(global::System.Collections.Generic.IList<global::System.Object> instances)");
-			sb.OpenIndentBlock("{");
-			sb.AppendIndentLine("var count = instances.Count;");
-			sb.AppendIndentLine("var table = new global::Lua.LuaTable(count, 0);");
-			sb.AppendIndentLine("for (int i = 1; i <= count; i++)");
-			sb.IncrementIndent();
-			sb.AppendIndent("table[i] = new ");
-			sb.Append(typeInfo.LuaInstanceTypeName);
-			sb.Append("((");
-			sb.Append(typeInfo.BindTypeFullName);
-			sb.AppendLine(")instances[i - 1]);");
-			sb.DecrementIndent();
-			sb.AppendIndentLine("return table;");
-			sb.CloseIndentBlock("}");
+			for (var i = 0; i < 2; i++)
+			{
+				sb.AppendIndent("public new static global::Lua.LuaValue ");
+				sb.Append(nameof(ILuaObjectFactory.Bind));
+				sb.Append("(global::System.Collections.Generic.IList<");
+				sb.Append(i == 0 ? typeInfo.BindTypeFullName : "global::System.Object");
+				sb.AppendLine("> instances) =>");
+				sb.IncrementIndent();
+				sb.AppendIndent("new global::Luny.LuaList<");
+				sb.Append(typeInfo.BindTypeFullName);
+				sb.AppendLine(">(instances);");
+				sb.DecrementIndent();
+			}
 		}
 
 		private static void AddBindTypeProperty(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
@@ -499,7 +496,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine(" : global::Lua.LuaValue.Nil;");
 		}
 
-		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, string paramTypeName, Int32 argNum)
+		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum)
 		{
 			sb.AppendIndent("_lastArgPos = ");
 			sb.Append(Digits[argNum]);
@@ -515,10 +512,11 @@ namespace LunyEditor.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static bool TryGetGeneratedType(GenParamInfo parameter, out GenTypeInfo generatedTypeInfo)
+		private static Boolean TryGetGeneratedType(GenParamInfo parameter, out GenTypeInfo generatedTypeInfo)
 		{
 			generatedTypeInfo = null;
-			return parameter != null && parameter.Type.IsEnum == false && ModuleGenerator.TypeInfosByType.TryGetValue(parameter.Type, out generatedTypeInfo);
+			return parameter != null && parameter.Type.IsEnum == false &&
+			       ModuleGenerator.TypeInfosByType.TryGetValue(parameter.Type, out generatedTypeInfo);
 		}
 
 		private static String GetParameterTypeFullName(GenParamInfo parameter)
@@ -534,7 +532,7 @@ namespace LunyEditor.Generator
 			return paramTypeName;
 		}
 
-		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, string paramTypeName, Int32 argNum,
+		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum,
 			Boolean useSignatureName = false)
 		{
 			if (parameter.ParamInfo.HasDefaultValue)
@@ -609,9 +607,7 @@ namespace LunyEditor.Generator
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
 			for (var paramIndex = pos + 1; paramIndex < parameters.Length; paramIndex++)
-			{
 				AddMethodGetArgumentFromLuaContext(sb, paramIndex, paramIndex + luaArgOffset, parameters[paramIndex]);
-			}
 
 			// re-assign variables for readability in method call
 			for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
@@ -624,9 +620,7 @@ namespace LunyEditor.Generator
 					sb.Append(" = ");
 					sb.Append(parameter.VariableName);
 					if (TryGetGeneratedType(parameter, out var _))
-					{
 						sb.Append(parameter.Type.IsValueType ? ".Value" : ".Instance");
-					}
 					else if (parameter.Type == typeof(Type))
 					{
 						sb.Append(".");
