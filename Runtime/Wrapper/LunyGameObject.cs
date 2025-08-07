@@ -7,6 +7,16 @@ using UnityEngine;
 
 namespace Luny
 {
+	// the ILuaxxx interfaces are needed to safely reference these types in absence of generated UnityEngine code
+	public interface ILuaUnityObject {}
+	public interface ILuaUnityGameObject
+	{
+		// Instantiate
+		// Add/GetComponent
+		// Destroy
+	}
+	public interface ILuaUnityComponent {}
+
 	public interface ILunyGameObject {}
 
 	public sealed class LunyGameObject : ILunyGameObject

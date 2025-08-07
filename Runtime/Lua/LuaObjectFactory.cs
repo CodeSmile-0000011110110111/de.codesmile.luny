@@ -25,14 +25,6 @@ namespace Luny
 		public InstanceListToLuaCallback InstanceListToLua;
 	}
 
-	public interface ILuaBindType : ILuaUserData
-	{
-		Type LuaBindType { get; }
-	}
-
-	public interface ILuaObject : ILuaBindType {}
-
-	public interface ILuaObjectType : ILuaObject {}
 
 	public interface ILuaObjectFactory
 	{
@@ -46,6 +38,20 @@ namespace Luny
 		private readonly Dictionary<Type, LuaTypeInfo> m_LuaTypes = new();
 
 		public LuaTable Metatable { get; set; }
+
+		/*
+		public LuaValue Bind<T>(T instance) where T : class
+		{
+			if (instance == null)
+				return LuaValue.Nil;
+
+			var bindType = instance.GetType();
+			var luaTypeInfo = TryGetLuaTypeInfo(bindType);
+			return luaTypeInfo != null && luaTypeInfo.InstanceToLua != null
+				? luaTypeInfo.InstanceToLua(instance)
+				: LuaValue.FromObject(instance);
+		}
+		*/
 
 		public LuaValue Bind(Object instance)
 		{

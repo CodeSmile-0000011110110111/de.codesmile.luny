@@ -43,17 +43,22 @@ namespace LunyEditor
 
 		private LunyLuaModule Module => target as LunyLuaModule;
 
+		private SerializedProperty AssemblyNameProperty => m_AssemblyNameProperty != null
+			? m_AssemblyNameProperty
+			: m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
+		public SerializedProperty NamespaceWhitelistProperty => m_NamespaceWhitelistProperty != null
+			? m_NamespaceWhitelistProperty
+			: m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
+		public SerializedProperty TypeWhitelistProperty => m_TypeWhitelistProperty != null
+			? m_TypeWhitelistProperty
+			: m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
+
 		private static String GetKindOfType(Type type) => type.IsEnum ? "enum" : type.IsValueType ? "struct" : type.IsClass ? "class" : "?";
 
 		private void OnEnable()
 		{
 			m_AsmDefCollection = new AssemblyDefinitionAssets();
 			m_BindableAssemblies = GenUtil.GetBindableAssemblies();
-
-			m_AssemblyNameProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_AssemblyName));
-			m_NamespaceWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_NamespaceWhitelist));
-			m_TypeWhitelistProperty = serializedObject.FindProperty(nameof(LunyLuaModule.m_TypeWhitelist));
-			m_AssemblyName = m_AssemblyNameProperty.stringValue;
 
 			EditorApplication.update += OnEditorUpdate;
 		}
@@ -113,22 +118,19 @@ namespace LunyEditor
 
 		private Boolean IsCommentedOut(String str) => str.StartsWith("//") || str.StartsWith("--");
 
-		private void OnLogModuleTable()
-		{
-			throw new NotImplementedException();
-			// if (Module.ModuleLoader != null)
-			// {
-			// 	var module = new LuaTable();
-			// 	Module.ModuleLoader.Load(new LuaModuleLoader.Parameters { env = module });
-			// 	Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
-			// }
-		}
+		private void OnLogModuleTable() => throw new NotImplementedException();
 
+		// if (Module.ModuleLoader != null)
+		// {
+		// 	var module = new LuaTable();
+		// 	Module.ModuleLoader.Load(new LuaModuleLoader.Parameters { env = module });
+		// 	Debug.Log(module.Dump($"{Module.BindingsNamespace} loaded by {Module.ModuleLoader.GetType().FullName}"));
+		// }
 		private void OnEditorUpdate()
 		{
-			if (m_AssemblyName != m_AssemblyNameProperty.stringValue)
+			if (m_AssemblyName != AssemblyNameProperty.stringValue)
 			{
-				m_AssemblyName = m_AssemblyNameProperty.stringValue;
+				m_AssemblyName = AssemblyNameProperty.stringValue;
 				UpdateUIState();
 			}
 		}
@@ -228,10 +230,10 @@ namespace LunyEditor
 		{
 			var namespaces = m_NamespacesFiltered.ToArray();
 			var namespaceCount = namespaces.Length;
-			m_NamespaceWhitelistProperty.arraySize = namespaceCount;
+			NamespaceWhitelistProperty.arraySize = namespaceCount;
 			for (var i = 0; i < namespaceCount; i++)
 			{
-				var element = m_NamespaceWhitelistProperty.GetArrayElementAtIndex(i);
+				var element = NamespaceWhitelistProperty.GetArrayElementAtIndex(i);
 				element.stringValue = namespaces[i];
 			}
 		}
@@ -239,10 +241,10 @@ namespace LunyEditor
 		private void UpdateSerializedTypeWhitelist()
 		{
 			var typeCount = m_TypeNamesFiltered.Length;
-			m_TypeWhitelistProperty.arraySize = typeCount;
+			TypeWhitelistProperty.arraySize = typeCount;
 			for (var i = 0; i < typeCount; i++)
 			{
-				var element = m_TypeWhitelistProperty.GetArrayElementAtIndex(i);
+				var element = TypeWhitelistProperty.GetArrayElementAtIndex(i);
 				element.stringValue = m_TypeNamesFiltered[i];
 			}
 		}

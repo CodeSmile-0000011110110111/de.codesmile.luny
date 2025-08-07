@@ -36,6 +36,30 @@ namespace LunyEditor.Generator
 		public Boolean HasInstanceType => IsStatic == false;
 		public Boolean IsValueType => Type.IsValueType;
 
+		private static String CreateLuaInstanceTypeName(Type type)
+		{
+			var typeName = type.Name;
+			if (type.IsNested)
+			{
+				if (type.DeclaringType.IsNested)
+					typeName = $"{type.DeclaringType.DeclaringType.Name}{type.DeclaringType.Name}{type.Name}";
+				else
+					typeName = $"{type.DeclaringType.Name}{type.Name}";
+			}
+			else if (typeName == "Object")
+			{
+				// ensure no clashes with LuaObject
+				if (type == typeof(Object))
+					typeName = "SystemObject";
+				else if (type == typeof(UnityEngine.Object))
+					typeName = "UnityObject";
+				else
+					typeName = type.FullName.Replace(".", "");
+			}
+
+			return $"Lua{typeName}";
+		}
+
 		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
 		{
 			Type = type;
@@ -44,11 +68,7 @@ namespace LunyEditor.Generator
 
 			BindTypeFullName = $"global::{typeFullNameNoPlus}";
 			LuaInstanceTypeNamespace = $"Luny.{Type.Namespace}";
-			LuaInstanceTypeName = type.IsNested
-				? type.DeclaringType.IsNested
-					? $"Lua{type.DeclaringType.DeclaringType.Name}{type.DeclaringType.Name}{type.Name}"
-					: $"Lua{type.DeclaringType.Name}{type.Name}"
-				: $"Lua{type.Name}";
+			LuaInstanceTypeName = CreateLuaInstanceTypeName(type);
 			LuaStaticTypeName = $"{LuaInstanceTypeName}Type";
 			LuaInstanceTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaInstanceTypeName}";
 			LuaStaticTypeFullName = $"global::{LuaInstanceTypeNamespace}.{LuaStaticTypeName}";
@@ -173,8 +193,6 @@ namespace LunyEditor.Generator
 			if (paramType.IsArray)
 				Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
 
-			if (paramType.IsArray)
-				return Unsupported(method, parameter, "array param", false);
 			if (paramType.IsByRef)
 				return Unsupported(method, parameter, "byref param", false);
 			if (paramType.IsGenericParameter)
@@ -582,7 +600,7 @@ namespace LunyEditor.Generator
 		public String TypeFullName => m_TypeFullName ??= $"global::{ParamInfo.ParameterType.FullName?.Replace('+', '.')}";
 		public Int32 Position => ParamInfo.Position;
 		public Boolean IsGeneratedType { get; set; }
-		public string GeneratedTypeFullName { get; set; }
+		public String GeneratedTypeFullName { get; set; }
 		public String VariableName { get; set; }
 		public GenMethodInfo MethodInfo { get; set; }
 
