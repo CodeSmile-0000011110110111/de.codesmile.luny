@@ -19,7 +19,7 @@ namespace Luny
 			((LunyLuaStateData)context.State.UserData).LunyLua.Namespaces;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ILuaEnums GetEnums(this LuaFunctionExecutionContext context) =>
+		public static ILuaEnumCollection GetEnums(this LuaFunctionExecutionContext context) =>
 			((LunyLuaStateData)context.State.UserData).LunyLua.Enums;
 	}
 }

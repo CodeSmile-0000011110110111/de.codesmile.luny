@@ -45,7 +45,7 @@ namespace Luny
 		/// </summary>
 		LuaState State { get; }
 		ILuaNamespaces Namespaces { get; }
-		ILuaEnums Enums { get; }
+		ILuaEnumCollection Enums { get; }
 		ILuaObjectFactory ObjectFactory { get; }
 		void AddScript(LunyLuaScript script);
 		ValueTask AddAndRunScript(LunyLuaScript script);
@@ -60,16 +60,16 @@ namespace Luny
 		private readonly LunyLuaScriptCollection m_Scripts = new();
 		private readonly LuaFileWatcher m_FileWatcher;
 		private readonly LuaNamespaces m_Namespaces;
-		private readonly LuaEnums m_Enums;
+		private readonly LuaEnumCollection m_Enums;
 		private readonly LuaObjectFactory m_ObjectFactory = new();
 		private LuaState m_LuaState;
 
 		public LuaState State => m_LuaState;
 		public ILuaObjectFactory ObjectFactory => m_ObjectFactory;
 		public ILuaNamespaces Namespaces => m_Namespaces;
-		public ILuaEnums Enums => m_Enums;
+		public ILuaEnumCollection Enums => m_Enums;
 
-		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
+		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
 		private static LuaPlatform CreateLunyPlatform(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
 		{

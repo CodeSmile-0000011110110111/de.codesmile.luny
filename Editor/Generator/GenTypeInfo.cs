@@ -191,8 +191,8 @@ namespace LunyEditor.Generator
 		{
 			var paramType = parameter.ParameterType;
 
-			// if (paramType.IsArray && parameter.IsRetval == false)
-			// 	Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
+			// if (paramType.IsEnum && parameter.IsRetval)
+			// 	Debug.LogWarning($"Returns Enum: {method.DeclaringType.Name}.{method}");
 
 			if (paramType.IsArray == false)
 			{

@@ -402,7 +402,7 @@ namespace LunyEditor.Generator
 
 			sb.Append("(");
 			if (bindType.IsEnum)
-				sb.Append("(global::System.Double)");
+				sb.Append("(global::System.Int64)");
 			sb.Append(varName);
 			sb.Append(")");
 		}

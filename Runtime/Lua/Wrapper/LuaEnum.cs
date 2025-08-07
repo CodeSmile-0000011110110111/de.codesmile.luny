@@ -12,29 +12,25 @@ using UnityEngine;
 
 namespace Luny
 {
-	public interface ILuaEnums {}
+	public interface ILuaEnumCollection {}
+	public sealed class LuaEnumCollection : Dictionary<Type, LuaValue>, ILuaEnumCollection {}
 
-	public interface ILuaEnum {}
-
-	public sealed class LuaEnums : Dictionary<Type, LuaEnum>, ILuaEnums {}
-
-	// TODO: consider refactoring to wrap enum LuaTable to LuaEnum instance
-	public sealed class LuaEnum : ILuaEnum
+	public static class LuaEnum
 	{
 		private const String EnumValuesKey = "values";
 		private const String EnumValuesCountKey = "count";
 		private const String EnumNameKey = "name";
 
-		private static readonly LuaFunction _enumLenFunc = new("enum.__len", (context, token) =>
+		private static readonly LuaFunction __len = new(Metamethods.Len, (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
 			return new ValueTask<Int32>(context.Return(table.Metatable[EnumValuesCountKey]));
 		});
 
-		private static readonly LuaFunction _enumNewIndexFunc = new("enum.__newindex", (context, token) =>
+		private static readonly LuaFunction __newindex = new(Metamethods.NewIndex, (context, token) =>
 			throw new LuaRuntimeException(context.Thread, "attempt to modify an enum"));
 
-		private static readonly LuaFunction _enumIndexFunc = new("enum.__index", (context, token) =>
+		private static readonly LuaFunction __index = new(Metamethods.Index, (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
 			var key = context.GetArgument(1);
@@ -43,44 +39,36 @@ namespace Luny
 			return new ValueTask<Int32>(context.Return(enumValue));
 		});
 
-		private static readonly LuaFunction _nextFunc = new("next", BasicLibrary.Instance.Next);
-		private static readonly LuaFunction _enumPairsFunc = new("enum.__pairs", (context, token) =>
+		private static readonly LuaFunction __pairs = new(Metamethods.Pairs, (context, token) =>
 		{
 			var table = context.GetArgument<LuaTable>(0);
 			var values = table.Metatable[EnumValuesKey];
-			return new ValueTask<Int32>(context.Return(_nextFunc, values, LuaValue.Nil));
+			return new ValueTask<Int32>(context.Return(Next, values, LuaValue.Nil));
 		});
 
-		public Type Type { get; }
-		public LuaTable Table { get; }
+		private static readonly LuaFunction Next = new("next", BasicLibrary.Instance.Next);
 
-		public static LuaEnum Create(Type enumType)
+		public static LuaValue Bind(Type enumType)
 		{
 			var enumNames = Enum.GetNames(enumType);
 			var enumValues = Enum.GetValues(enumType);
 			var valueCount = enumNames.Length;
 			var values = new LuaTable(0, valueCount);
 			for (var i = 0; i < valueCount; i++)
-				values[enumNames[i]] = Convert.ToDouble(enumValues.GetValue(i));
+				values[enumNames[i]] = Convert.ToInt64(enumValues.GetValue(i));
 
 			var metatable = new LuaTable(0, 6);
 			//metatable[EnumNameKey] = enumType.Name;
 			metatable[EnumValuesKey] = values;
 			metatable[EnumValuesCountKey] = valueCount;
-			metatable[Metamethods.Index] = _enumIndexFunc;
-			metatable[Metamethods.NewIndex] = _enumNewIndexFunc;
-			metatable[Metamethods.Len] = _enumLenFunc;
-			metatable[Metamethods.Pairs] = _enumPairsFunc;
+			metatable[Metamethods.Index] = __index;
+			metatable[Metamethods.NewIndex] = __newindex;
+			metatable[Metamethods.Len] = __len;
+			metatable[Metamethods.Pairs] = __pairs;
 
 			var enumTable = new LuaTable(0, 0);
 			enumTable.Metatable = metatable;
-			return new LuaEnum(enumType, enumTable);
-		}
-
-		private LuaEnum(Type type, LuaTable enumTable)
-		{
-			Type = type;
-			Table = enumTable;
+			return enumTable;
 		}
 	}
 }

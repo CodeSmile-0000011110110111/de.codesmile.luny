@@ -10,10 +10,10 @@ namespace Luny
 {
 	public sealed class LuaModuleFactory
 	{
-		public static void LoadModules(ILunyLua lua, LunyLuaContext luaContext, out LuaNamespaces luaNamespaces, out LuaEnums luaEnums)
+		public static void LoadModules(ILunyLua lua, LunyLuaContext luaContext, out LuaNamespaces luaNamespaces, out LuaEnumCollection luaEnums)
 		{
 			luaNamespaces = new LuaNamespaces();
-			luaEnums = new LuaEnums();
+			luaEnums = new LuaEnumCollection();
 
 			foreach (var module in luaContext.Modules)
 				LoadModule(module, (LuaObjectFactory)lua.ObjectFactory, luaNamespaces, luaEnums);
@@ -24,7 +24,7 @@ namespace Luny
 				env[ns.Name] = ns;
 		}
 
-		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces, LuaEnums luaEnums)
+		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces, LuaEnumCollection luaEnums)
 		{
 			if (module.ModuleLoader == null)
 			{
@@ -58,13 +58,13 @@ namespace Luny
 			}
 		}
 
-		private static void LoadModuleEnums(LuaNamespaces namespaces, LuaEnums luaEnums, Type[] enumTypes)
+		private static void LoadModuleEnums(LuaNamespaces namespaces, LuaEnumCollection luaEnums, Type[] enumTypes)
 		{
 			foreach (var enumType in enumTypes)
 			{
-				var luaEnum = LuaEnum.Create(enumType);
+				var luaEnum = LuaEnum.Bind(enumType);
 				var enumNamespace = namespaces[enumType.Namespace];
-				enumNamespace[enumType.Name] = luaEnum.Table;
+				enumNamespace[enumType.Name] = luaEnum;
 				namespaces.AddTypeName(enumNamespace, enumType.Name);
 				luaEnums.Add(enumType, luaEnum);
 			}
