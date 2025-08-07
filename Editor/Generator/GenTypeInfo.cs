@@ -194,34 +194,39 @@ namespace LunyEditor.Generator
 			// if (paramType.IsArray && parameter.IsRetval == false)
 			// 	Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
 
+			if (paramType.IsArray == false)
+			{
+				if (paramType == typeof(Array))
+					return Unsupported(method, parameter, "Array param");
+				if (paramType == typeof(IEnumerable<>))
+					return Unsupported(method, parameter, "IEnumerable<T> param");
+				if (paramType == typeof(IEnumerable))
+					return Unsupported(method, parameter, "IEnumerable param");
+
+				if (paramType.GetInterfaces()
+				    .Any(i => i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(IList<>) ||
+				                                  i.GetGenericTypeDefinition() == typeof(ICollection<>))))
+					return Unsupported(method, parameter, $"{paramType.Name} param");
+
+				if (typeof(IList).IsAssignableFrom(paramType))
+					return Unsupported(method, parameter, "IList param");
+				if (typeof(ICollection).IsAssignableFrom(paramType))
+					return Unsupported(method, parameter, "ICollection param");
+			}
 			if (paramType.IsByRef)
 				return Unsupported(method, parameter, "byref param", false);
 			if (paramType.IsGenericParameter)
 				return Unsupported(method, parameter, "generic param", false);
 			if (paramType.IsGenericType)
 				return Unsupported(method, parameter, "generic type", false);
+			if (method.IsGenericMethod)
+				return Unsupported(method, parameter, "generic method", false);
 			if (paramType.IsInterface)
 				return Unsupported(method, parameter, "interface param", false);
 			if (paramType == typeof(IntPtr) || paramType == typeof(UIntPtr))
 				return Unsupported(method, parameter, "IntPtr param", false);
 			if (paramType.IsPointer)
 				return Unsupported(method, parameter, "pointer param", false);
-			if (method.IsGenericMethod)
-				return Unsupported(method, parameter, "generic method", false);
-			if (paramType.IsArray == false)
-			{
-				if (paramType == typeof(Array))
-					return Unsupported(method, parameter, "Array param", true);
-				if (paramType == typeof(IEnumerable<>))
-					return Unsupported(method, parameter, "IEnumerable<T> param");
-				if (paramType == typeof(IEnumerable))
-					return Unsupported(method, parameter, "IEnumerable param");
-
-				if (typeof(ICollection<>).IsAssignableFrom(paramType))
-					return Unsupported(method, parameter, "ICollection<T> param");
-				if (typeof(ICollection).IsAssignableFrom(paramType))
-					return Unsupported(method, parameter, "ICollection param");
-			}
 
 			if (GenUtil.IsObsolete(paramType))
 				return Unsupported(method, parameter, "[Obsolete] param");
