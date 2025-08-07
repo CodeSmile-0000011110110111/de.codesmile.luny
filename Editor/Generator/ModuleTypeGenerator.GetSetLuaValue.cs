@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
+using Luny;
 using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,6 @@ namespace LunyEditor.Generator
 {
 	internal static partial class ModuleTypeGenerator
 	{
-		private static void CreateMethodGetterCase(IList<String> getters, String fieldName, String luaFuncName) =>
-			getters.Add($"case \"{luaFuncName}\": _value = {fieldName}; return true;");
-
 		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndentLine(
@@ -24,13 +22,14 @@ namespace LunyEditor.Generator
 			sb.Append(typeName);
 			sb.AppendLine(">(0);");
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
+			sb.AppendIndentLine("var _factory = _context.GetObjectFactory();");
 			sb.AppendIndentLine("global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;");
 
-			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.GetLuaValue(_context, _index, out _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.GetLuaValue(_context, _name, out _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.TryGetLuaValue(_name, out _value, _factory))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
@@ -51,11 +50,11 @@ namespace LunyEditor.Generator
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
 			sb.AppendIndentLine("var _value = _context.GetArgument(2);");
 
-			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.SetLuaValue(_context, _index, _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.SetLuaValue(_context, _name, _value))");
+			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.TrySetLuaValue(_name, _value))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
@@ -69,11 +68,11 @@ namespace LunyEditor.Generator
 			Boolean isLuaStaticType, IList<String> getters, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.Append("global::System.Boolean GetLuaValue(global::");
-			sb.Append(typeof(LuaFunctionExecutionContext).FullName);
-			sb.Append(" _context, ");
+			sb.Append("global::System.Boolean TryGetLuaValue(");
 			sb.Append(isIndexer ? "global::System.Int32" : "global::System.String");
-			sb.AppendLine(" _key, out global::Lua.LuaValue _value)");
+			sb.Append(" _key, out global::Lua.LuaValue _value, global::");
+			sb.Append(typeof(ILuaObjectFactory).FullName);
+			sb.AppendLine(" _factory)");
 			sb.OpenIndentBlock("{");
 			if (isIndexer)
 				AddGetValueForIndexer(sb, typeInfo, baseType, members, isLuaStaticType);
@@ -86,7 +85,7 @@ namespace LunyEditor.Generator
 				AddGetValueCasesForPropertiesAndFields(sb, typeInfo, members, isLuaStaticType);
 
 				if (isLuaStaticType == false && baseType != null)
-					sb.AppendIndentLine("default: return base.GetLuaValue(_context, _key, out _value);");
+					sb.AppendIndentLine("default: return base.TryGetLuaValue(_key, out _value, _factory);");
 				else
 					sb.AppendIndentLine("default: _value = global::Lua.LuaValue.Nil; return false;");
 				sb.CloseIndentBlock("}");
@@ -134,7 +133,7 @@ namespace LunyEditor.Generator
 			if (hasIndexer == false)
 			{
 				if (isLuaStaticType == false && baseType != null)
-					sb.AppendIndentLine("return base.GetLuaValue(_context, _key, out _value);");
+					sb.AppendIndentLine("return base.TryGetLuaValue(_key, out _value, _factory);");
 				else
 					sb.AppendIndentLine("_value = global::Lua.LuaValue.Nil; return false;");
 			}
@@ -162,9 +161,7 @@ namespace LunyEditor.Generator
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
-			sb.Append("global::System.Boolean SetLuaValue(global::");
-			sb.Append(typeof(LuaFunctionExecutionContext).FullName);
-			sb.Append(" _context, ");
+			sb.Append("global::System.Boolean TrySetLuaValue(");
 			sb.Append(isIndexer ? "global::System.Int32" : "global::System.String");
 			sb.AppendLine(" _key, global::Lua.LuaValue _value)");
 			sb.OpenIndentBlock("{");
@@ -177,7 +174,7 @@ namespace LunyEditor.Generator
 				AddSetValueCasesForPropertiesAndFields(sb, typeInfo, members, isLuaStaticType);
 
 				if (isLuaStaticType == false && baseType != null && typeInfo.IsValueType == false)
-					sb.AppendIndentLine("default: return base.SetLuaValue(_context, _key, _value);");
+					sb.AppendIndentLine("default: return base.TrySetLuaValue(_key, _value);");
 				else
 					sb.AppendIndentLine("default: return false;");
 				sb.CloseIndentBlock("}");
@@ -188,7 +185,7 @@ namespace LunyEditor.Generator
 		private static void AddGetSetValueMethodClassifiers(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType,
 			Boolean isLuaStaticType)
 		{
-			sb.AppendIndent(typeInfo.IsStatic || typeInfo.IsValueType ? "private " : "public ");
+			sb.AppendIndent("public ");
 			if (isLuaStaticType == false && typeInfo.IsValueType == false)
 				sb.Append(baseType != null ? "override " : typeInfo.IsSealed == false ? "virtual " : "");
 		}
@@ -236,7 +233,7 @@ namespace LunyEditor.Generator
 			if (hasIndexer == false)
 			{
 				if (isLuaStaticType == false && baseType != null)
-					sb.AppendIndentLine("return base.SetLuaValue(_context, _key, _value);");
+					sb.AppendIndentLine("return base.TrySetLuaValue(_key, _value);");
 				else
 					sb.AppendIndentLine("return false;");
 			}
@@ -293,5 +290,8 @@ namespace LunyEditor.Generator
 
 		private static String GetFieldOrPropertyName(GenTypeInfo typeInfo) =>
 			typeInfo.IsValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
+
+		private static void CreateMethodGetterCase(IList<String> getters, String fieldName, String luaFuncName) =>
+			getters.Add($"case \"{luaFuncName}\": _value = {fieldName}; return true;");
 	}
 }

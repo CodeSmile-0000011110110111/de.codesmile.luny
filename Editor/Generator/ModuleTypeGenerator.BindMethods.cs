@@ -321,8 +321,15 @@ namespace LunyEditor.Generator
 			sb.AppendLine(");");
 
 			// convert method return values to LuaValue
+			var gotFactory = false;
 			for (var i = 0; i < returnCount; i++)
 			{
+				if (gotFactory == false && ConversionToLuaValueRequiresObjectFactory(returnType))
+				{
+					gotFactory = true;
+					sb.AppendIndentLine("var _factory = _context.GetObjectFactory();");
+				}
+
 				sb.AppendIndent("var ");
 				sb.Append(LuaRetVals[i]);
 				sb.Append(" = ");
