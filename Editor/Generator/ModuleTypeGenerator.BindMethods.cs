@@ -223,8 +223,9 @@ namespace LunyEditor.Generator
 			else
 			{
 				sb.Append(Args[argNum]);
-				sb.Append(".TryRead<");
-				sb.Append(paramTypeName);
+				var isArray = parameter.Type.IsArray || parameter.Type == typeof(Array);
+				sb.Append(isArray ? ".TryReadArray<global::" : ".TryRead<");
+				sb.Append(isArray ? parameter.Type.GetElementType().FullName : paramTypeName);
 				sb.Append(">(out var ");
 				sb.Append(useSignatureName ? parameter.Name : parameter.VariableName);
 				sb.Append(")");
@@ -333,7 +334,7 @@ namespace LunyEditor.Generator
 				sb.AppendIndent("var ");
 				sb.Append(LuaRetVals[i]);
 				sb.Append(" = ");
-				AddConversionToLuaValue(sb, typeInfo, returnType, RetVals[i]);
+				AddConversionToLuaValue(sb, returnType, RetVals[i]);
 				sb.AppendLine(";");
 			}
 

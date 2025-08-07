@@ -1,6 +1,6 @@
 local context = ...
 
-function context.LuaList_FromLuaTable_ConvertedToArray()
+function context.LuaTable_AsArrayParameter_ConvertedToArray()
     local layerNames = { "Default", "Water", "UI" }
     return LayerMask.GetMask(layerNames)
 end

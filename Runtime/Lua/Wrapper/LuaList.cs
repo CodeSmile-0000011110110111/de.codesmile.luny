@@ -19,13 +19,12 @@ namespace Luny
 	public sealed partial class LuaList<T> : ILuaList
 	{
 		private readonly IList<T> m_ManagedObjects;
-		private readonly IList<LuaValue> m_LuaValues;
+		private LuaValue[] m_LuaValues;
 
 		public static implicit operator LuaValue(LuaList<T> list) => new(list);
 
 		public Int32 Count => m_ManagedObjects?.Count ?? 0;
 		public IList<T> ManagedObjects => m_ManagedObjects;
-		public IList<LuaValue> LuaValues => m_LuaValues;
 		public T this[Int32 i] => ManagedObjects[i];
 
 		public LuaList(in IList<Object> managedObjects)
@@ -48,9 +47,9 @@ namespace Luny
 				var instance = m_ManagedObjects[managedIndex];
 				if (instance != null)
 				{
-					luaValue = LuaValues[managedIndex];
+					luaValue = m_LuaValues[managedIndex];
 					if (luaValue.Type == LuaValueType.Nil)
-						luaValue = LuaValues[managedIndex] = factory.Bind(instance);
+						luaValue = m_LuaValues[managedIndex] = factory.Bind(instance);
 				}
 			}
 

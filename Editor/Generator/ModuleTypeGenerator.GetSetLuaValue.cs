@@ -153,7 +153,7 @@ namespace LunyEditor.Generator
 			var isValueType = typeInfo.IsValueType;
 			var accessor = isLuaStaticType ? typeInfo.BindTypeFullName :
 				isValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
-			AddConversionToLuaValue(sb, typeInfo, memberType, isIndexer ? $"{accessor}[_key]" : $"{accessor}.{memberName}");
+			AddConversionToLuaValue(sb, memberType, isIndexer ? $"{accessor}[_key]" : $"{accessor}.{memberName}");
 			sb.AppendLine("; return true;");
 		}
 

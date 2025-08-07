@@ -384,7 +384,7 @@ namespace LunyEditor.Generator
 			return !(bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String) ||
 			         bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var _));
 		}
-		private static void AddConversionToLuaValue(ScriptBuilder sb, GenTypeInfo typeInfo, Type bindType, String varName)
+		private static void AddConversionToLuaValue(ScriptBuilder sb, Type bindType, String varName)
 		{
 			if (bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String))
 				sb.Append("new global::Lua.LuaValue");

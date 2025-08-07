@@ -6,30 +6,57 @@ using Luny;
 using Luny.UnityEngine;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public sealed class LuaListTests : LuaModuleTestsBase
 {
-	[Test] public void LuaValue_TryReadArray_CreatesArrayFromTable()
+	[Test] public void LuaTable_TryReadArray_ReturnsConvertedArray()
 	{
-		var table = new LuaTable();
+		var table = new LuaTable(0, 0);
 		for (var i = 1; i <= 3; i++)
 			table[i] = $"Number {i}";
 
-		//new LuaValue(table).TryReadList<String[]>(out var array);
+		Assert.That(new LuaValue(table).TryReadArray<String>(out var array));
+		Assert.That(array.Length, Is.EqualTo(3));
 
-		for (var i = 1; i <= 3; i++)
-			Assert.That(table[i], Is.EqualTo($"Number {i}"));
+		for (var i = 0; i < 3; i++)
+		{
+			var expected = $"Number {i + 1}";
+			Assert.That(table[i + 1], Is.EqualTo(new LuaValue(expected)));
+			Assert.That(array[i], Is.EqualTo(expected));
+		}
 	}
 
-	[Test] public void LuaList_FromLuaTable_ConvertedToArray()
+	[Test] public void LuaList_TryReadArray_ReturnsConvertedArray()
 	{
-		var retvals = DoFunction(nameof(LuaList_FromLuaTable_ConvertedToArray));
+		var input = new String[3];
+		for (var i = 0; i < 3; i++)
+			input[i] = $"Number {i + 1}";
 
-		Assert.That(retvals[1].TryRead<LuaComponent>(out var _), Is.True);
-		Assert.That(retvals[2].TryRead<LuaComponent>(out var _), Is.True);
-		Assert.That(retvals[3].TryRead<LuaComponent>(out var _), Is.True);
+		var list = new LuaList<String>((IList<String>)input);
+
+		Assert.That(new LuaValue(list).TryReadArray<String>(out var array));
+		Assert.That(array, Is.Not.Null);
+		Assert.That(array.Length, Is.EqualTo(3));
+
+		for (var i = 0; i < 3; i++)
+		{
+			var expected = $"Number {i + 1}";
+			Assert.That(list[i], Is.EqualTo(expected));
+			Assert.That(array[i], Is.EqualTo(expected));
+		}
+
+		Assert.That(list.ManagedObjects, Is.EqualTo(array));
+	}
+
+	[Test] public void LuaTable_AsArrayParameter_ConvertedToArray()
+	{
+		var retvals = DoFunction(nameof(LuaTable_AsArrayParameter_ConvertedToArray));
+
+		Assert.That(retvals[0].TryRead<Int32>(out var _), Is.True);
+		Assert.That(retvals[0].Read<Int32>(), Is.EqualTo(LayerMask.GetMask("Default", "Water", "UI")));
 	}
 
 	[Test] public void LuaList_GetComponents_IsLuaListWithComponents()

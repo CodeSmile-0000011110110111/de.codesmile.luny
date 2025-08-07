@@ -3,6 +3,7 @@
 
 using CodeSmileEditor.Luny.Generator;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -186,12 +187,12 @@ namespace LunyEditor.Generator
 		public static Boolean operator ==(GenMethodOverloads left, GenMethodOverloads right) => left.Equals(right);
 		public static Boolean operator !=(GenMethodOverloads left, GenMethodOverloads right) => !left.Equals(right);
 
-		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter, Boolean isReturnParam = false)
+		private static Boolean IsUnsupported(MethodBase method, ParameterInfo parameter)
 		{
 			var paramType = parameter.ParameterType;
 
-			if (paramType.IsArray)
-				Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
+			// if (paramType.IsArray && parameter.IsRetval == false)
+			// 	Debug.Log($"array param: {method.DeclaringType.Name}.{method}");
 
 			if (paramType.IsByRef)
 				return Unsupported(method, parameter, "byref param", false);
@@ -207,8 +208,23 @@ namespace LunyEditor.Generator
 				return Unsupported(method, parameter, "pointer param", false);
 			if (method.IsGenericMethod)
 				return Unsupported(method, parameter, "generic method", false);
+			if (paramType.IsArray == false)
+			{
+				if (paramType == typeof(Array))
+					return Unsupported(method, parameter, "Array param", true);
+				if (paramType == typeof(IEnumerable<>))
+					return Unsupported(method, parameter, "IEnumerable<T> param");
+				if (paramType == typeof(IEnumerable))
+					return Unsupported(method, parameter, "IEnumerable param");
+
+				if (typeof(ICollection<>).IsAssignableFrom(paramType))
+					return Unsupported(method, parameter, "ICollection<T> param");
+				if (typeof(ICollection).IsAssignableFrom(paramType))
+					return Unsupported(method, parameter, "ICollection param");
+			}
+
 			if (GenUtil.IsObsolete(paramType))
-				return Unsupported(method, parameter, "obsolete param");
+				return Unsupported(method, parameter, "[Obsolete] param");
 
 			return false;
 		}
@@ -230,7 +246,7 @@ namespace LunyEditor.Generator
 
 		public void AddOverload(MethodBase method)
 		{
-			if (method is MethodInfo methodInfo && IsUnsupported(method, methodInfo.ReturnParameter, true))
+			if (method is MethodInfo methodInfo && IsUnsupported(method, methodInfo.ReturnParameter))
 				return;
 
 			foreach (var parameter in method.GetParameters())
@@ -392,15 +408,22 @@ namespace LunyEditor.Generator
 					if (m1ParamType == m2ParamType)
 						continue;
 
+					if (m1ParamType.IsArray && m2ParamType.IsArray)
+					{
+						m1ParamType = m1ParamType.GetElementType();
+						m2ParamType = m2ParamType.GetElementType();
+					}
+					else if (m1ParamType.IsArray) return 1; // arrays have lower priority
+					else if (m2ParamType.IsArray) return -1;
+
 					// primitives take precedence over everything
 					if (m1ParamType.IsPrimitive && m2ParamType.IsPrimitive)
 					{
 						// order of primitives, prefer most "wide" types
-						if (m1ParamType == typeof(Single))
-							return -1; // prefer float since Lua number is double & Unity fractionals are 99% float
-						if (m2ParamType == typeof(Single)) return 1;
 						if (m1ParamType == typeof(Double)) return -1;
 						if (m2ParamType == typeof(Double)) return 1;
+						if (m1ParamType == typeof(Single)) return -1;
+						if (m2ParamType == typeof(Single)) return 1;
 						if (m1ParamType == typeof(Int64)) return -1;
 						if (m2ParamType == typeof(Int64)) return 1;
 						if (m1ParamType == typeof(UInt64)) return -1;
@@ -448,6 +471,10 @@ namespace LunyEditor.Generator
 						if (m1ParamType == typeof(Vector4)) return -1;
 						if (m2ParamType == typeof(Vector4)) return 1;
 
+						if (m1ParamType == typeof(Color)) return -1;
+						if (m2ParamType == typeof(Color)) return 1;
+						if (m1ParamType == typeof(Color32)) return -1;
+						if (m2ParamType == typeof(Color32)) return 1;
 						if (m1ParamType == typeof(GraphicsFormat)) return -1;
 						if (m2ParamType == typeof(GraphicsFormat)) return 1;
 						if (m1ParamType == typeof(TextureFormat)) return -1;
