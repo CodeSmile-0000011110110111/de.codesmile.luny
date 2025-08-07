@@ -83,7 +83,7 @@ namespace Luny
 		public LuaTable Metatable
 		{
 			get => s_Metatable ??= LuaMetatable.Create(__index);
-			set => throw new NotSupportedException("can't set Metatable of LuaArray");
+			set => throw new NotSupportedException($"can't set Metatable of {nameof(LuaList<T>)}");
 		}
 	}
 }

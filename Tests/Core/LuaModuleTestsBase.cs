@@ -18,55 +18,9 @@ public abstract class LuaModuleTestsBase
 	protected const String TestsRootPath = "Packages/de.codesmile.luny/Tests";
 	private LunyLuaScript m_TestScript;
 
+	protected LuaState LuaState => LunyRuntime.Singleton.Lua.State;
 	private String BaseScriptPath => $"{TestsRootPath}/Core/{nameof(LuaModuleTestsBase)}.lua";
 	private String ScriptPath => $"{TestsRootPath}/{GetType().Assembly.GetName().Name}/{GetType().Name}.lua";
-
-	[OneTimeSetUp] public async Task OneTimeSetUp()
-	{
-		var luaState = LunyRuntime.Singleton.Lua.State;
-
-		var baseScript = LunyLuaScript.Load(BaseScriptPath);
-		Assert.That(baseScript, Is.Not.Null, $"missing tests base script: {baseScript}");
-		await baseScript.DoScriptAsync(luaState);
-
-		var scriptPath = ScriptPath;
-		m_TestScript = LunyLuaScript.Load(scriptPath);
-		Assert.That(m_TestScript, Is.Not.Null, $"missing test script: {scriptPath}");
-		await m_TestScript.DoScriptAsync(luaState);
-	}
-
-	protected LuaValue[] DoFunction(String funcName, params LuaValue[] args)
-	{
-		var testFunction = m_TestScript.ScriptContext.GetFunction(funcName);
-		Assert.That(testFunction, Is.Not.Null, $"missing test function {funcName}() in script: {ScriptPath}");
-
-		return TryInvokeTestFunc(LunyRuntime.Singleton.Lua.State, testFunction, args);
-	}
-
-	public LuaValue[] TryInvokeTestFunc(LuaState luaState, LuaFunction func, params LuaValue[] args)
-	{
-		var access = luaState.RootAccess;
-
-		// push any function arguments onto stack
-		var argCount = args.Length;
-		if (argCount > 0)
-		{
-			var stack = access.Thread.Stack;
-			foreach (var arg in args)
-				stack.Push(arg);
-		}
-
-		// force synchronous execution
-		var resultCount = access.RunAsync(func, argCount).Preserve().GetAwaiter().GetResult();
-		using var results = access.ReadTopValues(resultCount);
-		return results.AsSpan().ToArray();
-	}
-
-	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName)
-	{
-		var state = LunyRuntime.Singleton.Lua.State;
-		return await state.DoStringAsync(script, chunkName, null);
-	}
 
 	private static void DebugChunk(Prototype chunk, Int32 id)
 	{
@@ -114,4 +68,46 @@ public abstract class LuaModuleTestsBase
 			nestedChunkId++;
 		}
 	}
+
+	[OneTimeSetUp] public async Task OneTimeSetUp()
+	{
+		var baseScript = LunyLuaScript.Load(BaseScriptPath);
+		Assert.That(baseScript, Is.Not.Null, $"missing tests base script: {baseScript}");
+		await baseScript.DoScriptAsync(LuaState);
+
+		var scriptPath = ScriptPath;
+		m_TestScript = LunyLuaScript.Load(scriptPath);
+		Assert.That(m_TestScript, Is.Not.Null, $"missing test script: {scriptPath}");
+		await m_TestScript.DoScriptAsync(LuaState);
+	}
+
+	protected LuaValue[] DoFunction(String funcName, params LuaValue[] args)
+	{
+		var testFunction = m_TestScript.ScriptContext.GetFunction(funcName);
+		Assert.That(testFunction, Is.Not.Null, $"missing test function {funcName}() in script: {ScriptPath}");
+
+		return TryInvokeTestFunc(LuaState, testFunction, args);
+	}
+
+	public LuaValue[] TryInvokeTestFunc(LuaState luaState, LuaFunction func, params LuaValue[] args)
+	{
+		var access = luaState.RootAccess;
+
+		// push any function arguments onto stack
+		var argCount = args.Length;
+		if (argCount > 0)
+		{
+			var stack = access.Thread.Stack;
+			foreach (var arg in args)
+				stack.Push(arg);
+		}
+
+		// force synchronous execution
+		var resultCount = access.RunAsync(func, argCount).Preserve().GetAwaiter().GetResult();
+		using var results = access.ReadTopValues(resultCount);
+		return results.AsSpan().ToArray();
+	}
+
+	protected async ValueTask<LuaValue[]> DoStringAsync(String script, String chunkName) =>
+		await LuaState.DoStringAsync(script, chunkName, null);
 }

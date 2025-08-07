@@ -3,6 +3,7 @@
 
 using Luny.UnityEngine;
 using NUnit.Framework;
+using System;
 using UnityEditor;
 using UnityEngine;
 using Task = System.Threading.Tasks.Task;
@@ -15,6 +16,22 @@ public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 		var retvals = await DoStringAsync(script, nameof(LuaGameObject_new_InstanceNotNull));
 
 		Assert.That(retvals[0].Read<LuaGameObject>().Instance, Is.Not.Null);
+	}
+
+	[Test] public async Task LuaGameObject_Equality_AreEqual()
+	{
+		var retvals = DoFunction(nameof(LuaGameObject_Equality_AreEqual));
+
+		Assert.That(retvals[0].Read<Boolean>(), Is.True);
+		Assert.That(retvals[1].Read<Boolean>(), Is.False);
+	}
+
+	[Test] public async Task LuaGameObject_Equality_AreNotEqual()
+	{
+		var retvals = DoFunction(nameof(LuaGameObject_Equality_AreNotEqual));
+
+		Assert.That(retvals[0].Read<Boolean>(), Is.False);
+		Assert.That(retvals[1].Read<Boolean>(), Is.True);
 	}
 
 	[Test] public async Task Lua_newGameObjectWithName_NameMatches()

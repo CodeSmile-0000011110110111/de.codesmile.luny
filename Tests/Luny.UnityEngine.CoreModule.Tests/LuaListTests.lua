@@ -5,7 +5,7 @@ function context.LuaTable_AsArrayParameter_ConvertedToArray()
     return LayerMask.GetMask(layerNames)
 end
 
-function context.LuaList_GetComponents_IsLuaListWithComponents()
+function context.LuaList_AsReturnValue_IsLuaList()
     local go = CreateGameObjectWithComponents(Skybox, 3)
     return go, go:GetComponents(Skybox)
 end

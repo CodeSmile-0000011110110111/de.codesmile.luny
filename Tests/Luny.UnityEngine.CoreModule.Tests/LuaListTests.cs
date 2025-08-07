@@ -59,9 +59,9 @@ public sealed class LuaListTests : LuaModuleTestsBase
 		Assert.That(retvals[0].Read<Int32>(), Is.EqualTo(LayerMask.GetMask("Default", "Water", "UI")));
 	}
 
-	[Test] public void LuaList_GetComponents_IsLuaListWithComponents()
+	[Test] public void LuaList_AsReturnValue_IsLuaList()
 	{
-		var retvals = DoFunction(nameof(LuaList_GetComponents_IsLuaListWithComponents));
+		var retvals = DoFunction(nameof(LuaList_AsReturnValue_IsLuaList));
 
 		Assert.That(retvals[1].TryRead<LuaList<Component>>(out var _), Is.True);
 		Assert.That(retvals[1].Read<LuaList<Component>>().ManagedObjects.Count, Is.EqualTo(3));
