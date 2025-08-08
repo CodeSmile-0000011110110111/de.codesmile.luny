@@ -1,6 +1,6 @@
 {
-    "name": "CodeSmile.Statemachine",
-    "rootNamespace": "CodeSmile.Statemachine",
+    "name": "Luny.Statemachine",
+    "rootNamespace": "Luny.Statemachine",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

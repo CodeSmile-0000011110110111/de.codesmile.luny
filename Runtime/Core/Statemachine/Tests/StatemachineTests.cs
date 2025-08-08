@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Task = System.Threading.Tasks.Task;
 
-namespace CodeSmile.Statemachine.Tests
+namespace Luny.Statemachine.Tests
 {
 	public class StatemachineTests
 	{

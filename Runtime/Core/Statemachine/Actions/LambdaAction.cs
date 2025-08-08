@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Actions
+namespace Luny.Statemachine.Actions
 {
 	/// <summary>
 	///     Generic Action that executes a lambda (System.Action).

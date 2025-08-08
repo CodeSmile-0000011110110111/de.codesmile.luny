@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmile.Statemachine
+namespace Luny.Statemachine
 {
 	/// <summary>
 	///     FSM variables container.

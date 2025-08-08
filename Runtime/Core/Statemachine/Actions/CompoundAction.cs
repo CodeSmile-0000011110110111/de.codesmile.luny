@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Actions
+namespace Luny.Statemachine.Actions
 {
 	/// <summary>
 	///     Used to combine multiple FSM actions into a single, named action.

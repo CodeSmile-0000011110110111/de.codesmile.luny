@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Variable.Conditions
+namespace Luny.Statemachine.Variable.Conditions
 {
 	/// <summary>
 	///     Tests if a variable is less than a value or another variable.

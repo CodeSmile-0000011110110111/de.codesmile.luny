@@ -1,14 +1,14 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Statemachine.Conditions;
+using Luny.Statemachine.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine
+namespace Luny.Statemachine
 {
 	public sealed partial class FSM
 	{

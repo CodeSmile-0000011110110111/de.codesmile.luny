@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Conditions
+namespace Luny.Statemachine.Conditions
 {
 	/// <summary>
 	///     Logically combines the contained conditions with OR.

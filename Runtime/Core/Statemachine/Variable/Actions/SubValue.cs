@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Variable.Actions
+namespace Luny.Statemachine.Variable.Actions
 {
 	/// <summary>
 	///     Subtracts variable by a value.

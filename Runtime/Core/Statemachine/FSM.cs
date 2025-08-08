@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine
+namespace Luny.Statemachine
 {
 	/// <summary>
 	///     Represents a finite-statemachine with a set of local and global variables indexed by name.

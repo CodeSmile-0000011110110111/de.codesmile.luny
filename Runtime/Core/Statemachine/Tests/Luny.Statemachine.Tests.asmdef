@@ -1,10 +1,10 @@
 {
-    "name": "CodeSmile.Statemachine.Tests",
-    "rootNamespace": "CodeSmile",
+    "name": "Luny.Statemachine.Tests",
+    "rootNamespace": "Luny.Statemachine.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "CodeSmile.Statemachine"
+        "Luny.Statemachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Conditions
+namespace Luny.Statemachine.Conditions
 {
 	/// <summary>
 	///     Logically negates the contained condition (NOT).

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine
+namespace Luny.Statemachine
 {
 	public sealed partial class FSM
 	{

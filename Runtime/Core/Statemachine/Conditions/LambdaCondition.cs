@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Statemachine.Conditions
+namespace Luny.Statemachine.Conditions
 {
 	/// <summary>
 	///     Generic Condition that simply executes a lambda (System.Func&lt;bool&gt;).
