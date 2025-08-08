@@ -81,7 +81,7 @@ namespace LunyEditor
 		private async ValueTask DoAutoRunScripts()
 		{
 			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
-			var scripts = LunyLuaScript.Load(autorunScripts);
+			var scripts = LunyLuaScript.LoadFromFileSystem(autorunScripts);
 
 			if (Lua != null)
 				await Lua.AddAndRunScripts(scripts);

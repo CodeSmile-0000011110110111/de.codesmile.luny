@@ -72,12 +72,12 @@ namespace LunyTests
 
 		[OneTimeSetUp] public async Task OneTimeSetUp()
 		{
-			var baseScript = LunyLuaScript.Load(BaseScriptPath);
+			var baseScript = LunyLuaScript.LoadFromRuntimeAssetRegistry(BaseScriptPath);
 			Assert.That(baseScript, Is.Not.Null, $"missing tests base script: {baseScript}");
 			await baseScript.DoScriptAsync(LuaState);
 
 			var scriptPath = ScriptPath;
-			m_TestScript = LunyLuaScript.Load(scriptPath);
+			m_TestScript = LunyLuaScript.LoadFromRuntimeAssetRegistry(scriptPath);
 			Assert.That(m_TestScript, Is.Not.Null, $"missing test script: {scriptPath}");
 			await m_TestScript.DoScriptAsync(LuaState);
 		}

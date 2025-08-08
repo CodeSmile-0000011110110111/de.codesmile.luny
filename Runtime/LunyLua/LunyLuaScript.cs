@@ -33,9 +33,29 @@ namespace Luny
 
 		public String EditorType => m_ScriptContext[EditorTypeKey].TryRead(out String editorType) ? editorType : null;
 
-		public static LunyLuaScript Load(LunyLuaAsset luaAsset) => new LunyLuaAssetScript(luaAsset);
+		public static LunyLuaScript LoadFromRuntimeAssetRegistry(String assetPath)
+		{
+			var luaAsset = LunyRuntimeAssetRegistry.Singleton.GetRuntimeLuaAsset(assetPath);
+			return luaAsset != null ? new LunyLuaAssetScript(luaAsset) : null;
+		}
 
-		public static IEnumerable<LunyLuaScript> Load(IEnumerable<LunyLuaAsset> luaAssets)
+		public static IList<LunyLuaScript> LoadFromRuntimeAssetRegistry(IEnumerable<String> assetPaths)
+		{
+			var scripts = new List<LunyLuaScript>();
+			if (assetPaths != null)
+			{
+				foreach (var assetPath in assetPaths)
+				{
+					if (String.IsNullOrEmpty(assetPath) == false)
+						scripts.Add(LoadFromRuntimeAssetRegistry(assetPath));
+				}
+			}
+			return scripts;
+		}
+
+		public static LunyLuaScript LoadFromFileSystem(LunyLuaAsset luaAsset) => new LunyLuaAssetScript(luaAsset);
+
+		public static IList<LunyLuaScript> LoadFromFileSystem(IEnumerable<LunyLuaAsset> luaAssets)
 		{
 			var scripts = new List<LunyLuaScript>();
 			if (luaAssets != null)
@@ -43,15 +63,15 @@ namespace Luny
 				foreach (var luaAsset in luaAssets)
 				{
 					if (luaAsset != null)
-						scripts.Add(Load(luaAsset));
+						scripts.Add(LoadFromFileSystem(luaAsset));
 				}
 			}
 			return scripts;
 		}
 
-		public static LunyLuaScript Load(String filePath) => String.IsNullOrEmpty(filePath) == false ? new LunyLuaFileScript(filePath) : null;
+		public static LunyLuaScript LoadFromFileSystem(String filePath) => String.IsNullOrEmpty(filePath) == false ? new LunyLuaFileScript(filePath) : null;
 
-		public static IEnumerable<LunyLuaScript> Load(IEnumerable<String> filePaths)
+		public static IList<LunyLuaScript> LoadFromFileSystem(IEnumerable<String> filePaths)
 		{
 			var scripts = new List<LunyLuaScript>();
 			if (filePaths != null)
@@ -59,7 +79,7 @@ namespace Luny
 				foreach (var filePath in filePaths)
 				{
 					if (String.IsNullOrEmpty(filePath) == false)
-						scripts.Add(Load(filePath));
+						scripts.Add(LoadFromFileSystem(filePath));
 				}
 			}
 			return scripts;
@@ -69,7 +89,7 @@ namespace Luny
 			? new LunyLuaStreamingAssetsScript(streamingAssetsPath)
 			: null;
 
-		public static IEnumerable<LunyLuaScript> LoadFromStreamingAssets(IEnumerable<String> streamingAssetsPaths)
+		public static IList<LunyLuaScript> LoadFromStreamingAssets(IEnumerable<String> streamingAssetsPaths)
 		{
 			var scripts = new List<LunyLuaScript>();
 			if (streamingAssetsPaths != null)
@@ -86,7 +106,7 @@ namespace Luny
 		public static LunyLuaScript LoadFromResources(String resourcesPath) =>
 			String.IsNullOrEmpty(resourcesPath) == false ? new LunyLuaStreamingAssetsScript(resourcesPath) : null;
 
-		public static IEnumerable<LunyLuaScript> LoadFromResources(IEnumerable<String> resourcesPaths)
+		public static IList<LunyLuaScript> LoadFromResources(IEnumerable<String> resourcesPaths)
 		{
 			var scripts = new List<LunyLuaScript>();
 			if (resourcesPaths != null)
