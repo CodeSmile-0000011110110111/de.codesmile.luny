@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Active
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Always destroys this object. Use for information-only objects, eg dividers or notes.

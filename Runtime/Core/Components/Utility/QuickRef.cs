@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Intended for complex child hierarchy as a way to quickly get the "root" object or component from a child object.

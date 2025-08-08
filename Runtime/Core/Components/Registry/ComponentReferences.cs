@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Registry
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Will add the listed components to the ComponentsRegistry. CAUTION: Component types must be unique!

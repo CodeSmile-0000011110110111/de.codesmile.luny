@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Disable
+namespace Luny.Core.Components
 {
 	[RequireComponent(typeof(ParticleSystem))]
 	public sealed class DisableParticleSystemAfterDuration : MonoBehaviour

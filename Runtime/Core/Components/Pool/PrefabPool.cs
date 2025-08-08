@@ -1,14 +1,13 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Luny.Core.Registry;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Pool
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	public sealed class PrefabPool : MonoBehaviour

@@ -5,9 +5,11 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
 using Object = System.Object;
+#if UNITY_EDITOR
+using CompilationPipeline = UnityEditor.Compilation.CompilationPipeline;
+#endif
 
 namespace Luny.Core
 {

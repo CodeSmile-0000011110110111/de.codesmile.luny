@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Editor
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Pings (expands and highlights) the selected object.

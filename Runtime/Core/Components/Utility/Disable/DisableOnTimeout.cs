@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Disable
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	internal sealed class DisableOnTimeout : MonoBehaviour

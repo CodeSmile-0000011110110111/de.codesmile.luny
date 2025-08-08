@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	public sealed class ReloadSceneComponent : MonoBehaviour

@@ -5,7 +5,7 @@ using Luny.Core.UnityEngine;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Destroy
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	public sealed class DestroyChildrenOnAwake : MonoBehaviour

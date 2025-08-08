@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(ParticleSystem))]

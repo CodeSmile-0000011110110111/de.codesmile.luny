@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace Luny.Core.Registry
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Keeps references to components by type to avoid making each individual type a singleton of its own.

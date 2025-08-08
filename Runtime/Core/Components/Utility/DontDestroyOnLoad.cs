@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Marks the GameObject this script is on as "Don't Destroy On Load".

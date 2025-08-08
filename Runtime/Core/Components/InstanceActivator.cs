@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Luny.Core
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Takes care of instantiating child objects and ensures at most one of them is active at any given time.

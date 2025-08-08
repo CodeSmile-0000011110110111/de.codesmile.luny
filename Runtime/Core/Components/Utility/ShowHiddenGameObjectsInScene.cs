@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using EditorSceneManager = UnityEditor.SceneManagement.EditorSceneManager;
+using OpenSceneMode = UnityEditor.SceneManagement.OpenSceneMode;
+#endif
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	[DisallowMultipleComponent]
 	public sealed class ShowHiddenGameObjectsInScene : MonoBehaviour

@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Slim and safe MonoBehaviour Singleton with guaranteed lifetime from first instantiation to application quit.

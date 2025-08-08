@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Hooks the given keycode to Application.Quit.

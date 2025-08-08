@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.Utility.Destroy
+namespace Luny.Core.Components
 {
 	/// <summary>
 	///     Destroys the object if running outside the editor.

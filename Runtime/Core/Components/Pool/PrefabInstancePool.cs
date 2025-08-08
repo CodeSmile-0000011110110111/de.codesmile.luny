@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
-namespace Luny.Core.Pool
+namespace Luny.Core.Components
 {
 	public sealed class PrefabInstancePool
 	{
