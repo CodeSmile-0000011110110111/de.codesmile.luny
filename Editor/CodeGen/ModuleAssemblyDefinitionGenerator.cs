@@ -55,11 +55,7 @@ namespace CodeSmileEditor.Luny.CodeGen
 
 			sb.AppendIndent("\"GUID:");
 			sb.Append(GetGuidForReference(asmdefAssets, nameof(Luny)));
-			sb.AppendLine("\",");
-
-			// sb.AppendIndent("\"GUID:");
-			// sb.Append(GetGuidForReference(asmdefAssets, nameof(Lua.Unity)));
-			// sb.Append("\"");
+			sb.Append("\"");
 
 			if (isEditorModule)
 			{
