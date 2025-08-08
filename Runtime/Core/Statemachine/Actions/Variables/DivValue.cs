@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Statemachine.Variable.Actions
+namespace Luny.Statemachine.Actions
 {
 	/// <summary>
 	///     Divides the variable by a value.

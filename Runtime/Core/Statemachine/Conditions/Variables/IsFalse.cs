@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Statemachine.Variable.Conditions
+namespace Luny.Statemachine.Conditions
 {
 	/// <summary>
 	///     Tests if a bool variable is false.

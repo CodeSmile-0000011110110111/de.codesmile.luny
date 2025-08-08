@@ -5,40 +5,40 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Statemachine.Variable.Actions
+namespace Luny.Statemachine.Actions
 {
 	/// <summary>
-	///     Subtracts variable by a value.
+	///     Assigns a value to the variable.
 	/// </summary>
-	public sealed class SubValue : IAction
+	public sealed class SetValue : IAction
 	{
 		private readonly VariableBase m_Variable;
 		private readonly VariableBase m_Operand;
 
-		private SubValue() {} // forbidden default ctor
+		private SetValue() {} // forbidden default ctor
 
-		public SubValue(IntVar variable, Int32 value)
+		public SetValue(IntVar variable, Int32 value)
 			: this(variable, new IntVar(value)) {}
 
-		public SubValue(IntVar variable, IntVar operand)
+		public SetValue(IntVar variable, IntVar operand)
 			: this((VariableBase)variable, operand) {}
 
-		public SubValue(FloatVar variable, Int32 value)
+		public SetValue(FloatVar variable, Int32 value)
 			: this(variable, new FloatVar(value)) {}
 
-		public SubValue(FloatVar variable, Single value)
+		public SetValue(FloatVar variable, Single value)
 			: this(variable, new FloatVar(value)) {}
 
-		public SubValue(FloatVar variable, FloatVar operand)
+		public SetValue(FloatVar variable, FloatVar operand)
 			: this((VariableBase)variable, operand) {}
 
-		private SubValue(VariableBase variable, VariableBase operand)
+		public SetValue(VariableBase variable, VariableBase operand)
 		{
 			m_Variable = variable;
 			m_Operand = operand;
 		}
 
-		public void Execute(FSM sm) => m_Variable.SubtractValue(m_Operand);
+		public void Execute(FSM sm) => m_Variable.SetValue(m_Operand);
 
 		public String ToDebugString(FSM sm) => $"{sm.GetDebugVarName(m_Variable)} = {m_Operand}";
 	}

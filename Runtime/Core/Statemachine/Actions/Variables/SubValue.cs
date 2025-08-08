@@ -5,40 +5,40 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Statemachine.Variable.Actions
+namespace Luny.Statemachine.Actions
 {
 	/// <summary>
-	///     Multiplies variable by a value.
+	///     Subtracts variable by a value.
 	/// </summary>
-	public sealed class MulValue : IAction
+	public sealed class SubValue : IAction
 	{
 		private readonly VariableBase m_Variable;
 		private readonly VariableBase m_Operand;
 
-		private MulValue() {} // forbidden default ctor
+		private SubValue() {} // forbidden default ctor
 
-		public MulValue(IntVar variable, Int32 value)
+		public SubValue(IntVar variable, Int32 value)
 			: this(variable, new IntVar(value)) {}
 
-		public MulValue(IntVar variable, IntVar operand)
+		public SubValue(IntVar variable, IntVar operand)
 			: this((VariableBase)variable, operand) {}
 
-		public MulValue(FloatVar variable, Int32 value)
+		public SubValue(FloatVar variable, Int32 value)
 			: this(variable, new FloatVar(value)) {}
 
-		public MulValue(FloatVar variable, Single value)
+		public SubValue(FloatVar variable, Single value)
 			: this(variable, new FloatVar(value)) {}
 
-		public MulValue(FloatVar variable, FloatVar operand)
+		public SubValue(FloatVar variable, FloatVar operand)
 			: this((VariableBase)variable, operand) {}
 
-		private MulValue(VariableBase variable, VariableBase operand)
+		private SubValue(VariableBase variable, VariableBase operand)
 		{
 			m_Variable = variable;
 			m_Operand = operand;
 		}
 
-		public void Execute(FSM sm) => m_Variable.MultiplyValue(m_Operand);
+		public void Execute(FSM sm) => m_Variable.SubtractValue(m_Operand);
 
 		public String ToDebugString(FSM sm) => $"{sm.GetDebugVarName(m_Variable)} = {m_Operand}";
 	}
