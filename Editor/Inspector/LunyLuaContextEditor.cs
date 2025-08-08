@@ -5,7 +5,7 @@ using Luny;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Inspector
 {
 	[CustomEditor(typeof(LunyLuaContext))]
 	[CanEditMultipleObjects]

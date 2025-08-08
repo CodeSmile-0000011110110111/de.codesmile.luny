@@ -2,14 +2,13 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
-using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal sealed class ModuleLoaderGenerator
 	{
@@ -22,7 +21,7 @@ namespace LunyEditor.Generator
 			var namespaceName = $"{module.BindingsAssemblyName}.Internal";
 			module.ModuleLoaderTypeFullName = $"{namespaceName}.{loaderClassName}";
 
-			var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
+			var sb = new CSharpScriptBuilder(GenUtil.GeneratedFileHeader);
 			AddNamespaceBlock(sb, namespaceName);
 			AddClassBlock(sb, loaderClassName);
 			AddGetNamespaces(sb, namespaces);
@@ -35,16 +34,16 @@ namespace LunyEditor.Generator
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddNamespaceBlock(ScriptBuilder sb, String namespaceName)
+		private static void AddNamespaceBlock(CSharpScriptBuilder sb, String namespaceName)
 		{
 			sb.AppendIndent("namespace ");
 			sb.AppendLine(namespaceName);
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void EndNamespaceBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
+		private static void EndNamespaceBlock(CSharpScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddClassBlock(ScriptBuilder sb, String loaderClassName)
+		private static void AddClassBlock(CSharpScriptBuilder sb, String loaderClassName)
 		{
 			sb.AppendIndentLine("[global::System.Serializable]");
 			sb.AppendIndent("internal sealed class ");
@@ -56,9 +55,9 @@ namespace LunyEditor.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void EndClassBlock(ScriptBuilder sb) => sb.CloseIndentBlock("}");
+		private static void EndClassBlock(CSharpScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddGetNamespaces(ScriptBuilder sb, IEnumerable<String> namespaces)
+		private static void AddGetNamespaces(CSharpScriptBuilder sb, IEnumerable<String> namespaces)
 		{
 			sb.AppendIndent("public override global::System.String[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetNamespaceNames));
@@ -96,7 +95,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("};");
 		}
 
-		private static void AddGetObjectTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
+		private static void AddGetObjectTypes(CSharpScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			sb.AppendIndent("public override global::");
 			sb.Append(typeof(LuaTypeInfo).FullName);
@@ -167,7 +166,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("};");
 		}
 
-		private static void AddGetEnumTypes(ScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
+		private static void AddGetEnumTypes(CSharpScriptBuilder sb, IEnumerable<GenTypeInfo> typeInfos)
 		{
 			sb.AppendIndent("public override global::System.Type[] ");
 			sb.Append(nameof(LunyLuaModule.Loader.GetEnumTypes));

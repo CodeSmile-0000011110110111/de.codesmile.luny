@@ -209,14 +209,14 @@ namespace Luny
 					if (changedScript is LunyLuaAssetScript assetScript)
 					{
 						//Debug.Log($"Reimport {assetScript} at path {assetScript.FullPath}");
-						EditorAssetUtility.Import(assetScript.LuaAsset);
+						AssetUtil.IfEditorImportAsset(assetScript.LuaAsset);
 					}
 					else if (isResourcesScript)
 					{
 						// force reload of Resources script
 						var resourcePath = changedFile.Replace($"{Application.dataPath}/", "Assets/");
 						//Debug.Log($"Reimport {resourcePath}");
-						EditorAssetUtility.Import(resourcePath);
+						AssetUtil.IfEditorImportAsset(resourcePath);
 					}
 
 					changedScript.OnScriptChangedInternal();

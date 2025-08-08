@@ -51,7 +51,7 @@ namespace Luny
 					pathInfo.FullPath = Application.persistentDataPath + path
 						.Substring(PersistentPlaceholder.Length, path.Length - PersistentPlaceholder.Length);
 					// pre-create user path directories
-					PathUtility.TryCreateDirectory(pathInfo.FullPath);
+					PathUtil.TryCreateDirectory(pathInfo.FullPath);
 				}
 				else if (lowerPath.StartsWith("assets/") || lowerPath.Equals("assets"))
 				{

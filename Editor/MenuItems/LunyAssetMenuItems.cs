@@ -3,13 +3,14 @@
 
 using CodeSmileEditor;
 using Luny;
+using LunyEditor.Settings;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.MenuItems
 {
 	internal static class CreateLunyAssetsMenu
 	{
@@ -134,13 +135,13 @@ namespace LunyEditor
 		{
 			private static void OnWillCreateAsset(String assetPath)
 			{
-				if (s_WillCreateLunyScript && EditorAssetUtility.IsLuaScript(assetPath))
+				if (s_WillCreateLunyScript && EditorAssetUtil.IsLuaScript(assetPath))
 				{
 					s_WillCreateLunyScript = false;
 					CreateMatchingCSharpLunyScript(assetPath);
 				}
 
-				if (s_WillCreateAutoRunScript && EditorAssetUtility.IsLuaScript(assetPath))
+				if (s_WillCreateAutoRunScript && EditorAssetUtil.IsLuaScript(assetPath))
 				{
 					s_WillCreateAutoRunScript = false;
 					EditorApplication.delayCall += () => AddToAutoRunScripts(assetPath); // required delay

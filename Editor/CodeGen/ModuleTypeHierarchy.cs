@@ -1,7 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmileEditor.Luny.Generator;
+using CodeSmile.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal sealed class ModuleTypeHierarchy
 	{

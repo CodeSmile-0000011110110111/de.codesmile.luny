@@ -1,9 +1,10 @@
 using Luny;
+using LunyEditor.Settings;
 using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Inspector
 {
 	[CustomEditor(typeof(LunyLuaAsset), true)]
 	public sealed class LunyLuaAssetEditor : Editor

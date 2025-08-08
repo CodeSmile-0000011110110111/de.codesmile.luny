@@ -1,8 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmileEditor;
-using CodeSmileEditor.Luny.Generator;
 using Luny;
 using System;
 using System.Collections.Generic;
@@ -12,7 +10,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal static class ModuleGenerator
 	{
@@ -83,7 +81,7 @@ namespace LunyEditor.Generator
 			{
 				var modulePath = AssetDatabase.GetAssetPath(module);
 				contentFolderPath = Path.ChangeExtension(modulePath, null);
-				EditorIO.TryCreateAndImportPath(contentFolderPath);
+				EditorAssetUtil.TryCreateAndImportPath(contentFolderPath);
 				module.ContentFolderGuid = AssetDatabase.AssetPathToGUID(contentFolderPath);
 				EditorUtility.SetDirty(module);
 			}

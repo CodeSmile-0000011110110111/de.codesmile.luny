@@ -51,7 +51,7 @@ namespace Luny
 		{
 			if (String.IsNullOrEmpty(typeName) == false)
 			{
-				var moduleAssembly = EditorAssetUtility.GetAssemblyForAssetPath(folderPath);
+				var moduleAssembly = AssetUtil.IfEditorGetAssemblyForPath(folderPath);
 				if (moduleAssembly != null)
 				{
 					var type = moduleAssembly.GetType(typeName);

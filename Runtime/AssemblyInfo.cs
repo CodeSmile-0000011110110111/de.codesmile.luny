@@ -5,5 +5,6 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: InternalsVisibleTo("CodeSmile.LunyEditor")]
-[assembly: InternalsVisibleTo("CodeSmile.Luny.Tests.Core")]
+[assembly: InternalsVisibleTo("LunyTests.Core")]
+[assembly: InternalsVisibleTo("LunyEditor")]
+[assembly: InternalsVisibleTo("LunyEditor.CodeGen")]

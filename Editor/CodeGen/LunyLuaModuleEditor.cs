@@ -1,10 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmileEditor;
-using CodeSmileEditor.Luny.Generator;
 using Luny;
-using LunyEditor.Generator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +13,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Assembly = System.Reflection.Assembly;
 
-namespace LunyEditor
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	[CustomEditor(typeof(LunyLuaModule))]
 	[CanEditMultipleObjects]
-	internal sealed class LunyLuaModuleEditor : Editor
+	internal sealed class LunyLuaModuleEditor : UnityEditor.Editor
 	{
 		private SerializedProperty m_AssemblyNameProperty;
 		private SerializedProperty m_NamespaceWhitelistProperty;
@@ -69,7 +66,7 @@ namespace LunyEditor
 		{
 			Module.ClearGeneratedTypeReferences();
 			Module.SaveAsset();
-			ResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+			CscResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
 			GenUtil.TryDeleteContentFolderPath(Module);
 
 			// doing a full refresh because there might be other (non-generated) code changes and we want to pick those up too
@@ -85,7 +82,7 @@ namespace LunyEditor
 
 			try
 			{
-				ResponseFile.AddScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+				CscResponseFile.AddScriptingDefineSymbol(Module.ScriptingDefineSymbol);
 
 				var onlyThisTypeStr = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisType)).stringValue;
 				if (String.IsNullOrEmpty(onlyThisTypeStr) == false && IsCommentedOut(onlyThisTypeStr) == false)
@@ -101,7 +98,7 @@ namespace LunyEditor
 			}
 			catch (Exception e)
 			{
-				ResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
+				CscResponseFile.RemoveScriptingDefineSymbol(Module.ScriptingDefineSymbol);
 
 				// delay showing the error to avoid it getting hidding by the compilation process
 				EditorApplication.delayCall += () => Debug.LogException(e);

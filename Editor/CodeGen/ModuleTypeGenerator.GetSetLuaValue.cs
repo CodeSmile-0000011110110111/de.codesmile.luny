@@ -1,19 +1,17 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using Luny;
-using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal static partial class ModuleTypeGenerator
 	{
-		private static void AddIndexMetamethod(ScriptBuilder sb, String typeName)
+		private static void AddIndexMetamethod(CSharpScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndentLine(
 				"private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
@@ -39,7 +37,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("});");
 		}
 
-		private static void AddNewIndexMetamethod(ScriptBuilder sb, String typeName)
+		private static void AddNewIndexMetamethod(CSharpScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndentLine(
 				"private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
@@ -64,7 +62,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("});");
 		}
 
-		private static void AddGetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+		private static void AddGetValueMethod(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType, IList<String> getters, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
@@ -93,7 +91,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddGetValueCasesForPropertiesAndFields(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
+		private static void AddGetValueCasesForPropertiesAndFields(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
 			foreach (var property in members.Properties)
@@ -112,7 +110,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddGetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+		private static void AddGetValueForIndexer(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
 			var hasIndexer = false;
@@ -139,14 +137,14 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddCaseStatement(ScriptBuilder sb, String memberName)
+		private static void AddCaseStatement(CSharpScriptBuilder sb, String memberName)
 		{
 			sb.AppendIndent("case \"");
 			sb.Append(memberName);
 			sb.Append("\": ");
 		}
 
-		private static void AddGetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
+		private static void AddGetValueAndReturn(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			sb.Append("_value = ");
@@ -157,7 +155,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine("; return true;");
 		}
 
-		private static void AddSetValueMethod(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+		private static void AddSetValueMethod(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			AddGetSetValueMethodClassifiers(sb, typeInfo, baseType, isLuaStaticType);
@@ -182,7 +180,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddGetSetValueMethodClassifiers(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType,
+		private static void AddGetSetValueMethodClassifiers(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType,
 			Boolean isLuaStaticType)
 		{
 			sb.AppendIndent("public ");
@@ -190,7 +188,7 @@ namespace LunyEditor.Generator
 				sb.Append(baseType != null ? "override " : typeInfo.IsSealed == false ? "virtual " : "");
 		}
 
-		private static void AddSetValueCasesForPropertiesAndFields(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
+		private static void AddSetValueCasesForPropertiesAndFields(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
 			foreach (var property in members.Properties)
@@ -212,7 +210,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddSetValueForIndexer(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
+		private static void AddSetValueForIndexer(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, GenMemberInfo members,
 			Boolean isLuaStaticType)
 		{
 			var hasIndexer = false;
@@ -239,7 +237,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddSetValueAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
+		private static void AddSetValueAndReturn(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Type memberType, String memberName,
 			Boolean isLuaStaticType, Boolean isIndexer = false)
 		{
 			var isValueType = typeInfo.IsValueType;

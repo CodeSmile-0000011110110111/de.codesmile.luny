@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Assets
 {
 	[ScriptedImporter(1, "lua")]
 	public sealed class LunyLuaImporter : ScriptedImporter
@@ -27,9 +27,9 @@ namespace LunyEditor
 
 		private Type GetLuaScriptType(String assetPath) =>
 			// Lua scripts created in "Editor" folders or assemblies are considered editor-only Lua scripts
-			EditorAssetUtility.IsEditorPath(assetPath) || EditorAssetUtility.IsEditorAssembly(assetPath)
+			EditorAssetUtil.IsEditorPath(assetPath) || EditorAssetUtil.IsEditorAssembly(assetPath)
 				? typeof(LunyEditorLuaAsset)
-				: EditorAssetUtility.IsModdingPath(assetPath)
+				: EditorAssetUtil.IsModdingPath(assetPath)
 					? typeof(LunyModdingLuaAsset)
 					: typeof(LunyRuntimeLuaAsset);
 	}

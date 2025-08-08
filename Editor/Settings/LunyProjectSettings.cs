@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
+using LunyEditor.Assets;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -10,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
-namespace LunyEditor
+namespace LunyEditor.Settings
 {
 	[FilePath("ProjectSettings/LunySettings.asset", FilePathAttribute.Location.ProjectFolder)]
 	internal sealed class LunyProjectSettings : ScriptableSingleton<LunyProjectSettings>

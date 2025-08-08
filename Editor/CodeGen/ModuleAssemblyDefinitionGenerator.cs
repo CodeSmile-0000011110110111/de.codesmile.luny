@@ -1,16 +1,13 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmileEditor;
-using CodeSmileEditor.Luny.Generator;
 using Luny;
-using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal static class ModuleAssemblyDefinitionGenerator
 	{
@@ -18,10 +15,10 @@ namespace LunyEditor.Generator
 			AssemblyDefinitionAssets asmdefAssets)
 		{
 			var modulePath = AssetDatabase.GetAssetPath(module);
-			var isEditorModule = EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath);
+			var isEditorModule = EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath);
 			var asmDefName = module.BindingsAssemblyName;
 
-			var sb = new ScriptBuilder();
+			var sb = new CSharpScriptBuilder();
 			sb.OpenIndentBlock("{");
 			AddName(sb, asmDefName);
 			AddReferences(sb, namespaces, asmdefAssets, isEditorModule);
@@ -43,14 +40,14 @@ namespace LunyEditor.Generator
 			GenUtil.WriteFile(assetPath, sb.ToString());
 		}
 
-		private static void AddName(ScriptBuilder sb, String asmDefName)
+		private static void AddName(CSharpScriptBuilder sb, String asmDefName)
 		{
 			sb.AppendIndent("\"name\": \"");
 			sb.Append(asmDefName);
 			sb.AppendLine("\",");
 		}
 
-		private static void AddReferences(ScriptBuilder sb, IEnumerable<String> namespaces, AssemblyDefinitionAssets asmdefAssets,
+		private static void AddReferences(CSharpScriptBuilder sb, IEnumerable<String> namespaces, AssemblyDefinitionAssets asmdefAssets,
 			Boolean isEditorModule)
 		{
 			sb.AppendIndentLine("\"references\": [");
@@ -86,16 +83,16 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("],");
 		}
 
-		private static void AddIncludedPlatforms(ScriptBuilder sb, String modulePath)
+		private static void AddIncludedPlatforms(CSharpScriptBuilder sb, String modulePath)
 		{
 			sb.AppendIndentLine("\"includePlatforms\": [");
 			sb.IncrementIndent();
-			if (EditorAssetUtility.IsEditorPath(modulePath) || EditorAssetUtility.IsEditorAssembly(modulePath))
+			if (EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath))
 				sb.AppendIndentLine("\"Editor\"");
 			sb.CloseIndentBlock("],");
 		}
 
-		private static void AddDefaultSettings(ScriptBuilder sb)
+		private static void AddDefaultSettings(CSharpScriptBuilder sb)
 		{
 			sb.AppendIndentLine("\"excludePlatforms\": [],");
 			sb.AppendIndentLine("\"allowUnsafeCode\": false,");

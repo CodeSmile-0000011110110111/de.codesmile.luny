@@ -2,13 +2,12 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
-using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal static partial class ModuleTypeGenerator
 	{
@@ -41,7 +40,7 @@ namespace LunyEditor.Generator
 
 				//GenUtil.Log($"Generating type: {typeInfo.BindTypeFullName}");
 
-				var sb = new ScriptBuilder(GenUtil.GeneratedFileHeader);
+				var sb = new CSharpScriptBuilder(GenUtil.GeneratedFileHeader);
 				AddUsingStatements(sb);
 				AddNamespaceBlock(sb, typeInfo);
 				if (typeInfo.HasInstanceType)
@@ -54,7 +53,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddUsingStatements(ScriptBuilder sb)
+		private static void AddUsingStatements(CSharpScriptBuilder sb)
 		{
 			sb.Append("#pragma warning disable ");
 			sb.AppendLine(DisabledWarningCodes);
@@ -63,21 +62,21 @@ namespace LunyEditor.Generator
 			sb.AppendLine();
 		}
 
-		private static void AddNamespaceBlock(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddNamespaceBlock(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.Append("namespace ");
 			sb.AppendLine(typeInfo.LuaInstanceTypeNamespace);
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void EndNamespaceBlock(ScriptBuilder sb)
+		private static void EndNamespaceBlock(CSharpScriptBuilder sb)
 		{
 			sb.CloseIndentBlock("}");
 			sb.Append("#pragma warning restore ");
 			sb.AppendLine(DisabledWarningCodes);
 		}
 
-		private static void GenerateLuaType(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
+		private static void GenerateLuaType(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
 			var luaTypeName = isLuaStaticType ? typeInfo.LuaStaticTypeName : typeInfo.LuaInstanceTypeName;
 			var members = isLuaStaticType ? typeInfo.StaticMembers : typeInfo.InstanceMembers;
@@ -116,7 +115,7 @@ namespace LunyEditor.Generator
 			AddCloseTypeDeclaration(sb);
 		}
 
-		private static void AddOpenTypeDeclaration(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
+		private static void AddOpenTypeDeclaration(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType, Boolean isLuaStaticType)
 		{
 			sb.AppendIndent("public ");
 			sb.Append(isLuaStaticType || typeInfo.IsSealed || typeInfo.IsValueType ? "sealed class " : "class ");
@@ -166,9 +165,9 @@ namespace LunyEditor.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddCloseTypeDeclaration(ScriptBuilder sb) => sb.CloseIndentBlock("}");
+		private static void AddCloseTypeDeclaration(CSharpScriptBuilder sb) => sb.CloseIndentBlock("}");
 
-		private static void AddBindTypeToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddBindTypeToLuaMethod(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public static global::Lua.LuaValue ");
 			sb.Append(nameof(ILuaObjectFactory.Bind));
@@ -177,7 +176,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine("();");
 		}
 
-		private static void AddBindInstanceToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddBindInstanceToLuaMethod(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("public new static global::Lua.LuaValue ");
 			sb.Append(nameof(ILuaObjectFactory.Bind));
@@ -197,7 +196,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine(")instance);");
 		}
 
-		private static void AddBindInstancesListToLuaMethod(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddBindInstancesListToLuaMethod(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			for (var i = 0; i < 2; i++)
 			{
@@ -214,7 +213,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddBindTypeProperty(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
+		private static void AddBindTypeProperty(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
 			sb.AppendIndent(isLuaStaticType || typeInfo.IsValueType ? "public " : "public new ");
 			sb.Append("global::System.Type ");
@@ -224,14 +223,14 @@ namespace LunyEditor.Generator
 			sb.AppendLine(");");
 		}
 
-		private static void AddStaticTypeConstructor(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddStaticTypeConstructor(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("private ");
 			sb.Append(typeInfo.LuaStaticTypeName);
 			sb.AppendLine("() {}");
 		}
 
-		private static void AddInstanceTypeConstructors(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
+		private static void AddInstanceTypeConstructors(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			// Ctor with instance
 			sb.AppendIndent(typeInfo.IsSealed || typeInfo.IsValueType ? "private " : "protected ");
@@ -258,7 +257,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddInstanceOrValueFieldAndProperty(ScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
+		private static void AddInstanceOrValueFieldAndProperty(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenTypeInfo baseType)
 		{
 			var fieldName = typeInfo.InstanceFieldName;
 			var bindTypeName = typeInfo.BindTypeFullName;
@@ -313,7 +312,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddToStringOverride(ScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
+		private static void AddToStringOverride(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Boolean isLuaStaticType)
 		{
 			sb.AppendIndent("public override global::System.String ToString() => ");
 			if (isLuaStaticType)
@@ -338,7 +337,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddResetStaticFields(ScriptBuilder sb)
+		private static void AddResetStaticFields(CSharpScriptBuilder sb)
 		{
 			sb.AppendLine("#if UNITY_EDITOR");
 			sb.AppendIndentLine(
@@ -347,14 +346,14 @@ namespace LunyEditor.Generator
 			sb.AppendLine("#endif");
 		}
 
-		private static void AddImplicitLuaValueConversionOperator(ScriptBuilder sb, String typeName)
+		private static void AddImplicitLuaValueConversionOperator(CSharpScriptBuilder sb, String typeName)
 		{
 			sb.AppendIndent("public static implicit operator global::Lua.LuaValue(");
 			sb.Append(typeName);
 			sb.AppendLine(" value) => new(value);");
 		}
 
-		private static void AddILuaUserDataImplementations(ScriptBuilder sb, Boolean hasBaseClass)
+		private static void AddILuaUserDataImplementations(CSharpScriptBuilder sb, Boolean hasBaseClass)
 		{
 			sb.AppendIndentLine("private static global::Lua.LuaTable s_Metatable;");
 			sb.AppendIndent("public ");
@@ -372,7 +371,7 @@ namespace LunyEditor.Generator
 			sb.AppendIndentLine("global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;");
 		}
 
-		private static void AddMemberBindings(ScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters)
+		private static void AddMemberBindings(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenMemberInfo members, out IList<String> getters)
 		{
 			getters = new List<String>();
 			AddMethodBindings(sb, typeInfo, members.CtorOverloads, getters);
@@ -384,7 +383,7 @@ namespace LunyEditor.Generator
 			return !(bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String) ||
 			         bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var _));
 		}
-		private static void AddConversionToLuaValue(ScriptBuilder sb, Type bindType, String varName)
+		private static void AddConversionToLuaValue(CSharpScriptBuilder sb, Type bindType, String varName)
 		{
 			if (bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String))
 				sb.Append("new global::Lua.LuaValue");

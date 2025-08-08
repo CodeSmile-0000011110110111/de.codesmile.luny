@@ -2,18 +2,17 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
-using LunyEditor.Generator.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Generator
+namespace CodeSmileEditor.Luny.CodeGen
 {
 	internal static partial class ModuleTypeGenerator
 	{
-		private static void AddMethodBindings(ScriptBuilder sb, GenTypeInfo typeInfo, IEnumerable<GenMethodOverloads> methodOverloads,
+		private static void AddMethodBindings(CSharpScriptBuilder sb, GenTypeInfo typeInfo, IEnumerable<GenMethodOverloads> methodOverloads,
 			IList<String> getters)
 		{
 			foreach (var overloads in methodOverloads)
@@ -38,7 +37,7 @@ namespace LunyEditor.Generator
 
 		private static String CreateLuaBindFuncFieldName(GenTypeInfo typeInfo, String luaName) => $"_{typeInfo.LuaInstanceTypeName}_{luaName}";
 
-		private static void AddMethodOpenLuaBindFunction(ScriptBuilder sb, String fieldName, String luaFuncName)
+		private static void AddMethodOpenLuaBindFunction(CSharpScriptBuilder sb, String fieldName, String luaFuncName)
 		{
 			sb.AppendIndent("private static readonly global::Lua.LuaFunction ");
 			sb.Append(fieldName);
@@ -48,9 +47,9 @@ namespace LunyEditor.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddMethodCloseLuaBindFunction(ScriptBuilder sb) => sb.CloseIndentBlock("});");
+		private static void AddMethodCloseLuaBindFunction(CSharpScriptBuilder sb) => sb.CloseIndentBlock("});");
 
-		private static void AddMethodReadArgumentCountAndErrorValues(ScriptBuilder sb)
+		private static void AddMethodReadArgumentCountAndErrorValues(CSharpScriptBuilder sb)
 		{
 			sb.AppendIndentLine("global::Lua.LuaValue _lastArg = default;");
 			sb.AppendIndentLine("global::System.Int32 _lastArgPos = default;");
@@ -58,7 +57,7 @@ namespace LunyEditor.Generator
 			sb.AppendIndentLine("var _argCount = _context.ArgumentCount;");
 		}
 
-		private static void AddMethodParameterlessCtorCase(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddMethodParameterlessCtorCase(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndentLine("if (_argCount == 0)");
 			sb.OpenIndentBlock("{");
@@ -75,14 +74,14 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddMethodGetInstanceFromLuaArguments(ScriptBuilder sb, GenTypeInfo typeInfo)
+		private static void AddMethodGetInstanceFromLuaArguments(CSharpScriptBuilder sb, GenTypeInfo typeInfo)
 		{
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeInfo.LuaInstanceTypeName);
 			sb.AppendLine(">(0);");
 		}
 
-		private static void AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(ScriptBuilder sb, GenTypeInfo typeInfo,
+		private static void AddMethodReadArgumentsAndSelectOverloadAndMakeCallRecursive(CSharpScriptBuilder sb, GenTypeInfo typeInfo,
 			GenMethodOverloads overloads, Int32 methodIndex, Int32 paramPos, List<GenParamInfo> signature)
 		{
 			if (signature == null)
@@ -136,7 +135,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddMethodThrowRuntimeArgumentException(ScriptBuilder sb, GenMethodOverloads overloads)
+		private static void AddMethodThrowRuntimeArgumentException(CSharpScriptBuilder sb, GenMethodOverloads overloads)
 		{
 			sb.AppendIndent("throw new global::Lua.LuaRuntimeException(_context.Thread, $\"");
 			sb.Append("{\""); // enclosing name in brackets intended to avoid making every message string unique
@@ -144,7 +143,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
-		private static void AddMethodGetArgumentFromLuaContext(ScriptBuilder sb, Int32 argNum, Int32 luaArgIndex, GenParamInfo parameter = null)
+		private static void AddMethodGetArgumentFromLuaContext(CSharpScriptBuilder sb, Int32 argNum, Int32 luaArgIndex, GenParamInfo parameter = null)
 		{
 			sb.AppendIndent("var ");
 			sb.Append(Args[argNum]);
@@ -158,7 +157,7 @@ namespace LunyEditor.Generator
 			sb.AppendLine(" : global::Lua.LuaValue.Nil;");
 		}
 
-		private static void AddMethodReadValueConditional(ScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum)
+		private static void AddMethodReadValueConditional(CSharpScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum)
 		{
 			sb.AppendIndent("_lastArgPos = ");
 			sb.Append(Digits[argNum]);
@@ -174,7 +173,7 @@ namespace LunyEditor.Generator
 			sb.OpenIndentBlock("{");
 		}
 
-		private static void AddMethodReadLuaValueStatement(ScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum,
+		private static void AddMethodReadLuaValueStatement(CSharpScriptBuilder sb, GenParamInfo parameter, String paramTypeName, Int32 argNum,
 			Boolean useSignatureName = false)
 		{
 			if (parameter.ParamInfo.HasDefaultValue)
@@ -232,7 +231,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddMethodReadParametersAndCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, Int32 paramPos,
+		private static void AddMethodReadParametersAndCallAndReturn(CSharpScriptBuilder sb, GenTypeInfo typeInfo, Int32 paramPos,
 			Boolean hasParameters, GenMethodInfo overload, Int32 luaArgOffset)
 		{
 			sb.AppendIndent("if (_argCount == ");
@@ -245,7 +244,7 @@ namespace LunyEditor.Generator
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddMethodReadRemainingAndAssignParameters(ScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
+		private static void AddMethodReadRemainingAndAssignParameters(CSharpScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
 		{
 			// get remaining arguments
 			var parameters = overload.ParamInfos;
@@ -281,7 +280,7 @@ namespace LunyEditor.Generator
 			}
 		}
 
-		private static void AddMethodCallAndReturn(ScriptBuilder sb, GenTypeInfo typeInfo, GenMethodInfo overload)
+		private static void AddMethodCallAndReturn(CSharpScriptBuilder sb, GenTypeInfo typeInfo, GenMethodInfo overload)
 		{
 			var methodInfo = overload.MethodInfo as MethodInfo;
 			var ctorInfo = overload.MethodInfo as ConstructorInfo;
@@ -350,7 +349,7 @@ namespace LunyEditor.Generator
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);");
 		}
 
-		private static void AddMethodCloseRemainingBlocks(ScriptBuilder sb, Int32 paramPos)
+		private static void AddMethodCloseRemainingBlocks(CSharpScriptBuilder sb, Int32 paramPos)
 		{
 			for (; paramPos > 0; paramPos--)
 				sb.CloseIndentBlock("}");

@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using FileUtil = CodeSmile.FileUtil;
 
 namespace Luny
 {
@@ -205,7 +206,7 @@ namespace Luny
 				if (lowerPath.StartsWith(Application.streamingAssetsPath.ToLower()) ||
 				    lowerPath.StartsWith(Application.persistentDataPath.ToLower()))
 				{
-					content = FileUtility.TryReadAllText(path);
+					content = FileUtil.TryReadAllText(path);
 					return true;
 				}
 
@@ -225,14 +226,14 @@ namespace Luny
 
 			if (luaAsset != null)
 			{
-				EditorAssetUtility.Import(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
+				AssetUtil.IfEditorImportAsset(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
 
 				content = luaAsset.Text;
 				return true;
 			}
 
 			// try read from file system instead (ie could be relative to project working directory)
-			content = FileUtility.TryReadAllText(fullOrAssetPath, true);
+			content = FileUtil.TryReadAllText(fullOrAssetPath, true);
 			return true;
 		}
 

@@ -2,14 +2,16 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using CodeSmile;
-using CodeSmileEditor.Luny;
 using Lua;
 using Luny;
+using LunyEditor.Assets;
+using LunyEditor.Settings;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using FileUtil = CodeSmile.FileUtil;
 
 namespace LunyEditor
 {
@@ -159,7 +161,7 @@ namespace LunyEditor
 				if (Path.IsPathRooted(path))
 				{
 					if (!m_IsSandbox)
-						content = FileUtility.TryReadAllText(path, true);
+						content = FileUtil.TryReadAllText(path, true);
 					return true;
 				}
 
@@ -179,7 +181,7 @@ namespace LunyEditor
 
 				// try read from file system instead (ie could be relative to project working directory)
 				if (!m_IsSandbox)
-					content = FileUtility.TryReadAllText(fullOrAssetPath, true);
+					content = FileUtil.TryReadAllText(fullOrAssetPath, true);
 				return true;
 			}
 

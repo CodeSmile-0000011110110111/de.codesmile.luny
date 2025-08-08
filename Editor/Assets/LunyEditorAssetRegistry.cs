@@ -2,12 +2,13 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
+using LunyEditor.Settings;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Assets
 {
 	[FilePath("ProjectSettings/LunyEditorAssetRegistry.asset", FilePathAttribute.Location.ProjectFolder)]
 	public sealed class LunyEditorAssetRegistry : ScriptableSingleton<LunyEditorAssetRegistry>

@@ -633,7 +633,7 @@ MonoBehaviour:
   - UnityEngine.LightingSettings
   - UnityEngine.Types
   - '-- below: to be included later ...'
-  m_ContentFolderGuid: 68381279a0839214087b434fb033332f
+  m_ContentFolderGuid: 1371a446593c2704fb10cc0cb141b510
   m_ModuleLoaderTypeFullName: 
   m_ModuleLoader:
     rid: -2

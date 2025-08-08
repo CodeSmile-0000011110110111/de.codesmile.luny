@@ -3,12 +3,13 @@
 
 using CodeSmileEditor;
 using Luny;
+using LunyEditor.Settings;
 using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Assets
 {
 	internal sealed class LunyAssetManager : ScriptableSingleton<LunyAssetManager>
 	{
@@ -98,7 +99,7 @@ namespace LunyEditor
 			}
 
 			var pathRoot = "Assets/Luny/Resources";
-			EditorIO.TryCreateAndImportPath(pathRoot);
+			EditorAssetUtil.TryCreateAndImportPath(pathRoot);
 			var path = $"{pathRoot}/{nameof(LunyRuntimeAssetRegistry)}.asset";
 			AssetDatabase.CreateAsset(registry, path);
 			return registry;
@@ -158,7 +159,7 @@ namespace LunyEditor
 		{
 			private static void OnWillCreateAsset(String assetPath)
 			{
-				if (EditorAssetUtility.IsLuaScript(assetPath))
+				if (EditorAssetUtil.IsLuaScript(assetPath))
 				{
 					// NOTE: creating auto-run scripts is handled by LunyAssetMenuItems
 
@@ -192,7 +193,7 @@ namespace LunyEditor
 
 			private static AssetDeleteResult OnWillDeleteAsset(String assetPath, RemoveAssetOptions options)
 			{
-				if (EditorAssetUtility.IsLuaScript(assetPath))
+				if (EditorAssetUtil.IsLuaScript(assetPath))
 				{
 					var settings = LunyProjectSettings.Singleton;
 					var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(assetPath);
@@ -232,7 +233,7 @@ namespace LunyEditor
 					// moving does not cause a re-import, thus import manually to update the asset's path and type
 					AssetDatabase.ImportAsset(destinationPath);
 
-					if (EditorAssetUtility.IsFolder(destinationPath))
+					if (EditorAssetUtil.IsFolder(destinationPath))
 					{
 						var runtimeRegistry = LunyRuntimeAssetRegistry.Singleton;
 						if (runtimeRegistry == null)
@@ -240,7 +241,7 @@ namespace LunyEditor
 						else
 							RegisterAllLunyAssets(); // full update, moved folder hierarchy may contain Lua scripts
 					}
-					else if (EditorAssetUtility.IsLuaScript(destinationPath))
+					else if (EditorAssetUtil.IsLuaScript(destinationPath))
 					{
 						var luaAsset = AssetDatabase.LoadAssetAtPath<LunyLuaAsset>(destinationPath);
 						var isRuntimeLuaAsset = luaAsset is LunyRuntimeLuaAsset;
