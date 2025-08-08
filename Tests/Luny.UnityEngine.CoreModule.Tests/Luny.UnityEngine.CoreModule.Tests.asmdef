@@ -1,13 +1,12 @@
 {
-    "name": "LunyTests.UnityEngineCoreModule",
+    "name": "Luny.UnityEngine.CoreModule.Tests",
     "rootNamespace": "LunyTests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Lua.Unity",
+        "LunyTests.Core",
         "Luny",
-        "Luny.UnityEngine.CoreModule",
-        "LunyTests.Core"
+        "Luny.UnityEngine.CoreModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

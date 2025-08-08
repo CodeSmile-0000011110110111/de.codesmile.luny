@@ -2,9 +2,10 @@
     "name": "LunyEditor.CodeGen",
     "rootNamespace": "LunyEditor.CodeGen",
     "references": [
-        "GUID:f2ddabe9e0aaa1c499a086b54a197337",
         "GUID:4a75ceda0d3b49c7bdf28da9af26a8b1",
-        "GUID:8b08bc580efd4d64b8b270f734077090"
+        "GUID:8b08bc580efd4d64b8b270f734077090",
+        "GUID:f2ddabe9e0aaa1c499a086b54a197337",
+        "GUID:8e17e7dd86eadb24a867d197040f18a7"
     ],
     "includePlatforms": [
         "Editor"

@@ -54,16 +54,18 @@ namespace CodeSmileEditor.Luny.CodeGen
 			sb.IncrementIndent();
 
 			sb.AppendIndent("\"GUID:");
-			sb.Append(GetGuidForReference(asmdefAssets, "CodeSmile.Luny"));
+			sb.Append(GetGuidForReference(asmdefAssets, nameof(Luny)));
 			sb.AppendLine("\",");
-			sb.AppendIndent("\"GUID:");
-			sb.Append(GetGuidForReference(asmdefAssets, "Lua.Unity"));
-			sb.Append("\"");
+
+			// sb.AppendIndent("\"GUID:");
+			// sb.Append(GetGuidForReference(asmdefAssets, nameof(Lua.Unity)));
+			// sb.Append("\"");
+
 			if (isEditorModule)
 			{
 				sb.AppendLine(",");
 				sb.AppendIndent("\"GUID:");
-				sb.Append(GetGuidForReference(asmdefAssets, "CodeSmileEditor.Luny"));
+				sb.Append(GetGuidForReference(asmdefAssets, nameof(LunyEditor)));
 				sb.Append("\"");
 			}
 
@@ -110,6 +112,10 @@ namespace CodeSmileEditor.Luny.CodeGen
 			var asmdef = asmdefAssets[ns];
 			if (asmdef != null)
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asmdef, out guid, out var _);
+
+			if (string.IsNullOrEmpty(guid))
+				Debug.LogWarning($"Assembly '{ns}' not found while generating module assembly");
+
 			return guid;
 		}
 	}
