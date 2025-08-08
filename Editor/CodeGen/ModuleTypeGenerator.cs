@@ -59,7 +59,6 @@ namespace LunyEditor.CodeGen
 			sb.Append("#pragma warning disable ");
 			sb.AppendLine(DisabledWarningCodes);
 			sb.AppendLine("using Luny;");
-			sb.AppendLine("using Lua.Unity;"); // for Lua extensions
 			sb.AppendLine();
 		}
 
