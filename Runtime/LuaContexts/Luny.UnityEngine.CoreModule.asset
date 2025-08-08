@@ -633,6 +633,78 @@ MonoBehaviour:
   - UnityEngine.LightingSettings
   - UnityEngine.Types
   - '-- below: to be included later ...'
+  m_MemberBlacklist:
+  - TypeFullName: UnityEngine.Device.SystemInfo
+    BlacklistedMemberNames:
+    - processorManufacturer
+    - processorModel
+  - TypeFullName: UnityEngine.TextureMipmapLimitGroups
+    BlacklistedMemberNames:
+    - CreateGroup
+    - RemoveGroup
+  - TypeFullName: UnityEngine.Texture
+    BlacklistedMemberNames:
+    - imageContentsHash
+  - TypeFullName: UnityEngine.Texture2D
+    BlacklistedMemberNames:
+    - alphaIsTransparency
+  - TypeFullName: UnityEngine.MeshRenderer
+    BlacklistedMemberNames:
+    - receiveGI
+    - scaleInLightmap
+    - stitchLightmapSeams
+  - TypeFullName: UnityEngine.MonoBehaviour
+    BlacklistedMemberNames:
+    - runInEditMode
+  - TypeFullName: UnityEngine.LightProbeGroup
+    BlacklistedMemberNames:
+    - dering
+    - probePositions
+  - TypeFullName: UnityEngine.QualitySettings
+    BlacklistedMemberNames:
+    - GetActiveQualityLevelsForPlatform
+    - GetActiveQualityLevelsForPlatformCount
+    - IsPlatformIncluded
+  - TypeFullName: UnityEngine.Light
+    BlacklistedMemberNames:
+    - SetLightDirty
+    - lightmapBakeType
+    - shadowAngle
+    - shadowRadius
+  - TypeFullName: UnityEngine.Caching
+    BlacklistedMemberNames:
+    - ResetNoBackupFlag
+    - SetNoBackupFlag
+  - TypeFullName: UnityEngine.Material
+    BlacklistedMemberNames:
+    - ApplyPropertyOverride
+    - IsChildOf
+    - IsPropertyLocked
+    - IsPropertyLockedByAncestor
+    - IsPropertyOverriden
+    - RevertAllPropertyOverrides
+    - RevertPropertyOverride
+    - SetPropertyLock
+    - isVariant
+    - parent
+  - TypeFullName: UnityEngine.Rendering.ScriptableRenderContext
+    BlacklistedMemberNames:
+    - EmitWorldGeometryForSceneView
+  - TypeFullName: UnityEngine.Rendering.RenderPipelineGlobalSettings
+    BlacklistedMemberNames:
+    - Initialize
+  - TypeFullName: UnityEngine.Rendering.RenderPipelineAsset
+    BlacklistedMemberNames:
+    - terrainBrushPassIndex
+  - TypeFullName: UnityEngine.Rendering.GraphicsSettings
+    BlacklistedMemberNames:
+    - videoShadersIncludeMode
+  - TypeFullName: UnityEngine.Playables.PlayableGraph
+    BlacklistedMemberNames:
+    - GetEditorName
+  - TypeFullName: UnityEngine.PlayableGraph
+    BlacklistedMemberNames:
+    - GetEditorName
   m_ContentFolderGuid: 3aca833e4db26af4f8a708e0b2ccdfd4
   m_ModuleLoaderTypeFullName: 
   m_ModuleLoader:

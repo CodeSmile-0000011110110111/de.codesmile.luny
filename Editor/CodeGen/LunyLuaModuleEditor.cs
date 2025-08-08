@@ -92,10 +92,10 @@ namespace LunyEditor.CodeGen
 					var onlyThisMethodName = serializedObject.FindProperty(nameof(LunyLuaModule.m_GenerateOnlyThisMethod)).stringValue;
 					if (IsCommentedOut(onlyThisMethodName))
 						onlyThisMethodName = null;
-					ModuleGenerator.Generate(Module, m_AsmDefCollection, onlyThisType.ToArray(), onlyThisMethodName);
+					ModuleGenerator.Generate(Module, m_AsmDefCollection, Module.MemberBlacklist, onlyThisType.ToArray(), onlyThisMethodName);
 				}
 				else
-					ModuleGenerator.Generate(Module, m_AsmDefCollection, m_TypesFiltered?.ToArray());
+					ModuleGenerator.Generate(Module, m_AsmDefCollection, Module.MemberBlacklist, m_TypesFiltered?.ToArray());
 			}
 			catch (Exception e)
 			{
@@ -509,46 +509,5 @@ namespace LunyEditor.CodeGen
 
 			Debug.Log(sb.ToString());
 		}
-
-		/*
-		public class ExampleObject
-		{
-			public String simpleLabel = "Hello World!";
-			public String vector3Label = "v3";
-			public Vector3 vector3Value = new(-1, -2, -3);
-			public Single sumOfVector3Properties = 0f;
-		}
-		private void BindingTest(VisualElement inspector)
-		{
-			var dataSource = new ExampleObject();
-
-			var root = inspector;
-			root.name = "root";
-			root.dataSource = dataSource;
-
-			var vector3Field = new Vector3Field("Vec3 Field");
-
-			vector3Field.SetBinding("label", new DataBinding
-			{
-				dataSourcePath = new PropertyPath(nameof(ExampleObject.vector3Label)),
-				bindingMode = BindingMode.ToTarget,
-			});
-
-			vector3Field.SetBinding("value", new DataBinding
-			{
-				dataSourcePath = new PropertyPath(nameof(ExampleObject.vector3Value)),
-			});
-
-			root.Add(vector3Field);
-
-			var floatField = new FloatField("Float Field") { value = 42.2f };
-
-			floatField.SetBinding("value", new DataBinding
-			{
-				dataSourcePath = new PropertyPath(nameof(ExampleObject.sumOfVector3Properties)),
-			});
-
-			root.Add(floatField);
-		}*/
 	}
 }

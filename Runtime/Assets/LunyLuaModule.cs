@@ -3,11 +3,36 @@
 
 using Luny.Core;
 using System;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 namespace Luny
 {
+	internal static class GenMemberFilterExt
+	{
+		public static Boolean IsBlacklisted(this GenMemberFilter[] filters, MemberInfo memberInfo)
+		{
+			foreach (var filter in filters)
+			{
+				if (filter.IsBlacklisted(memberInfo))
+					return true;
+			}
+			return false;
+		}
+
+		public static Boolean IsBlacklisted(this GenMemberFilter mf, MemberInfo memberInfo) =>
+			memberInfo?.DeclaringType?.FullName == mf.TypeFullName &&
+			(mf.BlacklistedMemberNames?.Contains(memberInfo?.Name) ?? false);
+	}
+
+	[Serializable] internal struct GenMemberFilter
+	{
+		public String TypeFullName;
+		public String[] BlacklistedMemberNames;
+	}
+
 	[CreateAssetMenu(fileName = "New LuaModule", menuName = "Luny/Lua Module", order = 101)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaModuleIcon.png")]
 	public sealed partial class LunyLuaModule : ScriptableObject
@@ -17,7 +42,7 @@ namespace Luny
 		[SerializeField] internal String[] m_NamespaceBlacklist = Array.Empty<String>();
 		[SerializeField] [ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
-		[SerializeField] internal String[] m_MemberBlacklist = Array.Empty<String>();
+		[SerializeField] internal GenMemberFilter[] m_MemberBlacklist = Array.Empty<GenMemberFilter>();
 
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
@@ -31,6 +56,7 @@ namespace Luny
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 		internal String[] NamespaceBlacklist => m_NamespaceBlacklist;
 		internal String[] TypeBlacklist => m_TypeBlacklist;
+		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }

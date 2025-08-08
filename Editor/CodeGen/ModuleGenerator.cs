@@ -18,7 +18,8 @@ namespace LunyEditor.CodeGen
 		private static Dictionary<Type, GenTypeInfo> s_TypeInfosByType;
 		public static Dictionary<Type, GenTypeInfo> TypeInfosByType => s_TypeInfosByType;
 
-		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets, Type[] types, String onlyThisMethodName = null)
+		public static void Generate(LunyLuaModule module, AssemblyDefinitionAssets asmdefAssets,
+			GenMemberFilter[] memberBlacklist, Type[] types, String onlyThisMethodName = null)
 		{
 			Debug.Assert(module != null);
 			Debug.Assert(types != null);
@@ -28,7 +29,8 @@ namespace LunyEditor.CodeGen
 				Debug.Log($"Generating {module.name} assembly: {module.AssemblyName}");
 
 				var assembly = GenUtil.FindAssembly(module.AssemblyName);
-				s_TypeInfosByType = CreateTypeInfos(assembly, types, out var namespaces, out var typeInfos, onlyThisMethodName);
+				s_TypeInfosByType =
+					CreateTypeInfos(assembly, types, memberBlacklist, out var namespaces, out var typeInfos, onlyThisMethodName);
 				var contentFolderPath = GetOrCreateContentFolderPath(module);
 
 				ModuleAssemblyDefinitionGenerator.Generate(module, contentFolderPath, namespaces, asmdefAssets);
@@ -39,8 +41,9 @@ namespace LunyEditor.CodeGen
 			}
 		}
 
-		private static Dictionary<Type, GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types, out String[] namespaces,
-			out IEnumerable<GenTypeInfo> typeInfos, String onlyThisMethodName)
+		private static Dictionary<Type, GenTypeInfo> CreateTypeInfos(Assembly moduleAssembly, IEnumerable<Type> types,
+			GenMemberFilter[] memberBlacklist, out String[] namespaces, out IEnumerable<GenTypeInfo> typeInfos,
+			String onlyThisMethodName)
 		{
 			var typeInfosByType = new Dictionary<Type, GenTypeInfo>();
 
@@ -58,13 +61,8 @@ namespace LunyEditor.CodeGen
 						GenUtil.LogWarn($"Skip {type.FullName}, is in foreign assembly: {type.Assembly.GetName().FullName}");
 						return;
 					}
-					if (type.IsGenericType)
-					{
-						GenUtil.LogWarn($"Skip generic type: {type.FullName}");
-						return;
-					}
 
-					var typeInfo = new GenTypeInfo(type, node.Children, onlyThisMethodName);
+					var typeInfo = new GenTypeInfo(type, memberBlacklist, node.Children, onlyThisMethodName);
 					generatableTypeInfos.Add(typeInfo);
 					typeInfosByType.Add(type, typeInfo);
 				}

@@ -1,6 +1,7 @@
 // Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Luny;
 using Luny.Core;
 using System;
 using System.Collections;
@@ -61,7 +62,8 @@ namespace LunyEditor.CodeGen
 			return $"Lua{typeName}";
 		}
 
-		public GenTypeInfo(Type type, IEnumerable<TreeNode<Type>> childTypes = null, String onlyThisMethodName = null)
+		public GenTypeInfo(Type type, GenMemberFilter[] memberBlacklist = null, IEnumerable<TreeNode<Type>> childTypes = null,
+			String onlyThisMethodName = null)
 		{
 			Type = type;
 			var typeFullName = type.FullName ?? type.Name;
@@ -91,8 +93,10 @@ namespace LunyEditor.CodeGen
 				InstancePropertyName = type.IsValueType ? "Value" : "Instance";
 
 				var flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
-				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, onlyThisMethodName);
-				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, onlyThisMethodName);
+				if (memberBlacklist == null)
+					memberBlacklist = Array.Empty<GenMemberFilter>();
+				InstanceMembers = new GenMemberInfo(type, flags | BindingFlags.Instance, memberBlacklist, onlyThisMethodName);
+				StaticMembers = new GenMemberInfo(type, flags | BindingFlags.Static, memberBlacklist, onlyThisMethodName);
 
 				// Ctor wrappers must be generated in the static class type
 				StaticMembers.Ctors = InstanceMembers.Ctors;
@@ -115,11 +119,11 @@ namespace LunyEditor.CodeGen
 		public IEnumerable<GenMethodOverloads> CtorOverloads;
 		public IEnumerable<GenMethodOverloads> MethodOverloads;
 
-		public GenMemberInfo(Type type, BindingFlags bindingFlags, String onlyThisMethodName)
+		public GenMemberInfo(Type type, BindingFlags bindingFlags, GenMemberFilter[] memberBlacklist, String onlyThisMethodName)
 		{
 			var obsolete = typeof(ObsoleteAttribute);
 			Ctors = type.GetConstructors(bindingFlags)
-				.Where(c => !(type.IsAbstract || c.GetCustomAttributes(obsolete).Any()))
+				.Where(c => !(type.IsAbstract || c.GetCustomAttributes(obsolete).Any() || memberBlacklist.IsBlacklisted(c)))
 				.OrderBy(c => c.GetParameters().Length);
 			Fields = type.GetFields(bindingFlags)
 				.Where(f => !(f.FieldType.IsPointer ||
@@ -127,7 +131,8 @@ namespace LunyEditor.CodeGen
 				              f.FieldType == typeof(UIntPtr) ||
 				              f.FieldType.IsGenericType ||
 				              f.FieldType.IsGenericParameter ||
-				              f.GetCustomAttributes(obsolete).Any()))
+				              f.GetCustomAttributes(obsolete).Any() ||
+				              memberBlacklist.IsBlacklisted(f)))
 				.OrderBy(f => f.Name);
 			Properties = type.GetProperties(bindingFlags)
 				.Where(p => !(p.PropertyType.IsPointer ||
@@ -135,12 +140,15 @@ namespace LunyEditor.CodeGen
 				              p.PropertyType == typeof(UIntPtr) ||
 				              p.PropertyType.IsGenericType ||
 				              p.PropertyType.IsGenericParameter ||
-				              p.GetCustomAttributes(obsolete).Any()))
+				              p.GetCustomAttributes(obsolete).Any() ||
+				              memberBlacklist.IsBlacklisted(p)))
 				.OrderBy(p => p.Name);
 			Methods = type.GetMethods(bindingFlags)
-				.Where(m => !(m.IsSpecialName || m.GetCustomAttributes(obsolete).Any()))
+				.Where(m => !(m.IsSpecialName || m.GetCustomAttributes(obsolete).Any() || memberBlacklist.IsBlacklisted(m)))
 				.OrderBy(m => m.Name);
-			Events = type.GetEvents(bindingFlags).Where(e => !e.GetCustomAttributes(obsolete).Any()).OrderBy(e => e.Name);
+			Events = type.GetEvents(bindingFlags)
+				.Where(e => !(e.GetCustomAttributes(obsolete).Any() || memberBlacklist.IsBlacklisted(e)))
+				.OrderBy(e => e.Name);
 			CtorOverloads = GetMethodOverloads(Ctors, onlyThisMethodName);
 			MethodOverloads = GetMethodOverloads(Methods, onlyThisMethodName);
 		}
