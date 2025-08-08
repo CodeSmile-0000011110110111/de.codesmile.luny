@@ -142,9 +142,9 @@ namespace LunyEditor
 			}
 		}
 
-		private sealed class FileSystem : ILunyLuaFileSystem
+		private sealed class FileSystem : ILunyFileSystemHook
 		{
-			private readonly LunySearchPaths m_SearchPaths;
+			private readonly LuaSearchPaths m_SearchPaths;
 			private readonly Boolean m_IsSandbox;
 
 			public FileSystem(LunyLuaContext luaContext)

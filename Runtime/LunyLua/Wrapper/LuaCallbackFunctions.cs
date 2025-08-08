@@ -38,7 +38,7 @@ namespace Luny
 			}
 			catch (LuaRuntimeException e)
 			{
-				LunyLogger.LogException(e);
+				LuaLogger.LogException(e);
 			}
 		}
 	}

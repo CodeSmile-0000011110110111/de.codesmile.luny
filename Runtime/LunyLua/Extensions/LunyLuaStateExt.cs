@@ -27,7 +27,7 @@ namespace Luny
 			var source = await stream.ReadAllAsync(cancellationToken);
 
 			// get the relative asset path, if any, and use it as the chunk name for hyperlinking
-			var fileSystem = state.Platform.FileSystem as LunyLuaFileSystem;
+			var fileSystem = state.Platform.FileSystem as LuaUnityFileSystem;
 			var assetPath = fileSystem.Hook.TryGetAssetPath(fileName);
 			if (assetPath != null)
 				fileName = assetPath;
@@ -65,9 +65,9 @@ namespace Luny
 			var env = luaState.Environment;
 
 			// logging
-			env["print"] = LunyLogger.LuaLogInfo;
-			env["warn"] = LunyLogger.LuaLogWarn;
-			env["error"] = LunyLogger.LuaLogError;
+			env["print"] = LuaLogger.LuaLogInfo;
+			env["warn"] = LuaLogger.LuaLogWarn;
+			env["error"] = LuaLogger.LuaLogError;
 
 			env["typeof"] = LuaFunctions.LuaTypeOf;	// return System.Type.FullName for LuaValue
 			//env["using"] = LuaFunctions.LuaUsing;		// moves using namespaces to front of namespace search order

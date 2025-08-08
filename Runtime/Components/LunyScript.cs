@@ -194,7 +194,7 @@ namespace Luny
 			}
 			catch (Exception e)
 			{
-				LunyLogger.LogError($"Error in {m_LuaScript}: {e.Message}");
+				LuaLogger.LogError($"Error in {m_LuaScript}: {e.Message}");
 				OnScriptLoadError();
 			}
 		}

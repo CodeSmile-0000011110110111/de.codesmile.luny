@@ -12,23 +12,23 @@ using UnityEngine;
 
 namespace Luny
 {
-	public interface ILunyLuaFileSystem
+	public interface ILunyFileSystemHook
 	{
 		Boolean ReadText(String path, out String content);
 		Boolean ReadBytes(String path, out Byte[] bytes);
 		String TryGetAssetPath(String pathOrChunkName);
 	}
 
-	internal sealed class LunyLuaFileSystem : ILuaFileSystem
+	internal sealed class LuaUnityFileSystem : ILuaFileSystem
 	{
 		private readonly ILuaFileSystem m_DefaultFileSystem = new FileSystem();
-		private readonly ILunyLuaFileSystem m_FileSystemHook;
+		private readonly ILunyFileSystemHook m_FileSystemHook;
 		private readonly Boolean m_IsSandbox;
-		public ILunyLuaFileSystem Hook => m_FileSystemHook;
+		public ILunyFileSystemHook Hook => m_FileSystemHook;
 
 		public String DirectorySeparator => "/";
 
-		public LunyLuaFileSystem(LunyLuaContext luaContext, ILunyLuaFileSystem fileSystemHook)
+		public LuaUnityFileSystem(LunyLuaContext luaContext, ILunyFileSystemHook fileSystemHook)
 		{
 			m_FileSystemHook = fileSystemHook;
 			m_IsSandbox = luaContext.IsSandbox;
@@ -78,12 +78,12 @@ namespace Luny
 		public String GetTempFileName() => m_DefaultFileSystem.GetTempFileName();
 	}
 
-	internal sealed class LunyLuaOsEnvironment : ILuaOsEnvironment
+	internal sealed class LuaUnityEnvironment : ILuaOsEnvironment
 	{
 		private readonly Boolean m_IsSandbox;
 		private readonly ILuaOsEnvironment m_DefaultOsEnv = new SystemOsEnvironment();
 
-		public LunyLuaOsEnvironment(LunyLuaContext luaContext) => m_IsSandbox = luaContext.IsSandbox;
+		public LuaUnityEnvironment(LunyLuaContext luaContext) => m_IsSandbox = luaContext.IsSandbox;
 
 		public String GetEnvironmentVariable(String name) => !m_IsSandbox ? m_DefaultOsEnv.GetEnvironmentVariable(name) : "";
 
@@ -98,7 +98,7 @@ namespace Luny
 		public Double GetTotalProcessorTime() => Time.realtimeSinceStartupAsDouble;
 	}
 
-	public sealed class LunyLuaStandardIO : ILuaStandardIO
+	public sealed class LuaUnityIO : ILuaStandardIO
 	{
 		private readonly ILuaStandardIO m_DefaultStandardIO;
 
@@ -107,6 +107,6 @@ namespace Luny
 		public ILuaStream Output => m_DefaultStandardIO.Output;
 		public ILuaStream Error => m_DefaultStandardIO.Error;
 
-		public LunyLuaStandardIO(LunyLuaContext luaContext) => m_DefaultStandardIO = new ConsoleStandardIO();
+		public LuaUnityIO(LunyLuaContext luaContext) => m_DefaultStandardIO = new ConsoleStandardIO();
 	}
 }

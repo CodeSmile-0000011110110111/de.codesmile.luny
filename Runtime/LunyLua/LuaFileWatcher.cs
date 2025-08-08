@@ -22,7 +22,7 @@ namespace Luny
 
 		internal void ClearChangedFiles() => LuaFileWatchers.ClearChangedFiles();
 
-		private void InstallFileWatchers(LunySearchPaths searchPaths)
+		private void InstallFileWatchers(LuaSearchPaths searchPaths)
 		{
 			// always monitor "Assets" in editor
 			var isEditor = Application.isEditor;

@@ -17,7 +17,7 @@ namespace Luny
 	// see: https://www.reddit.com/r/Unity3D/comments/17eikh0/i_found_a_way_to_go_to_the_right_line_in_your/
 
 	[Preserve]
-	public static class LunyLogger
+	public static class LuaLogger
 	{
 		[Preserve] internal static readonly LuaFunction LuaLogInfo = new("print", (context, ct) =>
 		{

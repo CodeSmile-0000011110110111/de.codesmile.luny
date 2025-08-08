@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Luny
 {
-	public sealed class LunySearchPaths
+	public sealed class LuaSearchPaths
 	{
 		private const String PersistentPlaceholder = "%persistentdatapath%";
 		private readonly List<SearchPathInfo> m_Paths;
@@ -24,7 +24,7 @@ namespace Luny
 #endif
 		}
 
-		public LunySearchPaths(LunyLuaContext luaContext, String[] searchPaths)
+		public LuaSearchPaths(LunyLuaContext luaContext, String[] searchPaths)
 		{
 			var pathCount = searchPaths.Length;
 			m_Paths = new List<SearchPathInfo>(pathCount);

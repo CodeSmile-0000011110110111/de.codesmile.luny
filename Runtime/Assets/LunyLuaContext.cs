@@ -45,7 +45,7 @@ namespace Luny
 		[SerializeField] [HideInInspector] private Boolean m_IsModdingContext;
 
 		public Boolean IsSandbox => m_IsSandbox;
-		public LunySearchPaths SearchPaths => new(this, m_ScriptSearchPaths);
+		public LuaSearchPaths SearchPaths => new(this, m_ScriptSearchPaths);
 		public String Path => m_Path;
 		public LuaLibraryFlags Libraries => m_Libraries;
 

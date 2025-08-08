@@ -59,7 +59,7 @@ namespace Luny
 						return Activator.CreateInstance(type) as T;
 				}
 
-				LunyLogger.LogWarn($"{typeName} not found in {moduleAssembly?.GetName().Name}: {folderPath}");
+				LuaLogger.LogWarn($"{typeName} not found in {moduleAssembly?.GetName().Name}: {folderPath}");
 			}
 
 			return default;
