@@ -1,0 +1,18 @@
+{
+    "name": "CodeSmileEditor.Core",
+    "rootNamespace": "CodeSmileEditor",
+    "references": [
+        "GUID:8b08bc580efd4d64b8b270f734077090"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

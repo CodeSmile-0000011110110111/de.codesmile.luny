@@ -5,16 +5,14 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "LunyTests.Core",
-        "Luny",
-        "Luny.UnityEngine.CoreModule"
+        "Luny"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll",
-        "Lua.dll"
+        "nunit.framework.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

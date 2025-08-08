@@ -13,8 +13,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Lua.dll",
-        "Microsoft.Bcl.TimeProvider.dll"
+        "Microsoft.Bcl.TimeProvider.dll",
+        "Lua.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
