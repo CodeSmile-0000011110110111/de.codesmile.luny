@@ -706,13 +706,14 @@ MonoBehaviour:
     BlacklistedMemberNames:
     - GetEditorName
   m_ContentFolderGuid: 3aca833e4db26af4f8a708e0b2ccdfd4
-  m_ModuleLoaderTypeFullName: 
+  m_ModuleLoaderTypeFullName: Luny.UnityEngine.CoreModule.Internal.LuaModuleLoader
   m_ModuleLoader:
-    rid: -2
+    rid: 3323315869967188159
   m_GenerateOnlyThisType: //UnityEngine.Debug
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3323315869967188159
+      type: {class: LuaModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
+      data: 

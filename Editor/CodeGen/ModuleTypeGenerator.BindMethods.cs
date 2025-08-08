@@ -37,6 +37,8 @@ namespace LunyEditor.CodeGen
 		}
 
 		private static String CreateLuaBindFuncFieldName(GenTypeInfo typeInfo, String luaName) => $"_{typeInfo.LuaInstanceTypeName}_{luaName}";
+		private static void CreateMethodGetterCase(IList<String> getters, String fieldName, String luaFuncName) =>
+			getters.Add($"case \"{luaFuncName}\": _value = {fieldName}; return true;");
 
 		private static void AddMethodOpenLuaBindFunction(CSharpScriptBuilder sb, String fieldName, String luaFuncName)
 		{

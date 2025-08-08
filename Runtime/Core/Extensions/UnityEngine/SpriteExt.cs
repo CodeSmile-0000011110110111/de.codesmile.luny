@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.UnityEngine
+namespace Luny.Core
 {
 	public static class SpriteExt
 	{

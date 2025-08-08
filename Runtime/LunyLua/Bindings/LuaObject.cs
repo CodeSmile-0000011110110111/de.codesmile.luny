@@ -3,12 +3,15 @@
 
 using Lua;
 using Lua.Runtime;
+using Luny.Core;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Luny
 {
@@ -61,7 +64,15 @@ namespace Luny
 			{
 				if (key.Type == LuaValueType.Number)
 				{
-					// TODO: indexer
+					// TODO: support other indexer keys than Int32
+					var indexer = typeof(T).GetProperties().Where(p => p.IsIndexer()).FirstOrDefault();
+					if (indexer != null)
+					{
+						var index = key.Read<Int32>() - 1; // C# indexer would not expect a 1-based index
+						var objValue = indexer.GetValue(luaObject.Instance, new Object[] { index });
+						var value = indexer.PropertyType == typeof(LuaValue) ? (LuaValue)objValue : LuaValue.FromObject(objValue);
+						return new ValueTask<Int32>(context.Return(value));
+					}
 				}
 				else if (key.Type == LuaValueType.String)
 				{
@@ -70,16 +81,16 @@ namespace Luny
 					var field = typeof(T).GetField(keyStr, BindingFlags.Public | BindingFlags.Instance);
 					if (field != null)
 					{
-						var fieldValue = field.GetValue(luaObject.Instance);
-						var value = field.FieldType == typeof(LuaValue) ? (LuaValue)fieldValue : LuaValue.FromObject(fieldValue);
+						var objValue = field.GetValue(luaObject.Instance);
+						var value = field.FieldType == typeof(LuaValue) ? (LuaValue)objValue : LuaValue.FromObject(objValue);
 						return new ValueTask<Int32>(context.Return(value));
 					}
 
 					var property = typeof(T).GetProperty(keyStr, BindingFlags.Public | BindingFlags.Instance);
 					if (property != null)
 					{
-						var propertyValue = property.GetValue(luaObject.Instance);
-						var value = property.PropertyType == typeof(LuaValue) ? (LuaValue)propertyValue : LuaValue.FromObject(propertyValue);
+						var objValue = property.GetValue(luaObject.Instance);
+						var value = property.PropertyType == typeof(LuaValue) ? (LuaValue)objValue : LuaValue.FromObject(objValue);
 						return new ValueTask<Int32>(context.Return(value));
 					}
 				}

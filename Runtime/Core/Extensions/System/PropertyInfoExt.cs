@@ -6,7 +6,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Core
+namespace Luny.Core
 {
 	public static class PropertyInfoExt
 	{

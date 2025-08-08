@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine_GameObject = UnityEngine.GameObject;
 
-namespace Luny.Core.UnityEngine
+namespace Luny.Core
 {
 	public static class GameObjectExt
 	{

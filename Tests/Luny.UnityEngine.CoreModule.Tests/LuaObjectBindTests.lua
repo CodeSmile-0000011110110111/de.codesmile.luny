@@ -6,6 +6,10 @@ end
 function context.LuaObject_Index_ReturnsCorrectValue()
     return MyCustomObject, MyCustomObject.SomeInteger, MyCustomObject[1]
 end
+function context.LuaObject_IndexViaReflection_ReturnsCorrectValue()
+    return MyCustomObject, MyCustomObject.SomeInteger, MyCustomObject[1]
+end
+
 function context.LuaObject_WrongStringIndex_Throws()
     return MyCustomObject, MyCustomObject.XBADSERR
 end

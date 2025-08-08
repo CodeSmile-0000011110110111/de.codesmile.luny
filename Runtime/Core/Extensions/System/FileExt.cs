@@ -6,7 +6,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.System
+namespace Luny.Core
 {
 	public static class FileExt
 	{

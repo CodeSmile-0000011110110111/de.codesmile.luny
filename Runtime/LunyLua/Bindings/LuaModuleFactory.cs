@@ -29,7 +29,7 @@ namespace Luny
 		{
 			if (module.ModuleLoader == null)
 			{
-				Debug.LogWarning($"Cannot load {module.name}! Not generated or missing ModuleLoader ref: '{module.ModuleLoaderTypeFullName}'");
+				Debug.LogWarning($"Cannot load {module.name}! Perhaps not generated? ModuleLoader: '{module.ModuleLoaderTypeFullName}'");
 				return;
 			}
 

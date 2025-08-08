@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
+using Luny.Core;
 using LunyEditor.Core;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,8 @@ namespace LunyEditor.CodeGen
 	{
 		private static void AddIndexMetamethod(CSharpScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine(
-				"private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
+			sb.AppendIndent("private static readonly global::Lua.LuaFunction __index = ");
+			sb.AppendLine("new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
@@ -24,25 +25,27 @@ namespace LunyEditor.CodeGen
 			sb.AppendIndentLine("var _factory = _context.GetObjectFactory();");
 			sb.AppendIndentLine("global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;");
 
-			sb.AppendIndentLine(
-				"if (_key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))");
+			sb.AppendIndent("if (_key.Type == global::Lua.LuaValueType.Number && ");
+			sb.Append("_key.TryRead<global::System.Int32>(out var _index) && ");
+			sb.AppendLine("_this.TryGetLuaValue(_index, out _value, _factory))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.TryGetLuaValue(_name, out _value, _factory))");
+			sb.AppendIndent("if (_key.Type == global::Lua.LuaValueType.String && ");
+			sb.AppendLine("_this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine(
-				"throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndent("throw new global::Lua.LuaRuntimeException(_context.Thread, ");
+			sb.AppendLine("$\"attempt to index nil value '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 
 		private static void AddNewIndexMetamethod(CSharpScriptBuilder sb, String typeName)
 		{
-			sb.AppendIndentLine(
-				"private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
+			sb.AppendIndent("private static readonly global::Lua.LuaFunction __newindex = ");
+			sb.AppendLine("new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>");
 			sb.OpenIndentBlock("{");
 			sb.AppendIndent("var _this = _context.GetArgument<");
 			sb.Append(typeName);
@@ -50,17 +53,20 @@ namespace LunyEditor.CodeGen
 			sb.AppendIndentLine("var _key = _context.GetArgument(1);");
 			sb.AppendIndentLine("var _value = _context.GetArgument(2);");
 
-			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))");
+			sb.AppendIndent("if (_key.Type == global::Lua.LuaValueType.Number && ");
+			sb.Append("_key.TryRead<global::System.Int32>(out var _index) && ");
+			sb.AppendLine("_this.TrySetLuaValue(_index, _value))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
-			sb.AppendIndentLine("if (_key.TryRead<global::System.String>(out var _name) && _this.TrySetLuaValue(_name, _value))");
+			sb.AppendIndent("if (_key.Type == global::Lua.LuaValueType.String && ");
+			sb.AppendLine("_this.TrySetLuaValue(_key.Read<global::System.String>(), _value))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();
 
-			sb.AppendIndentLine(
-				"throw new global::Lua.LuaRuntimeException(_context.Thread, $\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
+			sb.AppendIndent("throw new global::Lua.LuaRuntimeException(_context.Thread, ");
+			sb.AppendLine("$\"attempt to assign to unknown '{_key}' on '{_this}'\", 2);");
 			sb.CloseIndentBlock("});");
 		}
 
@@ -290,8 +296,5 @@ namespace LunyEditor.CodeGen
 
 		private static String GetFieldOrPropertyName(GenTypeInfo typeInfo) =>
 			typeInfo.IsValueType ? typeInfo.InstanceFieldName : typeInfo.InstancePropertyName;
-
-		private static void CreateMethodGetterCase(IList<String> getters, String fieldName, String luaFuncName) =>
-			getters.Add($"case \"{luaFuncName}\": _value = {fieldName}; return true;");
 	}
 }

@@ -7,7 +7,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace Luny.Core.System
+namespace Luny.Core
 {
 	public static class StringExt
 	{

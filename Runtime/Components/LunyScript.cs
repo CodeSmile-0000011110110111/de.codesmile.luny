@@ -2,7 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
-using Luny.Core.UnityEngine;
+using Luny.Core;
 using System;
 using System.Collections;
 using System.IO;

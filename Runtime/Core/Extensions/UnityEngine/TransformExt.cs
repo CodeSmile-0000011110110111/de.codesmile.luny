@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Luny.Core.UnityEngine
+namespace Luny.Core
 {
 	/// <summary>
 	///     UnityEngine.Transform extension methods
