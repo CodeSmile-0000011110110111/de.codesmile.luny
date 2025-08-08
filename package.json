@@ -1,8 +1,8 @@
 {
   "name": "de.codesmile.luny",
-  "displayName": "CodeSmile Luny",
+  "displayName": "Luny",
   "description": "Lua in Unity for everything!",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "unity": "6000.0",
   "unityRelease": "23f1",
   "author": {
