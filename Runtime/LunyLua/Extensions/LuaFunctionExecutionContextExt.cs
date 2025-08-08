@@ -2,7 +2,9 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
+using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,5 +23,21 @@ namespace Luny
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ILuaEnumCollection GetEnums(this LuaFunctionExecutionContext context) =>
 			((LunyLuaStateData)context.State.UserData).LunyLua.Enums;
+
+		public static String ArgumentsToString(this LuaFunctionExecutionContext context, String prefix = "",
+			String postfix = "")
+		{
+			var sb = new StringBuilder(prefix);
+			for (var i = 0; i < context.ArgumentCount; i++)
+			{
+				if (i > 0)
+					sb.Append(", ");
+
+				var arg = context.GetArgument(i);
+				sb.Append(LuaValueExt.ToString(arg));
+			}
+			sb.Append(postfix);
+			return sb.ToString();
+		}
 	}
 }
