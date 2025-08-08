@@ -8,8 +8,7 @@ using UnityEngine.Scripting;
 
 namespace Luny
 {
-	[Preserve]
-	public sealed class LunyException : Exception
+	[Preserve] public sealed class LunyException : Exception
 	{
 		[Preserve] public LunyException(String message)
 			: base(message) {}

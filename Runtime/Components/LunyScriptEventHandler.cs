@@ -13,11 +13,11 @@ namespace Luny
 {
 	public abstract class LunyScriptEventHandlerBase
 	{
-		private LuaCallbackFunctions m_Callbacks;
+		private LuaCallbacks m_Callbacks;
 
 		public void Send(LuaState luaState, Int32 eventIndex, params LuaValue[] args) => m_Callbacks?.TryInvoke(luaState, eventIndex, args);
 
-		private LuaCallbackFunctions CreateCallbacks<T>(LuaTable scriptContext) where T : Enum
+		private LuaCallbacks CreateCallbacks<T>(LuaTable scriptContext) where T : Enum
 		{
 			var functionNames = Enum.GetNames(typeof(T));
 			var functionCount = functionNames.Length;
@@ -34,7 +34,7 @@ namespace Luny
 				}
 			}
 
-			return callbackCount > 0 ? new LuaCallbackFunctions(callbackFunctions) : null;
+			return callbackCount > 0 ? new LuaCallbacks(callbackFunctions) : null;
 		}
 
 		internal void BindEventCallbacks<T>(LuaTable scriptContext) where T : Enum => m_Callbacks = CreateCallbacks<T>(scriptContext);

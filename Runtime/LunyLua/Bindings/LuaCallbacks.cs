@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace Luny
 {
-	internal sealed class LuaCallbackFunctions
+	internal sealed class LuaCallbacks
 	{
 		private readonly LuaFunction[] m_CallbackFunctions;
 
-		internal LuaCallbackFunctions(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
+		internal LuaCallbacks(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
 
 		public void TryInvoke(LuaState luaState, Int32 index, params LuaValue[] args)
 		{
