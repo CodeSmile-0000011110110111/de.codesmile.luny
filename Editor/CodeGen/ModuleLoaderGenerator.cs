@@ -18,7 +18,7 @@ namespace LunyEditor.CodeGen
 		public static void Generate(LunyLuaModule module, String contentFolderPath, IEnumerable<GenTypeInfo> typeInfos,
 			IEnumerable<String> namespaces)
 		{
-			var loaderClassName = "LuaModuleLoader";// $"Lua{module.AssemblyName.Replace(".", "")}Loader";
+			var loaderClassName = "LuaModuleLoader"; // $"Lua{module.AssemblyName.Replace(".", "")}Loader";
 			var namespaceName = $"{module.BindingsAssemblyName}.Internal";
 			module.ModuleLoaderTypeFullName = $"{namespaceName}.{loaderClassName}";
 

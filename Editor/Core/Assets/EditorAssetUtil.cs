@@ -74,9 +74,6 @@ namespace LunyEditor.Core
 				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 		}
 
-		[InitializeOnLoadMethod]
-		private static void OnLoad() => s_Assemblies = CompilationPipeline.GetAssemblies();
-
 		public static void TryCreateAndImportPath(String assetPath)
 		{
 			var fullPath = Path.GetFullPath($"{Application.dataPath}/../{assetPath}");
@@ -89,5 +86,8 @@ namespace LunyEditor.Core
 
 		public static String GetFullPathFromAssetPath(String assetPath) =>
 			Path.GetFullPath($"{Application.dataPath}/../{assetPath}").ToForwardSlashes();
+
+		[InitializeOnLoadMethod]
+		private static void OnLoad() => s_Assemblies = CompilationPipeline.GetAssemblies();
 	}
 }

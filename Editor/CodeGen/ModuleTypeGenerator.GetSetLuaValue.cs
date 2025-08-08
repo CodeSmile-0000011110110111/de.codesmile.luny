@@ -24,7 +24,8 @@ namespace LunyEditor.CodeGen
 			sb.AppendIndentLine("var _factory = _context.GetObjectFactory();");
 			sb.AppendIndentLine("global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;");
 
-			sb.AppendIndentLine("if (_key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))");
+			sb.AppendIndentLine(
+				"if (_key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))");
 			sb.IncrementIndent();
 			sb.AppendIndentLine("return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));");
 			sb.DecrementIndent();

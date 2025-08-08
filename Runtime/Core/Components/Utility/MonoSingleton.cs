@@ -93,8 +93,7 @@ namespace Luny.Core.Components
 			s_IsInstanceAssigned = false;
 		}
 
-		private static T AutoCreateInstance() =>
-			new GameObject($"{typeof(T).Name} (Auto-Created)", typeof(T)).GetComponent<T>();
+		private static T AutoCreateInstance() => new GameObject($"{typeof(T).Name} (Auto-Created)", typeof(T)).GetComponent<T>();
 
 		/// <summary>
 		///     Call base.Awake() to automatically assign 'this' as the singleton instance.

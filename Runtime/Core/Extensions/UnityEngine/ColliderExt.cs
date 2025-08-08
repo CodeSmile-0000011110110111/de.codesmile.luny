@@ -8,8 +8,7 @@ namespace Luny.Core.UnityEngine
 {
 	public static class ColliderExt
 	{
-		public static T GetOrAddComponent<T>(this Collider collider) where T : Component =>
-			collider.gameObject.GetOrAddComponent<T>();
+		public static T GetOrAddComponent<T>(this Collider collider) where T : Component => collider.gameObject.GetOrAddComponent<T>();
 
 		public static T AddComponent<T>(this Collider collider) where T : Component => collider.gameObject.AddComponent<T>();
 	}

@@ -60,12 +60,14 @@ namespace LunyEditor.CodeGen
 			var typeHash = new HashSet<String>(typeNames ?? new String[] {});
 			return types
 				.Where(type => nsHash.Contains(type.Namespace) && (typeNames == null || typeHash.Contains(type.FullName)))
-				.OrderBy(type => type.Namespace).ThenBy(type => type.FullName);
+				.OrderBy(type => type.Namespace)
+				.ThenBy(type => type.FullName);
 		}
 
 		public static IEnumerable<Type> GetBindableTypes(Assembly assembly) => assembly != null
 			? assembly.ExportedTypes.Where(type => IsSupportedType(type))
-				.OrderBy(type => type.Namespace).ThenBy(type => type.FullName)
+				.OrderBy(type => type.Namespace)
+				.ThenBy(type => type.FullName)
 			: Array.Empty<Type>();
 
 		public static IEnumerable<String> GetNamespacesFromTypes(IEnumerable<Type> types) =>

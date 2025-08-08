@@ -17,6 +17,7 @@ namespace Luny
 		[SerializeField] internal String[] m_NamespaceBlacklist = Array.Empty<String>();
 		[SerializeField] [ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
+		[SerializeField] internal String[] m_MemberBlacklist = Array.Empty<String>();
 
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
@@ -33,7 +34,7 @@ namespace Luny
 
 		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
 		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }
-		internal Loader ModuleLoader { get => m_ModuleLoader; }
+		internal Loader ModuleLoader => m_ModuleLoader;
 
 		// Is abstract instead of interface for serialization in LunyLuaModule asset
 		[Serializable]

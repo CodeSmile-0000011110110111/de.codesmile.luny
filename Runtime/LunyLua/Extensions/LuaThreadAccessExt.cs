@@ -49,7 +49,7 @@ namespace Luny
 				access.Thread.Stack.Push(contextTable);
 			}
 
-			var count = await access.RunAsync(closure, argCount,  access.Stack.Count - argCount, cancellationToken);
+			var count = await access.RunAsync(closure, argCount, access.Stack.Count - argCount, cancellationToken);
 			using var results = access.ReadTopValues(count);
 			return results.AsSpan().ToArray();
 		}

@@ -9,12 +9,14 @@ namespace Luny
 {
 	// the ILuaxxx interfaces are needed to safely reference these types in absence of generated UnityEngine code
 	public interface ILuaUnityObject {}
+
 	public interface ILuaUnityGameObject
 	{
 		// Instantiate
 		// Add/GetComponent
 		// Destroy
 	}
+
 	public interface ILuaUnityComponent {}
 
 	public interface ILunyGameObject {}
@@ -22,18 +24,15 @@ namespace Luny
 	public sealed class LunyGameObject : ILunyGameObject
 	{
 		private ILuaUnityGameObject m_LuaGameObject;
-		private UnityEngine.GameObject m_UnityGameObject;
+		private GameObject m_UnityGameObject;
 
-		public UnityEngine.GameObject UnityGameObject => m_UnityGameObject;
+		public GameObject UnityGameObject => m_UnityGameObject;
 		public ILuaUnityGameObject LuaGameObject => m_LuaGameObject;
 
-		public LunyGameObject(ILunyLua lua, UnityEngine.GameObject gameObject)
-		{
-			throw new NotImplementedException(nameof(LunyGameObject));
-			//m_LuaGameObject = lua.ObjectFactory.CreateLuaObject(m_UnityGameObject) as ILuaUnityGameObject;
-			//m_UnityGameObject = gameObject;
-		}
+		public LunyGameObject(ILunyLua lua, GameObject gameObject) => throw new NotImplementedException(nameof(LunyGameObject));
 
+		//m_LuaGameObject = lua.ObjectFactory.CreateLuaObject(m_UnityGameObject) as ILuaUnityGameObject;
+		//m_UnityGameObject = gameObject;
 		internal void Dispose()
 		{
 			m_UnityGameObject = null;

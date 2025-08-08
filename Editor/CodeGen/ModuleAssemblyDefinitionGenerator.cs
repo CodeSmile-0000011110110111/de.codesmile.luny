@@ -110,7 +110,7 @@ namespace LunyEditor.CodeGen
 			if (asmdef != null)
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asmdef, out guid, out var _);
 
-			if (string.IsNullOrEmpty(guid))
+			if (String.IsNullOrEmpty(guid))
 				Debug.LogWarning($"Assembly '{ns}' not found while generating module assembly");
 
 			return guid;

@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using Luny;
 using LunyEditor.Assets;
 using LunyEditor.Settings;

@@ -68,7 +68,7 @@ namespace Luny
 			env["warn"] = LuaLogger.LuaLogWarn;
 			env["error"] = LuaLogger.LuaLogError;
 
-			env["typeof"] = LuaFunctions.LuaTypeOf;	// return System.Type.FullName for LuaValue
+			env["typeof"] = LuaFunctions.LuaTypeOf; // return System.Type.FullName for LuaValue
 			//env["using"] = LuaFunctions.LuaUsing;		// moves using namespaces to front of namespace search order
 
 			if ((libraryFlags & LuaLibraryFlags.Basic) != 0)

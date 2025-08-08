@@ -44,8 +44,7 @@ namespace Luny.Core.Components
 		/// <summary>
 		///     Currently active instance or null.
 		/// </summary>
-		public GameObject ActiveInstance =>
-			m_ActiveInstanceIndex >= 0 ? m_Parent.GetChild(m_ActiveInstanceIndex).gameObject : null;
+		public GameObject ActiveInstance => m_ActiveInstanceIndex >= 0 ? m_Parent.GetChild(m_ActiveInstanceIndex).gameObject : null;
 
 		public InstanceActivator(Transform parent, Int32 activeIndex = -1)
 			: this(parent, null, activeIndex) {}

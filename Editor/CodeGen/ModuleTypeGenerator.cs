@@ -129,9 +129,7 @@ namespace LunyEditor.CodeGen
 
 			sb.Append("global::");
 			if (isLuaStaticType)
-			{
 				sb.Append(typeof(ILuaStatic).FullName);
-			}
 			else if (typeInfo.IsValueType)
 			{
 				sb.Append("Luny.ILuaValueType<");
@@ -378,11 +376,10 @@ namespace LunyEditor.CodeGen
 			AddMethodBindings(sb, typeInfo, members.MethodOverloads, getters);
 		}
 
-		private static bool ConversionToLuaValueRequiresObjectFactory(Type bindType)
-		{
-			return !(bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String) ||
-			         bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var _));
-		}
+		private static Boolean ConversionToLuaValueRequiresObjectFactory(Type bindType) =>
+			!(bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String) ||
+			  bindType.IsValueType && ModuleGenerator.TypeInfosByType.TryGetValue(bindType, out var _));
+
 		private static void AddConversionToLuaValue(CSharpScriptBuilder sb, Type bindType, String varName)
 		{
 			if (bindType.IsPrimitive || bindType.IsEnum || bindType == typeof(String))

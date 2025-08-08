@@ -34,8 +34,7 @@ namespace Luny.Core.Components
 		/// </remarks>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public static T Get<T>() where T : Component =>
-			s_Components.TryGetValue(typeof(T), out var component) ? component as T : null;
+		public static T Get<T>() where T : Component => s_Components.TryGetValue(typeof(T), out var component) ? component as T : null;
 
 		/// <summary>
 		///     Gets a component from the registry, awaitable.

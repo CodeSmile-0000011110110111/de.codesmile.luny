@@ -20,7 +20,7 @@ namespace Luny.Core
 		public T Value => m_Value;
 		public TreeNode(T value) => m_Value = value;
 
-		public bool AddChild(T value)
+		public Boolean AddChild(T value)
 		{
 			if (m_Children.TryGetValue(value, out var node))
 				return false;

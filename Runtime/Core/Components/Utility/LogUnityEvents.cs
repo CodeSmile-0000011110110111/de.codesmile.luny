@@ -124,8 +124,7 @@ namespace Luny.Core.Components
 
 		private void OnRectTransformDimensionsChange() => LogMethod("OnRectTransformDimensionsChange");
 
-		private void OnRenderImage(RenderTexture source, RenderTexture destination) =>
-			LogMethod($"OnRenderImage: {source}, {destination}");
+		private void OnRenderImage(RenderTexture source, RenderTexture destination) => LogMethod($"OnRenderImage: {source}, {destination}");
 
 		private void OnRenderObject() => LogMethod("OnRenderObject");
 		private void OnServerInitialized() => LogMethod("OnServerInitialized");

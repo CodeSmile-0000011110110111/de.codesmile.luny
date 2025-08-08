@@ -117,8 +117,7 @@ namespace Luny.Core
 
 		public override String ToString() => $"{nameof(SceneReference)}({m_SceneName})";
 
-		public override Boolean Equals(Object obj) =>
-			ReferenceEquals(this, obj) || obj is SceneReference other && Equals(other);
+		public override Boolean Equals(Object obj) => ReferenceEquals(this, obj) || obj is SceneReference other && Equals(other);
 
 		public override Int32 GetHashCode() => m_ScenePath != null ? m_ScenePath.GetHashCode() : 0;
 

@@ -68,7 +68,7 @@ namespace Lua.Unity
             {
                 request.completed += x => continuation.Invoke();
             }
-            
+
             public void GetResult()
             {
             }
@@ -82,3 +82,6 @@ namespace Lua.Unity
 #endif
 }
 */
+
+using UnityEditor;
+using UnityEngine;

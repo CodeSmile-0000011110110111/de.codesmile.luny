@@ -144,7 +144,8 @@ namespace LunyEditor.CodeGen
 			sb.AppendLine("\"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}\", 2);");
 		}
 
-		private static void AddMethodGetArgumentFromLuaContext(CSharpScriptBuilder sb, Int32 argNum, Int32 luaArgIndex, GenParamInfo parameter = null)
+		private static void AddMethodGetArgumentFromLuaContext(CSharpScriptBuilder sb, Int32 argNum, Int32 luaArgIndex,
+			GenParamInfo parameter = null)
 		{
 			sb.AppendIndent("var ");
 			sb.Append(Args[argNum]);
@@ -245,7 +246,8 @@ namespace LunyEditor.CodeGen
 			sb.CloseIndentBlock("}");
 		}
 
-		private static void AddMethodReadRemainingAndAssignParameters(CSharpScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset, Int32 pos)
+		private static void AddMethodReadRemainingAndAssignParameters(CSharpScriptBuilder sb, GenMethodInfo overload, Int32 luaArgOffset,
+			Int32 pos)
 		{
 			// get remaining arguments
 			var parameters = overload.ParamInfos;

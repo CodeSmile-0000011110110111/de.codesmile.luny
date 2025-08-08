@@ -40,8 +40,7 @@ namespace Luny.Statemachine.Conditions
 			m_Conditions = conditions;
 		}
 
-		public Boolean IsSatisfied(FSM sm) =>
-			FSM.Transition.ConditionsSatisfied(sm, null, m_Conditions, sm.ActiveState.Logging);
+		public Boolean IsSatisfied(FSM sm) => FSM.Transition.ConditionsSatisfied(sm, null, m_Conditions, sm.ActiveState.Logging);
 
 		public String ToDebugString(FSM sm)
 		{

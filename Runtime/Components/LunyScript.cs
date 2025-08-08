@@ -51,7 +51,7 @@ namespace Luny
 		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
 		public ILunyLua Lua => m_Lua;
 
-		public static UnityEngine.GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
+		public static GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
 
 		/// <summary>
 		/// Must call base.OnValidate() when overridden!
@@ -149,7 +149,8 @@ namespace Luny
 				Debug.Assert(luaScript != null, nameof(luaScript) + $" failed to read: {m_LuaFilePath}");
 			}
 			else
-				throw new MissingReferenceException($"{nameof(LunyScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
+				throw new MissingReferenceException(
+					$"{nameof(LunyScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
 
 			m_Lua.AddScript(luaScript);
 			luaScript.OnScriptChanged -= OnScriptChanged;

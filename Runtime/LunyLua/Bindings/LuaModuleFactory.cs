@@ -24,7 +24,8 @@ namespace Luny
 				env[ns.Name] = ns;
 		}
 
-		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces, LuaEnumCollection luaEnums)
+		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces,
+			LuaEnumCollection luaEnums)
 		{
 			if (module.ModuleLoader == null)
 			{
@@ -66,6 +67,5 @@ namespace Luny
 				luaEnums.Add(enumType, luaEnum);
 			}
 		}
-
 	}
 }

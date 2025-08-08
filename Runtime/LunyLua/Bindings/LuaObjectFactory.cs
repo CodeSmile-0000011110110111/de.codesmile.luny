@@ -25,7 +25,6 @@ namespace Luny
 		public InstanceListToLuaCallback InstanceListToLua;
 	}
 
-
 	public interface ILuaObjectFactory
 	{
 		// FIXME: can I make these generic?

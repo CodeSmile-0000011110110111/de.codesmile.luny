@@ -41,8 +41,7 @@ namespace Luny.Statemachine.Conditions
 			m_InnerConditions = andConditions;
 		}
 
-		public Boolean IsSatisfied(FSM sm) =>
-			FSM.Transition.ConditionsSatisfied(sm, null, InnerConditions, sm.ActiveState.Logging);
+		public Boolean IsSatisfied(FSM sm) => FSM.Transition.ConditionsSatisfied(sm, null, InnerConditions, sm.ActiveState.Logging);
 
 		public String ToDebugString(FSM sm)
 		{

@@ -11,8 +11,7 @@ namespace Luny.Core
 {
 	public static class PathUtil
 	{
-		public static String GetRelativePath(String path) =>
-			Path.GetRelativePath(Application.dataPath, path).ToForwardSlashes();
+		public static String GetRelativePath(String path) => Path.GetRelativePath(Application.dataPath, path).ToForwardSlashes();
 
 		public static String GetFullPath(String rootPath, String relativePath) =>
 			Path.GetFullPath(Path.Join(rootPath, relativePath)).ToForwardSlashes();

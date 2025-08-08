@@ -18,7 +18,7 @@ namespace LunyEditor.CodeGen
 {
 	[CustomEditor(typeof(LunyLuaModule))]
 	[CanEditMultipleObjects]
-	internal sealed class LunyLuaModuleEditor : UnityEditor.Editor
+	internal sealed class LunyLuaModuleEditor : Editor
 	{
 		private SerializedProperty m_AssemblyNameProperty;
 		private SerializedProperty m_NamespaceWhitelistProperty;

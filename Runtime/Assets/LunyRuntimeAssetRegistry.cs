@@ -70,12 +70,6 @@ namespace Luny
 			s_SingletonAssigned = false;
 		}
 
-		private void OnDestroy()
-		{
-			if (s_Singleton == this)
-				ResetSingletonFields();
-		}
-
 		public LunyLuaAsset GetRuntimeLuaAsset(String assetPath)
 		{
 			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetPath);
@@ -86,6 +80,12 @@ namespace Luny
 		{
 			var index = m_ModdingLuaAssets.Paths.IndexOf(assetPath);
 			return index >= 0 ? m_ModdingLuaAssets.Assets[index] : null;
+		}
+
+		private void OnDestroy()
+		{
+			if (s_Singleton == this)
+				ResetSingletonFields();
 		}
 
 		internal void Save()

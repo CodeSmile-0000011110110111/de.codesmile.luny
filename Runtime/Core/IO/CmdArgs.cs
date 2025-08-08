@@ -60,10 +60,9 @@ namespace Luny.Core
 		/// <param name="key"></param>
 		/// <param name="defaultValue"></param>
 		/// <returns></returns>
-		public static Boolean GetBool(String key, Boolean defaultValue = default) =>
-			Args.TryGetValue(key.ToLower(), out var str)
-				? TryParseBool(str, defaultValue)
-				: defaultValue;
+		public static Boolean GetBool(String key, Boolean defaultValue = default) => Args.TryGetValue(key.ToLower(), out var str)
+			? TryParseBool(str, defaultValue)
+			: defaultValue;
 
 		/// <summary>
 		///     Gets the argument's value. If the argument was not specified, returns the default value.
@@ -88,13 +87,11 @@ namespace Luny.Core
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void ResetStaticFields() => s_Args = null;
 
-		private static Boolean TryParseBool(String str, Boolean defaultValue) =>
-			Boolean.TryParse(str, out var val) ? val : defaultValue;
+		private static Boolean TryParseBool(String str, Boolean defaultValue) => Boolean.TryParse(str, out var val) ? val : defaultValue;
 
-		private static Single TryParseFloat(String str, Single defaultValue) =>
-			Single.TryParse(str, FloatStyle, Culture, out var val)
-				? val
-				: defaultValue;
+		private static Single TryParseFloat(String str, Single defaultValue) => Single.TryParse(str, FloatStyle, Culture, out var val)
+			? val
+			: defaultValue;
 
 		private static Int32 TryParseInt(String str, Int32 defaultValue) =>
 			Int32.TryParse(str, IntStyle, Culture, out var val) ? val : defaultValue;
