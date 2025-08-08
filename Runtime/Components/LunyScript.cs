@@ -149,7 +149,7 @@ namespace Luny
 				Debug.Assert(luaScript != null, nameof(luaScript) + $" failed to read: {m_LuaFilePath}");
 			}
 			else
-				throw new MissingReferenceException($"neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
+				throw new MissingReferenceException($"{nameof(LunyScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
 
 			m_Lua.AddScript(luaScript);
 			luaScript.OnScriptChanged -= OnScriptChanged;
