@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	public static class CscResponseFile
 	{

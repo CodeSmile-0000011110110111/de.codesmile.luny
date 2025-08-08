@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Pool
 {
 	[DisallowMultipleComponent]
 	public sealed class ReleasePooledObjectOnDisable : MonoBehaviour

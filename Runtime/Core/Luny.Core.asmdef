@@ -1,6 +1,6 @@
 {
-    "name": "CodeSmile.Core",
-    "rootNamespace": "CodeSmile",
+    "name": "Luny.Core",
+    "rootNamespace": "Luny.Core",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

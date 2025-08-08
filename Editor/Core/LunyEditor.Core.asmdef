@@ -1,6 +1,6 @@
 {
-    "name": "CodeSmileEditor.Core",
-    "rootNamespace": "CodeSmileEditor",
+    "name": "LunyEditor.Core",
+    "rootNamespace": "LunyEditor.Core",
     "references": [
         "GUID:8b08bc580efd4d64b8b270f734077090"
     ],

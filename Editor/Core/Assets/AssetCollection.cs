@@ -8,7 +8,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	public class AssetCollection<T> where T : Object
 	{

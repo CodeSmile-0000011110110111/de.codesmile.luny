@@ -2,13 +2,14 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
+using LunyEditor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.CodeGen
+namespace LunyEditor.CodeGen
 {
 	internal sealed class ModuleLoaderGenerator
 	{

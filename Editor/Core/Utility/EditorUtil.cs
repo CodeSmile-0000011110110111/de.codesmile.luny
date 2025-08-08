@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	public static class EditorUtil
 	{

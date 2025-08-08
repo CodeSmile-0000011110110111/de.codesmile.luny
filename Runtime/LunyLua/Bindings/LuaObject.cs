@@ -3,7 +3,6 @@
 
 using Lua;
 using Lua.Runtime;
-using Lua.Unity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;

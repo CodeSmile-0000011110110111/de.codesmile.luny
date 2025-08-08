@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	/// <summary>
 	///     Moves all children to "Don't Destroy On Load" and then destroys the component's GameObject.

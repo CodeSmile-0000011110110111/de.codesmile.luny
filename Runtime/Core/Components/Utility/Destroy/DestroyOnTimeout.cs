@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components.Destroy
+namespace Luny.Core.Utility.Destroy
 {
 	[DisallowMultipleComponent]
 	internal sealed class DestroyOnTimeout : MonoBehaviour

@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	[DisallowMultipleComponent]
 	public sealed class ReloadSceneComponent : MonoBehaviour

@@ -1,10 +1,11 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Luny.Core.UnityEngine;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components.Destroy
+namespace Luny.Core.Utility.Destroy
 {
 	[DisallowMultipleComponent]
 	public sealed class DestroyChildrenOnAwake : MonoBehaviour

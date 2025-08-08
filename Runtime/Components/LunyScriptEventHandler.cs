@@ -2,7 +2,6 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Lua;
-using Lua.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;

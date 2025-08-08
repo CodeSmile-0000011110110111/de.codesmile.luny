@@ -1,12 +1,12 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile;
+using Luny.Core;
 using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	[CustomPropertyDrawer(typeof(ReadOnlyFieldAttribute))]
 	public sealed class ReadOnlyFieldPropertyDrawer : PropertyDrawer

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile
+namespace Luny.Core.System
 {
 	public static class BuiltInTypesExt
 	{

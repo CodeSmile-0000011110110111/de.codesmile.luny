@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Lua.Unity.Editor
+namespace LunyEditor
 {
 	/// <summary>
 	/// Handles opening of href links that point to a file outside the /Assets directory because Unity

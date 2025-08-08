@@ -2,6 +2,7 @@
 // Refer to included LICENSE file for terms and conditions.
 
 using Luny;
+using LunyEditor.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor.Luny.CodeGen
+namespace LunyEditor.CodeGen
 {
 	internal static class ModuleGenerator
 	{

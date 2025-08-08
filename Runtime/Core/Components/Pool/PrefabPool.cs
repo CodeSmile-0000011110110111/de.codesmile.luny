@@ -1,14 +1,14 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile.Collections;
+using Luny.Core.Registry;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Pool
 {
 	[DisallowMultipleComponent]
 	public sealed class PrefabPool : MonoBehaviour

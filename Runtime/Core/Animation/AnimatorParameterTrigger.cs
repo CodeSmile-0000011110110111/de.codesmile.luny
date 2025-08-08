@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Animation
+namespace Luny.Core
 {
 	public sealed class AnimatorParameterTrigger
 	{

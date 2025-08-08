@@ -5,14 +5,11 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 using Object = System.Object;
 
-#if UNITY_EDITOR
-using UnityEditor.Compilation;
-#endif
-
-namespace CodeSmile
+namespace Luny.Core
 {
 	/// <summary>
 	/// Captures all text written to standard output aka StdOut (eg Terminal/Prompt, batch/bash scripts, C# Console.Write)

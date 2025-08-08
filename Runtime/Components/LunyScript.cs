@@ -1,8 +1,8 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile;
 using Lua;
+using Luny.Core.UnityEngine;
 using System;
 using System.Collections;
 using System.IO;
@@ -51,7 +51,7 @@ namespace Luny
 		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
 		public ILunyLua Lua => m_Lua;
 
-		public static GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
+		public static UnityEngine.GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
 
 		/// <summary>
 		/// Must call base.OnValidate() when overridden!

@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Luny.Core.System;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CodeSmile.Collections
+namespace Luny.Core
 {
 	public abstract class AssetCollection<T> : ScriptableObject, IEnumerable<T> where T : Object
 	{

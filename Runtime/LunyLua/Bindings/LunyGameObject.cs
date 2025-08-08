@@ -22,12 +22,12 @@ namespace Luny
 	public sealed class LunyGameObject : ILunyGameObject
 	{
 		private ILuaUnityGameObject m_LuaGameObject;
-		private GameObject m_UnityGameObject;
+		private UnityEngine.GameObject m_UnityGameObject;
 
-		public GameObject UnityGameObject => m_UnityGameObject;
+		public UnityEngine.GameObject UnityGameObject => m_UnityGameObject;
 		public ILuaUnityGameObject LuaGameObject => m_LuaGameObject;
 
-		public LunyGameObject(ILunyLua lua, GameObject gameObject)
+		public LunyGameObject(ILunyLua lua, UnityEngine.GameObject gameObject)
 		{
 			throw new NotImplementedException(nameof(LunyGameObject));
 			//m_LuaGameObject = lua.ObjectFactory.CreateLuaObject(m_UnityGameObject) as ILuaUnityGameObject;

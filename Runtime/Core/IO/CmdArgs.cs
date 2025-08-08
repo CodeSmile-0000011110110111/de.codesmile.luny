@@ -8,7 +8,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile
+namespace Luny.Core
 {
 	/// <summary>
 	///     Parses command line arguments.

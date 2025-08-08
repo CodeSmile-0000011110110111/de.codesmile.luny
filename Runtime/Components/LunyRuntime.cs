@@ -1,13 +1,13 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using CodeSmile;
 using Lua;
+using Luny.Core;
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using FileUtil = CodeSmile.FileUtil;
+using FileUtil = Luny.Core.FileUtil;
 
 namespace Luny
 {

@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = System.Object;
 
-namespace CodeSmile
+namespace Luny.Core
 {
 	/// <summary>
 	///     Represents a SceneAsset at runtime by serializing only the scene name and path at runtime, while in the editor

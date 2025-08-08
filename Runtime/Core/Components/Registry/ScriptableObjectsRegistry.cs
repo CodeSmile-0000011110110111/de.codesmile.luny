@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Registry
 {
 	/// <summary>
 	///     Keeps references to ScriptableObjects by type to avoid making each individual type a singleton of its own.

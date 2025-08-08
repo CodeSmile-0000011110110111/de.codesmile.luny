@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	public interface IEditorEventReceiver {}
 

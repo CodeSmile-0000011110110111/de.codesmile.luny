@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	/// <summary>
 	///     Slim and safe MonoBehaviour Singleton with guaranteed lifetime from first instantiation to application quit.

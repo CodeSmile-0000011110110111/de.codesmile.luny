@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile
+namespace Luny.Core
 {
 	public sealed class ReadOnlyFieldAttribute : PropertyAttribute {}
 }

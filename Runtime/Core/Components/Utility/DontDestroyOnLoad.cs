@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	/// <summary>
 	///     Marks the GameObject this script is on as "Don't Destroy On Load".

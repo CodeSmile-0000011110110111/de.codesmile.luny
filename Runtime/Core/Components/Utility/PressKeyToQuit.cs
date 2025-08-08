@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	/// <summary>
 	///     Hooks the given keycode to Application.Quit.

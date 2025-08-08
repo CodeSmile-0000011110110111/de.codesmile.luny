@@ -3,13 +3,11 @@
 
 using System;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-#if UNITY_EDITOR
-using UnityEditor.SceneManagement;
-#endif
 
-namespace CodeSmile.Components.Editor
+namespace Luny.Core.Utility.Editor
 {
 	/// <summary>
 	///     Sets the scene with this script in it as the PlayMode start scene. Allows to enter PlayMode with a scene other

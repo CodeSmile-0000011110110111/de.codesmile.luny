@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components
+namespace Luny.Core.Utility
 {
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(ParticleSystem))]

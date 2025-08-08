@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	public static class SerializedPropertyExt
 	{

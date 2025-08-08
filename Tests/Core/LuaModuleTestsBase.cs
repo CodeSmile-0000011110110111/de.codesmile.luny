@@ -3,7 +3,6 @@
 
 using Lua;
 using Lua.Runtime;
-using Lua.Unity;
 using Luny;
 using NUnit.Framework;
 using System;

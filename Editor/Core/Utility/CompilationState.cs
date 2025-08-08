@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
-namespace CodeSmileEditor
+namespace LunyEditor.Core
 {
 	[InitializeOnLoad]
 	public static class CompilationState

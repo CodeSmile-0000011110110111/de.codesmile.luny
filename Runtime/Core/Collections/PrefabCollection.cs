@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Collections
+namespace Luny.Core
 {
 	public abstract class PrefabCollection : AssetCollection<GameObject>
 	{

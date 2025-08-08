@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Collections
+namespace Luny.Core
 {
 	public interface IValidatable
 	{

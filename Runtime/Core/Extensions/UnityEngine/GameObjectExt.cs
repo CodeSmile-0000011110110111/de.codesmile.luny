@@ -4,12 +4,13 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine_GameObject = UnityEngine.GameObject;
 
-namespace CodeSmile
+namespace Luny.Core.UnityEngine
 {
 	public static class GameObjectExt
 	{
-		public static T GetOrAddComponent<T>(this GameObject go) where T : Component
+		public static T GetOrAddComponent<T>(this UnityEngine_GameObject go) where T : Component
 		{
 			T component;
 #if UNITY_EDITOR
@@ -26,7 +27,7 @@ namespace CodeSmile
 			return go.TryGetComponent(out component) ? component : go.AddComponent<T>();
 		}
 
-		public static Component GetOrAddComponent(this GameObject go, Type componentType)
+		public static Component GetOrAddComponent(this UnityEngine_GameObject go, Type componentType)
 		{
 			Component component;
 #if UNITY_EDITOR
@@ -43,6 +44,6 @@ namespace CodeSmile
 			return go.TryGetComponent(componentType, out component) ? component : go.AddComponent(componentType);
 		}
 
-		public static void DestroyAllChildren(this GameObject go) => go.transform.DestroyAllChildren();
+		public static void DestroyAllChildren(this UnityEngine_GameObject go) => go.transform.DestroyAllChildren();
 	}
 }

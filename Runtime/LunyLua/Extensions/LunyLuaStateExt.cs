@@ -5,7 +5,6 @@ using Lua;
 using Lua.IO;
 using Lua.Runtime;
 using Lua.Standard;
-using Lua.Unity;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;

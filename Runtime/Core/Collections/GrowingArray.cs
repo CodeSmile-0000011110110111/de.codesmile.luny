@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Collections
+namespace Luny.Core
 {
 	public abstract class GrowingArray<T> : IEnumerable<T> where T : struct, IValidatable
 	{

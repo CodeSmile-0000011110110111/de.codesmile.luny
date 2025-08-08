@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile
+namespace Luny.Core.System
 {
 	public static class ArrayExt
 	{

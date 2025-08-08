@@ -2,16 +2,16 @@
 // Refer to included LICENSE file for terms and conditions.
 
 #if UNITY_EDITOR
-using UnityEditor;
 using UnityEditor.Compilation;
 #endif
 using System;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 using Assembly = System.Reflection.Assembly;
 using Object = UnityEngine.Object;
 
-namespace CodeSmile
+namespace Luny.Core
 {
 	public static class AssetUtil
 	{

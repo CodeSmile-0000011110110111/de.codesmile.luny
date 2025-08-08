@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CodeSmile.Components.Destroy
+namespace Luny.Core.Utility.Destroy
 {
 	/// <summary>
 	///     Destroys the object if running outside the editor.
