@@ -169,8 +169,7 @@ namespace Luny
 		{
 			yield return new WaitForEndOfFrame();
 
-			var reloadEvent = m_LuaScript.GetOrCreateEventHandler<LunyScriptLoadEvent>();
-			reloadEvent.TrySend(m_Lua.State, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
+			m_LuaScript.TrySendEvent<LunyScriptLoadEvent>(m_Lua.State, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
 
 			var task = DoScriptAsync().Preserve();
 			yield return new WaitUntil(() => task.IsCompleted);
@@ -180,15 +179,11 @@ namespace Luny
 		{
 			try
 			{
-				OnBeforeScriptLoad(m_LuaScript.ScriptContext);
-
 				var isReloading = TryGetAssociatedScriptRunner(out var runner);
 				if (isReloading)
 					runner.OnWillReload();
 
-				await m_Lua.RunScript(m_LuaScript);
-
-				OnAfterScriptLoad(m_LuaScript.ScriptContext);
+				await m_LuaScript.ReloadScript(m_Lua.State);
 
 				if (isReloading == false)
 					GetComponent<LunyRuntimeScriptCoordinator>().AddScriptRunner(this, m_LuaScript);

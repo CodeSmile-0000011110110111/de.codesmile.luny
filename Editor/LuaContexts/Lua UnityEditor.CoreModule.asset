@@ -49,7 +49,6 @@ MonoBehaviour:
   - UnityEditor.PackageManager.Requests
   - UnityEditor.PackageManager.UI
   - UnityEditor.Playables
-  - UnityEditor.Presets
   - UnityEditor.Profiling
   - UnityEditor.ProjectWindowCallback
   - UnityEditor.Purchasing
@@ -60,7 +59,6 @@ MonoBehaviour:
   - UnityEditor.SearchService
   - UnityEditor.ShaderKeywordFilter
   - UnityEditor.ShortcutManagement
-  - UnityEditor.SpeedTree.Importer
   - UnityEditor.Sprites
   - UnityEditor.Toolbars
   - UnityEditor.U2D
@@ -75,6 +73,8 @@ MonoBehaviour:
   - UnityEditor.HierarchyProperty
   - UnityEditor.IMGUI
   - UnityEditor.Handles
+  - UnityEditor.Presets
+  - UnityEditor.SpeedTree
   m_TypeWhitelist:
   - Unity.CodeEditor.CodeEditor
   - Unity.CodeEditor.CodeEditor+Installation
@@ -771,9 +771,6 @@ MonoBehaviour:
   - UnityEditor.PackageManager.UI.Window
   - UnityEditor.Playables.PlayableOutputEditorExtensions
   - UnityEditor.Playables.Utility
-  - UnityEditor.Presets.DefaultPreset
-  - UnityEditor.Presets.Preset
-  - UnityEditor.Presets.PresetType
   - UnityEditor.Profiling.FrameDataView
   - UnityEditor.Profiling.FrameDataView+GfxResourceInfo
   - UnityEditor.Profiling.FrameDataView+MarkerInfo
@@ -853,7 +850,6 @@ MonoBehaviour:
   - UnityEditor.ShortcutManagement.ShortcutManager
   - UnityEditor.ShortcutManagement.ShortcutModifiers
   - UnityEditor.ShortcutManagement.ShortcutStage
-  - UnityEditor.SpeedTree.Importer.SpeedTree9Importer
   - UnityEditor.Sprites.AtlasSettings
   - UnityEditor.Sprites.Packer
   - UnityEditor.Sprites.PackerJob
@@ -893,13 +889,14 @@ MonoBehaviour:
   - UnityEditor.Handles
   m_MemberBlacklist: []
   m_ContentFolderGuid: bf2a5119193f3614ba25e05e9ed62eee
-  m_ModuleLoaderTypeFullName: 
+  m_ModuleLoaderTypeFullName: Luny.UnityEditor.CoreModule.Internal.LuaModuleLoader
   m_ModuleLoader:
-    rid: -2
+    rid: 3323315888061939770
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3323315888061939770
+      type: {class: LuaModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
+      data: 

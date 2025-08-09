@@ -81,12 +81,12 @@ namespace LunyEditor
 		}
 
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
-		private void OnDestroy() => Debug.LogError("LunyEditor: OnDestroy");
+		private void OnDestroy() => Debug.LogError("LunyEditor: OnDestroy should never be called");
 
 		private void OnCompilationStarted(Object obj)
 		{
 			Debug.Log("LunyEditor: OnCompilationStarted");
-			ScriptableSingletonScriptRunner.Singleton.DestroyScripts();
+			DestroyLuaState();
 		}
 
 		private void OnBeforeAssemblyReload() => Debug.Log("LunyEditor: OnBeforeAssemblyReload");
@@ -128,8 +128,19 @@ namespace LunyEditor
 
 		private LunyLua CreateLuaState()
 		{
+			DestroyLuaState();
+
 			var editorContext = LunyEditorAssetRegistry.Singleton.EditorContext;
 			return editorContext != null ? new LunyLua(editorContext, new FileSystem(editorContext)) : null;
+		}
+
+		private void DestroyLuaState()
+		{
+			if (m_Lua != null)
+			{
+				ScriptableSingletonScriptRunner.Singleton.DestroyScripts();
+				m_Lua = null;
+			}
 		}
 
 		private async void OnAddLuaAsset(LunyLuaAsset luaAsset)

@@ -13,6 +13,17 @@ namespace Luny
 {
 	public static class LuaTableExt
 	{
+		public static LuaTable Create(IList<Object> list)
+		{
+			var arrayLength = list.Count;
+			var table = new LuaTable(arrayLength, 0);
+
+			for (var i = 1; i <= arrayLength; i++)
+				table[i] = LuaValue.FromObject(list[i - 1]);
+
+			return table;
+		}
+
 		public static LuaTable Create(IList<LuaValue> list)
 		{
 			var arrayLength = list.Count;

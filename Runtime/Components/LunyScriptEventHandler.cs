@@ -7,44 +7,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Luny
 {
-	public class LunyScriptEventHandler<T> : LunyScriptEventHandler where T : Enum
+	public sealed class LunyScriptEventHandler<T> : LunyScriptEventHandler where T : Enum
 	{
 		internal LunyScriptEventHandler(LuaCallbackFunctions callbackFunctions)
 			: base(callbackFunctions) {}
 
 		internal override void RebindCallbackFunctions(LuaTable scriptContext) => RebindCallbackFunctions<T>(scriptContext);
-		public virtual void OnCreate()
-		{
-		}
 	}
 
 	public abstract class LunyScriptEventHandler
 	{
 		private LuaCallbackFunctions m_CallbackFunctions;
 
-		public bool HasCallbacks => m_CallbackFunctions != null;
-
-		public bool HasCallback(int eventIndex) => HasCallbacks && m_CallbackFunctions.HasCallback(eventIndex);
+		public object UserData { get; set; }
+		public Boolean HasCallbacks => m_CallbackFunctions != null;
 
 		public static LunyScriptEventHandler<T> TryCreate<T>(LuaTable scriptContext) where T : Enum
 		{
-			var hasCallbacks = TryGetCallbackFunctions<T>(scriptContext, out var callbackFunctions);
+			var hasCallbacks = TryGetCallbackFunctions(typeof(T), scriptContext, out var callbackFunctions);
 			if (hasCallbacks)
 			{
 				var eventHandler = new LunyScriptEventHandler<T>(new LuaCallbackFunctions(callbackFunctions));
-				eventHandler.OnCreate();
 				return eventHandler;
 			}
 			return null;
 		}
 
-		protected static Boolean TryGetCallbackFunctions<T>(LuaTable scriptContext, out LuaFunction[] callbackFunctions) where T : Enum
+		private static Boolean TryGetCallbackFunctions(Type enumType, LuaTable scriptContext, out LuaFunction[] callbackFunctions)
 		{
-			var functionNames = Enum.GetNames(typeof(T));
+			var functionNames = Enum.GetNames(enumType);
 			var functionCount = functionNames.Length;
 			callbackFunctions = null;
 
@@ -65,14 +59,21 @@ namespace Luny
 			return callbackFunctionCount > 0;
 		}
 
+		// protected LunyScriptEventHandler() {}
+
 		protected LunyScriptEventHandler(LuaCallbackFunctions callbackFunctions) => m_CallbackFunctions = callbackFunctions;
+
+		// protected virtual void OnInstantiate() {}
+		// public virtual void Dispose() {}
+
+		public Boolean HasCallback(Int32 eventIndex) => HasCallbacks && m_CallbackFunctions.HasCallback(eventIndex);
 
 		public void TrySend(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
 			m_CallbackFunctions?.TryInvokeLuaFunction(luaState, eventIndex, args);
 
 		protected void RebindCallbackFunctions<T>(LuaTable scriptContext) where T : Enum
 		{
-			var hasCallbacks = TryGetCallbackFunctions<T>(scriptContext, out var callbackFunctions);
+			var hasCallbacks = TryGetCallbackFunctions(typeof(T), scriptContext, out var callbackFunctions);
 			m_CallbackFunctions = hasCallbacks ? new LuaCallbackFunctions(callbackFunctions) : null;
 		}
 

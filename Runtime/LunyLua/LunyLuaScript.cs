@@ -132,9 +132,12 @@ namespace Luny
 
 		protected void OnAfterDoScript(LuaState luaState)
 		{
-			// set default type
-			if (m_ScriptContext[EditorTypeKey] == LuaValue.Nil)
-				m_ScriptContext[EditorTypeKey] = ScriptableSingletonEditorType;
+			if (Application.isEditor)
+			{
+				// set default type
+				if (m_ScriptContext[EditorTypeKey] == LuaValue.Nil)
+					m_ScriptContext[EditorTypeKey] = ScriptableSingletonEditorType;
+			}
 
 			// re-bind event functions
 			foreach (var eventHandler in m_EventHandlers)

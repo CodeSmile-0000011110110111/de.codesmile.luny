@@ -23,6 +23,8 @@ namespace LunyEditor
 		private Boolean m_IsAlreadyDisabled;
 		internal static ScriptableSingletonScriptRunner Singleton => instance; // for consistency
 
+		private LunyScriptEventHandler m_AScriptEventHandler;
+
 		// Awake runs every time the singleton is instantiated
 		private void Awake()
 		{
@@ -76,7 +78,16 @@ namespace LunyEditor
 			//Save(true);
 		}
 
-		internal void DestroyScripts() => DestroyImmediate(this);
+		internal void DestroyScripts()
+		{
+			foreach (var script in m_Scripts)
+			{
+				script?.Dispose();
+			}
+
+			m_Scripts.Clear();
+			DestroyImmediate(this);
+		}
 
 		internal void AddScript(LunyLuaScript script)
 		{
@@ -96,18 +107,24 @@ namespace LunyEditor
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.Reset);
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.Awake);
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.OnEnable);
+
+			m_AScriptEventHandler = AssetPostprocessorScriptEventHandler.TryCreate(context);
 		}
 
 		internal void RemoveScriptByAsset(LunyLuaAsset luaAsset) => m_Scripts.Remove(luaAsset);
 
-		private void OnScriptChanged(LunyLuaScript script)
+		private async void OnScriptChanged(LunyLuaScript script)
 		{
-			Debug.Log("ScriptableSingletonScriptRunner: OnScriptChanged");
 			var luaState = LunyEditor.Singleton.Lua.State;
 
 			// simulate hot reload events as if it had been a domain reload
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.OnDisable);
-			script.ReloadScript(luaState).Preserve().GetAwaiter().GetResult();
+
+			var task = script.ReloadScript(luaState);
+			await task;
+			if (task.IsFaulted)
+				throw new LuaRuntimeException(luaState.MainThread, task.AsTask().Exception);
+
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.OnEnable);
 		}
 
