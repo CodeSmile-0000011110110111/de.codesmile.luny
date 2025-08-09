@@ -56,7 +56,7 @@ namespace Luny
 			m_FullPathScripts.Remove(script.FullPath);
 		}
 
-		public void Remove(LunyLuaAsset luaAsset)
+		public void RemoveScriptForAsset(LunyLuaAsset luaAsset)
 		{
 			var assetFullPath = luaAsset.FullPath;
 			m_FullPathScripts.Remove(assetFullPath);

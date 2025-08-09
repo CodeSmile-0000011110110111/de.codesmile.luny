@@ -15,8 +15,8 @@ namespace Luny
 
 	public enum LunyScriptLoadEvent
 	{
-		OnWillReloadScript,
-		OnDidLoadScript,
+		OnScriptLoad,
+		OnScriptUnload,
 	}
 
 	public enum MonoBehaviourAnimatorEvent

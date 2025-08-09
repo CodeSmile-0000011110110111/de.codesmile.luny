@@ -41,15 +41,15 @@ namespace LunyEditor
 			switch (script.EditorType)
 			{
 				case LunyLuaScript.ScriptableSingletonEditorType:
-					ScriptableSingletonScriptRunner.Singleton.AddScript(script);
+					LunyEditorScriptRunner.Singleton.AddScript(script);
 					break;
 				default: throw new NotImplementedException(script.EditorType);
 			}
 		}
 
 		private static void UnregisterEditorScriptByAsset(LunyLuaAsset luaAsset) =>
-			// FIXM: this won't work when extending to multiple script types
-			ScriptableSingletonScriptRunner.Singleton.RemoveScriptByAsset(luaAsset);
+			// FIXME: this won't work when extending to multiple script types
+			LunyEditorScriptRunner.Singleton.RemoveScriptForAsset(luaAsset);
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
 		private void Reset() => Debug.Log("LunyEditor: Reset");
@@ -66,7 +66,7 @@ namespace LunyEditor
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
-			CompilationPipeline.compilationStarted += OnCompilationStarted;
+			//CompilationPipeline.compilationStarted += OnCompilationStarted;
 			AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
 
 			// delayed, otherwise Editor may create Lua State "too early" after generating module code
@@ -80,16 +80,13 @@ namespace LunyEditor
 			Save(true);
 		}
 
+
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
 		private void OnDestroy() => Debug.LogError("LunyEditor: OnDestroy should never be called");
 
-		private void OnCompilationStarted(Object obj)
-		{
-			Debug.Log("LunyEditor: OnCompilationStarted");
-			DestroyLuaState();
-		}
+		private void OnCompilationStarted(Object obj) => DestroyLuaState();
 
-		private void OnBeforeAssemblyReload() => Debug.Log("LunyEditor: OnBeforeAssemblyReload");
+		private void OnBeforeAssemblyReload() => DestroyLuaState();
 
 		private async ValueTask DoAutoRunScripts()
 		{
@@ -112,7 +109,7 @@ namespace LunyEditor
 		{
 			if (m_Lua != null)
 			{
-				m_Lua.NotifyChangedScripts();
+				m_Lua.ProcessChangedScripts();
 
 				// clear any runtime-only changed scripts, these don't need hot reloading outside playmode
 				if (Application.isPlaying == false)
@@ -138,7 +135,7 @@ namespace LunyEditor
 		{
 			if (m_Lua != null)
 			{
-				ScriptableSingletonScriptRunner.Singleton.DestroyScripts();
+				LunyEditorScriptRunner.Singleton.DestroyScripts();
 				m_Lua = null;
 			}
 		}

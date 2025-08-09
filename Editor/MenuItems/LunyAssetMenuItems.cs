@@ -20,10 +20,10 @@ namespace LunyEditor.MenuItems
 
 		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
 		                                                  "-- Use these events to respond to script loading, including hot reload\n" +
-		                                                  "context.OnWillReloadScript = function()\n" +
+		                                                  "context.OnScriptUnload = function()\n" +
 		                                                  "\tprint(context.ScriptName .. \" was changed and will hot reload.\")\n" +
 		                                                  "end\n" +
-		                                                  "context.OnDidLoadScript = function()\n" +
+		                                                  "context.OnScriptLoad = function()\n" +
 		                                                  "\tprint(context.ScriptName .. \" was (re-)loaded.\")\n" +
 		                                                  "end\n\n" +
 		                                                  "-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +

@@ -16,14 +16,14 @@ namespace LunyEditor
 	// TODO: does this need ILuaUserData?
 
 	//[FilePath("ProjectSettings/LunyScriptableSingletonState.asset", FilePathAttribute.Location.ProjectFolder)]
-	internal sealed partial class ScriptableSingletonScriptRunner : ScriptableSingleton<ScriptableSingletonScriptRunner>, ILuaUserData
+	internal sealed partial class LunyEditorScriptRunner : ScriptableSingleton<LunyEditorScriptRunner>, ILuaUserData
 	{
 		private readonly LunyLuaScriptCollection m_Scripts = new();
 
 		private Boolean m_IsAlreadyDisabled;
-		internal static ScriptableSingletonScriptRunner Singleton => instance; // for consistency
 
 		private LunyScriptEventHandler m_AScriptEventHandler;
+		internal static LunyEditorScriptRunner Singleton => instance; // for consistency
 
 		// Awake runs every time the singleton is instantiated
 		private void Awake()
@@ -73,7 +73,7 @@ namespace LunyEditor
 
 		internal void Save(LuaTable scriptContext)
 		{
-			var instance = scriptContext[LunyLuaScript.InstanceKey].Read<ScriptableSingletonScriptRunner>();
+			var instance = scriptContext[LunyLuaScript.InstanceKey].Read<LunyEditorScriptRunner>();
 			Debug.Log($"Save called: {scriptContext[LunyLuaScript.ScriptNameKey]}, {instance}");
 			//Save(true);
 		}
@@ -81,9 +81,7 @@ namespace LunyEditor
 		internal void DestroyScripts()
 		{
 			foreach (var script in m_Scripts)
-			{
 				script?.Dispose();
-			}
 
 			m_Scripts.Clear();
 			DestroyImmediate(this);
@@ -91,8 +89,7 @@ namespace LunyEditor
 
 		internal void AddScript(LunyLuaScript script)
 		{
-			if (m_Scripts.Contains(script))
-				throw new ArgumentException($"Script {script} already added");
+			Debug.Assert(!m_Scripts.Contains(script), $"Script {script} already added");
 
 			m_Scripts.Add(script);
 
@@ -108,10 +105,10 @@ namespace LunyEditor
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.Awake);
 			script.TrySendEvent<EditorScriptLifecycleEvent>(luaState, (Int32)EditorScriptLifecycleEvent.OnEnable);
 
-			m_AScriptEventHandler = AssetPostprocessorScriptEventHandler.TryCreate(context);
+			script.AddEventHandler<AssetPostprocessorEvent>(AssetPostprocessorEventHandler.TryCreate(context));
 		}
 
-		internal void RemoveScriptByAsset(LunyLuaAsset luaAsset) => m_Scripts.Remove(luaAsset);
+		internal void RemoveScriptForAsset(LunyLuaAsset luaAsset) => m_Scripts.RemoveScriptForAsset(luaAsset);
 
 		private async void OnScriptChanged(LunyLuaScript script)
 		{
@@ -131,7 +128,7 @@ namespace LunyEditor
 		public override String ToString() => $"{GetType().Name}";
 	}
 
-	internal sealed partial class ScriptableSingletonScriptRunner
+	internal sealed partial class LunyEditorScriptRunner
 	{
 		private static readonly LuaFunction __index = new(Metamethods.Index, (context, _) =>
 		{

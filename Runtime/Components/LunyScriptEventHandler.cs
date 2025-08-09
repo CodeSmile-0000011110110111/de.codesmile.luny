@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Luny
 {
@@ -22,7 +23,7 @@ namespace Luny
 	{
 		private LuaCallbackFunctions m_CallbackFunctions;
 
-		public object UserData { get; set; }
+		public Object UserData { get; set; }
 		public Boolean HasCallbacks => m_CallbackFunctions != null;
 
 		public static LunyScriptEventHandler<T> TryCreate<T>(LuaTable scriptContext) where T : Enum
@@ -59,17 +60,7 @@ namespace Luny
 			return callbackFunctionCount > 0;
 		}
 
-		// protected LunyScriptEventHandler() {}
-
 		protected LunyScriptEventHandler(LuaCallbackFunctions callbackFunctions) => m_CallbackFunctions = callbackFunctions;
-
-		// protected virtual void OnInstantiate() {}
-		// public virtual void Dispose() {}
-
-		public Boolean HasCallback(Int32 eventIndex) => HasCallbacks && m_CallbackFunctions.HasCallback(eventIndex);
-
-		public void TrySend(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
-			m_CallbackFunctions?.TryInvokeLuaFunction(luaState, eventIndex, args);
 
 		protected void RebindCallbackFunctions<T>(LuaTable scriptContext) where T : Enum
 		{
@@ -78,6 +69,11 @@ namespace Luny
 		}
 
 		internal abstract void RebindCallbackFunctions(LuaTable scriptContext);
+
+		public Boolean HasCallback(Int32 eventIndex) => HasCallbacks && m_CallbackFunctions.HasCallback(eventIndex);
+
+		public void TrySend(LuaState luaState, Int32 eventIndex, params LuaValue[] args) =>
+			m_CallbackFunctions?.TryInvokeLuaFunction(luaState, eventIndex, args);
 	}
 
 	public sealed class LunyScriptEventHandlerCollection : IEnumerable<LunyScriptEventHandler>

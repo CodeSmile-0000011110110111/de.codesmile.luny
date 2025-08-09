@@ -169,7 +169,7 @@ namespace Luny
 		{
 			yield return new WaitForEndOfFrame();
 
-			m_LuaScript.TrySendEvent<LunyScriptLoadEvent>(m_Lua.State, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
+			m_LuaScript.TrySendEvent<LunyScriptLoadEvent>(m_Lua.State, (Int32)LunyScriptLoadEvent.OnScriptUnload);
 
 			var task = DoScriptAsync().Preserve();
 			yield return new WaitUntil(() => task.IsCompleted);

@@ -174,7 +174,7 @@ namespace Luny
 			m_Scripts.Clear();
 		}
 
-		internal void NotifyChangedScripts()
+		internal void ProcessChangedScripts()
 		{
 			var changedFiles = m_FileWatcher.ChangedFiles;
 			if (changedFiles == null)
@@ -206,20 +206,23 @@ namespace Luny
 					m_FileWatcher.RemoveChangedFile(changedFile);
 
 					// in editor, changes to LuaAsset files also need to trigger Importer in case auto-refresh is disabled
-					if (changedScript is LunyLuaAssetScript assetScript)
+					if (Application.isEditor)
 					{
-						//Debug.Log($"Reimport {assetScript} at path {assetScript.FullPath}");
-						AssetUtil.IfEditorImportAsset(assetScript.LuaAsset);
-					}
-					else if (isResourcesScript)
-					{
-						// force reload of Resources script
-						var resourcePath = changedFile.Replace($"{Application.dataPath}/", "Assets/");
-						//Debug.Log($"Reimport {resourcePath}");
-						AssetUtil.IfEditorImportAsset(resourcePath);
+						if (changedScript is LunyLuaAssetScript assetScript)
+						{
+							//Debug.Log($"Reimport {assetScript} at path: {assetScript.FullPath}");
+							AssetUtil.IfEditorImportAsset(assetScript.LuaAsset);
+						}
+						else if (isResourcesScript)
+						{
+							// force reload of Resources script
+							var resourcePath = changedFile.Replace($"{Application.dataPath}/", "Assets/");
+							//Debug.Log($"Reimport with Resources path: {resourcePath}");
+							AssetUtil.IfEditorImportAsset(resourcePath);
+						}
 					}
 
-					changedScript.OnScriptChangedInternal();
+					changedScript.SendScriptChangedEvent();
 				}
 			}
 		}

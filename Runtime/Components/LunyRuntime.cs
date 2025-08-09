@@ -111,9 +111,9 @@ namespace Luny
 		private void Update()
 		{
 			if (m_RuntimeLua != null)
-				m_RuntimeLua.NotifyChangedScripts();
+				m_RuntimeLua.ProcessChangedScripts();
 			if (m_ModdingLua != null)
-				m_ModdingLua.NotifyChangedScripts();
+				m_ModdingLua.ProcessChangedScripts();
 		}
 
 		private event Action OnDestroyLunyRuntime;

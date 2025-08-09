@@ -126,7 +126,7 @@ namespace Luny
 
 		internal void Dispose() => m_ScriptContext = null;
 
-		internal void OnScriptChangedInternal() => OnScriptChanged?.Invoke(this);
+		internal void SendScriptChangedEvent() => OnScriptChanged?.Invoke(this);
 
 		internal abstract ValueTask DoScriptAsync(LuaState luaState);
 
@@ -143,7 +143,7 @@ namespace Luny
 			foreach (var eventHandler in m_EventHandlers)
 				eventHandler.RebindCallbackFunctions(m_ScriptContext);
 
-			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnDidLoadScript);
+			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnScriptLoad);
 		}
 
 		private void AssertNotSet(String key) =>
@@ -182,16 +182,32 @@ namespace Luny
 		internal LunyScriptEventHandler<T> CreateEventHandler<T>() where T : Enum
 		{
 			var handler = LunyScriptEventHandler.TryCreate<T>(ScriptContext);
+			AddEventHandler<T>(handler);
+			return handler;
+		}
+
+		internal void AddEventHandler<T>(LunyScriptEventHandler handler) where T : Enum
+		{
 			if (handler != null)
 				m_EventHandlers.Add(typeof(T), handler);
-
-			return handler;
 		}
 
 		public async ValueTask ReloadScript(LuaState luaState)
 		{
-			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
+			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnScriptUnload);
+
+			ClearAllFunctionsInContextTable();
 			await DoScriptAsync(luaState);
+		}
+
+		private void ClearAllFunctionsInContextTable()
+		{
+			// Set all context functions to nil before reloading, otherwise commented event functions would still fire
+			foreach (var pair in m_ScriptContext)
+			{
+				if (pair.Value.Type == LuaValueType.Function)
+					m_ScriptContext[pair.Key] = LuaValue.Nil;
+			}
 		}
 
 		public override String ToString() => $"{m_ScriptName} ({GetType().Name})";
@@ -216,6 +232,7 @@ namespace Luny
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
+			//Debug.Log($"DoScriptAsync script path: {LuaAsset.Path}, text:\n{LuaAsset.Text}");
 			await luaState.DoStringAsync(LuaAsset.Text, $"@{LuaAsset.Path}", ScriptContext);
 			OnAfterDoScript(luaState);
 		}
