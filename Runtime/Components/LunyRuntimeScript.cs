@@ -113,7 +113,7 @@ namespace Luny
 			m_Lua = GetModdingOrRuntimeLuaInstance();
 			m_LunyRef = GetOrAddLunyReference();
 			m_LuaScript = CreateLuaScriptInstance();
-			gameObject.GetOrAddComponent<LunyScriptCoordinator>();
+			gameObject.GetOrAddComponent<LunyRuntimeScriptCoordinator>();
 
 			OnBeforeFirstScriptLoad(m_LuaScript.ScriptContext);
 			await DoScriptAsync();
@@ -169,8 +169,8 @@ namespace Luny
 		{
 			yield return new WaitForEndOfFrame();
 
-			var reloadEvent = m_LuaScript.EventHandler<ScriptLoadEvent>();
-			reloadEvent.Send(m_Lua.State, (Int32)ScriptLoadEvent.OnWillReloadScript);
+			var reloadEvent = m_LuaScript.GetOrCreateEventHandler<LunyScriptLoadEvent>();
+			reloadEvent.TrySend(m_Lua.State, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
 
 			var task = DoScriptAsync().Preserve();
 			yield return new WaitUntil(() => task.IsCompleted);
@@ -191,7 +191,7 @@ namespace Luny
 				OnAfterScriptLoad(m_LuaScript.ScriptContext);
 
 				if (isReloading == false)
-					GetComponent<LunyScriptCoordinator>().AddScriptRunner(this, m_LuaScript);
+					GetComponent<LunyRuntimeScriptCoordinator>().AddScriptRunner(this, m_LuaScript);
 			}
 			catch (Exception e)
 			{
@@ -231,10 +231,10 @@ namespace Luny
 				runner.enabled = enabled;
 		}
 
-		internal Boolean TryGetAssociatedScriptRunner(out LunyScriptRunner runner)
+		internal Boolean TryGetAssociatedScriptRunner(out LunyRuntimeScriptRunner runner)
 		{
 			runner = null;
-			return gameObject.TryGetComponent(out LunyScriptCoordinator coordinator) &&
+			return gameObject.TryGetComponent(out LunyRuntimeScriptCoordinator coordinator) &&
 			       coordinator.TryGetScriptRunner(this, out runner);
 		}
 

@@ -63,8 +63,7 @@ namespace Luny
 		internal Loader ModuleLoader => m_ModuleLoader;
 
 		// Is abstract instead of interface for serialization in LunyLuaModule asset
-		[Serializable]
-		public abstract class Loader
+		[Serializable] public abstract class Loader
 		{
 			public abstract String[] GetNamespaceNames();
 			public abstract String[][] GetNamespaceParts();

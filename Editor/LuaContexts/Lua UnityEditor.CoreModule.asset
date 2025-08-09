@@ -39,7 +39,6 @@ MonoBehaviour:
   - UnityEditor.Experimental.Licensing
   - UnityEditor.Experimental.Rendering
   - UnityEditor.Hardware
-  - UnityEditor.IMGUI.Controls
   - UnityEditor.Inspector.GraphicsSettingsInspectors
   - UnityEditor.Macros
   - UnityEditor.Media
@@ -65,16 +64,17 @@ MonoBehaviour:
   - UnityEditor.Sprites
   - UnityEditor.Toolbars
   - UnityEditor.U2D
-  - UnityEditor.UIElements
   - UnityEditor.UnityLinker
-  - UnityEditor.VersionControl
   - UnityEditor.VisualStudioIntegration
-  - UnityEditorInternal
-  - UnityEditorInternal.VersionControl
-  - UnityEditorInternal.VR
   - UnityEngine.LightTransport
   - UnityEngine.LightTransport.PostProcessing
-  m_NamespaceBlacklist: []
+  m_NamespaceBlacklist:
+  - UnityEditorInternal
+  - UnityEditor.UIElements
+  - UnityEditor.VersionControl
+  - UnityEditor.HierarchyProperty
+  - UnityEditor.IMGUI
+  - UnityEditor.Handles
   m_TypeWhitelist:
   - Unity.CodeEditor.CodeEditor
   - Unity.CodeEditor.CodeEditor+Installation
@@ -247,14 +247,9 @@ MonoBehaviour:
   - UnityEditor.GraphicsJobMode
   - UnityEditor.GUID
   - UnityEditor.GUIDrawer
-  - UnityEditor.Handles
-  - UnityEditor.Handles+DrawingScope
-  - UnityEditor.Handles+PositionHandleIds
-  - UnityEditor.Handles+RotationHandleIds
   - UnityEditor.HandleUtility
   - UnityEditor.Help
   - UnityEditor.HierarchyDropFlags
-  - UnityEditor.HierarchyProperty
   - UnityEditor.HierarchyType
   - UnityEditor.Highlighter
   - UnityEditor.HighlightSearchMode
@@ -712,28 +707,6 @@ MonoBehaviour:
   - UnityEditor.Hardware.DevDeviceState
   - UnityEditor.Hardware.Usb
   - UnityEditor.Hardware.UsbDevice
-  - UnityEditor.IMGUI.Controls.AdvancedDropdown
-  - UnityEditor.IMGUI.Controls.AdvancedDropdownItem
-  - UnityEditor.IMGUI.Controls.AdvancedDropdownState
-  - UnityEditor.IMGUI.Controls.ArcHandle
-  - UnityEditor.IMGUI.Controls.BoxBoundsHandle
-  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle
-  - UnityEditor.IMGUI.Controls.CapsuleBoundsHandle+HeightAxis
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultGUI
-  - UnityEditor.IMGUI.Controls.MultiColumnHeader+DefaultStyles
-  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState
-  - UnityEditor.IMGUI.Controls.MultiColumnHeaderState+Column
-  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle
-  - UnityEditor.IMGUI.Controls.PrimitiveBoundsHandle+Axes
-  - UnityEditor.IMGUI.Controls.SearchField
-  - UnityEditor.IMGUI.Controls.SphereBoundsHandle
-  - UnityEditor.IMGUI.Controls.TreeView
-  - UnityEditor.IMGUI.Controls.TreeView+DefaultGUI
-  - UnityEditor.IMGUI.Controls.TreeView+DefaultStyles
-  - UnityEditor.IMGUI.Controls.TreeViewItem
-  - UnityEditor.IMGUI.Controls.TreeViewSelectionOptions
-  - UnityEditor.IMGUI.Controls.TreeViewState
   - UnityEditor.Inspector.GraphicsSettingsInspectors.GraphicsSettingsInspectorUtility
   - UnityEditor.Macros.MacroEvaluator
   - UnityEditor.Macros.MethodEvaluator
@@ -899,118 +872,8 @@ MonoBehaviour:
   - UnityEditor.U2D.SpriteAtlasTextureSettings
   - UnityEditor.U2D.SpriteAtlasUtility
   - UnityEditor.U2D.SpriteEditorExtension
-  - UnityEditor.UIElements.BindingExtensions
-  - UnityEditor.UIElements.CurveField+RenderMode
-  - UnityEditor.UIElements.InspectorElement
-  - UnityEditor.UIElements.InspectorElement+UxmlSerializedData
-  - UnityEditor.UIElements.LayerMaskField
-  - UnityEditor.UIElements.LayerMaskField+UxmlSerializedData
-  - UnityEditor.UIElements.PropertyField
-  - UnityEditor.UIElements.PropertyField+UxmlSerializedData
-  - UnityEditor.UIElements.Toolbar
-  - UnityEditor.UIElements.Toolbar+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarBreadcrumbs
-  - UnityEditor.UIElements.ToolbarBreadcrumbs+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarButton
-  - UnityEditor.UIElements.ToolbarButton+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarMenu
-  - UnityEditor.UIElements.ToolbarMenu+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarMenu+Variant
-  - UnityEditor.UIElements.ToolbarMenuElementExtensions
-  - UnityEditor.UIElements.ToolbarPopupSearchField
-  - UnityEditor.UIElements.ToolbarPopupSearchField+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarSpacer
-  - UnityEditor.UIElements.ToolbarSpacer+UxmlSerializedData
-  - UnityEditor.UIElements.ToolbarToggle
-  - UnityEditor.UIElements.ToolbarToggle+UxmlSerializedData
-  - UnityEditor.UIElements.UIElementsEntryPoint
   - UnityEditor.UnityLinker.UnityLinkerBuildPipelineData
-  - UnityEditor.VersionControl.Asset
-  - UnityEditor.VersionControl.Asset+States
-  - UnityEditor.VersionControl.ChangeSet
-  - UnityEditor.VersionControl.CheckoutMode
-  - UnityEditor.VersionControl.CompletionAction
-  - UnityEditor.VersionControl.ConfigField
-  - UnityEditor.VersionControl.FileMode
-  - UnityEditor.VersionControl.IconOverlayType
-  - UnityEditor.VersionControl.Message
-  - UnityEditor.VersionControl.Message+Severity
-  - UnityEditor.VersionControl.OnlineState
-  - UnityEditor.VersionControl.Plugin
-  - UnityEditor.VersionControl.Provider
-  - UnityEditor.VersionControl.ResolveMethod
-  - UnityEditor.VersionControl.RevertMode
-  - UnityEditor.VersionControl.SubmitResult
-  - UnityEditor.VersionControl.Task
-  - UnityEditor.VersionControl.VersionControlDescriptor
-  - UnityEditor.VersionControl.VersionControlManager
-  - UnityEditor.VersionControl.VersionControlObject
-  - UnityEditor.VersionControl.VersionControlUtils
   - UnityEditor.VisualStudioIntegration.SolutionGuidGenerator
-  - UnityEditorInternal.AssemblyDefinitionAsset
-  - UnityEditorInternal.AssemblyDefinitionImporter
-  - UnityEditorInternal.AssemblyDefinitionReferenceAsset
-  - UnityEditorInternal.AssemblyDefinitionReferenceImporter
-  - UnityEditorInternal.AssetStore
-  - UnityEditorInternal.AssetStoreToolUtils
-  - UnityEditorInternal.AudioProfilerClipInfo
-  - UnityEditorInternal.AudioProfilerDSPInfo
-  - UnityEditorInternal.AudioProfilerGroupInfo
-  - UnityEditorInternal.BatchBreakingReason
-  - UnityEditorInternal.BlendTreePreviewUtility
-  - UnityEditorInternal.ComponentUtility
-  - UnityEditorInternal.DllType
-  - UnityEditorInternal.EditMode
-  - UnityEditorInternal.EditMode+SceneViewEditMode
-  - UnityEditorInternal.EventMarker
-  - UnityEditorInternal.GenerateIconsWithMipLevels
-  - UnityEditorInternal.GpuProfilingStatisticsAvailabilityStates
-  - UnityEditorInternal.InstrumentedAssemblyTypes
-  - UnityEditorInternal.InternalEditorUtility
-  - UnityEditorInternal.InternalSpriteUtility
-  - UnityEditorInternal.LoadFileAndForgetOperation
-  - UnityEditorInternal.MemoryInfoGCReason
-  - UnityEditorInternal.MinMaxCurvePropertyDrawer
-  - UnityEditorInternal.MinMaxGradientPropertyDrawer
-  - UnityEditorInternal.MonoScripts
-  - UnityEditorInternal.NativeProfilerTimeline
-  - UnityEditorInternal.NativeProfilerTimeline_DrawArgs
-  - UnityEditorInternal.NativeProfilerTimeline_GetEntryAtPositionArgs
-  - UnityEditorInternal.NativeProfilerTimeline_GetEntryInstanceInfoArgs
-  - UnityEditorInternal.NativeProfilerTimeline_GetEntryPositionInfoArgs
-  - UnityEditorInternal.NativeProfilerTimeline_GetEntryTimingInfoArgs
-  - UnityEditorInternal.NativeProfilerTimeline_InitializeArgs
-  - UnityEditorInternal.ObjectMemoryInfo
-  - UnityEditorInternal.ObjectMemoryStackInfo
-  - UnityEditorInternal.PackageManifest
-  - UnityEditorInternal.PackageManifestImporter
-  - UnityEditorInternal.ProfilerAudioView
-  - UnityEditorInternal.ProfilerCaptureFlags
-  - UnityEditorInternal.ProfilerColorDescriptor
-  - UnityEditorInternal.ProfilerDriver
-  - UnityEditorInternal.ProfilerFrameDataIterator
-  - UnityEditorInternal.ProfilerFrameDataMultiColumnHeader
-  - UnityEditorInternal.ProfilerFrameDataMultiColumnHeader+Column
-  - UnityEditorInternal.ProfilerMemoryRecordMode
-  - UnityEditorInternal.ProfilerMemoryView
-  - UnityEditorInternal.ProfilerProperty
-  - UnityEditorInternal.RegistryUtil
-  - UnityEditorInternal.RegistryView
-  - UnityEditorInternal.RenderDoc
-  - UnityEditorInternal.ReorderableList
-  - UnityEditorInternal.ReorderableList+Defaults
-  - UnityEditorInternal.ScriptEditorUtility
-  - UnityEditorInternal.ScriptEditorUtility+Installation
-  - UnityEditorInternal.SpriteMaskUtility
-  - UnityEditorInternal.UISystemProfilerInfo
-  - UnityEditorInternal.UnityEventDrawer
-  - UnityEditorInternal.VersionControl.AssetModificationHook
-  - UnityEditorInternal.VersionControl.ListControl
-  - UnityEditorInternal.VersionControl.ListControl+ListState
-  - UnityEditorInternal.VersionControl.ListControl+SelectDirection
-  - UnityEditorInternal.VersionControl.ListItem
-  - UnityEditorInternal.VersionControl.Overlay
-  - UnityEditorInternal.VR.VREditor
   - UnityEngine.LightTransport.BakeProgressState
   - UnityEngine.LightTransport.BufferID
   - UnityEngine.LightTransport.EventID
@@ -1025,9 +888,12 @@ MonoBehaviour:
   - UnityEngine.LightTransport.ReferenceContext
   - UnityEngine.LightTransport.PostProcessing.RadeonRaysProbePostProcessor
   - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
-  m_TypeBlacklist: []
-  m_ContentFolderGuid: d954174a17030aa4cb873cc3554a2470
-  m_ModuleLoaderTypeName: 
+  m_TypeBlacklist:
+  - UnityEditor.HierarchyProperty
+  - UnityEditor.Handles
+  m_MemberBlacklist: []
+  m_ContentFolderGuid: bf2a5119193f3614ba25e05e9ed62eee
+  m_ModuleLoaderTypeFullName: 
   m_ModuleLoader:
     rid: -2
   m_GenerateOnlyThisType: 

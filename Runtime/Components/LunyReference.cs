@@ -56,7 +56,7 @@ namespace Luny
 		private void InvokeAllRunnersOnBeforeDestroy()
 		{
 			// make all runners call OnDestroy first before invalidating the LunyGameObject instance
-			if (TryGetComponent(out LunyScriptCoordinator coordinator))
+			if (TryGetComponent(out LunyRuntimeScriptCoordinator coordinator))
 				coordinator.InvokeAllRunnersOnBeforeDestroy();
 		}
 	}

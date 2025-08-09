@@ -20,9 +20,9 @@ namespace Luny
 	/// </remarks>
 	[AddComponentMenu("GameObject/")] // Do not list in "Add Component" menu
 	[DisallowMultipleComponent]
-	internal sealed class LunyScriptCoordinator : MonoBehaviour
+	internal sealed class LunyRuntimeScriptCoordinator : MonoBehaviour
 	{
-		private readonly Dictionary<Int32, LunyScriptRunner> m_Runners = new();
+		private readonly Dictionary<Int32, LunyRuntimeScriptRunner> m_Runners = new();
 
 		internal InitReferences RunnerInitOnlyReferences { get; private set; }
 
@@ -38,7 +38,7 @@ namespace Luny
 			// since Awake runs immediately, provide reference for grabs in runner's Awake via a short-lived property
 			RunnerInitOnlyReferences = new InitReferences
 				{ IsValid = true, LunyScript = lunyScript, LuaScript = luaScript, Lua = lunyScript.Lua };
-			var runner = gameObject.AddComponent<LunyScriptRunner>();
+			var runner = gameObject.AddComponent<LunyRuntimeScriptRunner>();
 			m_Runners.Add(scriptIndex, runner);
 			RunnerInitOnlyReferences = default;
 
@@ -46,7 +46,7 @@ namespace Luny
 			runner.SendAwakeAndOnEnable();
 		}
 
-		public Boolean TryGetScriptRunner(LunyScript lunyScript, out LunyScriptRunner runner) =>
+		public Boolean TryGetScriptRunner(LunyScript lunyScript, out LunyRuntimeScriptRunner runner) =>
 			m_Runners.TryGetValue(lunyScript.GetComponentIndex(), out runner);
 
 		internal Boolean DestroyScriptRunner(LunyScript lunyScript)

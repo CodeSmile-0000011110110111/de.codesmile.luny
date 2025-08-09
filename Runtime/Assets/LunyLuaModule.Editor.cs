@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+#if UNITY_EDITOR
 using Luny.Core;
 using System;
 using UnityEditor;
@@ -8,12 +9,8 @@ using UnityEngine;
 
 namespace Luny
 {
-	public sealed partial class LunyLuaModule
-#if UNITY_EDITOR
-		: ISerializationCallbackReceiver
-#endif
+	public sealed partial class LunyLuaModule : ISerializationCallbackReceiver
 	{
-#if UNITY_EDITOR
 		public void OnBeforeSerialize() {}
 
 		public void OnAfterDeserialize() =>
@@ -83,6 +80,6 @@ namespace Luny
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeFullName = null;
 		}
-#endif
 	}
 }
+#endif

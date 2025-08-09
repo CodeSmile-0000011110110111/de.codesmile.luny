@@ -6,6 +6,7 @@ using Luny.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -69,7 +70,8 @@ namespace Luny
 			return scripts;
 		}
 
-		public static LunyLuaScript LoadFromFileSystem(String filePath) => String.IsNullOrEmpty(filePath) == false ? new LunyLuaFileScript(filePath) : null;
+		public static LunyLuaScript LoadFromFileSystem(String filePath) =>
+			String.IsNullOrEmpty(filePath) == false ? new LunyLuaFileScript(filePath) : null;
 
 		public static IList<LunyLuaScript> LoadFromFileSystem(IEnumerable<String> filePaths)
 		{
@@ -130,15 +132,15 @@ namespace Luny
 
 		protected void OnAfterDoScript(LuaState luaState)
 		{
+			// set default type
 			if (m_ScriptContext[EditorTypeKey] == LuaValue.Nil)
 				m_ScriptContext[EditorTypeKey] = ScriptableSingletonEditorType;
 
 			// re-bind event functions
 			foreach (var eventHandler in m_EventHandlers)
-				eventHandler.BindEventCallbacks(m_ScriptContext);
+				eventHandler.RebindCallbackFunctions(m_ScriptContext);
 
-			var loadEvent = EventHandler<ScriptLoadEvent>();
-			loadEvent.Send(luaState, (Int32)ScriptLoadEvent.OnDidLoadScript);
+			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnDidLoadScript);
 		}
 
 		private void AssertNotSet(String key) =>
@@ -156,22 +158,36 @@ namespace Luny
 			ScriptContext[ScriptPathKey] = path;
 		}
 
-		internal LunyScriptEventHandler<T> EventHandler<T>() where T : Enum
+		internal void TrySendOptionalEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum
 		{
-			var handler = m_EventHandlers.TryGet<T>();
-			if (handler == null)
-			{
-				handler = new LunyScriptEventHandler<T>(ScriptContext);
+			var eventHandler = TryGetEventHandler<T>();
+			eventHandler?.TrySend(luaState, enumValue, args);
+		}
+
+		internal void TrySendEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum
+		{
+			var eventHandler = GetOrCreateEventHandler<T>();
+			eventHandler?.TrySend(luaState, enumValue, args);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal LunyScriptEventHandler<T> GetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? CreateEventHandler<T>();
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal LunyScriptEventHandler<T> TryGetEventHandler<T>() where T : Enum => m_EventHandlers.TryGet<T>();
+
+		internal LunyScriptEventHandler<T> CreateEventHandler<T>() where T : Enum
+		{
+			var handler = LunyScriptEventHandler.TryCreate<T>(ScriptContext);
+			if (handler != null)
 				m_EventHandlers.Add(typeof(T), handler);
-			}
 
 			return handler;
 		}
 
 		public async ValueTask ReloadScript(LuaState luaState)
 		{
-			var reloadEvent = EventHandler<ScriptLoadEvent>();
-			reloadEvent.Send(luaState, (Int32)ScriptLoadEvent.OnWillReloadScript);
+			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnWillReloadScript);
 			await DoScriptAsync(luaState);
 		}
 

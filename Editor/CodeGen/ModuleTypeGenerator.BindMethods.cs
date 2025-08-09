@@ -191,7 +191,7 @@ namespace LunyEditor.CodeGen
 				if (parameter.Type.IsEnum)
 				{
 					sb.Append(paramTypeName);
-					sb.Append(".");
+					sb.Append(".@");
 					sb.Append(parameter.ParamInfo.DefaultValue.ToString());
 				}
 				else

@@ -8,15 +8,17 @@ using UnityEngine;
 
 namespace Luny
 {
-	internal sealed class LuaCallbacks
+	public sealed class LuaCallbackFunctions
 	{
 		private readonly LuaFunction[] m_CallbackFunctions;
 
-		internal LuaCallbacks(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
+		internal LuaCallbackFunctions(LuaFunction[] callbackFunctions) => m_CallbackFunctions = callbackFunctions;
 
-		public void TryInvoke(LuaState luaState, Int32 index, params LuaValue[] args)
+		public Boolean HasCallback(Int32 eventIndex) => m_CallbackFunctions[eventIndex] != null;
+
+		public void TryInvokeLuaFunction(LuaState luaState, Int32 eventIndex, params LuaValue[] args)
 		{
-			var eventFunc = m_CallbackFunctions[index];
+			var eventFunc = m_CallbackFunctions[eventIndex];
 			if (eventFunc == null)
 				return;
 
