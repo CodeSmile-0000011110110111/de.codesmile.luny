@@ -88,7 +88,7 @@ namespace Luny
 			m_LuaState.Environment["LuaContext"] = luaContext.CreateContextTable();
 			m_LuaState.LoadBuiltInLibraries(luaContext.Libraries);
 			m_LuaState.ApplyLunyFunctionOverrides(luaContext.Libraries, luaContext.IsSandbox);
-			m_LuaState.SetLunyEnvironmentMetatable();
+			m_LuaState.EnableNamespaceLookup();
 			LuaModuleFactory.LoadModules(this, luaContext, out m_Namespaces, out m_Enums);
 		}
 
@@ -157,7 +157,7 @@ namespace Luny
 
 		private void DisposeScript(LunyLuaScript script)
 		{
-			m_FileWatcher.RemoveChangedFile(script.FullPath); // on the rare chance ..
+			m_FileWatcher.RemoveChangedFile(script.FullPath); // on the rare chance that it is waiting to be reloaded ..
 			script.Dispose();
 		}
 

@@ -54,7 +54,10 @@ namespace Luny
 			if ((libraryFlags & LuaLibraryFlags.OS) != 0)
 				luaState.OpenOperatingSystemLibrary();
 			if ((libraryFlags & LuaLibraryFlags.String) != 0)
+			{
 				luaState.OpenStringLibrary();
+				luaState.OpenStringLibraryExtensions();
+			}
 			if ((libraryFlags & LuaLibraryFlags.Table) != 0)
 				luaState.OpenTableLibrary();
 		}
@@ -81,7 +84,7 @@ namespace Luny
 			}
 		}
 
-		internal static void SetLunyEnvironmentMetatable(this LuaState luaState)
+		internal static void EnableNamespaceLookup(this LuaState luaState)
 		{
 			var envMetatable = new LuaTable(0, 1);
 			envMetatable[Metamethods.Index] = LuaFunctions.LunyEnvironmentIndex;
