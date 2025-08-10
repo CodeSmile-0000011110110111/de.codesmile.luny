@@ -15,24 +15,17 @@ namespace LunyEditor.MenuItems
 	internal static class CreateLunyAssetsMenu
 	{
 		private static readonly String s_LuaScriptContext =
-			"-- assign script's 'context' table to a local variable via Lua's vararg '...' operator\n" +
+			"-- assign script's 'context' table to a local variable:\n" +
 			"local context = ...\n\n";
 
 		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
-		                                                  "-- Use these events to respond to script loading, including hot reload\n" +
-		                                                  "context.OnScriptUnload = function()\n" +
-		                                                  "\tprint(context.ScriptName .. \" was changed and will hot reload.\")\n" +
-		                                                  "end\n" +
-		                                                  "context.OnScriptLoad = function()\n" +
-		                                                  "\tprint(context.ScriptName .. \" was (re-)loaded.\")\n" +
-		                                                  "end\n\n" +
 		                                                  "-- Unity events are Lua functions of the same name, defined in the 'context' table:\n" +
 		                                                  "context.OnEnable = function()\n" +
 		                                                  "	print(\"Hello, \" .. context.ScriptName .. \".lua\")\n" +
 		                                                  "end\n";
 
-		private static readonly String s_EmptyLunyScript = "using CodeSmile.Luny;\n" +
-		                                                   "using Lua;" +
+		private static readonly String s_EmptyLunyScript = "using Lua;\n" +
+		                                                   "using Luny;\n" +
 		                                                   "using UnityEngine;\n\n" +
 		                                                   "public sealed class $ClassName$ : LunyScript\n{\n" +
 		                                                   "\t// To get/set script variables when the script is first loaded:\n" +
