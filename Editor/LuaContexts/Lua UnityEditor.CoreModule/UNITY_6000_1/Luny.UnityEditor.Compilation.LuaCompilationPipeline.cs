@@ -1,0 +1,527 @@
+
+// --------------------------------------------------------------
+// GENERATED FILE ----> DO NOT EDIT <---- CHANGES WILL BE LOST !!
+// --------------------------------------------------------------
+
+#if UNITY_6000_1_OR_NEWER && !(UNITY_6000_2_OR_NEWER)
+#pragma warning disable 0109, 0162, 0168, 0219
+using Luny;
+
+namespace Luny.UnityEditor.Compilation
+{
+    public sealed class LuaCompilationPipelineType : global::Luny.ILuaStatic
+    {
+        public static global::Lua.LuaValue Bind() => new LuaCompilationPipelineType();
+        private LuaCompilationPipelineType() {}
+        public static implicit operator global::Lua.LuaValue(LuaCompilationPipelineType value) => new(value);
+        public global::System.Type BindType => typeof(global::UnityEditor.Compilation.CompilationPipeline);
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        public override global::System.String ToString() => BindType.FullName;
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_AssemblyDefinitionReferenceGUIDToGUID = new global::Lua.LuaFunction("AssemblyDefinitionReferenceGUIDToGUID", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var reference = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.AssemblyDefinitionReferenceGUIDToGUID(reference);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AssemblyDefinitionReferenceGUIDToGUID"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblies = new global::Lua.LuaFunction("GetAssemblies", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Compilation.AssembliesType);
+            if (_arg0.TryRead<global::UnityEditor.Compilation.AssembliesType>(out var _p0_UnityEditor_Compilation_AssembliesType))
+            {
+                if (_argCount == 1)
+                {
+                    var assembliesType = _p0_UnityEditor_Compilation_AssembliesType;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblies(assembliesType);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblies"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromAssemblyName = new global::Lua.LuaFunction("GetAssemblyDefinitionFilePathFromAssemblyName", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var assemblyName = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyDefinitionFilePathFromAssemblyName"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromAssemblyReference = new global::Lua.LuaFunction("GetAssemblyDefinitionFilePathFromAssemblyReference", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var reference = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyReference(reference);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyDefinitionFilePathFromAssemblyReference"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromScriptPath = new global::Lua.LuaFunction("GetAssemblyDefinitionFilePathFromScriptPath", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var sourceFilePath = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyDefinitionFilePathFromScriptPath(sourceFilePath);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyDefinitionFilePathFromScriptPath"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyDefinitionPlatforms = new global::Lua.LuaFunction("GetAssemblyDefinitionPlatforms", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyDefinitionPlatforms();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyDefinitionPlatforms"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyDefinitionReferenceType = new global::Lua.LuaFunction("GetAssemblyDefinitionReferenceType", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var reference = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyDefinitionReferenceType(reference);
+                    var _lret0 = new global::Lua.LuaValue((global::System.Int64)_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyDefinitionReferenceType"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyNameFromScriptPath = new global::Lua.LuaFunction("GetAssemblyNameFromScriptPath", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var sourceFilePath = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyNameFromScriptPath(sourceFilePath);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyNameFromScriptPath"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetAssemblyRootNamespaceFromScriptPath = new global::Lua.LuaFunction("GetAssemblyRootNamespaceFromScriptPath", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var sourceFilePath = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetAssemblyRootNamespaceFromScriptPath(sourceFilePath);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAssemblyRootNamespaceFromScriptPath"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetDefinesFromAssemblyName = new global::Lua.LuaFunction("GetDefinesFromAssemblyName", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var assemblyName = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetDefinesFromAssemblyName(assemblyName);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetDefinesFromAssemblyName"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetPrecompiledAssemblyNames = new global::Lua.LuaFunction("GetPrecompiledAssemblyNames", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetPrecompiledAssemblyNames();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetPrecompiledAssemblyNames"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetPrecompiledAssemblyPathFromAssemblyName = new global::Lua.LuaFunction("GetPrecompiledAssemblyPathFromAssemblyName", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var assemblyName = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetPrecompiledAssemblyPathFromAssemblyName(assemblyName);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetPrecompiledAssemblyPathFromAssemblyName"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetPrecompiledAssemblyPaths = new global::Lua.LuaFunction("GetPrecompiledAssemblyPaths", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Compilation.CompilationPipeline.PrecompiledAssemblySources);
+            if (_arg0.TryRead<global::UnityEditor.Compilation.CompilationPipeline.PrecompiledAssemblySources>(out var _p0_UnityEditor_Compilation_CompilationPipeline_PrecompiledAssemblySources))
+            {
+                if (_argCount == 1)
+                {
+                    var precompiledAssemblySources = _p0_UnityEditor_Compilation_CompilationPipeline_PrecompiledAssemblySources;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetPrecompiledAssemblyPaths(precompiledAssemblySources);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetPrecompiledAssemblyPaths"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetResponseFileDefinesFromAssemblyName = new global::Lua.LuaFunction("GetResponseFileDefinesFromAssemblyName", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var assemblyName = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetResponseFileDefinesFromAssemblyName(assemblyName);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetResponseFileDefinesFromAssemblyName"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GetSystemAssemblyDirectories = new global::Lua.LuaFunction("GetSystemAssemblyDirectories", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.ApiCompatibilityLevel);
+            if (_arg0.TryRead<global::UnityEditor.ApiCompatibilityLevel>(out var _p0_UnityEditor_ApiCompatibilityLevel))
+            {
+                if (_argCount == 1)
+                {
+                    var apiCompatibilityLevel = _p0_UnityEditor_ApiCompatibilityLevel;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GetSystemAssemblyDirectories(apiCompatibilityLevel);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetSystemAssemblyDirectories"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_GUIDToAssemblyDefinitionReferenceGUID = new global::Lua.LuaFunction("GUIDToAssemblyDefinitionReferenceGUID", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var guid = _p0_System_String;
+                    var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.GUIDToAssemblyDefinitionReferenceGUID(guid);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GUIDToAssemblyDefinitionReferenceGUID"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_IsDefineConstraintsCompatible = new global::Lua.LuaFunction("IsDefineConstraintsCompatible", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String[]);
+            if (_arg0.TryReadArray<global::System.String>(out var _p0_System_StringArray))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String[]);
+                if (_arg1.TryReadArray<global::System.String>(out var _p1_System_StringArray))
+                {
+                    if (_argCount == 2)
+                    {
+                        var defines = _p0_System_StringArray;
+                        var defineConstraints = _p1_System_StringArray;
+                        var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.IsDefineConstraintsCompatible(defines, defineConstraints);
+                        var _lret0 = new global::Lua.LuaValue(_ret0);
+                        var _retCount = _context.Return(_lret0);
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"IsDefineConstraintsCompatible"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_ParseResponseFile = new global::Lua.LuaFunction("ParseResponseFile", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String);
+                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
+                {
+                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    _lastArgPos = 2; _expectedType = typeof(global::System.String[]);
+                    if (_arg2.TryReadArray<global::System.String>(out var _p2_System_StringArray))
+                    {
+                        if (_argCount == 3)
+                        {
+                            var relativePath = _p0_System_String;
+                            var projectDirectory = _p1_System_String;
+                            var systemReferenceDirectories = _p2_System_StringArray;
+                            var _ret0 = global::UnityEditor.Compilation.CompilationPipeline.ParseResponseFile(relativePath, projectDirectory, systemReferenceDirectories);
+                            var _factory = _context.GetObjectFactory();
+                            var _lret0 = _factory.Bind(_ret0);
+                            var _retCount = _context.Return(_lret0);
+                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                        }
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ParseResponseFile"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaCompilationPipeline_RequestScriptCompilation = new global::Lua.LuaFunction("RequestScriptCompilation", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                global::UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+                var _retCount = _context.Return();
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Compilation.RequestScriptCompilationOptions);
+            if (_arg0.TryRead<global::UnityEditor.Compilation.RequestScriptCompilationOptions>(out var _p0_UnityEditor_Compilation_RequestScriptCompilationOptions))
+            {
+                if (_argCount == 1)
+                {
+                    var options = _p0_UnityEditor_Compilation_RequestScriptCompilationOptions;
+                    global::UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation(options);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RequestScriptCompilation"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaCompilationPipelineType>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaCompilationPipelineType>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                case "AssemblyDefinitionReferenceGUIDToGUID": _value = _LuaCompilationPipeline_AssemblyDefinitionReferenceGUIDToGUID; return true;
+                case "GetAssemblies": _value = _LuaCompilationPipeline_GetAssemblies; return true;
+                case "GetAssemblyDefinitionFilePathFromAssemblyName": _value = _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromAssemblyName; return true;
+                case "GetAssemblyDefinitionFilePathFromAssemblyReference": _value = _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromAssemblyReference; return true;
+                case "GetAssemblyDefinitionFilePathFromScriptPath": _value = _LuaCompilationPipeline_GetAssemblyDefinitionFilePathFromScriptPath; return true;
+                case "GetAssemblyDefinitionPlatforms": _value = _LuaCompilationPipeline_GetAssemblyDefinitionPlatforms; return true;
+                case "GetAssemblyDefinitionReferenceType": _value = _LuaCompilationPipeline_GetAssemblyDefinitionReferenceType; return true;
+                case "GetAssemblyNameFromScriptPath": _value = _LuaCompilationPipeline_GetAssemblyNameFromScriptPath; return true;
+                case "GetAssemblyRootNamespaceFromScriptPath": _value = _LuaCompilationPipeline_GetAssemblyRootNamespaceFromScriptPath; return true;
+                case "GetDefinesFromAssemblyName": _value = _LuaCompilationPipeline_GetDefinesFromAssemblyName; return true;
+                case "GetPrecompiledAssemblyNames": _value = _LuaCompilationPipeline_GetPrecompiledAssemblyNames; return true;
+                case "GetPrecompiledAssemblyPathFromAssemblyName": _value = _LuaCompilationPipeline_GetPrecompiledAssemblyPathFromAssemblyName; return true;
+                case "GetPrecompiledAssemblyPaths": _value = _LuaCompilationPipeline_GetPrecompiledAssemblyPaths; return true;
+                case "GetResponseFileDefinesFromAssemblyName": _value = _LuaCompilationPipeline_GetResponseFileDefinesFromAssemblyName; return true;
+                case "GetSystemAssemblyDirectories": _value = _LuaCompilationPipeline_GetSystemAssemblyDirectories; return true;
+                case "GUIDToAssemblyDefinitionReferenceGUID": _value = _LuaCompilationPipeline_GUIDToAssemblyDefinitionReferenceGUID; return true;
+                case "IsDefineConstraintsCompatible": _value = _LuaCompilationPipeline_IsDefineConstraintsCompatible; return true;
+                case "ParseResponseFile": _value = _LuaCompilationPipeline_ParseResponseFile; return true;
+                case "RequestScriptCompilation": _value = _LuaCompilationPipeline_RequestScriptCompilation; return true;
+                case "codeOptimization": _value = new global::Lua.LuaValue((global::System.Int64)global::UnityEditor.Compilation.CompilationPipeline.codeOptimization); return true;
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                case "codeOptimization": global::UnityEditor.Compilation.CompilationPipeline.codeOptimization = _value.Read<global::UnityEditor.Compilation.CodeOptimization>();  return true;
+                default: return false;
+            }
+        }
+    }
+}
+#pragma warning restore 0109, 0162, 0168, 0219
+#endif

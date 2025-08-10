@@ -1,0 +1,512 @@
+
+// --------------------------------------------------------------
+// GENERATED FILE ----> DO NOT EDIT <---- CHANGES WILL BE LOST !!
+// --------------------------------------------------------------
+
+#if UNITY_6000_2_OR_NEWER && !(UNITY_6000_3_OR_NEWER)
+#pragma warning disable 0109, 0162, 0168, 0219
+using Luny;
+
+namespace Luny.UnityEditor
+{
+    public sealed class LuaProjectWindowUtil : global::Luny.ILuaObject<global::UnityEditor.ProjectWindowUtil>
+    {
+        public new static global::Lua.LuaValue Bind(global::UnityEditor.ProjectWindowUtil instance) => new LuaProjectWindowUtil(instance);
+        public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEditor.ProjectWindowUtil)instance);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::UnityEditor.ProjectWindowUtil> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.ProjectWindowUtil>(instances);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.ProjectWindowUtil>(instances);
+        private LuaProjectWindowUtil(global::UnityEditor.ProjectWindowUtil instance) => m_Instance = instance;
+        public static implicit operator global::Lua.LuaValue(LuaProjectWindowUtil value) => new(value);
+        private global::UnityEditor.ProjectWindowUtil m_Instance;
+        public global::UnityEditor.ProjectWindowUtil Instance => m_Instance;
+        public new global::System.Type BindType => typeof(global::UnityEditor.ProjectWindowUtil);
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaProjectWindowUtil>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaProjectWindowUtil>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+    public sealed class LuaProjectWindowUtilType : global::Luny.ILuaStatic
+    {
+        public static global::Lua.LuaValue Bind() => new LuaProjectWindowUtilType();
+        private LuaProjectWindowUtilType() {}
+        public static implicit operator global::Lua.LuaValue(LuaProjectWindowUtilType value) => new(value);
+        public global::System.Type BindType => typeof(global::UnityEditor.ProjectWindowUtil);
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        public override global::System.String ToString() => BindType.FullName;
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_new = new global::Lua.LuaFunction(".ctor", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                var _ret0 = new global::UnityEditor.ProjectWindowUtil();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{".ctor"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateAsset = new global::Lua.LuaFunction("CreateAsset", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Object);
+            if (_arg0.TryRead<global::UnityEngine.Object>(out var _p0_UnityEngine_Object))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String);
+                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
+                {
+                    if (_argCount == 2)
+                    {
+                        var asset = _p0_UnityEngine_Object;
+                        var pathName = _p1_System_String;
+                        global::UnityEditor.ProjectWindowUtil.CreateAsset(asset, pathName);
+                        var _retCount = _context.Return();
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateAsset"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateAssetWithContent = new global::Lua.LuaFunction("CreateAssetWithContent", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String);
+                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
+                {
+                    if (_argCount == 2)
+                    {
+                        var filename = _p0_System_String;
+                        var content = _p1_System_String;
+                        global::UnityEditor.ProjectWindowUtil.CreateAssetWithContent(filename, content);
+                        var _retCount = _context.Return();
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.Texture2D);
+                    var _p2_UnityEngine_Texture2D = _arg2.ReadValue<global::UnityEngine.Texture2D>(default);
+                    {
+                        if (_argCount == 3)
+                        {
+                            var filename = _p0_System_String;
+                            var content = _p1_System_String;
+                            var icon = _p2_UnityEngine_Texture2D;
+                            global::UnityEditor.ProjectWindowUtil.CreateAssetWithContent(filename, content, icon);
+                            var _retCount = _context.Return();
+                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                        }
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateAssetWithContent"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateFolder = new global::Lua.LuaFunction("CreateFolder", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                global::UnityEditor.ProjectWindowUtil.CreateFolder();
+                var _retCount = _context.Return();
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateFolder"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateNewGUISkin = new global::Lua.LuaFunction("CreateNewGUISkin", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                global::UnityEditor.ProjectWindowUtil.CreateNewGUISkin();
+                var _retCount = _context.Return();
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateNewGUISkin"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateScene = new global::Lua.LuaFunction("CreateScene", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                global::UnityEditor.ProjectWindowUtil.CreateScene();
+                var _retCount = _context.Return();
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateScene"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateScriptAssetFromTemplateFile = new global::Lua.LuaFunction("CreateScriptAssetFromTemplateFile", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String);
+                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
+                {
+                    if (_argCount == 2)
+                    {
+                        var templatePath = _p0_System_String;
+                        var defaultNewFileName = _p1_System_String;
+                        global::UnityEditor.ProjectWindowUtil.CreateScriptAssetFromTemplateFile(templatePath, defaultNewFileName);
+                        var _retCount = _context.Return();
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateScriptAssetFromTemplateFile"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_CreateScriptAssetWithContent = new global::Lua.LuaFunction("CreateScriptAssetWithContent", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.String);
+                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
+                {
+                    if (_argCount == 2)
+                    {
+                        var assetPath = _p0_System_String;
+                        var scriptContent = _p1_System_String;
+                        var _ret0 = global::UnityEditor.ProjectWindowUtil.CreateScriptAssetWithContent(assetPath, scriptContent);
+                        var _factory = _context.GetObjectFactory();
+                        var _lret0 = _factory.Bind(_ret0);
+                        var _retCount = _context.Return(_lret0);
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CreateScriptAssetWithContent"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_GetAncestors = new global::Lua.LuaFunction("GetAncestors", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
+            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
+            {
+                if (_argCount == 1)
+                {
+                    var instanceID = _p0_System_Int32;
+                    var _ret0 = global::UnityEditor.ProjectWindowUtil.GetAncestors(instanceID);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAncestors"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_GetBaseFolders = new global::Lua.LuaFunction("GetBaseFolders", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String[]);
+            if (_arg0.TryReadArray<global::System.String>(out var _p0_System_StringArray))
+            {
+                if (_argCount == 1)
+                {
+                    var folders = _p0_System_StringArray;
+                    var _ret0 = global::UnityEditor.ProjectWindowUtil.GetBaseFolders(folders);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetBaseFolders"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_GetContainingFolder = new global::Lua.LuaFunction("GetContainingFolder", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var path = _p0_System_String;
+                    var _ret0 = global::UnityEditor.ProjectWindowUtil.GetContainingFolder(path);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetContainingFolder"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_IsFolder = new global::Lua.LuaFunction("IsFolder", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
+            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
+            {
+                if (_argCount == 1)
+                {
+                    var instanceID = _p0_System_Int32;
+                    var _ret0 = global::UnityEditor.ProjectWindowUtil.IsFolder(instanceID);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"IsFolder"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_ShowCreatedAsset = new global::Lua.LuaFunction("ShowCreatedAsset", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Object);
+            if (_arg0.TryRead<global::UnityEngine.Object>(out var _p0_UnityEngine_Object))
+            {
+                if (_argCount == 1)
+                {
+                    var o = _p0_UnityEngine_Object;
+                    global::UnityEditor.ProjectWindowUtil.ShowCreatedAsset(o);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ShowCreatedAsset"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaProjectWindowUtil_StartNameEditingIfProjectWindowExists = new global::Lua.LuaFunction("StartNameEditingIfProjectWindowExists", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
+            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
+            {
+                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEditor.ProjectWindowCallback.LuaEndNameEditAction);
+                if (_arg1.TryRead<global::Luny.UnityEditor.ProjectWindowCallback.LuaEndNameEditAction>(out var _p1_UnityEditor_ProjectWindowCallback_EndNameEditAction))
+                {
+                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    _lastArgPos = 2; _expectedType = typeof(global::System.String);
+                    if (_arg2.TryRead<global::System.String>(out var _p2_System_String))
+                    {
+                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.Texture2D);
+                        if (_arg3.TryRead<global::UnityEngine.Texture2D>(out var _p3_UnityEngine_Texture2D))
+                        {
+                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            _lastArgPos = 4; _expectedType = typeof(global::System.String);
+                            if (_arg4.TryRead<global::System.String>(out var _p4_System_String))
+                            {
+                                if (_argCount == 5)
+                                {
+                                    var instanceID = _p0_System_Int32;
+                                    var endAction = _p1_UnityEditor_ProjectWindowCallback_EndNameEditAction.Instance;
+                                    var pathName = _p2_System_String;
+                                    var icon = _p3_UnityEngine_Texture2D;
+                                    var resourceFile = _p4_System_String;
+                                    global::UnityEditor.ProjectWindowUtil.StartNameEditingIfProjectWindowExists(instanceID, endAction, pathName, icon, resourceFile);
+                                    var _retCount = _context.Return();
+                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                                }
+                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                _lastArgPos = 5; _expectedType = typeof(global::System.Boolean);
+                                if (_arg5.TryRead<global::System.Boolean>(out var _p5_System_Boolean))
+                                {
+                                    if (_argCount == 6)
+                                    {
+                                        var instanceID = _p0_System_Int32;
+                                        var endAction = _p1_UnityEditor_ProjectWindowCallback_EndNameEditAction.Instance;
+                                        var pathName = _p2_System_String;
+                                        var icon = _p3_UnityEngine_Texture2D;
+                                        var resourceFile = _p4_System_String;
+                                        var selectAssetBeingCreated = _p5_System_Boolean;
+                                        global::UnityEditor.ProjectWindowUtil.StartNameEditingIfProjectWindowExists(instanceID, endAction, pathName, icon, resourceFile, selectAssetBeingCreated);
+                                        var _retCount = _context.Return();
+                                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"StartNameEditingIfProjectWindowExists"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaProjectWindowUtilType>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaProjectWindowUtilType>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                case "new": _value = _LuaProjectWindowUtil_new; return true;
+                case "CreateAsset": _value = _LuaProjectWindowUtil_CreateAsset; return true;
+                case "CreateAssetWithContent": _value = _LuaProjectWindowUtil_CreateAssetWithContent; return true;
+                case "CreateFolder": _value = _LuaProjectWindowUtil_CreateFolder; return true;
+                case "CreateNewGUISkin": _value = _LuaProjectWindowUtil_CreateNewGUISkin; return true;
+                case "CreateScene": _value = _LuaProjectWindowUtil_CreateScene; return true;
+                case "CreateScriptAssetFromTemplateFile": _value = _LuaProjectWindowUtil_CreateScriptAssetFromTemplateFile; return true;
+                case "CreateScriptAssetWithContent": _value = _LuaProjectWindowUtil_CreateScriptAssetWithContent; return true;
+                case "GetAncestors": _value = _LuaProjectWindowUtil_GetAncestors; return true;
+                case "GetBaseFolders": _value = _LuaProjectWindowUtil_GetBaseFolders; return true;
+                case "GetContainingFolder": _value = _LuaProjectWindowUtil_GetContainingFolder; return true;
+                case "IsFolder": _value = _LuaProjectWindowUtil_IsFolder; return true;
+                case "ShowCreatedAsset": _value = _LuaProjectWindowUtil_ShowCreatedAsset; return true;
+                case "StartNameEditingIfProjectWindowExists": _value = _LuaProjectWindowUtil_StartNameEditingIfProjectWindowExists; return true;
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+}
+#pragma warning restore 0109, 0162, 0168, 0219
+#endif
