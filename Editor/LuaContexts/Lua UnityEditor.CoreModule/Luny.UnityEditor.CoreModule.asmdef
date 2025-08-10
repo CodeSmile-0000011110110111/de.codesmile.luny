@@ -1,0 +1,19 @@
+{
+    "name": "Luny.UnityEditor.CoreModule",
+    "references": [
+        "GUID:f2ddabe9e0aaa1c499a086b54a197337",
+        "GUID:8e17e7dd86eadb24a867d197040f18a7"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints":     [
+        "UNITY_6000_0_OR_NEWER"    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
