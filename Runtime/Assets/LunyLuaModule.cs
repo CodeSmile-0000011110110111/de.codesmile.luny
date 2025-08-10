@@ -46,8 +46,6 @@ namespace Luny
 
 		// serialized for runtime, but hidden in Inspector because these are automated
 		[SerializeField] [HideInInspector] private String m_ContentRootFolderGuid;
-		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeFullName;
-		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderAssemblyName;
 		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
@@ -60,12 +58,28 @@ namespace Luny
 		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
 		internal String ContentRootFolderGuid { get => m_ContentRootFolderGuid; set => m_ContentRootFolderGuid = value; }
-		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }
-		internal Loader ModuleLoader => m_ModuleLoader;
+		internal Loader ModuleLoader
+		{
+			get
+			{
+				Debug.Log($"{name}: module loader requested, is: {m_ModuleLoader}, version: {m_ModuleLoader?.Version}, hash: {m_ModuleLoader?.GetHashCode()}");
+				return m_ModuleLoader ??= TryInstantiateModuleLoader();
+			}
+		}
+
+		internal Loader TryInstantiateModuleLoader()
+		{
+#if UNITY_EDITOR
+			return TryInstantiateModuleLoaderEditorOnly();
+#else
+			throw new MissingReferenceException($"{name}: missing module loader");
+#endif
+		}
 
 		// Is abstract instead of interface for serialization in LunyLuaModule asset
 		[Serializable] public abstract class Loader
 		{
+			public abstract String Version { get; }
 			public abstract String[] GetNamespaceNames();
 			public abstract String[][] GetNamespaceParts();
 			public abstract Type[] GetEnumTypes();

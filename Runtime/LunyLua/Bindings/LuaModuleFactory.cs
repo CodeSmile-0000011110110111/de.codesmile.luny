@@ -27,17 +27,17 @@ namespace Luny
 		private static void LoadModule(LunyLuaModule module, LuaObjectFactory objectFactory, LuaNamespaces luaNamespaces,
 			LuaEnumCollection luaEnums)
 		{
-			if (module.ModuleLoader == null)
+			var moduleLoader = module.ModuleLoader;
+			if (moduleLoader == null)
 			{
-				if (string.IsNullOrEmpty(module.ModuleLoaderTypeFullName) == false)
-					Debug.LogWarning($"Cannot load {module.name}! Perhaps not generated? ModuleLoader: '{module.ModuleLoaderTypeFullName}'");
-
+				Debug.LogWarning($"Cannot load {module.name}! Perhaps not generated?");
 				return;
 			}
 
-			var moduleLoader = module.ModuleLoader;
 			var marker = new ProfilerMarker(ProfilerCategory.Scripts, moduleLoader.GetType().Name);
 			marker.Begin();
+
+			Debug.Log($"LoadModule: {module.name} with loader {moduleLoader}, version {moduleLoader.Version}, hash: {moduleLoader.GetHashCode()}");
 
 			var namespaceNames = moduleLoader.GetNamespaceNames();
 			var namespaceParts = moduleLoader.GetNamespaceParts();

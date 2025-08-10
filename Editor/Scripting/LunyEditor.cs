@@ -8,10 +8,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
 using FileUtil = Luny.Core.FileUtil;
-using Object = System.Object;
 
 namespace LunyEditor
 {
@@ -34,7 +32,12 @@ namespace LunyEditor
 		public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
 		public static ILunyEditor Singleton => instance; // for consistency
 
-		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton
+		[InitializeOnLoadMethod] private static LunyEditor OnLoad()
+		{
+			Debug.Log($"{nameof(LunyEditor)}: {nameof(OnLoad)}");
+			return instance;
+			// auto-create the singleton
+		}
 
 		private static void RegisterEditorScriptByType(LunyLuaScript script)
 		{
@@ -52,21 +55,20 @@ namespace LunyEditor
 			LunyEditorScriptRunner.Singleton.RemoveScriptForAsset(luaAsset);
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
-		private void Reset() => Debug.Log("LunyEditor: Reset");
+		private void Reset() => Debug.Log($"{nameof(LunyEditor)}: Reset");
 
 		// Awake runs once, when the project is loaded (the instance is instantiated for the first time)
-		private void Awake() => Debug.Log("LunyEditor: Awake");
+		private void Awake() => Debug.Log($"{nameof(LunyEditor)}: Awake");
 
 		// OnEnable runs after every domain reload (including project load)
 		private void OnEnable()
 		{
-			Debug.Log("LunyEditor: OnEnable");
+			Debug.Log($"{nameof(LunyEditor)}: OnEnable");
 			var registry = LunyEditorAssetRegistry.Singleton;
 			registry.OnEditorContextChanged += OnEditorContextChanged;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
 			EditorApplication.update += OnEditorUpdate;
-			//CompilationPipeline.compilationStarted += OnCompilationStarted;
 			AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
 
 			// delayed, otherwise Editor may create Lua State "too early" after generating module code
@@ -76,20 +78,23 @@ namespace LunyEditor
 		// OnDisable runs before every domain reload
 		private void OnDisable()
 		{
-			Debug.Log("LunyEditor: OnDisable");
+			Debug.Log($"{nameof(LunyEditor)}: OnDisable");
 			Save(true);
 		}
 
-
 		// OnDestroy only runs when manually calling DestroyImmediate(instance), never otherwise (not even on project close!)
-		private void OnDestroy() => Debug.LogError("LunyEditor: OnDestroy should never be called");
+		private void OnDestroy() => Debug.LogError($"{nameof(LunyEditor)}: OnDestroy should never be called");
 
-		private void OnCompilationStarted(Object obj) => DestroyLuaState();
-
-		private void OnBeforeAssemblyReload() => DestroyLuaState();
+		private void OnBeforeAssemblyReload()
+		{
+			Debug.Log($"{nameof(LunyEditor)}: {nameof(OnBeforeAssemblyReload)}");
+			DestroyLuaState();
+		}
 
 		private async ValueTask DoAutoRunScripts()
 		{
+			Debug.Log($"{nameof(LunyEditor)}: {nameof(DoAutoRunScripts)}");
+
 			var autorunScripts = LunyProjectSettings.Singleton.EditorAutoRunLuaAssets;
 			var scripts = LunyLuaScript.LoadFromFileSystem(autorunScripts);
 
@@ -119,6 +124,7 @@ namespace LunyEditor
 
 		private void OnEditorContextChanged(LunyLuaContext luaContext)
 		{
+			Debug.Log($"{nameof(LunyEditor)}: {nameof(OnEditorContextChanged)}: {luaContext}");
 			m_Lua = CreateLuaState();
 			DoAutoRunScripts().Preserve().GetAwaiter().GetResult();
 		}
@@ -127,6 +133,7 @@ namespace LunyEditor
 		{
 			DestroyLuaState();
 
+			Debug.Log($"{nameof(LunyEditor)}: {nameof(CreateLuaState)}");
 			var editorContext = LunyEditorAssetRegistry.Singleton.EditorContext;
 			return editorContext != null ? new LunyLua(editorContext, new FileSystem(editorContext)) : null;
 		}
@@ -135,6 +142,7 @@ namespace LunyEditor
 		{
 			if (m_Lua != null)
 			{
+				Debug.Log($"{nameof(LunyEditor)}: {nameof(DestroyLuaState)}");
 				LunyEditorScriptRunner.Singleton.DestroyScripts();
 				m_Lua = null;
 			}

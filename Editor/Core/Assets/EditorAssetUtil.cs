@@ -68,7 +68,7 @@ namespace LunyEditor.Core
 		/// without forcing an entire Refresh().
 		/// </summary>
 		/// <param name="asset"></param>
-		public static void Import(Object asset)
+		public static void ImportAsset(Object asset)
 		{
 			if (asset != null)
 				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
