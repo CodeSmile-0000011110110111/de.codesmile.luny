@@ -45,8 +45,9 @@ namespace Luny
 		[SerializeField] internal GenMemberFilter[] m_MemberBlacklist = Array.Empty<GenMemberFilter>();
 
 		// serialized for runtime, but hidden in Inspector because these are automated
-		[SerializeField] [HideInInspector] private String m_ContentFolderGuid;
+		[SerializeField] [HideInInspector] private String m_ContentRootFolderGuid;
 		[SerializeField] [ReadOnlyField] internal String m_ModuleLoaderTypeFullName;
+		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderAssemblyName;
 		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
@@ -58,7 +59,7 @@ namespace Luny
 		internal String[] TypeBlacklist => m_TypeBlacklist;
 		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
-		internal String ContentFolderGuid { get => m_ContentFolderGuid; set => m_ContentFolderGuid = value; }
+		internal String ContentRootFolderGuid { get => m_ContentRootFolderGuid; set => m_ContentRootFolderGuid = value; }
 		internal String ModuleLoaderTypeFullName { get => m_ModuleLoaderTypeFullName; set => m_ModuleLoaderTypeFullName = value; }
 		internal Loader ModuleLoader => m_ModuleLoader;
 
@@ -70,13 +71,5 @@ namespace Luny
 			public abstract Type[] GetEnumTypes();
 			public abstract LuaTypeInfo[] GetBindTypeInfos();
 		}
-
-#if UNITY_EDITOR
-		[Header("Debug")]
-		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
-		[SerializeField] internal String m_GenerateOnlyThisType;
-		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
-		[SerializeField] internal String m_GenerateOnlyThisMethod;
-#endif
 	}
 }

@@ -3,6 +3,7 @@
 
 #if UNITY_EDITOR
 using Luny.Core;
+using LunyEditor.Core;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -11,26 +12,37 @@ namespace Luny
 {
 	public sealed partial class LunyLuaModule : ISerializationCallbackReceiver
 	{
+		[Header("Debug")]
+		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
+		[SerializeField] internal String m_GenerateOnlyThisType;
+		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
+		[SerializeField] internal String m_GenerateOnlyThisMethod;
+
 		public void OnBeforeSerialize() {}
 
 		public void OnAfterDeserialize() =>
 			// must delay because SerializationUtility & AssetDatabase cannot be used during serialization
 			EditorApplication.delayCall += () => UpdateGeneratedReferences();
 
-		public Boolean ContentFolderExists() => String.IsNullOrEmpty(m_ContentFolderGuid) == false &&
-		                                        AssetDatabase.IsValidFolder(AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid));
+		internal String GetContentRootFolderPath() => AssetDatabase.GUIDToAssetPath(m_ContentRootFolderGuid);
+		internal String GetContentVersionFolderPath(String rootPath) => $"{rootPath}/{DefineSymbol.MajorMinorUnityVersion}";
+		internal Boolean ContentVersionFolderExists() => AssetDatabase.IsValidFolder(GetContentVersionFolderPath(GetContentRootFolderPath()));
 
 		internal void UpdateGeneratedReferences()
 		{
 			var needsSaving = ClearMissingSerializeReferenceTypeWarning();
 
-			if (ContentFolderExists())
+			if (ContentVersionFolderExists())
 			{
-				if (m_ModuleLoader == null)
+				if (m_ModuleLoader == null && String.IsNullOrEmpty(m_ModuleLoaderTypeFullName) == false)
 				{
-					var folderPath = AssetDatabase.GUIDToAssetPath(m_ContentFolderGuid);
+					var folderPath = GetContentVersionFolderPath(GetContentRootFolderPath());
 					m_ModuleLoader = TryInstantiateType<Loader>(folderPath, m_ModuleLoaderTypeFullName);
+					Debug.Assert(m_ModuleLoader != null, $"{m_ModuleLoaderTypeFullName} not found in: {folderPath}");
 					needsSaving = needsSaving || m_ModuleLoader != null;
+
+					if (m_ModuleLoader != null)
+						m_ModuleLoaderAssemblyName = m_ModuleLoader.GetType().Assembly.GetName().Name;
 				}
 
 				if (needsSaving)
@@ -75,10 +87,11 @@ namespace Luny
 
 		internal void ClearGeneratedTypeReferences()
 		{
-			if (ContentFolderExists() == false)
-				m_ContentFolderGuid = null;
+			if (ContentVersionFolderExists() == false)
+				m_ContentRootFolderGuid = null;
 			m_ModuleLoader = null;
 			m_ModuleLoaderTypeFullName = null;
+			m_ModuleLoaderAssemblyName = null;
 		}
 	}
 }

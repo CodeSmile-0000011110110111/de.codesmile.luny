@@ -4,7 +4,7 @@
   "description": "Lua in Unity for everything!",
   "version": "0.5.0",
   "unity": "6000.0",
-  "unityRelease": "23f1",
+  "unityRelease": "35f1",
   "author": {
     "name": "Steffen Itterheim aka 'CodeSmile' (Unity MVP, Self-Employed)",
     "email": "steffen@steffenitterheim.de",
@@ -14,7 +14,7 @@
   "documentationUrl": "https://lunyscript.com",
   "licensesUrl": "https://github.com/CodeSmile-0000011110110111/de.codesmile.luny/tree/main/LICENSE",
   "dependencies": {
-    "com.unity.test-framework": "1.5.1"
+    "com.unity.test-framework": "1.4.6"
   },
   "relatedPackages": {},
   "hideInEditor": false

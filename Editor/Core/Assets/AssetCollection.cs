@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -30,9 +31,19 @@ namespace LunyEditor.Core
 					Debug.Assert(asset != null,
 						$"Asset load failed! Don't use within Start/StopAssetEditing, [InitializeOnLoad], static ctor! Path: {path}");
 
-					m_Assets.Add(asset.name, asset);
+					m_Assets.Add(path, asset);
 				}
 			}
+		}
+
+		public T TryGetAssetByFilename(String filename)
+		{
+			foreach (var assetPath in m_Assets.Keys)
+			{
+				if (filename == Path.GetFileName(assetPath) || filename == Path.GetFileNameWithoutExtension(assetPath))
+					return m_Assets[assetPath];
+			}
+			return null;
 		}
 	}
 
