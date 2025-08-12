@@ -112,13 +112,13 @@ context.Reloads = context.Reloads and context.Reloads + 1 or 1
 print("Reloaded script " .. context.Reloads .. " times")
 ```
 
-You may be wondering about the `and or` pattern. It's a ternary, and to the right you'll find single-line comments:
+You may be wondering about the `and or` pattern. It's what we call a ternary:
 ```
 (condition) ? (consequent) : (alternative)      // C# ternary operator
 (condition) and (consequent) or (alternative)   -- Lua ternary equivalent
 ```
 
-The ternary is used because all variables default to the value `nil`. The first time this script runs, we would like to assign the number `1`, otherwise increment the value. You can also write this logic more traditionally:
+The ternary expression is used because all variables default to the value `nil`. The first time this script runs, we would like to assign the number `1`, otherwise increment the value. You can also write this logic more traditionally:
 
 ```
 if not context.Reloads then 
