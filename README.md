@@ -46,7 +46,7 @@ Since Luny is a new project, and I'm just a crazy solo developer (and I mean bot
 
 Luny is licensed under the MIT License. And I wish to keep it that way. 
 
-If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I have been pouring years of my time and life savings into making Luny!
+If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I wish to pour years of my worklife-balance into improving Luny!
 
 And I'm just getting started tuning Unity. :)
 
@@ -178,8 +178,8 @@ I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8
 
 I wanted to create something unique and special that actually satisfies game developer's needs. I think I found it! :)
 
-If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Do consider supporting the project financially!
+If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project!
 
-I remain confident that Luny is going to be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. 
+I remain confident that Luny can be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. 
 
 Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone, or with companions (cubes, budgies, lunies, you name it).
