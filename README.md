@@ -4,7 +4,7 @@
 
 Use Lua in Unity for everything. Just like C#, except there's no compiling. Just iterate, iterate, iterate. 
 
-Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the editor, or build!
+Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the Unity Editor, or in a running build!
 
 # Simple Example
 A Unity Editor utility script that automatically opens new Scene assets. 
@@ -12,7 +12,7 @@ A Unity Editor utility script that automatically opens new Scene assets.
 Exactly the kind of script we often wish for but rarely write because of the friction imposed upon us. Particularly when we need to figure many things out one by one:
 
 - What class is this callback in again?
-- Oh god .. which of these callbacks to use? 
+- Oh god .. which of these callbacks to use?
 - Are these static events I can subscribe to or do I have to subclass?
 - Could these parameters be null or empty?
 - What exactly are these `string[]` parameters anyway?
