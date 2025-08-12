@@ -103,7 +103,7 @@ EditorSceneManager.OpenScene("Main Scene.unity");
 local direction = Vector3.new(10, 20, 30).normalized
 ```
 
-Changed scripts are reloaded instantly, without having to change window focus. Anything in the context survives reload:
+Saving reloads the script without having to change window focus. Anything in the context survives reload:
 ```
 local context = ...
 context.Reloads = context.Reloads and context.Reloads + 1 or 1
