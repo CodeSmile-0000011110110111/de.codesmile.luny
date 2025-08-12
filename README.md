@@ -143,7 +143,7 @@ Most IDEs and text editors support syntax highlighting, error checking, and auto
 - Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
 - Compatible with all Editor and Runtime platforms.
 - Compatible with _Auto-Refresh_ and _Enter PlayMode_ options.
-- Supported and maintained
+- Supported and maintained, built with passion and dedication
 
 Visit [LunyScript.com](https://lunyscript.com) for more info.
 
@@ -153,12 +153,13 @@ Version 0.5 has some ways to go. I will focus on solidifying Editor scripting an
 
 Currently, I'm exposing most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies. I will be adding select types and members of the `System` namespace too. Any highly specialized or package API is not (yet) available. Since the binding code is generated, I can quickly open up more assemblies and the plan is definitely to support the most common APIs right out of the box.
 
-The bindings generator has some gaps that need to be filled it, it will currently not bind the following methods:
+The bindings generator has some gaps that still need to be closed, it will currently not bind the following methods:
 
 - Generic parameters or generic types
 - Methods with ref/out parameters
 - Methods with collection parameters that do not implement IList<T> (eg Dictionaries)
 - Multiple return values
+- .. and a few other, less important cases
 
 Please don't hesitate to send requests and to report any issues!
 
