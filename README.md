@@ -103,13 +103,12 @@ EditorSceneManager.OpenScene("Main Scene.unity");
 local direction = Vector3.new(10, 20, 30).normalized
 ```
 
-Changes take effect instantly. Anything in the context survives reload:
+Changed scripts are reloaded instantly, without having to change window focus. Anything in the context survives reload:
 ```
 local context = ...
 context.Reloads = context.Reloads and context.Reloads + 1 or 1
 print("Reloaded script " .. context.Reloads .. " times")
 ```
-By "instantly" I mean: You can code and save, then glance at the changes in the editor. Not even having to focus the editor window!
 
 You may be wondering about the `and or` pattern. It's a ternary, and to the right you'll find single-line comments:
 ```
