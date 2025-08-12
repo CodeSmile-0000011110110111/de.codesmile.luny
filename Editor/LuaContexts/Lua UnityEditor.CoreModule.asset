@@ -891,13 +891,13 @@ MonoBehaviour:
   m_MemberBlacklist: []
   m_ContentRootFolderGuid: 32f20b503f8b6674cb45459304cd354a
   m_ModuleLoader:
-    rid: 3323315917822885889
+    rid: 3323315959002562561
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: 3323315917822885889
+    - rid: 3323315959002562561
       type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
       data: 
