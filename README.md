@@ -161,17 +161,22 @@ local myTable = {
     {
         name = "Knee-deep",
         evenDeeperTable = { name = "in the Tables" }
-    }
+    },
 }
 ```
 
-A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike Json, it's actually executable code. So yes, you can embed functionality right into your game and config data!
+A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike Json, it's actually executable code. 
 
-Some example use-cases:
+Since you're wondering: Yes, the last closing braces CAN have trailing commas without this being a 'stupid' syntax error, but it's completely optional to all those who oppose.
+
+Some example use-cases for embedded functionality right in the game and config data:
 
 - generate or initialize content
-- validate, optimize, analyze, or convert the content
+- choose which content to load
+- validate, optimize, analyze, format, or convert the content
 - send a webrequest before returning
+
+What you can't do: mining bitcoins on user's devices. Generally speaking.
 
 Most IDEs and text editors support syntax highlighting, error checking, and auto-completion suggestions for Lua, either built-in or via a plugin. Check your editor's plugin manager.
 
