@@ -73,7 +73,7 @@ Capture the script's context table in a local variable, where `...` is Lua's _va
 local context = ...
 ```
 
-Implement functions in the context table, using the same name as the C# callback:
+Implement event functions in the context table, using the same name as the C# callback:
 ```
 context.OnPostprocessAllAssets = function(imported, deleted, moved, movedFrom)
     print("Asset Postprocessing, imported count: " .. #imported)
@@ -119,13 +119,13 @@ context.Reloads = context.Reloads and context.Reloads + 1 or 1
 print("Reloaded script " .. context.Reloads .. " times")
 ```
 
-You may be wondering about the `and or` pattern. It's what we call a ternary:
+The `..` operator concatenates strings. You may be more curious about the `and or` pattern though. It's what we call a ternary expression:
 ```
-(condition) ? (consequent) : (alternative)      // C# ternary operator
+(condition) ? (consequent) : (alternative)      // C# ternary expression
 (condition) and (consequent) or (alternative)   -- Lua ternary equivalent
 ```
 
-The ternary expression is used because all variables default to the value `nil`. Lua's keyword for `null` actually means: "value not assigned". The first time this script runs, we will have to assign a number value since we cannot increment a `nil` value. 
+The ternary expression is used because all variables default to the value `nil`. Lua's keyword for `null` actually means: "value not assigned". The first time this script runs, we will have to assign a `number` value since we cannot increment a `nil` value. 
 
 You can also write this logic more traditionally:
 ```
@@ -154,20 +154,20 @@ If you ever find need for structuring things, use a table. The table is Lua's so
 
 ```
 local myTable = {
-    tableInsideTheTable = { "This", "Is, "A", "List", "Of", "Strings", "!" },
+    tableInsideTheTable = { "This", "Is, "A", "List", "Of", "Strings", "!", },
     TheNumberWeShallCallPI = 3.1415,
     doesAnyOfThisMakeSense = false,
     aDeeperTable =
     {
         name = "Knee-deep",
         evenDeeperTable = { name = "in the Tables" }
-    },
+    }
 }
 ```
 
 A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike Json, it's actually executable code. 
 
-Since you're wondering: Yes, the last closing braces CAN have trailing commas without this being a 'stupid' syntax error, but it's completely optional to all those who oppose.
+For the observant and wondering: Yes, the last elements CAN have a trailing comma without it being a 'stupid' syntax error, but it's completely optional for all those who oppose.
 
 Some example use-cases for embedded functionality right in the game and config data:
 
@@ -199,7 +199,9 @@ Visit [LunyScript.com](https://lunyscript.com) for more info.
 
 Version 0.5 has some ways to go. I will focus on solidifying Editor scripting and then turn to Runtime scripting.
 
-Currently, I'm exposing most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies. I will be adding select types and members of the `System` namespace too. Any highly specialized or package API is not (yet) available. Since the binding code is generated, I can quickly open up more assemblies and the plan is definitely to support the most common APIs right out of the box.
+Currently, I'm exposing most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies. I will be adding select types and members of the `System` namespace too. Any highly specialized or package API is not (yet) available. 
+
+Since the binding code is generated, I can quickly open up more assemblies. The plan is definitely to support the most common APIs right out of the box.
 
 The bindings generator has some gaps that still need to be closed, it will currently not bind the following methods:
 
@@ -219,12 +221,12 @@ For now it's all [in this Google Document](https://docs.google.com/document/d/1h
 
 I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/edit?usp=sharing) for the curious, but more importantly for myself.
 
-# Patreon
+# Patreon-Funded Project
 
-I wanted to create something unique and special that actually satisfies game developer's needs. I think I found it! :)
+I wanted to create something unique and special that actually satisfies game developer's dirty desires. I think I found it! :)
 
-If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project!
+If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project with a subscription!
 
-I remain confident that Luny can be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. 
+I am confident that Luny can be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. 
 
 Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone, or with companions (cubes, budgies, lunies, you name it).
