@@ -12,21 +12,21 @@ namespace Luny
 {
 	public static class LuaStringLibraryExtensions
 	{
-		[Preserve] private static readonly LuaFunction _startsWith = new("startsWith", (context, token) =>
+		[Preserve] private static readonly LuaFunction _startsWith = new("StartsWith", (context, token) =>
 		{
 			var str = context.GetArgument<String>(0);
 			var suffix = context.GetArgument<String>(1);
 			var result = str.EndsWith(suffix);
 			return new ValueTask<Int32>(context.Return(result));
 		});
-		[Preserve] private static readonly LuaFunction _endsWith = new("endsWith", (context, token) =>
+		[Preserve] private static readonly LuaFunction _endsWith = new("EndsWith", (context, token) =>
 		{
 			var str = context.GetArgument<String>(0);
 			var suffix = context.GetArgument<String>(1);
 			var result = str.EndsWith(suffix);
 			return new ValueTask<Int32>(context.Return(result));
 		});
-		[Preserve] private  static readonly LuaFunction _contains = new("contains", (context, token) =>
+		[Preserve] private  static readonly LuaFunction _contains = new("Contains", (context, token) =>
 		{
 			var str = context.GetArgument<String>(0);
 			var suffix = context.GetArgument<String>(1);
