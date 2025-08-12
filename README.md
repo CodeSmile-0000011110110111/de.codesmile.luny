@@ -31,12 +31,14 @@ context.OnPostprocessAllAssets = function(imported)
 end
 ```
 
+Of course that's just Editor Luny. Stay tuned for more Runtime Luny! :)
+
 # Requirements
 ### Unity 6000.0.35f1 or newer
 
-I will maintain support for 6.0 LTS for at least as long as Unity's Enterprise support for that version lasts (October 2027). 
+I will maintain support for 6.0 LTS for at least as long as Unity's Enterprise support lasts (October 2027). 
 
-But since Luny is a new project, and I'm just a crazy solo developer (and I mean both literally and figuratively "crazy") I do not wish to waste time on backporting it to already out-of-support versions of Unity.
+Since Luny is a new project, and I'm just a crazy solo developer (and I mean both literally and figuratively "crazy") I do not wish to waste time on backporting it to already out-of-support versions of Unity.
 
 # License
 
@@ -58,7 +60,7 @@ Create a new Editor Lua script in a `/Editor` folder:
 
 ![Create Editor Lua Script](~Media/create-editor-lua-script.png)
 
-Capture the script's context table in a local variable. `...` is Lua's _varargs_ operator:
+Capture the script's context table in a local variable, where `...` is Lua's _varargs_ operator:
 ```
 local context = ...
 ```
@@ -87,12 +89,12 @@ Since `imported[1]` is a string, we can call a function that operates 'on' a str
 imported[1]:EndsWith(".unity")
 ```
 
-This is syntactic sugar for the more verbose alternative, sort of resembling a C# static method call and much less "object-oriented":
+This is syntactic sugar for the more verbose alternative, sort of resembling a C# static method call:
 ```
 string.EndsWith(imported[1], ".unity")
 ```
 
-The UnityEditor and UnityEngine APIs are at your disposal, this is merely a tip-of-the-iceberg example:
+Both `UnityEditor` and `UnityEngine` APIs are at your disposal, this is merely a tip-of-the-iceberg example:
 ```
 EditorSceneManager.OpenScene("Main Scene.unity");
 ```
@@ -119,8 +121,12 @@ end
 
 context.Reloads = context.Reloads + 1 
 ```
-A `nil` value evaluates to false in a boolean condition. Alternatively you could use the `not-equals` operator: `if context.Reloads ~= nil then ..`
-
+A `nil` value evaluates to false in a boolean condition. You may prefer to use the `~=` (inequality) operator:
+```
+if context.Reloads ~= nil then
+    context.Reloads = 0
+end
+```
 
 Most IDEs and text editors support syntax highlighting, error checking, and auto-completion suggestions for Lua, either built-in or via a plugin. Check your editor's plugin manager.
 
