@@ -229,7 +229,7 @@ I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8
 
 # Patreon-Funded Project
 
-I wanted to create something unique and special that actually satisfies game developer's dirty desires. I think I found it! :)
+I want to create something unique and special that satisfies game developer's dirty desires. I think I found it! :)
 
 If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project with a subscription!
 
