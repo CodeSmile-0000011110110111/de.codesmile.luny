@@ -1,21 +1,55 @@
 ![Luny Logo](~Media/LunyLogo.png)
 
-# [Lua in Unity for everything!](https://lunyscript.com)
+# **Are you iterating, or still compiling?**
 
-**Are you iterating, or still compiling?**
+[Luny](https://lunyscript.com) enables Editor, Runtime and Mod scripting with Lua in Unity. 
 
-Luny enables Editor, Runtime and Mod scripting with Lua. 
-
-Example Editor utility script that opens new Scene assets right away:
+Example utility editor script, opens created Scene assets:
 ```
 local context = ...
 
-context.OnPostprocessAllAssets = function(importedPaths)
-    if #importedPaths == 1 and importedPaths[1]:endsWith(".unity") then
-        EditorSceneManager.OpenScene(importedPaths[1]);
+context.OnPostprocessAllAssets = function(imported)
+    if #imported == 1 and imported[1]:endsWith(".unity") then
+        EditorSceneManager.OpenScene(imported[1]);
     end
 end
 ```
+
+Just create a new Lua script asset in a `/Editor` folder:
+
+![Create Editor Lua Script](~Media/create-editor-lua-script.png)
+
+Capture the script's context table in a local variable:
+```
+local context = ...
+```
+
+Simply implement the event function by name:
+```
+context.OnPostprocessAllAssets = function(imported, deleted, moved, movedFrom)
+end
+```
+
+You can omit unused function arguments:
+```
+context.OnPostprocessAllAssets = function(imported)
+end
+```
+
+The UnityEditor and UnityEngine APIs are at your disposal.
+```
+EditorSceneManager.OpenScene("My First Scene");
+```
+
+Changes take effect instantly. Context survives reload:
+```
+local context = ...
+context.Reloads = context.Reloads and 1 or context.Reloads + 1
+print("Reloaded script " .. context.Reloads .. " times")
+```
+
+No compiling, no domain reload. Iterate, iterate, iterate.
+
 
 ## Features
 
@@ -51,4 +85,4 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 
 Stay informed and support the project: https://www.patreon.com/CodeSmile
 
-I highly appreciate any and all subscriptions. It helps to keep the project going, it's a full-time investment and the name 'Luny' isn't far off because it's somewhat crazy to pour this much time and effort (not to mention my savings) into enabling Lua for Unity developers.
+I highly appreciate any and all subscriptions. It helps to keep the project going, it's a full-time investment and the name 'Luny' is a good fit alos because it's crazy to pour this much time and effort (not to mention my savings) into enabling Lua for Unity developers.

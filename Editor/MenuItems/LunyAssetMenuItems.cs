@@ -72,8 +72,8 @@ namespace LunyEditor.MenuItems
 		[MenuItem("Assets/Create/Luny/Lua Script", false, priority = 6)]
 		private static void CreateLuaScript() => ProjectWindowUtil.CreateAssetWithContent("New Lua Script.lua", @"print(""Hello, Lua!"")");
 
-		[MenuItem("Assets/Create/Luny/Auto-Run Lua Script", false, priority = 7)]
-		private static void CreateAutoRunLuaScript()
+		[MenuItem("Assets/Create/Luny/Editor Lua Script", false, priority = 7)]
+		private static void CreateEditorAutoRunLuaScript()
 		{
 			s_WillCreateAutoRunScript = true;
 			ProjectWindowUtil.CreateAssetWithContent("New Auto-Run Lua Script.lua", s_EmptyLuaScript);
