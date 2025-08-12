@@ -128,7 +128,6 @@ You may be wondering about the `and or` pattern. It's what we call a ternary:
 The ternary expression is used because all variables default to the value `nil`. Lua's keyword for `null` actually means: "value not assigned". The first time this script runs, we will have to assign a number value since we cannot increment a `nil` value. 
 
 You can also write this logic more traditionally:
-
 ```
 if not context.Reloads then 
     context.Reloads = 0
@@ -137,12 +136,42 @@ end
 context.Reloads = context.Reloads + 1 
 ```
 
-A `nil` value evaluates to false in a boolean condition. You may prefer to use the `~=` (inequality) operator:
+If you're very accustomed to C languages, you may prefer to use the equality operator. Its inequality counterpart is the `~=` operator, which - I promise - you'll get used to:
 ```
-if context.Reloads ~= nil then
+if context.Reloads == nil then
     context.Reloads = 0
 end
 ```
+A `nil` value evaluates to false in a boolean condition.
+
+Like in C#, some of us prefer longer over more lines. At least for very short, simple statements it can be a useful formatting alternative:
+```
+if context.Reloads == nil then context.Reloads = 0 end
+```
+I could show you how you can make multiple statements on the same line, but I simply do not wish to endorse this style. 
+
+If you ever find need for structuring things, use a table. The table is Lua's sole collection type, mimicking both a list and a key-value store. How you format the braces is entirely up to you: 
+
+```
+local myTable = {
+    tableInsideTheTable = { "This", "Is, "A", "List", "Of", "Strings", "!" },
+    TheNumberWeShallCallPI = 3.1415,
+    doesAnyOfThisMakeSense = false,
+    aDeeperTable =
+    {
+        name = "Knee-deep",
+        evenDeeperTable = { name = "in the Tables" }
+    }
+}
+```
+
+A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike Json, it's actually executable code. So yes, you can embed functionality right into your game and config data!
+
+Some example use-cases:
+
+- generate or initialize content
+- validate, optimize, analyze, or convert the content
+- send a webrequest before returning
 
 Most IDEs and text editors support syntax highlighting, error checking, and auto-completion suggestions for Lua, either built-in or via a plugin. Check your editor's plugin manager.
 
@@ -154,6 +183,7 @@ Most IDEs and text editors support syntax highlighting, error checking, and auto
 - Inspector editing of 'context' values
 - Sandboxing prevents runtime scripts from accessing potentially destructive APIs.
 - Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
+- Lua function calls are async-awaitable
 - Compatible with all Editor and Runtime platforms.
 - Compatible with _Auto-Refresh_ and _Enter PlayMode_ options.
 - Supported and maintained, built with passion and dedication
