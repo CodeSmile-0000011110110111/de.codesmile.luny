@@ -91,7 +91,7 @@ Since `imported[1]` is a string, we can call a function that operates 'on' a str
 imported[1]:EndsWith(".unity")
 ```
 
-This is syntactic sugar for the more verbose alternative, sort of resembling a C# static method call:
+The `:` operator is syntactic sugar for the more verbose alternative, resembling a C# static method call:
 ```
 string.EndsWith(imported[1], ".unity")
 ```
@@ -140,7 +140,8 @@ Most IDEs and text editors support syntax highlighting, error checking, and auto
 
 - Full Unity API available with more to come ...
 - Instant script reload: no compiling, no domain reload. 
-- Bind custom objects, with value get/set via reflection or custom binding methods.
+- Bind custom objects with value get/set either automatic via reflection or by writing binding methods.
+- Inspector editing of 'context' values
 - Sandboxing prevents runtime scripts from accessing potentially destructive APIs.
 - Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
 - Compatible with all Editor and Runtime platforms.
@@ -179,4 +180,4 @@ I wanted to create something unique and special that actually satisfies game dev
 
 If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Do consider supporting the project financially!
 
-I remain confident that Luny is going to be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone.
+I remain confident that Luny is going to be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone, or with companions (cubes, budgies, devs, you name it).
