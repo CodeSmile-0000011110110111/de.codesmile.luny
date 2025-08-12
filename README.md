@@ -165,9 +165,7 @@ local myTable = {
 }
 ```
 
-A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike Json, it's actually executable code. 
-
-For the observant and wondering: Yes, the last elements CAN have a trailing comma without it being a 'stupid' syntax error, but it's completely optional for all those who oppose.
+A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike structured text files (I won't name names) it's actually executable code **and** it can have comments **and** ignores 'unexpected' trailing commas. 
 
 Some example use-cases for embedded functionality right in the game and config data:
 
