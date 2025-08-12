@@ -1,6 +1,6 @@
 [![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# Luny: Lua scripting in Unity - Editor and Runtime
+# Luny: Lua in Unity - Editor and Runtime Scripting
 
 Use Lua as if it were C#. Except there's no compiling. Just iterate, iterate, iterate. Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the editor, or build!
 
