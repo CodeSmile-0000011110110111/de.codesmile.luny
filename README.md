@@ -102,7 +102,8 @@ Both `UnityEditor` and `UnityEngine` APIs are at your disposal, these are merely
 EditorSceneManager.OpenScene("Main Scene.unity");
 
 -- some vector math:
-local direction = Vector3.new(10, 20, 30).normalized * Time.deltaTime --<< don't actually do this
+local input = Vector3.new(10, 20, 30)
+local velocity = input.normalized * Time.deltaTime
 ```
 
 Saving reloads the script without having to change window focus. Anything in the context survives reload:
