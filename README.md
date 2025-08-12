@@ -58,7 +58,15 @@ And I'm just getting started tuning Unity. :)
 
 # Getting Started with Luny
 
-For this walkthrough I encourage you to have your editor window sized so that you can at least see the Unity Editor's 'Console' window somewhere on the side. Then print things, type often, save often, watch the changes happen in the Console. 
+For this walkthrough I encourage you to have your editor window sized so that you can at least see the Unity Editor's 'Console' window somewhere on the side. Type often, save often, watch the changes happen in the Console by 'printing' a lot of things:
+
+```
+local hello = "World!"
+print(hello)    -- Debug.Log
+log(hello)      -- short for 'print'
+warn(hello)     -- Debug.LogWarning
+error(hello)    -- Debug.LogError
+```
 
 Use the same approach as you explore other uses later. Let me know what your use-cases are, and how Luny helps, or could be helpful if it did that specific thing.
 
