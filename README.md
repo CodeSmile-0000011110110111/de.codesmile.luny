@@ -58,6 +58,12 @@ And I'm just getting started tuning Unity. :)
 
 # Getting Started with Luny
 
+For this walkthrough I encourage you to have your editor window sized so that you can at least see the Unity Editor's 'Console' window somewhere on the side. Then print things, type often, save often, watch the changes happen in the Console. 
+
+Use the same approach as you explore other uses later. Let me know what your use-cases are, and how Luny helps, or could be helpful if it did that specific thing.
+
+## Your First Editor Script
+
 Create a new Editor Lua script in a `/Editor` folder:
 
 ![Create Editor Lua Script](~Media/create-editor-lua-script.png)
@@ -119,7 +125,9 @@ You may be wondering about the `and or` pattern. It's what we call a ternary:
 (condition) and (consequent) or (alternative)   -- Lua ternary equivalent
 ```
 
-The ternary expression is used because all variables default to the value `nil`. The first time this script runs, we would like to assign the number `1`, otherwise increment the value. You can also write this logic more traditionally:
+The ternary expression is used because all variables default to the value `nil`. Lua's keyword for `null` actually means: "value not assigned". The first time this script runs, we will have to assign a number value since we cannot increment a `nil` value. 
+
+You can also write this logic more traditionally:
 
 ```
 if not context.Reloads then 
@@ -128,6 +136,7 @@ end
 
 context.Reloads = context.Reloads + 1 
 ```
+
 A `nil` value evaluates to false in a boolean condition. You may prefer to use the `~=` (inequality) operator:
 ```
 if context.Reloads ~= nil then
