@@ -167,11 +167,9 @@ Please don't hesitate to send requests and to report any issues!
 
 Work in progress ...
 
-For now it's all in this Google Document:
-https://docs.google.com/document/d/1hHC7lTNleZO1LdInfF2t4gKYvXcB3-7nUFL5vbHpQVI/edit?usp=sharing
+For now it's all [in this Google Document](https://docs.google.com/document/d/1hHC7lTNleZO1LdInfF2t4gKYvXcB3-7nUFL5vbHpQVI/edit?usp=sharing).
 
-I also maintain a DevLog for the curious:
-https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/edit?usp=sharing
+I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/edit?usp=sharing) for the curious, but more importantly for myself.
 
 # Patreon
 
