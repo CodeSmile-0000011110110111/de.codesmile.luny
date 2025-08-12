@@ -9,18 +9,18 @@ A Unity Editor utility/workflow script that automatically open created Scene ass
 
 Exactly the kind of script we often wish for but rarely write because of the friction imposed upon us. Particularly when we need to figure many things out one by one:
 
-- What class is it in?
-- Which of these callbacks to use? 
-- Is it a static event or does it require subclassing?
-- Could the parameters be null or empty?
-- What exactly are these `string[] importedAsset` parameters?
-- If they are paths, absolute or relative? 
+- What class is this callback in again?
+- Oh god .. which of these callbacks to use? 
+- Are these static events I can subscribe to or do I have to subclass?
+- Could these parameters be null or empty?
+- What exactly are these `string[]` parameters anyway?
+- If they are paths, are these absolute or relative? 
 - What's the file extension for scenes?
-- How to open a scene in the editor?
+- How to open a scene, but in the editor?
 
 So that's several minutes wasted on just compiling the C# code multiple times in quick succession. You got actual work to do, remember?
 
-Here's the crazy **Luny** solution, I'll explain it bit by bit below:
+Here's the crazy **Luny** solution, I'll explain it in detail below "after the break":
 ```
 local context = ...
 
