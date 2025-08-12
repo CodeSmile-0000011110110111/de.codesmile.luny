@@ -2,10 +2,10 @@
 
 # Luny: Lua scripting in Unity - Editor and Runtime
 
-Use Lua as if it were C#. Except there's no compiling. Just iterate, iterate, iterate.
+Use Lua as if it were C#. Except there's no compiling. Just iterate, iterate, iterate. Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the editor, or build!
 
 # Simple Example
-A Unity Editor utility/workflow script that automatically open created Scene assets. 
+A Unity Editor utility script that automatically opens new Scene assets. 
 
 Exactly the kind of script we often wish for but rarely write because of the friction imposed upon us. Particularly when we need to figure many things out one by one:
 
@@ -51,7 +51,7 @@ And I'm just getting started tuning Unity. :)
 # Installation
 
 * Open **Window => Package Management => Package Manager** in Unity Editor
-* Click top-left **&#10133;** button and choose: **Install package from git URL...**
+* Click top-left [**&#10133;**] button and choose: **Install package from git URL...**
 * Enter: `https://github.com/CodeSmile-0000011110110111/de.codesmile.luny.git`
 
 # Getting Started with Luny
@@ -65,20 +65,20 @@ Capture the script's context table in a local variable, where `...` is Lua's _va
 local context = ...
 ```
 
-Implement functions in the context table using the same name as the C# callback, and it'll get called just like that:
+Implement functions in the context table, using the same name as the C# callback:
 ```
 context.OnPostprocessAllAssets = function(imported, deleted, moved, movedFrom)
     print("Asset Postprocessing, imported count: " .. #imported)
 end
 ```
 
-You can omit unused function arguments for clarity and brevity:
+You can omit unused, trailing arguments for clarity and brevity:
 ```
 context.OnPostprocessAllAssets = function(imported)
 end
 ```
 
-Lua speaks english, naturally uses `1` as a list's first element, and counts elements with the `#` prefix:
+Lua understands english, naturally uses `1` as a list's first element, and counts elements with the `#` prefix:
 ```
 if #imported == 1 and imported[1]:EndsWith(".unity") then
 end
@@ -94,9 +94,13 @@ This is syntactic sugar for the more verbose alternative, sort of resembling a C
 string.EndsWith(imported[1], ".unity")
 ```
 
-Both `UnityEditor` and `UnityEngine` APIs are at your disposal, this is merely a tip-of-the-iceberg example:
+Both `UnityEditor` and `UnityEngine` APIs are at your disposal, these are merely tip-of-the-iceberg examples:
 ```
+-- static method call:
 EditorSceneManager.OpenScene("Main Scene.unity");
+
+-- some vector math:
+local direction = Vector3.new(10, 20, 30).normalized
 ```
 
 Changes take effect instantly. Anything in the context survives reload:
@@ -105,6 +109,7 @@ local context = ...
 context.Reloads = context.Reloads and context.Reloads + 1 or 1
 print("Reloaded script " .. context.Reloads .. " times")
 ```
+By "instantly" I mean: You can code and save, then glance at the changes in the editor. Not even having to focus the editor window!
 
 You may be wondering about the `and or` pattern. It's a ternary, and to the right you'll find single-line comments:
 ```
