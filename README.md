@@ -148,7 +148,7 @@ Like in C#, some of us prefer longer over more lines. At least for very short, s
 ```
 if context.Reloads == nil then context.Reloads = 0 end
 ```
-I could show you how you can make multiple statements on the same line, but I simply do not wish to endorse this style. 
+I could show you how you can make multiple statements on the same line, but I do not wish to endorse this style. 
 
 If you ever find need for structuring things, use a table. The table is Lua's sole collection type, mimicking both a list and a key-value store. How you format the braces is entirely up to you: 
 
