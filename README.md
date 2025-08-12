@@ -170,6 +170,8 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 
 # Patreon
 
-Stay informed and support the project: https://www.patreon.com/CodeSmile
+I wanted to create something unique and special that actually satisfies game developer's needs. I think I found it! :)
 
-I highly appreciate any and all subscriptions. It helps to keep the project going, it's a full-time investment and the name 'Luny' is a good fit alos because it's crazy to pour this much time and effort (not to mention my savings) into enabling Lua for Unity developers.
+If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Do consider supporting the project financially!
+
+I remain confident that Luny is going to be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone.
