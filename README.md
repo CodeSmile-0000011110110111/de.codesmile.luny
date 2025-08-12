@@ -1,3 +1,5 @@
+![Luny Logo](~Media/LunyLogo.png)
+
 # Luny
 Lua in Unity for everything!
 
