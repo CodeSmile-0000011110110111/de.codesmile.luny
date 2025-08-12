@@ -5,23 +5,22 @@
 Use Lua as if it were C#. Except there's no compiling. Just iterate, iterate, iterate.
 
 # Simple Example
-A utility editor script that automatically open created Scene assets. 
+A Unity Editor utility/workflow script that automatically open created Scene assets. 
 
-It's the kind of utility script we rarely write because of the friction imposed upon us. Particularly when we need to figure
-many things out, one by one:
+Exactly the kind of script we often wish for but rarely write because of the friction imposed upon us. Particularly when we need to figure many things out one by one:
 
 - What class is it in?
 - Which of these callbacks to use? 
 - Is it a static event or does it require subclassing?
 - Could the parameters be null or empty?
-- Are these "string" parameters GUIDs or paths?
-- Absolute or relative paths? 
-- What's the correct file extension for scenes?
+- What exactly are these `string[] importedAsset` parameters?
+- If they are paths, absolute or relative? 
+- What's the file extension for scenes?
 - How to open a scene in the editor?
 
 So that's several minutes wasted on just compiling the C# code multiple times in quick succession. You got actual work to do, remember?
 
-Here's the solution, I'll explain it bit by bit below:
+Here's the crazy **Luny** solution, I'll explain it bit by bit below:
 ```
 local context = ...
 
@@ -35,11 +34,15 @@ end
 # Requirements
 ### Unity 6000.0.35f1 or newer
 
-I will maintain support for 6.0 LTS for at least as long as Unity's Enterprise support for that version lasts (October 2027). But since Luny is a new project, I do not wish to waste time on backporting it to already out-of-support versions of Unity.
+I will maintain support for 6.0 LTS for at least as long as Unity's Enterprise support for that version lasts (October 2027). 
+
+But since Luny is a new project, and I'm just a crazy solo developer (and I mean both literally and figuratively "crazy") I do not wish to waste time on backporting it to already out-of-support versions of Unity.
 
 # License
 
-Luny is licensed under the MIT License. And I wish to keep it that way. If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I have been pouring years of my time and life savings into making Luny!
+Luny is licensed under the MIT License. And I wish to keep it that way. 
+
+If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I have been pouring years of my time and life savings into making Luny!
 
 And I'm just getting started tuning Unity. :)
 
