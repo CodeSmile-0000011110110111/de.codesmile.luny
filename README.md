@@ -1,8 +1,7 @@
-![Luny Logo](~Media/LunyLogo.png)
+[![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# **Are you iterating, or still compiling?**
-
-[Luny](https://lunyscript.com) enables Editor, Runtime and Mod scripting with Lua in Unity. 
+# **Lua scripting in Unity** as if it were C#
+## **Are you iterating, or still compiling?**
 
 Example utility editor script, opens created Scene assets:
 ```
