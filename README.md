@@ -2,7 +2,9 @@
 
 # Luny: Lua in Unity - Editor and Runtime Scripting
 
-Use Lua as if it were C#. Except there's no compiling. Just iterate, iterate, iterate. Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the editor, or build!
+Use Lua in Unity for everything, instead of C#. Except there's no compiling. Just iterate, iterate, iterate. 
+
+Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the editor, or build!
 
 # Simple Example
 A Unity Editor utility script that automatically opens new Scene assets. 
