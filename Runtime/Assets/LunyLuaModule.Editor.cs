@@ -32,6 +32,8 @@ namespace Luny
 			TryInstantiateModuleLoaderEditorOnly();
 		}
 
+		private void OnEnable() => m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "(null)";
+
 		internal String GetContentRootFolderPath() => AssetDatabase.GUIDToAssetPath(m_ContentRootFolderGuid);
 		internal String GetContentVersionFolderPath(String rootPath) => $"{rootPath}/{DefineSymbol.MajorMinorUnityVersion}";
 		internal Boolean ContentVersionFolderExists() => AssetDatabase.IsValidFolder(GetContentVersionFolderPath(GetContentRootFolderPath()));

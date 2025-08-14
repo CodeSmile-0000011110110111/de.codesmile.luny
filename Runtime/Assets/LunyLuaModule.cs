@@ -58,14 +58,7 @@ namespace Luny
 		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
 		internal String ContentRootFolderGuid { get => m_ContentRootFolderGuid; set => m_ContentRootFolderGuid = value; }
-		internal Loader ModuleLoader
-		{
-			get
-			{
-				Debug.Log($"{name}: module loader requested, is: {m_ModuleLoader}, version: {m_ModuleLoader?.Version}, hash: {m_ModuleLoader?.GetHashCode()}");
-				return m_ModuleLoader ??= TryInstantiateModuleLoader();
-			}
-		}
+		internal Loader ModuleLoader => m_ModuleLoader ??= TryInstantiateModuleLoader();
 
 		internal Loader TryInstantiateModuleLoader()
 		{
