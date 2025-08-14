@@ -14,7 +14,7 @@ namespace Luny
 {
 	internal static class LuaFunctions
 	{
-		[Preserve] internal static readonly LuaFunction LuaTypeOf = new("typeof", (context, _) =>
+		[Preserve] internal static readonly LuaFunction LuaNameOf = new("nameof", (context, _) =>
 		{
 			String typeName;
 			var arg0 = context.GetArgument(0);
@@ -30,7 +30,7 @@ namespace Luny
 					if (arg0.TryRead(out Object userValue) && userValue != null)
 						typeName = userValue is ILuaBindType bt ? bt.BindType?.FullName : userValue.GetType().FullName;
 					else
-						typeName = "null";
+						typeName = "(null)";
 					break;
 				case LuaValueType.Table: typeName = nameof(LuaTable); break;
 				case var _: throw new NotImplementedException();

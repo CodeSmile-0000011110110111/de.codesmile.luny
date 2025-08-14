@@ -71,13 +71,12 @@ namespace Luny
 			env["warn"] = LuaLogger.LuaLogWarn;
 			env["error"] = LuaLogger.LuaLogError;
 
-			env["typeof"] = LuaFunctions.LuaTypeOf; // return System.Type.FullName for LuaValue
-			//env["using"] = LuaFunctions.LuaUsing;		// moves using namespaces to front of namespace search order
+			env[LuaFunctions.LuaNameOf.Name] = LuaFunctions.LuaNameOf; // return System.Type.FullName for LuaValue
 
 			if ((libraryFlags & LuaLibraryFlags.Basic) != 0)
 			{
-				env["dofile"] = LuaFunctions.LunyDoFile;
-				env["loadfile"] = LuaFunctions.LunyLoadFile;
+				env[LuaFunctions.LunyDoFile.Name] = LuaFunctions.LunyDoFile;
+				env[LuaFunctions.LunyLoadFile.Name] = LuaFunctions.LunyLoadFile;
 
 				if (isSandbox)
 					env.SetNil("load"); // disallow compiling and executing arbitrary strings
