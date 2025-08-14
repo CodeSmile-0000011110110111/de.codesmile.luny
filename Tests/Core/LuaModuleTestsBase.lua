@@ -1,5 +1,5 @@
 function CreateGameObjectWithComponents(componentType, count)
-    local go = GameObject.new('go')
+    local go = GameObject('go')
     if componentType then
         count = count and count or 1
         for _ = 1, count do

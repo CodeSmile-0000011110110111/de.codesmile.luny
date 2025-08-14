@@ -12,9 +12,16 @@ namespace LunyTests.UnityEngineCoreModule
 {
 	public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 	{
+		[Test] public void UserData_Concat_CallsToString()
+		{
+			var retvals = DoFunction(nameof(UserData_Concat_CallsToString));
+
+			Assert.That(retvals[0].Read<String>(), Is.EqualTo("this is a concat test (UnityEngine.GameObject)"));
+		}
+
 		[Test] public async Task LuaGameObject_new_InstanceNotNull()
 		{
-			var script = "return GameObject.new()";
+			var script = "return GameObject()";
 			var retvals = await DoStringAsync(script, nameof(LuaGameObject_new_InstanceNotNull));
 
 			Assert.That(retvals[0].Read<LuaGameObject>().Instance, Is.Not.Null);
@@ -38,7 +45,7 @@ namespace LunyTests.UnityEngineCoreModule
 
 		[Test] public async Task Lua_newGameObjectWithName_NameMatches()
 		{
-			var script = "return GameObject.new('new go')";
+			var script = "return GameObject('new go')";
 			var retvals = await DoStringAsync(script, nameof(Lua_newGameObjectWithName_NameMatches));
 
 			Assert.That(retvals[0].Read<LuaGameObject>().Instance.name, Is.EqualTo("new go"));
@@ -46,7 +53,7 @@ namespace LunyTests.UnityEngineCoreModule
 
 		[Test] public async Task Lua_AddComponent_ComponentIsOfExpectedType()
 		{
-			var script = "local go = GameObject.new('go with MeshFilter');" +
+			var script = "local go = GameObject('go with MeshFilter');" +
 			             "local com = go:AddComponent(MeshFilter);" +
 			             "return go, com;";
 			var retvals = await DoStringAsync(script, nameof(Lua_AddComponent_ComponentIsOfExpectedType));
@@ -59,7 +66,7 @@ namespace LunyTests.UnityEngineCoreModule
 
 		[Test] public async Task Lua_AddComponent_GetComponentReturnsAddedComponent()
 		{
-			var script = "local go = GameObject.new('go with MeshFilter');" +
+			var script = "local go = GameObject('go with MeshFilter');" +
 			             "local added = go:AddComponent(MeshFilter);" +
 			             "local gotten = go:GetComponent(MeshFilter);" +
 			             "return go, added, gotten;";
@@ -75,7 +82,7 @@ namespace LunyTests.UnityEngineCoreModule
 
 		[Test] public async Task Lua_AddMultipleComponents_HasMultipleComponents()
 		{
-			var script = "local go = GameObject.new('go');" +
+			var script = "local go = GameObject('go');" +
 			             "go:AddComponent(Skybox);" +
 			             "go:AddComponent(Skybox);" +
 			             "go:AddComponent(Skybox);" +

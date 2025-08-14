@@ -211,7 +211,6 @@ MonoBehaviour:
   - UnityEngine.LOD
   - UnityEngine.LODFadeMode
   - UnityEngine.LODGroup
-  - UnityEngine.Logger
   - UnityEngine.LogOption
   - UnityEngine.LogType
   - UnityEngine.MainThreadAwaitable
@@ -631,6 +630,7 @@ MonoBehaviour:
   - UnityEngine.iPhoneSettings
   - UnityEngine.iPhoneUtils
   - UnityEngine.LightingSettings
+  - UnityEngine.Logger
   - UnityEngine.Types
   - UnityEngine.VulkanDeviceFilterLists
   - '-- below: to be included later ...'
@@ -709,13 +709,13 @@ MonoBehaviour:
     - GetEditorName
   m_ContentRootFolderGuid: 4ba8a55b64d102e4c8fec9d7633d635a
   m_ModuleLoader:
-    rid: 3323316001069072384
-  m_GenerateOnlyThisType: //UnityEngine.Debug
-  m_GenerateOnlyThisMethod: 
-  m_ModuleLoaderVersion: 6000.0.35f1
+    rid: 3323316005911134286
+  m_GenerateOnlyThisType: //UnityEngine.GameObject
+  m_GenerateOnlyThisMethod: .ctor
+  m_ModuleLoaderVersion: 6000.0.55f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316001069072384
+    - rid: 3323316005911134286
       type: {class: ModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
       data: 

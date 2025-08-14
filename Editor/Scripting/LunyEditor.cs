@@ -32,12 +32,7 @@ namespace LunyEditor
 		public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
 		public static ILunyEditor Singleton => instance; // for consistency
 
-		[InitializeOnLoadMethod] private static LunyEditor OnLoad()
-		{
-			Debug.Log($"{nameof(LunyEditor)}: {nameof(OnLoad)}");
-			return instance;
-			// auto-create the singleton
-		}
+		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton by accessing the instance property
 
 		private static void RegisterEditorScriptByType(LunyLuaScript script)
 		{
@@ -68,7 +63,7 @@ namespace LunyEditor
 			registry.OnEditorContextChanged += OnEditorContextChanged;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
 			registry.EditorLuaAssets.OnRemove += OnRemoveLuaAsset;
-			EditorApplication.update += OnEditorUpdate;
+			EditorApplication.update += EditorUpdate;
 			AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
 
 			// delayed, otherwise Editor may create Lua State "too early" after generating module code
@@ -110,7 +105,7 @@ namespace LunyEditor
 			}
 		}
 
-		private void OnEditorUpdate()
+		private void EditorUpdate()
 		{
 			if (m_Lua != null)
 			{

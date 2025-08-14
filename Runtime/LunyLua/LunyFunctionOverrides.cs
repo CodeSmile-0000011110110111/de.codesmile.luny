@@ -14,9 +14,6 @@ namespace Luny
 {
 	internal static class LuaFunctions
 	{
-		[Preserve] internal static readonly LuaFunction LuaToStringMetamethod = new(Metamethods.ToString,
-			(context, _) => new ValueTask<Int32>(context.Return(context.GetArgument<ILuaUserData>(0).ToString())));
-
 		[Preserve] internal static readonly LuaFunction LuaTypeOf = new("typeof", (context, _) =>
 		{
 			String typeName;

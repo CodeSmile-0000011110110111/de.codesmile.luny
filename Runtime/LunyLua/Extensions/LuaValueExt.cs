@@ -12,8 +12,15 @@ namespace Luny
 {
 	public static class LuaValueExt
 	{
-		public static String ToString(this LuaValue luaValue) =>
-			luaValue.TryRead(out ILuaUserData userData) ? userData.ToString() : luaValue.ToString();
+		public static String ToString(this LuaValue luaValue) => luaValue.Type switch
+		{
+			LuaValueType.Nil => "(nil)",
+			LuaValueType.Boolean => luaValue.Read<Boolean>() ? "true" : "false",
+			LuaValueType.Function => $"function {luaValue.Read<LuaFunction>().Name}()",
+			LuaValueType.LightUserData => luaValue.Read<Object>()?.ToString(),
+			LuaValueType.UserData => luaValue.Read<ILuaUserData>()?.ToString(),
+			var _ => luaValue.ToString(),
+		};
 
 		public static LuaValue ValueOrNil(ILuaUserData value) => value != null ? new LuaValue(value) : LuaValue.Nil;
 

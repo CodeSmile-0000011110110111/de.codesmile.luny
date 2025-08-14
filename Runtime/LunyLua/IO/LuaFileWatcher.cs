@@ -71,13 +71,10 @@ namespace Luny
 				if (watcher != null)
 				{
 					watcher.UsageCount++;
-					// LunyLogger.LogInfo($"Using existing ({watcher.UsageCount}) LuaFileWatcher: " +
-					//                    $"{watcher.Watcher.Path} (requested path: {fullPath})");
 					return;
 				}
 
 				CreateWatcher(fullPath);
-				// LunyLogger.LogInfo($"Created LuaFileWatcher: {fullPath}");
 			}
 
 			public static void RemoveWatcher(String fullPath)
@@ -129,7 +126,7 @@ namespace Luny
 
 			private static void OnFileChanged(Object sender, FileSystemEventArgs e)
 			{
-				// CAUTION: This runs on a background thread!
+				// CAUTION: This callback runs on a background thread!
 
 				var fullPath = e.FullPath;
 				if (!File.Exists(fullPath))
@@ -137,9 +134,6 @@ namespace Luny
 
 				fullPath = fullPath.ToForwardSlashes();
 				s_ChangedFiles.Add(fullPath);
-
-				// LunyLogger.LogInfo($"File changed: {fullPath} ({(sender as FileSystemWatcher)?.Path.ToForwardSlashes()}), " +
-				//                    $"change queue count: {s_ChangedFiles.Count}");
 			}
 
 			private class RefCountWatcher

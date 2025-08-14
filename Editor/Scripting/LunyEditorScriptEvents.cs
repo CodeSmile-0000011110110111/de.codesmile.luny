@@ -16,6 +16,11 @@ namespace LunyEditor
 		Reset,
 	}
 
+	public enum EditorUpdateEvent
+	{
+		EditorUpdate,
+	}
+
 	/*
 	public enum EditorEvent
 	{

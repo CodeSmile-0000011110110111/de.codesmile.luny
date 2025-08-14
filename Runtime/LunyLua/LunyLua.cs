@@ -177,7 +177,7 @@ namespace Luny
 		internal void ProcessChangedScripts()
 		{
 			var changedFiles = m_FileWatcher.ChangedFiles;
-			if (changedFiles == null)
+			if (changedFiles == null || changedFiles.Length == 0)
 				return;
 
 			const String ResourcesFilter = "/resources/";
