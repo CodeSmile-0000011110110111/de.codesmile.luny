@@ -26,10 +26,19 @@ namespace Luny.Unity.IntegerTime
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Value.ToString();
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -186,10 +195,20 @@ namespace Luny.Unity.IntegerTime
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaDiscreteTime_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -202,18 +221,19 @@ namespace Luny.Unity.IntegerTime
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            if (_argCount == 0)
+            // ctor parameterless case
+            if (_argCount == 1)
             {
                 var _ret0 = new global::Unity.IntegerTime.DiscreteTime();
                 var _lret0 = global::Luny.Unity.IntegerTime.LuaDiscreteTime.Bind(_ret0);
                 var _retCount = _context.Return(_lret0);
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_retCount);
             }
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::System.Double);
             if (_arg0.TryRead<global::System.Double>(out var _p0_System_Double))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var v = _p0_System_Double;
                     var _ret0 = new global::Unity.IntegerTime.DiscreteTime(v);
@@ -225,7 +245,7 @@ namespace Luny.Unity.IntegerTime
             _lastArgPos = 0; _expectedType = typeof(global::System.Single);
             if (_arg0.TryRead<global::System.Single>(out var _p0_System_Single))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var v = _p0_System_Single;
                     var _ret0 = new global::Unity.IntegerTime.DiscreteTime(v);
@@ -237,7 +257,7 @@ namespace Luny.Unity.IntegerTime
             _lastArgPos = 0; _expectedType = typeof(global::System.Int64);
             if (_arg0.TryRead<global::System.Int64>(out var _p0_System_Int64))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var v = _p0_System_Int64;
                     var _ret0 = new global::Unity.IntegerTime.DiscreteTime(v);
@@ -249,7 +269,7 @@ namespace Luny.Unity.IntegerTime
             _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
             if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var v = _p0_System_Int32;
                     var _ret0 = new global::Unity.IntegerTime.DiscreteTime(v);
@@ -261,7 +281,7 @@ namespace Luny.Unity.IntegerTime
             _lastArgPos = 0; _expectedType = typeof(global::Luny.Unity.IntegerTime.LuaDiscreteTime);
             if (_arg0.TryRead<global::Luny.Unity.IntegerTime.LuaDiscreteTime>(out var _p0_Unity_IntegerTime_DiscreteTime))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var x = _p0_Unity_IntegerTime_DiscreteTime.Value;
                     var _ret0 = new global::Unity.IntegerTime.DiscreteTime(x);
@@ -325,7 +345,6 @@ namespace Luny.Unity.IntegerTime
         {
             switch (_key)
             {
-                case "new": _value = _LuaDiscreteTime_new; return true;
                 case "FromTicks": _value = _LuaDiscreteTime_FromTicks; return true;
                 case "MaxValue": _value = global::Luny.Unity.IntegerTime.LuaDiscreteTime.Bind(global::Unity.IntegerTime.DiscreteTime.MaxValue); return true;
                 case "MaxValueSeconds": _value = new global::Lua.LuaValue(global::Unity.IntegerTime.DiscreteTime.MaxValueSeconds); return true;

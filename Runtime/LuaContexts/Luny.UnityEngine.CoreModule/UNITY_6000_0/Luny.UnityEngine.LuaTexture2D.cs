@@ -24,10 +24,19 @@ namespace Luny.UnityEngine
         private static global::Lua.LuaTable s_Metatable;
         public new global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -954,10 +963,20 @@ namespace Luny.UnityEngine
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaTexture2D_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -970,15 +989,15 @@ namespace Luny.UnityEngine
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
             if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
             {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::System.Int32);
                 if (_arg1.TryRead<global::System.Int32>(out var _p1_System_Int32))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var width = _p0_System_Int32;
                         var height = _p1_System_Int32;
@@ -988,15 +1007,15 @@ namespace Luny.UnityEngine
                         var _retCount = _context.Return(_lret0);
                         return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                     }
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.GraphicsFormat);
                     if (_arg2.TryRead<global::UnityEngine.Experimental.Rendering.GraphicsFormat>(out var _p2_UnityEngine_Experimental_Rendering_GraphicsFormat))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.TextureCreationFlags);
                         if (_arg3.TryRead<global::UnityEngine.Experimental.Rendering.TextureCreationFlags>(out var _p3_UnityEngine_Experimental_Rendering_TextureCreationFlags))
                         {
-                            if (_argCount == 4)
+                            if (_argCount == 5)
                             {
                                 var width = _p0_System_Int32;
                                 var height = _p1_System_Int32;
@@ -1012,11 +1031,11 @@ namespace Luny.UnityEngine
                         _lastArgPos = 3; _expectedType = typeof(global::System.Int32);
                         if (_arg3.TryRead<global::System.Int32>(out var _p3_System_Int32))
                         {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.TextureCreationFlags);
                             if (_arg4.TryRead<global::UnityEngine.Experimental.Rendering.TextureCreationFlags>(out var _p4_UnityEngine_Experimental_Rendering_TextureCreationFlags))
                             {
-                                if (_argCount == 5)
+                                if (_argCount == 6)
                                 {
                                     var width = _p0_System_Int32;
                                     var height = _p1_System_Int32;
@@ -1029,11 +1048,11 @@ namespace Luny.UnityEngine
                                     var _retCount = _context.Return(_lret0);
                                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                 }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::Luny.UnityEngine.LuaMipmapLimitDescriptor);
                                 if (_arg5.TryRead<global::Luny.UnityEngine.LuaMipmapLimitDescriptor>(out var _p5_UnityEngine_MipmapLimitDescriptor))
                                 {
-                                    if (_argCount == 6)
+                                    if (_argCount == 7)
                                     {
                                         var width = _p0_System_Int32;
                                         var height = _p1_System_Int32;
@@ -1054,11 +1073,11 @@ namespace Luny.UnityEngine
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.TextureFormat);
                     if (_arg2.TryRead<global::UnityEngine.TextureFormat>(out var _p2_UnityEngine_TextureFormat))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::System.Boolean);
                         if (_arg3.TryRead<global::System.Boolean>(out var _p3_System_Boolean))
                         {
-                            if (_argCount == 4)
+                            if (_argCount == 5)
                             {
                                 var width = _p0_System_Int32;
                                 var height = _p1_System_Int32;
@@ -1070,11 +1089,11 @@ namespace Luny.UnityEngine
                                 var _retCount = _context.Return(_lret0);
                                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                             }
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::System.Boolean);
                             if (_arg4.TryRead<global::System.Boolean>(out var _p4_System_Boolean))
                             {
-                                if (_argCount == 5)
+                                if (_argCount == 6)
                                 {
                                     var width = _p0_System_Int32;
                                     var height = _p1_System_Int32;
@@ -1087,11 +1106,11 @@ namespace Luny.UnityEngine
                                     var _retCount = _context.Return(_lret0);
                                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                 }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::System.Boolean);
                                 if (_arg5.TryRead<global::System.Boolean>(out var _p5_System_Boolean))
                                 {
-                                    if (_argCount == 6)
+                                    if (_argCount == 7)
                                     {
                                         var width = _p0_System_Int32;
                                         var height = _p1_System_Int32;
@@ -1111,11 +1130,11 @@ namespace Luny.UnityEngine
                         _lastArgPos = 3; _expectedType = typeof(global::System.Int32);
                         if (_arg3.TryRead<global::System.Int32>(out var _p3_System_Int32))
                         {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::System.Boolean);
                             if (_arg4.TryRead<global::System.Boolean>(out var _p4_System_Boolean))
                             {
-                                if (_argCount == 5)
+                                if (_argCount == 6)
                                 {
                                     var width = _p0_System_Int32;
                                     var height = _p1_System_Int32;
@@ -1128,11 +1147,11 @@ namespace Luny.UnityEngine
                                     var _retCount = _context.Return(_lret0);
                                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                 }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::System.Boolean);
                                 if (_arg5.TryRead<global::System.Boolean>(out var _p5_System_Boolean))
                                 {
-                                    if (_argCount == 6)
+                                    if (_argCount == 7)
                                     {
                                         var width = _p0_System_Int32;
                                         var height = _p1_System_Int32;
@@ -1146,11 +1165,11 @@ namespace Luny.UnityEngine
                                         var _retCount = _context.Return(_lret0);
                                         return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                     }
-                                    var _arg6 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
+                                    var _arg6 = _lastArg = _argCount > 7 ? _context.GetArgument(7) : global::Lua.LuaValue.Nil;
                                     _lastArgPos = 6; _expectedType = typeof(global::Luny.UnityEngine.LuaMipmapLimitDescriptor);
                                     if (_arg6.TryRead<global::Luny.UnityEngine.LuaMipmapLimitDescriptor>(out var _p6_UnityEngine_MipmapLimitDescriptor))
                                     {
-                                        if (_argCount == 7)
+                                        if (_argCount == 8)
                                         {
                                             var width = _p0_System_Int32;
                                             var height = _p1_System_Int32;
@@ -1173,11 +1192,11 @@ namespace Luny.UnityEngine
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.DefaultFormat);
                     if (_arg2.TryRead<global::UnityEngine.Experimental.Rendering.DefaultFormat>(out var _p2_UnityEngine_Experimental_Rendering_DefaultFormat))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.TextureCreationFlags);
                         if (_arg3.TryRead<global::UnityEngine.Experimental.Rendering.TextureCreationFlags>(out var _p3_UnityEngine_Experimental_Rendering_TextureCreationFlags))
                         {
-                            if (_argCount == 4)
+                            if (_argCount == 5)
                             {
                                 var width = _p0_System_Int32;
                                 var height = _p1_System_Int32;
@@ -1193,11 +1212,11 @@ namespace Luny.UnityEngine
                         _lastArgPos = 3; _expectedType = typeof(global::System.Int32);
                         if (_arg3.TryRead<global::System.Int32>(out var _p3_System_Int32))
                         {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.Experimental.Rendering.TextureCreationFlags);
                             if (_arg4.TryRead<global::UnityEngine.Experimental.Rendering.TextureCreationFlags>(out var _p4_UnityEngine_Experimental_Rendering_TextureCreationFlags))
                             {
-                                if (_argCount == 5)
+                                if (_argCount == 6)
                                 {
                                     var width = _p0_System_Int32;
                                     var height = _p1_System_Int32;
@@ -1210,11 +1229,11 @@ namespace Luny.UnityEngine
                                     var _retCount = _context.Return(_lret0);
                                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                 }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::Luny.UnityEngine.LuaMipmapLimitDescriptor);
                                 if (_arg5.TryRead<global::Luny.UnityEngine.LuaMipmapLimitDescriptor>(out var _p5_UnityEngine_MipmapLimitDescriptor))
                                 {
-                                    if (_argCount == 6)
+                                    if (_argCount == 7)
                                     {
                                         var width = _p0_System_Int32;
                                         var height = _p1_System_Int32;
@@ -1268,7 +1287,6 @@ namespace Luny.UnityEngine
         {
             switch (_key)
             {
-                case "new": _value = _LuaTexture2D_new; return true;
                 case "blackTexture": _value = _factory.Bind(global::UnityEngine.Texture2D.blackTexture); return true;
                 case "grayTexture": _value = _factory.Bind(global::UnityEngine.Texture2D.grayTexture); return true;
                 case "linearGrayTexture": _value = _factory.Bind(global::UnityEngine.Texture2D.linearGrayTexture); return true;

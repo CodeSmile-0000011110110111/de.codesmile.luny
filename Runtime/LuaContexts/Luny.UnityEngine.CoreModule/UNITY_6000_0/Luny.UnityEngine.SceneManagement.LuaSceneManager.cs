@@ -25,10 +25,19 @@ namespace Luny.UnityEngine.SceneManagement
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -91,10 +100,20 @@ namespace Luny.UnityEngine.SceneManagement
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaSceneManager_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -107,7 +126,7 @@ namespace Luny.UnityEngine.SceneManagement
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            if (_argCount == 0)
+            if (_argCount == 1)
             {
                 var _ret0 = new global::UnityEngine.SceneManagement.SceneManager();
                 var _factory = _context.GetObjectFactory();
@@ -625,7 +644,6 @@ namespace Luny.UnityEngine.SceneManagement
         {
             switch (_key)
             {
-                case "new": _value = _LuaSceneManager_new; return true;
                 case "CreateScene": _value = _LuaSceneManager_CreateScene; return true;
                 case "GetActiveScene": _value = _LuaSceneManager_GetActiveScene; return true;
                 case "GetSceneAt": _value = _LuaSceneManager_GetSceneAt; return true;
