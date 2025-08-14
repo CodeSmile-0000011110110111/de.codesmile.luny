@@ -91,7 +91,6 @@ MonoBehaviour:
   - UnityEditor.AndroidBlitType
   - UnityEditor.AndroidBuildSystem
   - UnityEditor.AndroidBuildType
-  - UnityEditor.AndroidCreateSymbols
   - UnityEditor.AndroidDeviceFilterData
   - UnityEditor.AndroidETC2FallbackOverride
   - UnityEditor.AndroidGamepadSupportLevel
@@ -891,13 +890,13 @@ MonoBehaviour:
   m_MemberBlacklist: []
   m_ContentRootFolderGuid: 32f20b503f8b6674cb45459304cd354a
   m_ModuleLoader:
-    rid: 3323316005911134209
+    rid: 3323316005911134291
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
-  m_ModuleLoaderVersion: 6000.0.35f1
+  m_ModuleLoaderVersion: 6000.0.55f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316005911134209
+    - rid: 3323316005911134291
       type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
       data: 
