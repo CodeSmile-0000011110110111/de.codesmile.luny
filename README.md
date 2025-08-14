@@ -1,10 +1,12 @@
 [![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# Luny: Lua in Unity - Editor and Runtime Scripting
+# Lua in Unity - Editor and Runtime Scripting
 
-Use Lua in Unity for everything. Just like C#, except there's no compiling. Just iterate, iterate, iterate. 
+Use Lua in Unity for everything. Just like C#, except there's no delays.
 
-Reloading happens upon saving, instantly. Your code editor remains in focus while you're glancing at the changes in the Unity Editor, or in a running build!
+Luny reloads scripts on save, instantly. Glance at the changes in editor or build while your code editor remains in focus!
+
+*Are you iterating or still compiling?*
 
 # Simple Example
 A Unity Editor utility script that automatically opens new Scene assets. 
@@ -44,7 +46,8 @@ I will maintain support for 6.0 LTS for at least October 2027: end of life of Un
 
 # License
 
-Luny is licensed under the MIT License. And I wish to keep it that way. 
+[![License: MIT](https://cdn.prod.website-files.com/5e0f1144930a8bc8aace526c/65dd9eb5aaca434fac4f1c34_License-MIT-blue.svg)](/LICENSE)
+.. as I wish to keep it free and open! 
 
 If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I wish to pour years of my worklife-balance into improving Luny!
 
