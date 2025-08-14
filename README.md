@@ -38,9 +38,9 @@ Of course that's just Editor Luny. Stay tuned for more Runtime Luny! :)
 # Requirements
 ### Unity 6000.0.35f1 or newer
 
-I will maintain support for 6.0 LTS for at least as long as Unity's Enterprise support lasts (October 2027). 
+Since Luny is a new project and I'm just a crazy solo developer, I do not wish to spend time on backporting it to already out-of-support Unity versions.
 
-Since Luny is a new project, and I'm just a crazy solo developer (and I mean both literally and figuratively "crazy") I do not wish to waste time on backporting it to already out-of-support versions of Unity.
+I will maintain support for 6.0 LTS for at least October 2027: end of life of Unity 6.0 LTS (Enterprise/Industry).
 
 # License
 
@@ -203,19 +203,21 @@ Visit [LunyScript.com](https://lunyscript.com) for more info.
 
 # Limitations
 
-Version 0.5 has some ways to go. I will focus on solidifying Editor scripting and then turn to Runtime scripting.
+Version 0.5 (alpha) has some ways to go. I will focus on solidifying Editor scripting and then turn to Runtime scripting.
 
-Currently, I'm exposing most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies. I will be adding select types and members of the `System` namespace too. Any highly specialized or package API is not (yet) available. 
+Major areas of work:
+
+- Documentation
+- Exposing more editor functionality
+- Exposing essential 'System' namespace features (eg File/Path, String, Collections)
+- Implementing essential runtime features (eg script execution when instantiating prefabs)
+- Improving 'Lua <=> C# <=> Editor UI' interoperation and custom object binding
+- Improving bindings generator to support generics (within reason), ref/out parameters, tuples
+- Supporting more and more additional Unity assemblies, eg Input, Cinemachine, Physics, etc
+
+Currently, Luny supports most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies.
 
 Since the binding code is generated, I can quickly open up more assemblies. The plan is definitely to support the most common APIs right out of the box.
-
-The bindings generator has some gaps that still need to be closed, it will currently not bind the following methods:
-
-- Generic parameters or generic types
-- Methods with ref/out parameters
-- Methods with collection parameters that do not implement IList<T> (eg Dictionaries)
-- Multiple return values
-- .. and a few other, less important cases
 
 Please don't hesitate to send requests and to report any issues!
 
@@ -227,12 +229,10 @@ For now it's all [in this Google Document](https://docs.google.com/document/d/1h
 
 I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/edit?usp=sharing) for the curious, but more importantly for myself.
 
-# Patreon-Funded Project
+# Community-Sponsored Project
 
-I want to create something unique and special that satisfies game developer's dirty desires. I think I found it! :)
+I aim to create something unique and special that satisfies game developers' dirty desires. I think I found it! :)
 
-If you agree, please [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project with a subscription!
+If you agree, [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project with a subscription!
 
-I am confident that Luny can be fully community funded by 2028. If not, it would have to become (at least in parts) a paid product or service in some way. That's plan B. 
-
-Plan C is me handing over an application where Luny is just a project showcasing my programming authority. Agh. I'd really rather spend my remaining 16 years of worklife-balancing on Luny alone, or with companions (cubes, budgies, lunies, you name it).
+I am confident that Luny can be fully community sponsored by 2028. It would only take 10 new subscribers at $10 per month on average over the next 3 years to make that happen. I really wish to keep the project free for all.

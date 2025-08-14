@@ -709,13 +709,13 @@ MonoBehaviour:
     - GetEditorName
   m_ContentRootFolderGuid: 4ba8a55b64d102e4c8fec9d7633d635a
   m_ModuleLoader:
-    rid: 3323315959002562560
+    rid: 3323316001069072384
   m_GenerateOnlyThisType: //UnityEngine.Debug
   m_GenerateOnlyThisMethod: 
   m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: 3323315959002562560
+    - rid: 3323316001069072384
       type: {class: ModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
       data: 
