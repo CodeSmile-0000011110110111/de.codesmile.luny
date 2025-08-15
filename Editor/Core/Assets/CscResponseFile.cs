@@ -13,7 +13,7 @@ namespace LunyEditor.Core
 	{
 		private static readonly String s_ResponseFilePath = $"{Application.dataPath}/csc.rsp";
 
-		public static void AddScriptingDefineSymbol(String symbol)
+		public static void SetScriptingDefineSymbol(String symbol)
 		{
 			var lines = ReadResponseFileLines();
 			var symbolLine = $"-define:{symbol}";
@@ -22,7 +22,7 @@ namespace LunyEditor.Core
 				AppendResponseFileLine(symbolLine);
 		}
 
-		public static void RemoveScriptingDefineSymbol(String symbol)
+		public static void UnsetScriptingDefineSymbol(String symbol)
 		{
 			var lines = ReadResponseFileLines().ToList();
 			var symbolLine = $"-define:{symbol}";

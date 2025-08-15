@@ -5,15 +5,16 @@
 using Luny.Core;
 using LunyEditor.Core;
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Directory = UnityEngine.Windows.Directory;
 
 namespace Luny
 {
 	public sealed partial class LunyLuaModule
 	{
 		internal const String ModuleLoaderClassName = "ModuleLoader";
-		private static readonly String s_UnityMajorMinorVersion = Application.unityVersion.Substring(0, "6000.0".Length);
 
 		[Header("Debug")]
 		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
@@ -27,32 +28,38 @@ namespace Luny
 
 		private void Awake()
 		{
-			Debug.Log($"{name}: {nameof(Awake)}");
-			ClearMissingSerializeReferenceTypeWarning();
+			Debug.Log($"{name}: Awake");
+			SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
+			ClearGeneratedTypeReferences();
 			TryInstantiateModuleLoaderEditorOnly();
 		}
 
-		private void OnEnable() => m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "(null)";
+		private void OnEnable() => Debug.Log($"{name}: OnEnable");
 
-		internal String GetContentRootFolderPath() => AssetDatabase.GUIDToAssetPath(m_ContentRootFolderGuid);
-		internal String GetContentVersionFolderPath(String rootPath) => $"{rootPath}/{DefineSymbol.MajorMinorUnityVersion}";
-		internal Boolean ContentVersionFolderExists() => AssetDatabase.IsValidFolder(GetContentVersionFolderPath(GetContentRootFolderPath()));
+		internal String GetContentRootFolderPath() => Path.ChangeExtension(AssetDatabase.GetAssetPath(this), null);
+
+		internal String GetContentVersionFolderPath() => $"{GetContentRootFolderPath()}/{DefineSymbol.MajorMinorUnityVersion}";
+
+		internal Boolean ContentVersionFolderExists() => Directory.Exists(GetContentVersionFolderPath());
 
 		internal Loader TryInstantiateModuleLoaderEditorOnly()
 		{
+			var wasNull = m_ModuleLoader == null;
+
 			if (ContentVersionFolderExists())
 			{
-				var folderPath = GetContentVersionFolderPath(GetContentRootFolderPath());
+				var folderPath = GetContentVersionFolderPath();
 				m_ModuleLoader = TryInstantiateType<Loader>(folderPath, ModuleLoaderTypeFullName);
 
-				if (m_ModuleLoader != null)
-				{
-					m_ModuleLoaderVersion = m_ModuleLoader.Version;
-					Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
-				}
-
-				SaveAsset();
+				// delayed to avoid "Import Error Code:(4)" warning spam
+				EditorApplication.delayCall += () => SaveAsset();
 			}
+
+			var prevVersion = m_ModuleLoaderVersion;
+			m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "(null)";
+
+			if (m_ModuleLoader != null && (wasNull || prevVersion != m_ModuleLoaderVersion))
+				Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
 
 			return m_ModuleLoader;
 		}
@@ -88,24 +95,8 @@ namespace Luny
 			return default;
 		}
 
-		private void ClearMissingSerializeReferenceTypeWarning()
-		{
-			// this may occur if the user manually deletes the generated scripts
-			if (SerializationUtility.HasManagedReferencesWithMissingTypes(this) == false)
-				return;
-
-			Debug.LogWarning($"{name}: Clearing missing serialization references ..");
-			SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
-			ClearGeneratedTypeReferences();
-			SaveAsset();
-		}
-
 		internal void ClearGeneratedTypeReferences()
 		{
-			Debug.Log($"{name}: clearing generated type references, they might be outdated ..");
-
-			if (ContentVersionFolderExists() == false)
-				m_ContentRootFolderGuid = null;
 			m_ModuleLoader = null;
 			m_ModuleLoaderVersion = null;
 		}

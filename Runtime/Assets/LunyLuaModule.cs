@@ -45,7 +45,6 @@ namespace Luny
 		[SerializeField] internal GenMemberFilter[] m_MemberBlacklist = Array.Empty<GenMemberFilter>();
 
 		// serialized for runtime, but hidden in Inspector because these are automated
-		[SerializeField] [HideInInspector] private String m_ContentRootFolderGuid;
 		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
@@ -57,7 +56,6 @@ namespace Luny
 		internal String[] TypeBlacklist => m_TypeBlacklist;
 		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
-		internal String ContentRootFolderGuid { get => m_ContentRootFolderGuid; set => m_ContentRootFolderGuid = value; }
 		internal Loader ModuleLoader => m_ModuleLoader ??= TryInstantiateModuleLoader();
 
 		internal Loader TryInstantiateModuleLoader()
@@ -65,7 +63,7 @@ namespace Luny
 #if UNITY_EDITOR
 			return TryInstantiateModuleLoaderEditorOnly();
 #else
-			throw new MissingReferenceException($"{name}: missing module loader");
+			throw new NullReferenceException($"{name}: missing module loader");
 #endif
 		}
 

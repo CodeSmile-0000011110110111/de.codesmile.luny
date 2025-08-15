@@ -196,6 +196,7 @@ namespace LunyEditor
 				var luaAsset = LunyEditorAssetRegistry.Singleton.GetLuaAsset(fullOrAssetPath);
 				if (luaAsset != null)
 				{
+					Debug.Log($"LunyEditor.ReadText: {fullOrAssetPath}");
 					AssetDatabase.ImportAsset(fullOrAssetPath); // pick up any changes to file if Auto-Refresh is disabled
 					content = luaAsset.Text;
 					return true;

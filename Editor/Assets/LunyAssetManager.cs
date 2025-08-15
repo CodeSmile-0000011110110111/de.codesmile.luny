@@ -99,7 +99,7 @@ namespace LunyEditor.Assets
 			}
 
 			var pathRoot = "Assets/Luny/Resources";
-			EditorAssetUtil.TryCreateAndImportPath(pathRoot);
+			EditorAssetUtil.TryCreateAndImportDirectory(pathRoot);
 			var path = $"{pathRoot}/{nameof(LunyRuntimeAssetRegistry)}.asset";
 			AssetDatabase.CreateAsset(registry, path);
 			return registry;

@@ -74,14 +74,20 @@ namespace LunyEditor.Core
 				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 		}
 
-		public static void TryCreateAndImportPath(String assetPath)
+		public static Boolean TryCreateDirectory(String dirPath)
 		{
-			var fullPath = Path.GetFullPath($"{Application.dataPath}/../{assetPath}");
-			if (Directory.Exists(fullPath) == false)
-			{
-				Directory.CreateDirectory(fullPath);
-				AssetDatabase.ImportAsset(assetPath);
-			}
+			var fullPath = Path.GetFullPath($"{Application.dataPath}/../{dirPath}");
+			if (Directory.Exists(fullPath))
+				return false;
+
+			Directory.CreateDirectory(fullPath);
+			return true;
+		}
+
+		public static void TryCreateAndImportDirectory(String dirPath)
+		{
+			if (TryCreateDirectory(dirPath))
+				AssetDatabase.ImportAsset(dirPath);
 		}
 
 		public static String GetFullPathFromAssetPath(String assetPath) =>
