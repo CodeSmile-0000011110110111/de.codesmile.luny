@@ -23,8 +23,8 @@ namespace Luny
 		[SerializeField] internal String m_GenerateOnlyThisMember;
 		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderVersion;
 
-		internal String NamespaceName => $"{BindingsAssemblyName}.Internal";
-		internal String ModuleLoaderTypeFullName => $"{NamespaceName}.{ModuleLoaderClassName}";
+		internal String ModuleLoaderNamespace => $"{BindingsAssemblyName}.Internal";
+		internal String ModuleLoaderTypeFullName => $"{ModuleLoaderNamespace}.{ModuleLoaderClassName}";
 		internal String BindingsAssemblyName => $"Luny{(IsEditorModule ? "Editor" : "")}.{m_AssemblyName}";
 		internal String ScriptingDefineSymbol => BindingsAssemblyName.Replace('.', '_').ToUpper();
 
