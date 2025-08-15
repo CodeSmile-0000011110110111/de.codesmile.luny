@@ -34,7 +34,6 @@ MonoBehaviour:
   - UnityEditor.Connect
   - UnityEditor.CrashReporting
   - UnityEditor.EditorTools
-  - UnityEditor.EngineDiagnostics
   - UnityEditor.Events
   - UnityEditor.Experimental
   - UnityEditor.Experimental.Licensing
@@ -83,6 +82,7 @@ MonoBehaviour:
   - Unity.Profiling.Editor.ProfilerModule
   - Unity.Profiling.Editor.ProfilerModuleChartType
   - Unity.Profiling.Editor.ProfilerModuleViewController
+  - UnityEditor.ActionOnDotNetUnhandledException
   - UnityEditor.ActiveEditorTracker
   - UnityEditor.AndroidApplicationEntry
   - UnityEditor.AndroidArchitecture
@@ -300,13 +300,13 @@ MonoBehaviour:
   - UnityEditor.MaterialEditor
   - UnityEditor.MaterialEditorExtensions
   - UnityEditor.MaterialProperty
+  - UnityEditor.MaterialProperty+PropFlags
+  - UnityEditor.MaterialProperty+PropType
   - UnityEditor.MaterialPropertyDrawer
   - UnityEditor.MathUtils
   - UnityEditor.Menu
   - UnityEditor.MenuCommand
   - UnityEditor.MeshDeformation
-  - UnityEditor.MeshLodUtility
-  - UnityEditor.MeshLodUtility+LodGenerationFlags
   - UnityEditor.MeshOptimizationFlags
   - UnityEditor.MeshPreview
   - UnityEditor.MeshUtility
@@ -465,6 +465,7 @@ MonoBehaviour:
   - UnityEditor.ShaderMessage
   - UnityEditor.ShaderPrecisionModel
   - UnityEditor.ShaderUtil
+  - UnityEditor.ShaderUtil+ShaderPropertyType
   - UnityEditor.SpeedTreeImporter
   - UnityEditor.SpeedTreeImporter+MaterialLocation
   - UnityEditor.SpriteImportMode
@@ -679,7 +680,6 @@ MonoBehaviour:
   - UnityEditor.EditorTools.EditorToolContext
   - UnityEditor.EditorTools.GameObjectToolContext
   - UnityEditor.EditorTools.ToolManager
-  - UnityEditor.EngineDiagnostics.EngineDiagnosticsSettings
   - UnityEditor.Events.UnityEventTools
   - UnityEditor.Experimental.ArtifactID
   - UnityEditor.Experimental.ArtifactKey
@@ -745,6 +745,7 @@ MonoBehaviour:
   - UnityEditor.Overlays.SaveData
   - UnityEditor.Overlays.ToolbarOverlay
   - UnityEditor.PackageManager.AuthorInfo
+  - UnityEditor.PackageManager.BuildUtilities
   - UnityEditor.PackageManager.Client
   - UnityEditor.PackageManager.DependencyInfo
   - UnityEditor.PackageManager.Error
@@ -888,15 +889,14 @@ MonoBehaviour:
   - UnityEditor.HierarchyProperty
   - UnityEditor.Handles
   m_MemberBlacklist: []
-  m_ContentRootFolderGuid: 32f20b503f8b6674cb45459304cd354a
+  m_ContentRootFolderGuid: 
   m_ModuleLoader:
-    rid: 3323316024824561665
+    rid: -2
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
-  m_ModuleLoaderVersion: 6000.1.0f1
+  m_ModuleLoaderVersion: 
   references:
     version: 2
     RefIds:
-    - rid: 3323316024824561665
-      type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
-      data: 
+    - rid: -2
+      type: {class: , ns: , asm: }
