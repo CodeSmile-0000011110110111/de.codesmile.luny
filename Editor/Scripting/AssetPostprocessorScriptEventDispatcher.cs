@@ -1,7 +1,6 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
-using Lua;
 using Luny;
 using System;
 using System.Collections.Generic;
@@ -10,68 +9,78 @@ using UnityEngine;
 
 namespace LunyEditor
 {
-	public sealed class AssetPostprocessorEventHandler : IDisposable
+	public sealed class AssetPostprocessorScriptEventDispatcher : IDisposable
 	{
-		private LunyScriptEventHandler<AssetPostprocessorEvent> m_EventHandler;
+		private LunyScriptEventHandler<AssetPostprocessorEvent> m_ScriptEventHandler;
 
-		public static LunyScriptEventHandler TryCreate(LuaTable scriptContext)
+		internal AssetPostprocessorScriptEventDispatcher(LunyScriptEventHandler<AssetPostprocessorEvent> scriptEventHandler)
 		{
-			var eventHandler = LunyScriptEventHandler.TryCreate<AssetPostprocessorEvent>(scriptContext);
-			if (eventHandler != null)
-			{
-				// attach to handler so it won't get deallocated
-				eventHandler.UserData = new AssetPostprocessorEventHandler(eventHandler);
-			}
-			return eventHandler;
-		}
+			Debug.Assert(scriptEventHandler != null);
 
-		private AssetPostprocessorEventHandler(LunyScriptEventHandler<AssetPostprocessorEvent> eventHandler)
-		{
-			Debug.Assert(eventHandler != null);
-
-			m_EventHandler = eventHandler;
+			m_ScriptEventHandler = scriptEventHandler;
 			AssetPostprocessorImpl.Instance.Subscribe(this);
 		}
 
 		public void Dispose()
 		{
 			AssetPostprocessorImpl.Instance.Unsubscribe(this);
-			m_EventHandler.UserData = null;
-			m_EventHandler = null;
+			m_ScriptEventHandler.EventDispatcher = null;
+			m_ScriptEventHandler = null;
 		}
 
 		public void OnPostprocessAllAssets(String[] importedPaths, String[] deletedPaths, String[] movedToPaths, String[] movedFromPaths)
 		{
+			TrySendOnPostprocessAllAssets(importedPaths, deletedPaths, movedToPaths, movedFromPaths);
+			if (importedPaths.Length > 0)
+				TrySendOnPostprocessImportedAssets(importedPaths);
+			if (deletedPaths.Length > 0)
+				TrySendOnPostprocessDeletedAssets(deletedPaths);
+			if (movedToPaths.Length > 0)
+				TrySendOnPostprocessMovedAssets(movedToPaths, movedFromPaths);
+		}
+
+		private void TrySendOnPostprocessAllAssets(String[] importedPaths, String[] deletedPaths, String[] movedToPaths,
+			String[] movedFromPaths)
+		{
 			var eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessAllAssets;
-			if (m_EventHandler.HasCallback(eventIndex))
+			if (m_ScriptEventHandler.HasCallback(eventIndex))
 			{
 				var imported = LuaTableExt.Create(importedPaths);
 				var deleted = LuaTableExt.Create(deletedPaths);
 				var movedTo = LuaTableExt.Create(movedToPaths);
 				var movedFrom = LuaTableExt.Create(movedFromPaths);
-				m_EventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, imported, deleted, movedTo, movedFrom);
+				m_ScriptEventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, imported, deleted, movedTo, movedFrom);
 			}
+		}
 
-			eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessImportedAssets;
-			if (importedPaths.Length > 0 && m_EventHandler.HasCallback(eventIndex))
+		private void TrySendOnPostprocessImportedAssets(String[] importedPaths)
+		{
+			var eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessImportedAssets;
+			if (m_ScriptEventHandler.HasCallback(eventIndex))
 			{
 				var imported = LuaTableExt.Create(importedPaths);
-				m_EventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, imported);
+				m_ScriptEventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, imported);
 			}
+		}
 
-			eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessDeletedAssets;
-			if (deletedPaths.Length > 0 && m_EventHandler.HasCallback(eventIndex))
+		private void TrySendOnPostprocessDeletedAssets(String[] deletedPaths)
+		{
+			var eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessDeletedAssets;
+			if (m_ScriptEventHandler.HasCallback(eventIndex))
 			{
 				var deleted = LuaTableExt.Create(deletedPaths);
-				m_EventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, deleted);
+				m_ScriptEventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, deleted);
 			}
+		}
 
-			eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessMovedAssets;
-			if (movedToPaths.Length > 0 && m_EventHandler.HasCallback(eventIndex))
+		private void TrySendOnPostprocessMovedAssets(String[] movedToPaths, String[] movedFromPaths)
+		{
+			var eventIndex = (Int32)AssetPostprocessorEvent.OnPostprocessMovedAssets;
+			if (m_ScriptEventHandler.HasCallback(eventIndex))
 			{
 				var movedTo = LuaTableExt.Create(movedToPaths);
 				var movedFrom = LuaTableExt.Create(movedFromPaths);
-				m_EventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, movedTo, movedFrom);
+				m_ScriptEventHandler.TrySend(LunyEditor.Singleton.Lua.State, eventIndex, movedTo, movedFrom);
 			}
 		}
 
@@ -79,7 +88,7 @@ namespace LunyEditor
 		{
 			private static AssetPostprocessorImpl s_Instance;
 
-			private static readonly List<AssetPostprocessorEventHandler> m_EventHandlers = new();
+			private static readonly List<AssetPostprocessorScriptEventDispatcher> m_EventHandlers = new();
 			internal static AssetPostprocessorImpl Instance => s_Instance ?? new AssetPostprocessorImpl();
 
 			private static void OnPostprocessAllAssets(String[] imported, String[] deleted, String[] movedTo, String[] movedFrom)
@@ -88,9 +97,9 @@ namespace LunyEditor
 					eventHandler.OnPostprocessAllAssets(imported, deleted, movedTo, movedFrom);
 			}
 
-			public void Subscribe(AssetPostprocessorEventHandler eventHandler) => m_EventHandlers.Add(eventHandler);
+			public void Subscribe(AssetPostprocessorScriptEventDispatcher eventDispatcher) => m_EventHandlers.Add(eventDispatcher);
 
-			public void Unsubscribe(AssetPostprocessorEventHandler eventHandler) => m_EventHandlers.Remove(eventHandler);
+			public void Unsubscribe(AssetPostprocessorScriptEventDispatcher eventDispatcher) => m_EventHandlers.Remove(eventDispatcher);
 		}
 	}
 

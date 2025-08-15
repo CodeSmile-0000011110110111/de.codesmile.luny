@@ -161,40 +161,31 @@ namespace Luny
 			ScriptContext[ScriptPathKey] = path;
 		}
 
-		internal void TrySendOptionalEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum
+		internal void TrySendEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum
 		{
 			var eventHandler = TryGetEventHandler<T>();
 			eventHandler?.TrySend(luaState, enumValue, args);
 		}
 
-		internal void TrySendEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum
-		{
-			var eventHandler = GetOrCreateEventHandler<T>();
-			eventHandler?.TrySend(luaState, enumValue, args);
-		}
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal LunyScriptEventHandler<T> GetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? CreateEventHandler<T>();
+		internal LunyScriptEventHandler<T> GetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? TryCreateEventHandler<T>();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal LunyScriptEventHandler<T> TryGetEventHandler<T>() where T : Enum => m_EventHandlers.TryGet<T>();
 
-		internal LunyScriptEventHandler<T> CreateEventHandler<T>() where T : Enum
+		internal LunyScriptEventHandler<T> TryCreateEventHandler<T>() where T : Enum
 		{
 			var handler = LunyScriptEventHandler.TryCreate<T>(ScriptContext);
-			AddEventHandler<T>(handler);
+			if (handler != null)
+				AddEventHandler<T>(handler);
 			return handler;
 		}
 
-		internal void AddEventHandler<T>(LunyScriptEventHandler handler) where T : Enum
-		{
-			if (handler != null)
-				m_EventHandlers.Add(typeof(T), handler);
-		}
+		internal void AddEventHandler<T>(LunyScriptEventHandler handler) where T : Enum => m_EventHandlers.Add(typeof(T), handler);
 
 		public async ValueTask ReloadScript(LuaState luaState)
 		{
-			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnScriptUnload);
+			GetOrCreateEventHandler<LunyScriptLoadEvent>().TrySend(luaState, (Int32)LunyScriptLoadEvent.OnScriptUnload);
 
 			ClearAllFunctionsInContextTable();
 			await DoScriptAsync(luaState);

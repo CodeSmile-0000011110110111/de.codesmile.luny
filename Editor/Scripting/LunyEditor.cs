@@ -27,9 +27,20 @@ namespace LunyEditor
 		// TODO: script state that survives domain reload but not project close
 		//private LuaTable m_SessionData;
 
+		private bool m_IsReloadingDomain;
+
 		private LunyLua m_Lua;
 
-		public ILunyLua Lua => m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
+		public ILunyLua Lua
+		{
+			get
+			{
+				if (m_IsReloadingDomain)
+					throw new InvalidOperationException("should not access Lua state during domain reload");
+
+				return m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
+			}
+		}
 		public static ILunyEditor Singleton => instance; // for consistency
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton by accessing the instance property
@@ -39,7 +50,7 @@ namespace LunyEditor
 			switch (script.EditorType)
 			{
 				case LunyLuaScript.ScriptableSingletonEditorType:
-					LunyEditorScriptRunner.Singleton.AddScript(script);
+					LunyEditorScriptableSingletonScripts.Singleton.AddScript(script);
 					break;
 				default: throw new NotImplementedException(script.EditorType);
 			}
@@ -47,7 +58,7 @@ namespace LunyEditor
 
 		private static void UnregisterEditorScriptByAsset(LunyLuaAsset luaAsset) =>
 			// FIXME: this won't work when extending to multiple script types
-			LunyEditorScriptRunner.Singleton.RemoveScriptForAsset(luaAsset);
+			LunyEditorScriptableSingletonScripts.Singleton.RemoveScriptForAsset(luaAsset);
 
 		// Reset runs when project is loaded AND the FilePath asset does not exist
 		private void Reset() => Debug.Log($"{nameof(LunyEditor)}: Reset");
@@ -59,6 +70,7 @@ namespace LunyEditor
 		private void OnEnable()
 		{
 			Debug.Log($"{nameof(LunyEditor)}: OnEnable");
+			m_IsReloadingDomain = false;
 			var registry = LunyEditorAssetRegistry.Singleton;
 			registry.OnEditorContextChanged += OnEditorContextChanged;
 			registry.EditorLuaAssets.OnAdd += OnAddLuaAsset;
@@ -84,6 +96,7 @@ namespace LunyEditor
 		{
 			Debug.Log($"{nameof(LunyEditor)}: {nameof(OnBeforeAssemblyReload)}");
 			DestroyLuaState();
+			m_IsReloadingDomain = true;
 		}
 
 		private async ValueTask DoAutoRunScripts()
@@ -126,8 +139,6 @@ namespace LunyEditor
 
 		private LunyLua CreateLuaState()
 		{
-			DestroyLuaState();
-
 			Debug.Log($"{nameof(LunyEditor)}: {nameof(CreateLuaState)}");
 			var editorContext = LunyEditorAssetRegistry.Singleton.EditorContext;
 			return editorContext != null ? new LunyLua(editorContext, new FileSystem(editorContext)) : null;
@@ -138,7 +149,7 @@ namespace LunyEditor
 			if (m_Lua != null)
 			{
 				Debug.Log($"{nameof(LunyEditor)}: {nameof(DestroyLuaState)}");
-				LunyEditorScriptRunner.Singleton.DestroyScripts();
+				LunyEditorScriptableSingletonScripts.Singleton.DestroyScripts();
 				m_Lua = null;
 			}
 		}

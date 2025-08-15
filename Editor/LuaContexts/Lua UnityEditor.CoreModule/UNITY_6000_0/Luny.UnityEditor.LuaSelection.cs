@@ -226,17 +226,17 @@ namespace Luny.UnityEditor
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
             var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Object);
-            if (_arg0.TryRead<global::UnityEngine.Object>(out var _p0_UnityEngine_Object))
+            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaUnityObject);
+            if (_arg0.TryRead<global::Luny.UnityEngine.LuaUnityObject>(out var _p0_UnityEngine_Object))
             {
                 var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.Object);
-                if (_arg1.TryRead<global::UnityEngine.Object>(out var _p1_UnityEngine_Object))
+                _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEngine.LuaUnityObject);
+                if (_arg1.TryRead<global::Luny.UnityEngine.LuaUnityObject>(out var _p1_UnityEngine_Object))
                 {
                     if (_argCount == 2)
                     {
-                        var obj = _p0_UnityEngine_Object;
-                        var context = _p1_UnityEngine_Object;
+                        var obj = _p0_UnityEngine_Object.Instance;
+                        var context = _p1_UnityEngine_Object.Instance;
                         global::UnityEditor.Selection.SetActiveObjectWithContext(obj, context);
                         var _retCount = _context.Return();
                         return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);

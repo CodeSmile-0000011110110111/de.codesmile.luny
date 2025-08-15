@@ -23,18 +23,13 @@ namespace Luny
 	{
 		private LuaCallbackFunctions m_CallbackFunctions;
 
-		public Object UserData { get; set; }
+		public Object EventDispatcher { get; set; }
 		public Boolean HasCallbacks => m_CallbackFunctions != null;
 
 		public static LunyScriptEventHandler<T> TryCreate<T>(LuaTable scriptContext) where T : Enum
 		{
 			var hasCallbacks = TryGetCallbackFunctions(typeof(T), scriptContext, out var callbackFunctions);
-			if (hasCallbacks)
-			{
-				var eventHandler = new LunyScriptEventHandler<T>(new LuaCallbackFunctions(callbackFunctions));
-				return eventHandler;
-			}
-			return null;
+			return hasCallbacks ? new LunyScriptEventHandler<T>(new LuaCallbackFunctions(callbackFunctions)) : null;
 		}
 
 		private static Boolean TryGetCallbackFunctions(Type enumType, LuaTable scriptContext, out LuaFunction[] callbackFunctions)
