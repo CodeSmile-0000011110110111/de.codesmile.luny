@@ -167,6 +167,7 @@ namespace Luny
 
 		private IEnumerator DeferredScriptReload()
 		{
+			// don't interrupt the currently running frame
 			yield return new WaitForEndOfFrame();
 
 			m_LuaScript.TrySendEvent<LunyScriptLoadEvent>(m_Lua.State, (Int32)LunyScriptLoadEvent.OnScriptUnload);

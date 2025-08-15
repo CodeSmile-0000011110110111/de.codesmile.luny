@@ -232,9 +232,10 @@ namespace Luny
 
 		internal override async ValueTask DoScriptAsync(LuaState luaState)
 		{
-			//Debug.Log($"DoScriptAsync script path: {LuaAsset.Path}, text:\n{LuaAsset.Text}");
+			//Debug.Log($"{DateTime.Now.Second}.{DateTime.Now.Millisecond}: DoScriptAsync script path: {LuaAsset.Path}");
 			await luaState.DoStringAsync(LuaAsset.Text, $"@{LuaAsset.Path}", ScriptContext);
 			OnAfterDoScript(luaState);
+			//Debug.Log($"{DateTime.Now.Second}.{DateTime.Now.Millisecond}: DoScriptAsync completed for: {LuaAsset.Path}");
 		}
 	}
 

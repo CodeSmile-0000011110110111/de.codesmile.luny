@@ -127,6 +127,7 @@ namespace Luny
 			private static void OnFileChanged(Object sender, FileSystemEventArgs e)
 			{
 				// CAUTION: This callback runs on a background thread!
+				//Debug.Log($"{DateTime.Now.Second}.{DateTime.Now.Millisecond}: File changed: {e.FullPath}");
 
 				var fullPath = e.FullPath;
 				if (!File.Exists(fullPath))

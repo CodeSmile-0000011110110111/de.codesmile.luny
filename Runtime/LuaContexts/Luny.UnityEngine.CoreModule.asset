@@ -708,13 +708,13 @@ MonoBehaviour:
     BlacklistedMemberNames:
     - GetEditorName
   m_ModuleLoader:
-    rid: 3323316026579353698
+    rid: 3323316024500551744
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
   m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316026579353698
+    - rid: 3323316024500551744
       type: {class: ModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
       data: 

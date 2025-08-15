@@ -45,18 +45,25 @@ namespace Luny
 		internal Loader TryInstantiateModuleLoaderEditorOnly()
 		{
 			var wasNull = m_ModuleLoader == null;
+			var needsSaving = false;
 
 			if (ContentVersionFolderExists())
 			{
 				var folderPath = GetContentVersionFolderPath();
-				m_ModuleLoader = TryInstantiateType<Loader>(folderPath, ModuleLoaderTypeFullName);
-
-				// delayed to avoid "Import Error Code:(4)" warning spam
-				EditorApplication.delayCall += () => SaveAsset();
+				var newInstance = TryInstantiateType<Loader>(folderPath, ModuleLoaderTypeFullName);
+				if (newInstance != null && (m_ModuleLoader == null || newInstance.Version != m_ModuleLoader.Version))
+				{
+					m_ModuleLoader = newInstance;
+					needsSaving = true;
+				}
 			}
 
 			var prevVersion = m_ModuleLoaderVersion;
 			m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "(null)";
+
+			// delayed to avoid "Import Error Code:(4)" warning spam
+			if (needsSaving)
+				EditorApplication.delayCall += () => SaveAsset();
 
 			if (m_ModuleLoader != null && (wasNull || prevVersion != m_ModuleLoaderVersion))
 				Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
