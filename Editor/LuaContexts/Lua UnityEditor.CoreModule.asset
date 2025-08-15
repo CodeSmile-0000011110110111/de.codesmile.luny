@@ -889,15 +889,14 @@ MonoBehaviour:
   - UnityEditor.HierarchyProperty
   - UnityEditor.Handles
   m_MemberBlacklist: []
-  m_ContentRootFolderGuid: 
   m_ModuleLoader:
-    rid: 3323316026148126721
+    rid: 3323316026579353696
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
   m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316026148126721
+    - rid: 3323316026579353696
       type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
       data: 
