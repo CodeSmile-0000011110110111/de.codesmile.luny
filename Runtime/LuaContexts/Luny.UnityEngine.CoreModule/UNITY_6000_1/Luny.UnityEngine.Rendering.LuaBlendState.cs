@@ -26,10 +26,19 @@ namespace Luny.UnityEngine.Rendering
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Value.ToString();
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -164,10 +173,20 @@ namespace Luny.UnityEngine.Rendering
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaBlendState_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -180,25 +199,26 @@ namespace Luny.UnityEngine.Rendering
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            if (_argCount == 0)
+            // ctor parameterless case
+            if (_argCount == 1)
             {
                 var _ret0 = new global::UnityEngine.Rendering.BlendState();
                 var _lret0 = global::Luny.UnityEngine.Rendering.LuaBlendState.Bind(_ret0);
                 var _retCount = _context.Return(_lret0);
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_retCount);
             }
-            if (_argCount == 0)
+            if (_argCount == 1)
             {
                 var _ret0 = new global::UnityEngine.Rendering.BlendState();
                 var _lret0 = global::Luny.UnityEngine.Rendering.LuaBlendState.Bind(_ret0);
                 var _retCount = _context.Return(_lret0);
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::System.Boolean);
             var _p0_System_Boolean = _arg0.ReadValue<global::System.Boolean>((global::System.Boolean)false);
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var separateMRTBlend = _p0_System_Boolean;
                     var _ret0 = new global::UnityEngine.Rendering.BlendState(separateMRTBlend);
@@ -206,11 +226,11 @@ namespace Luny.UnityEngine.Rendering
                     var _retCount = _context.Return(_lret0);
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                 }
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::System.Boolean);
                 var _p1_System_Boolean = _arg1.ReadValue<global::System.Boolean>((global::System.Boolean)false);
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var separateMRTBlend = _p0_System_Boolean;
                         var alphaToMask = _p1_System_Boolean;
@@ -255,7 +275,6 @@ namespace Luny.UnityEngine.Rendering
         {
             switch (_key)
             {
-                case "new": _value = _LuaBlendState_new; return true;
                 case "defaultValue": _value = global::Luny.UnityEngine.Rendering.LuaBlendState.Bind(global::UnityEngine.Rendering.BlendState.defaultValue); return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }

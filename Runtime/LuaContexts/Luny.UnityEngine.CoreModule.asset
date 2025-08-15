@@ -139,7 +139,6 @@ MonoBehaviour:
   - UnityEngine.DisplayInfo
   - UnityEngine.DrivenTransformProperties
   - UnityEngine.DynamicGI
-  - UnityEngine.EntityId
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
   - UnityEngine.FindObjectsInactive
@@ -223,11 +222,9 @@ MonoBehaviour:
   - UnityEngine.Mathf
   - UnityEngine.Matrix4x4
   - UnityEngine.Mesh
-  - UnityEngine.Mesh+LodSelectionCurve
   - UnityEngine.Mesh+MeshData
   - UnityEngine.Mesh+MeshDataArray
   - UnityEngine.MeshFilter
-  - UnityEngine.MeshLodRange
   - UnityEngine.MeshRenderer
   - UnityEngine.MeshTopology
   - UnityEngine.MipmapLimitDescriptor
@@ -728,13 +725,13 @@ MonoBehaviour:
     - GetEditorName
   m_ContentRootFolderGuid: 4ba8a55b64d102e4c8fec9d7633d635a
   m_ModuleLoader:
-    rid: 3323316024525193471
+    rid: 3323316024824561726
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
-  m_ModuleLoaderVersion: 6000.2.0f1
+  m_ModuleLoaderVersion: 6000.1.0f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316024525193471
+    - rid: 3323316024824561726
       type: {class: ModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
       data: 
