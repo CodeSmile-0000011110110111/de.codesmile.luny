@@ -10,8 +10,9 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints":     [
-        "UNITY_6000_0_OR_NEWER"    ],
+    "defineConstraints": [
+        "UNITY_6000_0_OR_NEWER"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }

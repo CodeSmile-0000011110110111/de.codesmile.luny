@@ -4,7 +4,7 @@
 // --------------------------------------------------------------
 
 #if UNITY_6000_0_OR_NEWER && !(UNITY_6000_1_OR_NEWER)
-namespace Luny.UnityEditor.CoreModule.Internal
+namespace LunyEditor.UnityEditor.CoreModule.Internal
 {
     [global::System.Serializable]
     internal sealed class ModuleLoader : global::Luny.LunyLuaModule.Loader

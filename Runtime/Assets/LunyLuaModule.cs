@@ -49,8 +49,6 @@ namespace Luny
 		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
 
 		internal String AssemblyName => m_AssemblyName;
-		internal String BindingsAssemblyName => $"Luny.{m_AssemblyName}";
-		internal String ScriptingDefineSymbol => BindingsAssemblyName.Replace('.', '_').ToUpper();
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
 		internal String[] TypeWhitelist => m_TypeWhitelist;
 		internal String[] NamespaceBlacklist => m_NamespaceBlacklist;

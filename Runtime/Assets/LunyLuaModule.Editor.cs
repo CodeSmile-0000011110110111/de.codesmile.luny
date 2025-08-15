@@ -25,6 +25,17 @@ namespace Luny
 
 		internal String NamespaceName => $"{BindingsAssemblyName}.Internal";
 		internal String ModuleLoaderTypeFullName => $"{NamespaceName}.{ModuleLoaderClassName}";
+		internal String BindingsAssemblyName => $"Luny{(IsEditorModule ? "Editor" : "")}.{m_AssemblyName}";
+		internal String ScriptingDefineSymbol => BindingsAssemblyName.Replace('.', '_').ToUpper();
+
+		internal Boolean IsEditorModule
+		{
+			get
+			{
+				var modulePath = AssetDatabase.GetAssetPath(this);
+				return EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath);
+			}
+		}
 
 		private void Awake()
 		{

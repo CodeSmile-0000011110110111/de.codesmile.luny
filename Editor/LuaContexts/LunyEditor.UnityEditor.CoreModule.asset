@@ -892,13 +892,13 @@ MonoBehaviour:
   - UnityEditor.Handles
   m_MemberBlacklist: []
   m_ModuleLoader:
-    rid: 3323316026579353749
+    rid: 3323316026579353756
   m_GenerateOnlyThisType: //UnityEditor.Selection
   m_GenerateOnlyThisMember: //SetActiveObjectWithContext
   m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316026579353749
-      type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
+    - rid: 3323316026579353756
+      type: {class: ModuleLoader, ns: LunyEditor.UnityEditor.CoreModule.Internal, asm: LunyEditor.UnityEditor.CoreModule}
       data: 
