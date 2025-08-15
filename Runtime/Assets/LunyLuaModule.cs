@@ -38,6 +38,7 @@ namespace Luny
 	public sealed partial class LunyLuaModule : ScriptableObject
 	{
 		[SerializeField] internal String m_AssemblyName = "";
+		[SerializeField] internal LunyLuaModule[] m_ModuleDependencies = Array.Empty<LunyLuaModule>();
 		[SerializeField] [ReadOnlyField] internal String[] m_NamespaceWhitelist = Array.Empty<String>();
 		[SerializeField] internal String[] m_NamespaceBlacklist = Array.Empty<String>();
 		[SerializeField] [ReadOnlyField] internal String[] m_TypeWhitelist = Array.Empty<String>();

@@ -45,6 +45,17 @@ namespace LunyEditor.Core
 			}
 			return null;
 		}
+
+		public T[] TryGetAssetsByName(String name)
+		{
+			var foundAssets = new List<T>();
+			foreach (var asset in m_Assets.Values)
+			{
+				if (name == asset.name)
+					foundAssets.Add(asset);
+			}
+			return foundAssets.ToArray();
+		}
 	}
 
 	public sealed class AssemblyDefinitionAssets : AssetCollection<AssemblyDefinitionAsset> {}

@@ -20,7 +20,7 @@ namespace Luny
 		[Tooltip("Useful to exercise code generation on just a specific type because it may be causing troubles with the generator.")]
 		[SerializeField] internal String m_GenerateOnlyThisType;
 		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
-		[SerializeField] internal String m_GenerateOnlyThisMethod;
+		[SerializeField] internal String m_GenerateOnlyThisMember;
 		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderVersion;
 
 		internal String NamespaceName => $"{BindingsAssemblyName}.Internal";
@@ -44,7 +44,7 @@ namespace Luny
 
 		internal Loader TryInstantiateModuleLoaderEditorOnly()
 		{
-			var wasNull = m_ModuleLoader == null;
+			var prevLoader = m_ModuleLoader;
 			var needsSaving = false;
 
 			if (ContentVersionFolderExists())
@@ -59,13 +59,13 @@ namespace Luny
 			}
 
 			var prevVersion = m_ModuleLoaderVersion;
-			m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "(null)";
+			m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "";
 
 			// delayed to avoid "Import Error Code:(4)" warning spam
 			if (needsSaving)
 				EditorApplication.delayCall += () => SaveAsset();
 
-			if (m_ModuleLoader != null && (wasNull || prevVersion != m_ModuleLoaderVersion))
+			if (m_ModuleLoader != null && (m_ModuleLoader != prevLoader || m_ModuleLoaderVersion != prevVersion))
 				Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
 
 			return m_ModuleLoader;
