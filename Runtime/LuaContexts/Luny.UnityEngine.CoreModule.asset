@@ -139,6 +139,7 @@ MonoBehaviour:
   - UnityEngine.DisplayInfo
   - UnityEngine.DrivenTransformProperties
   - UnityEngine.DynamicGI
+  - UnityEngine.EntityId
   - UnityEngine.ExpressionEvaluator
   - UnityEngine.FilterMode
   - UnityEngine.FindObjectsInactive
@@ -166,6 +167,7 @@ MonoBehaviour:
   - UnityEngine.GraphicsBuffer+Target
   - UnityEngine.GraphicsBuffer+UsageFlags
   - UnityEngine.GraphicsBufferHandle
+  - UnityEngine.GraphicsJobsFilterMode
   - UnityEngine.Hash128
   - UnityEngine.HashUnsafeUtilities
   - UnityEngine.HashUtilities
@@ -221,9 +223,11 @@ MonoBehaviour:
   - UnityEngine.Mathf
   - UnityEngine.Matrix4x4
   - UnityEngine.Mesh
+  - UnityEngine.Mesh+LodSelectionCurve
   - UnityEngine.Mesh+MeshData
   - UnityEngine.Mesh+MeshDataArray
   - UnityEngine.MeshFilter
+  - UnityEngine.MeshLodRange
   - UnityEngine.MeshRenderer
   - UnityEngine.MeshTopology
   - UnityEngine.MipmapLimitDescriptor
@@ -358,6 +362,8 @@ MonoBehaviour:
   - UnityEngine.Vector3Int
   - UnityEngine.Vector4
   - UnityEngine.VRTextureUsage
+  - UnityEngine.VulkanDeviceFilterData
+  - UnityEngine.VulkanGraphicsJobsDeviceFilterData
   - UnityEngine.WaitForEndOfFrame
   - UnityEngine.WaitForFixedUpdate
   - UnityEngine.WaitForSeconds
@@ -481,6 +487,14 @@ MonoBehaviour:
   - UnityEngine.Rendering.LocalKeyword
   - UnityEngine.Rendering.LocalKeywordSpace
   - UnityEngine.Rendering.LODParameters
+  - UnityEngine.Rendering.MachineLearningContext
+  - UnityEngine.Rendering.MachineLearningDataType
+  - UnityEngine.Rendering.MachineLearningOperator
+  - UnityEngine.Rendering.MachineLearningOperatorDispatcher
+  - UnityEngine.Rendering.MachineLearningOperatorFactory
+  - UnityEngine.Rendering.MachineLearningOperatorType
+  - UnityEngine.Rendering.MachineLearningTensorDescriptor
+  - UnityEngine.Rendering.MachineLearningTensorShape
   - UnityEngine.Rendering.MeshUpdateFlags
   - UnityEngine.Rendering.MetadataValue
   - UnityEngine.Rendering.ObjectIdRequest
@@ -561,6 +575,11 @@ MonoBehaviour:
   - UnityEngine.Rendering.ShaderPropertyFlags
   - UnityEngine.Rendering.ShaderPropertyType
   - UnityEngine.Rendering.ShaderTagId
+  - UnityEngine.Rendering.ShadingRateCombiner
+  - UnityEngine.Rendering.ShadingRateCombinerStage
+  - UnityEngine.Rendering.ShadingRateFragmentSize
+  - UnityEngine.Rendering.ShadingRateImage
+  - UnityEngine.Rendering.ShadingRateInfo
   - UnityEngine.Rendering.ShadowCastersCullingInfos
   - UnityEngine.Rendering.ShadowCastingMode
   - UnityEngine.Rendering.ShadowDrawingSettings
@@ -709,13 +728,13 @@ MonoBehaviour:
     - GetEditorName
   m_ContentRootFolderGuid: 4ba8a55b64d102e4c8fec9d7633d635a
   m_ModuleLoader:
-    rid: 3323316005911134292
+    rid: 3323316024526241987
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMethod: .ctor
-  m_ModuleLoaderVersion: 6000.0.55f1
+  m_ModuleLoaderVersion: 6000.2.0f1
   references:
     version: 2
     RefIds:
-    - rid: 3323316005911134292
+    - rid: 3323316024526241987
       type: {class: ModuleLoader, ns: Luny.UnityEngine.CoreModule.Internal, asm: Luny.UnityEngine.CoreModule}
       data: 

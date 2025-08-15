@@ -26,10 +26,19 @@ namespace Luny.UnityEngine.Rendering
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Value.ToString();
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -93,10 +102,20 @@ namespace Luny.UnityEngine.Rendering
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaAttachmentIndexArray_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -109,18 +128,19 @@ namespace Luny.UnityEngine.Rendering
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            if (_argCount == 0)
+            // ctor parameterless case
+            if (_argCount == 1)
             {
                 var _ret0 = new global::UnityEngine.Rendering.AttachmentIndexArray();
                 var _lret0 = global::Luny.UnityEngine.Rendering.LuaAttachmentIndexArray.Bind(_ret0);
                 var _retCount = _context.Return(_lret0);
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_retCount);
             }
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
             if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var numAttachments = _p0_System_Int32;
                     var _ret0 = new global::UnityEngine.Rendering.AttachmentIndexArray(numAttachments);
@@ -132,7 +152,7 @@ namespace Luny.UnityEngine.Rendering
             _lastArgPos = 0; _expectedType = typeof(global::System.Int32[]);
             if (_arg0.TryReadArray<global::System.Int32>(out var _p0_System_Int32Array))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var attachments = _p0_System_Int32Array;
                     var _ret0 = new global::UnityEngine.Rendering.AttachmentIndexArray(attachments);
@@ -175,7 +195,6 @@ namespace Luny.UnityEngine.Rendering
         {
             switch (_key)
             {
-                case "new": _value = _LuaAttachmentIndexArray_new; return true;
                 case "Emtpy": _value = global::Luny.UnityEngine.Rendering.LuaAttachmentIndexArray.Bind(global::UnityEngine.Rendering.AttachmentIndexArray.Emtpy); return true;
                 case "MaxAttachments": _value = new global::Lua.LuaValue(global::UnityEngine.Rendering.AttachmentIndexArray.MaxAttachments); return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
