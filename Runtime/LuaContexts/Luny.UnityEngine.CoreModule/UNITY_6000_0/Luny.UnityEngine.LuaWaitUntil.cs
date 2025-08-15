@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaWaitUntil : LuaCustomYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitUntil>
+    public sealed class LuaWaitUntil : global::Luny.UnityEngine.LuaCustomYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitUntil>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.WaitUntil instance) => new LuaWaitUntil(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.WaitUntil)instance);

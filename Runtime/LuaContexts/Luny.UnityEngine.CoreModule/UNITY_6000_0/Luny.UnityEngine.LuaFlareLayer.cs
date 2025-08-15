@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaFlareLayer : LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.FlareLayer>
+    public class LuaFlareLayer : global::Luny.UnityEngine.LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.FlareLayer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.FlareLayer instance) => new LuaFlareLayer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.FlareLayer)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.FlareLayer>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.FlareLayer>(instances);
-        private LuaFlareLayer(global::UnityEngine.FlareLayer instance) : base(instance) {}
+        protected LuaFlareLayer(global::UnityEngine.FlareLayer instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaFlareLayer value) => new(value);
         public new global::UnityEngine.FlareLayer Instance => (global::UnityEngine.FlareLayer)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.FlareLayer);

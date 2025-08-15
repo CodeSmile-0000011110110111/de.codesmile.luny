@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaSkinnedMeshRenderer : LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.SkinnedMeshRenderer>
+    public class LuaSkinnedMeshRenderer : global::Luny.UnityEngine.LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.SkinnedMeshRenderer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.SkinnedMeshRenderer instance) => new LuaSkinnedMeshRenderer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.SkinnedMeshRenderer)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.SkinnedMeshRenderer>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.SkinnedMeshRenderer>(instances);
-        private LuaSkinnedMeshRenderer(global::UnityEngine.SkinnedMeshRenderer instance) : base(instance) {}
+        protected LuaSkinnedMeshRenderer(global::UnityEngine.SkinnedMeshRenderer instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaSkinnedMeshRenderer value) => new(value);
         public new global::UnityEngine.SkinnedMeshRenderer Instance => (global::UnityEngine.SkinnedMeshRenderer)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.SkinnedMeshRenderer);

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaCoroutine : LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.Coroutine>
+    public sealed class LuaCoroutine : global::Luny.UnityEngine.LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.Coroutine>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Coroutine instance) => new LuaCoroutine(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Coroutine)instance);

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaLightmapSettings : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.LightmapSettings>
+    public sealed class LuaLightmapSettings : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.LightmapSettings>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.LightmapSettings instance) => new LuaLightmapSettings(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.LightmapSettings)instance);

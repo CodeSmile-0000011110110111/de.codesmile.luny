@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaProjector : LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Projector>
+    public sealed class LuaProjector : global::Luny.UnityEngine.LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Projector>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Projector instance) => new LuaProjector(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Projector)instance);

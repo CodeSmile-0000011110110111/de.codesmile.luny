@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaMaterial : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Material>
+    public class LuaMaterial : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Material>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Material instance) => new LuaMaterial(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Material)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.Material>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.Material>(instances);
-        private LuaMaterial(global::UnityEngine.Material instance) : base(instance) {}
+        protected LuaMaterial(global::UnityEngine.Material instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaMaterial value) => new(value);
         public new global::UnityEngine.Material Instance => (global::UnityEngine.Material)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Material);

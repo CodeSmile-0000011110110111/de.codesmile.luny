@@ -19,7 +19,8 @@
     "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS",
-        "LUNY_UNITYENGINE_COREMODULE"
+        "LUNY_UNITYENGINE_COREMODULE",
+        "DISABLED"
     ],
     "versionDefines": [],
     "noEngineReferences": false

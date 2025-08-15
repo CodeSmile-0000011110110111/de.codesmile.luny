@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaCubemapArray : LuaTexture, global::Luny.ILuaObject<global::UnityEngine.CubemapArray>
+    public sealed class LuaCubemapArray : global::Luny.UnityEngine.LuaTexture, global::Luny.ILuaObject<global::UnityEngine.CubemapArray>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.CubemapArray instance) => new LuaCubemapArray(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.CubemapArray)instance);

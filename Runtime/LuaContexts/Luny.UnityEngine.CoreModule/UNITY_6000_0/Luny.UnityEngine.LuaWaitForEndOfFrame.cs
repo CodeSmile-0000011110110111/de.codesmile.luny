@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaWaitForEndOfFrame : LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForEndOfFrame>
+    public sealed class LuaWaitForEndOfFrame : global::Luny.UnityEngine.LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForEndOfFrame>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.WaitForEndOfFrame instance) => new LuaWaitForEndOfFrame(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.WaitForEndOfFrame)instance);

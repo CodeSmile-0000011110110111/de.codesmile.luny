@@ -1,0 +1,402 @@
+
+// --------------------------------------------------------------
+// GENERATED FILE ----> DO NOT EDIT <---- CHANGES WILL BE LOST !!
+// --------------------------------------------------------------
+
+#if UNITY_6000_0_OR_NEWER && !(UNITY_6000_1_OR_NEWER)
+#pragma warning disable 0109, 0162, 0168, 0219
+using Luny;
+
+namespace Luny.UnityEditor.Build.Content
+{
+    public class LuaBuildReferenceMap : global::Luny.ILuaObject<global::UnityEditor.Build.Content.BuildReferenceMap>
+    {
+        public new static global::Lua.LuaValue Bind(global::UnityEditor.Build.Content.BuildReferenceMap instance) => new LuaBuildReferenceMap(instance);
+        public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEditor.Build.Content.BuildReferenceMap)instance);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::UnityEditor.Build.Content.BuildReferenceMap> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.Build.Content.BuildReferenceMap>(instances);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.Build.Content.BuildReferenceMap>(instances);
+        protected LuaBuildReferenceMap(global::UnityEditor.Build.Content.BuildReferenceMap instance) => m_Instance = instance;
+        public static implicit operator global::Lua.LuaValue(LuaBuildReferenceMap value) => new(value);
+        protected global::UnityEditor.Build.Content.BuildReferenceMap m_Instance;
+        public global::UnityEditor.Build.Content.BuildReferenceMap Instance => m_Instance;
+        public new global::System.Type BindType => typeof(global::UnityEditor.Build.Content.BuildReferenceMap);
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_AddMapping = new global::Lua.LuaFunction("AddMapping", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.Int64);
+                if (_arg1.TryRead<global::System.Int64>(out var _p1_System_Int64))
+                {
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                    _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEditor.Build.Content.LuaObjectIdentifier);
+                    if (_arg2.TryRead<global::Luny.UnityEditor.Build.Content.LuaObjectIdentifier>(out var _p2_UnityEditor_Build_Content_ObjectIdentifier))
+                    {
+                        if (_argCount == 4)
+                        {
+                            var internalFileName = _p0_System_String;
+                            var serializationIndex = _p1_System_Int64;
+                            var objectID = _p2_UnityEditor_Build_Content_ObjectIdentifier.Value;
+                            _this.Instance.AddMapping(internalFileName, serializationIndex, objectID);
+                            var _retCount = _context.Return();
+                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                        }
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                        _lastArgPos = 3; _expectedType = typeof(global::System.Boolean);
+                        var _p3_System_Boolean = _arg3.ReadValue<global::System.Boolean>((global::System.Boolean)false);
+                        {
+                            if (_argCount == 5)
+                            {
+                                var internalFileName = _p0_System_String;
+                                var serializationIndex = _p1_System_Int64;
+                                var objectID = _p2_UnityEditor_Build_Content_ObjectIdentifier.Value;
+                                var overwrite = _p3_System_Boolean;
+                                _this.Instance.AddMapping(internalFileName, serializationIndex, objectID, overwrite);
+                                var _retCount = _context.Return();
+                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                            }
+                        }
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AddMapping"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_AddMappings = new global::Lua.LuaFunction("AddMappings", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.Build.Content.SerializationInfo[]);
+                if (_arg1.TryReadArray<global::UnityEditor.Build.Content.SerializationInfo>(out var _p1_UnityEditor_Build_Content_SerializationInfoArray))
+                {
+                    if (_argCount == 3)
+                    {
+                        var internalFileName = _p0_System_String;
+                        var objectIDs = _p1_UnityEditor_Build_Content_SerializationInfoArray;
+                        _this.Instance.AddMappings(internalFileName, objectIDs);
+                        var _retCount = _context.Return();
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                    _lastArgPos = 2; _expectedType = typeof(global::System.Boolean);
+                    var _p2_System_Boolean = _arg2.ReadValue<global::System.Boolean>((global::System.Boolean)false);
+                    {
+                        if (_argCount == 4)
+                        {
+                            var internalFileName = _p0_System_String;
+                            var objectIDs = _p1_UnityEditor_Build_Content_SerializationInfoArray;
+                            var overwrite = _p2_System_Boolean;
+                            _this.Instance.AddMappings(internalFileName, objectIDs, overwrite);
+                            var _retCount = _context.Return();
+                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                        }
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AddMappings"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_Dispose = new global::Lua.LuaFunction("Dispose", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            if (_argCount == 1)
+            {
+                _this.Instance.Dispose();
+                var _retCount = _context.Return();
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"Dispose"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_Equals = new global::Lua.LuaFunction("Equals", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Object);
+            if (_arg0.TryRead<global::System.Object>(out var _p0_System_Object))
+            {
+                if (_argCount == 2)
+                {
+                    var obj = _p0_System_Object;
+                    var _ret0 = _this.Instance.Equals(obj);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"Equals"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_FilterToSubset = new global::Lua.LuaFunction("FilterToSubset", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Build.Content.ObjectIdentifier[]);
+            if (_arg0.TryReadArray<global::UnityEditor.Build.Content.ObjectIdentifier>(out var _p0_UnityEditor_Build_Content_ObjectIdentifierArray))
+            {
+                if (_argCount == 2)
+                {
+                    var objectIds = _p0_UnityEditor_Build_Content_ObjectIdentifierArray;
+                    _this.Instance.FilterToSubset(objectIds);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"FilterToSubset"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_GetHash128 = new global::Lua.LuaFunction("GetHash128", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            if (_argCount == 1)
+            {
+                var _ret0 = _this.Instance.GetHash128();
+                var _lret0 = global::Luny.UnityEngine.LuaHash128.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetHash128"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_GetHashCode = new global::Lua.LuaFunction("GetHashCode", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            if (_argCount == 1)
+            {
+                var _ret0 = _this.Instance.GetHashCode();
+                var _lret0 = new global::Lua.LuaValue(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetHashCode"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_GetObjectData = new global::Lua.LuaFunction("GetObjectData", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Runtime.Serialization.SerializationInfo);
+            if (_arg0.TryRead<global::System.Runtime.Serialization.SerializationInfo>(out var _p0_System_Runtime_Serialization_SerializationInfo))
+            {
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                _lastArgPos = 1; _expectedType = typeof(global::System.Runtime.Serialization.StreamingContext);
+                if (_arg1.TryRead<global::System.Runtime.Serialization.StreamingContext>(out var _p1_System_Runtime_Serialization_StreamingContext))
+                {
+                    if (_argCount == 3)
+                    {
+                        var info = _p0_System_Runtime_Serialization_SerializationInfo;
+                        var context = _p1_System_Runtime_Serialization_StreamingContext;
+                        _this.Instance.GetObjectData(info, context);
+                        var _retCount = _context.Return();
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetObjectData"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaBuildReferenceMap>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+
+        public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public virtual global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                case "AddMapping": _value = _LuaBuildReferenceMap_AddMapping; return true;
+                case "AddMappings": _value = _LuaBuildReferenceMap_AddMappings; return true;
+                case "Dispose": _value = _LuaBuildReferenceMap_Dispose; return true;
+                case "Equals": _value = _LuaBuildReferenceMap_Equals; return true;
+                case "FilterToSubset": _value = _LuaBuildReferenceMap_FilterToSubset; return true;
+                case "GetHash128": _value = _LuaBuildReferenceMap_GetHash128; return true;
+                case "GetHashCode": _value = _LuaBuildReferenceMap_GetHashCode; return true;
+                case "GetObjectData": _value = _LuaBuildReferenceMap_GetObjectData; return true;
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public virtual global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public virtual global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+    public sealed class LuaBuildReferenceMapType : global::Luny.ILuaStatic
+    {
+        public static global::Lua.LuaValue Bind() => new LuaBuildReferenceMapType();
+        private LuaBuildReferenceMapType() {}
+        public static implicit operator global::Lua.LuaValue(LuaBuildReferenceMapType value) => new(value);
+        public global::System.Type BindType => typeof(global::UnityEditor.Build.Content.BuildReferenceMap);
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaBuildReferenceMap_new;
+            return metatable;
+        }
+        public override global::System.String ToString() => BindType.FullName;
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction _LuaBuildReferenceMap_new = new global::Lua.LuaFunction(".ctor", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 1)
+            {
+                var _ret0 = new global::UnityEditor.Build.Content.BuildReferenceMap();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{".ctor"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaBuildReferenceMapType>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaBuildReferenceMapType>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+}
+#pragma warning restore 0109, 0162, 0168, 0219
+#endif

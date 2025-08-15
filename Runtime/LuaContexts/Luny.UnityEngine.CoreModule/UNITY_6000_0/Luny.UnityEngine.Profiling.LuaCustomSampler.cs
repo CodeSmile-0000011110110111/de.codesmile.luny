@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Profiling
 {
-    public sealed class LuaCustomSampler : LuaSampler, global::Luny.ILuaObject<global::UnityEngine.Profiling.CustomSampler>
+    public sealed class LuaCustomSampler : global::Luny.UnityEngine.Profiling.LuaSampler, global::Luny.ILuaObject<global::UnityEngine.Profiling.CustomSampler>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Profiling.CustomSampler instance) => new LuaCustomSampler(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Profiling.CustomSampler)instance);

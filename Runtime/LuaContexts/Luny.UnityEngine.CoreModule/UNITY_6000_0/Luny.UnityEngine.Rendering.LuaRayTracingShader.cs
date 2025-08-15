@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Rendering
 {
-    public sealed class LuaRayTracingShader : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Rendering.RayTracingShader>
+    public sealed class LuaRayTracingShader : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Rendering.RayTracingShader>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Rendering.RayTracingShader instance) => new LuaRayTracingShader(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Rendering.RayTracingShader)instance);

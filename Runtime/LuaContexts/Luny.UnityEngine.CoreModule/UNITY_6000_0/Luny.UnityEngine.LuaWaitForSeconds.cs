@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaWaitForSeconds : LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForSeconds>
+    public sealed class LuaWaitForSeconds : global::Luny.UnityEngine.LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForSeconds>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.WaitForSeconds instance) => new LuaWaitForSeconds(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.WaitForSeconds)instance);

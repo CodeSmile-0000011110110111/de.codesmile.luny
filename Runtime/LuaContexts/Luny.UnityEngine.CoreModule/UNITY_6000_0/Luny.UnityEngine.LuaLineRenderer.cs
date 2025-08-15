@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaLineRenderer : LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.LineRenderer>
+    public sealed class LuaLineRenderer : global::Luny.UnityEngine.LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.LineRenderer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.LineRenderer instance) => new LuaLineRenderer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.LineRenderer)instance);

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.U2D
 {
-    public sealed class LuaLight2DBase : LuaMonoBehaviour, global::Luny.ILuaObject<global::UnityEngine.U2D.Light2DBase>
+    public class LuaLight2DBase : global::Luny.UnityEngine.LuaMonoBehaviour, global::Luny.ILuaObject<global::UnityEngine.U2D.Light2DBase>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.U2D.Light2DBase instance) => new LuaLight2DBase(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.U2D.Light2DBase)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine.U2D
             new global::Luny.LuaList<global::UnityEngine.U2D.Light2DBase>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.U2D.Light2DBase>(instances);
-        private LuaLight2DBase(global::UnityEngine.U2D.Light2DBase instance) : base(instance) {}
+        protected LuaLight2DBase(global::UnityEngine.U2D.Light2DBase instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaLight2DBase value) => new(value);
         public new global::UnityEngine.U2D.Light2DBase Instance => (global::UnityEngine.U2D.Light2DBase)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.U2D.Light2DBase);

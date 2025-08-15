@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaLODGroup : LuaComponent, global::Luny.ILuaObject<global::UnityEngine.LODGroup>
+    public class LuaLODGroup : global::Luny.UnityEngine.LuaComponent, global::Luny.ILuaObject<global::UnityEngine.LODGroup>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.LODGroup instance) => new LuaLODGroup(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.LODGroup)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.LODGroup>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.LODGroup>(instances);
-        private LuaLODGroup(global::UnityEngine.LODGroup instance) : base(instance) {}
+        protected LuaLODGroup(global::UnityEngine.LODGroup instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaLODGroup value) => new(value);
         public new global::UnityEngine.LODGroup Instance => (global::UnityEngine.LODGroup)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.LODGroup);

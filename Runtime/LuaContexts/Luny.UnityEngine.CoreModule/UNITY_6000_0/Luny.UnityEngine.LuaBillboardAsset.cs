@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaBillboardAsset : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.BillboardAsset>
+    public sealed class LuaBillboardAsset : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.BillboardAsset>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.BillboardAsset instance) => new LuaBillboardAsset(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.BillboardAsset)instance);

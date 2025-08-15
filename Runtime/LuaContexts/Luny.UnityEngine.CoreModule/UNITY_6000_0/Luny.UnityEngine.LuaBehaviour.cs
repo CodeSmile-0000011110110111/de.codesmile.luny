@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public class LuaBehaviour : LuaComponent, global::Luny.ILuaObject<global::UnityEngine.Behaviour>
+    public class LuaBehaviour : global::Luny.UnityEngine.LuaComponent, global::Luny.ILuaObject<global::UnityEngine.Behaviour>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Behaviour instance) => new LuaBehaviour(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Behaviour)instance);

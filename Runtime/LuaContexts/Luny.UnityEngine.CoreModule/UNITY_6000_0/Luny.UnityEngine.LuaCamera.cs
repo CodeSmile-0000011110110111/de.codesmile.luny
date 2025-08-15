@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaCamera : LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Camera>
+    public sealed class LuaCamera : global::Luny.UnityEngine.LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Camera>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Camera instance) => new LuaCamera(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Camera)instance);

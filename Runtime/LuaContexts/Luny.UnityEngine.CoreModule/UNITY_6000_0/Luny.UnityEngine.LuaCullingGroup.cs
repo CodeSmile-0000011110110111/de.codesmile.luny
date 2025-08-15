@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaCullingGroup : global::Luny.ILuaObject<global::UnityEngine.CullingGroup>
+    public class LuaCullingGroup : global::Luny.ILuaObject<global::UnityEngine.CullingGroup>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.CullingGroup instance) => new LuaCullingGroup(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.CullingGroup)instance);
@@ -17,9 +17,9 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.CullingGroup>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.CullingGroup>(instances);
-        private LuaCullingGroup(global::UnityEngine.CullingGroup instance) => m_Instance = instance;
+        protected LuaCullingGroup(global::UnityEngine.CullingGroup instance) => m_Instance = instance;
         public static implicit operator global::Lua.LuaValue(LuaCullingGroup value) => new(value);
-        private global::UnityEngine.CullingGroup m_Instance;
+        protected global::UnityEngine.CullingGroup m_Instance;
         public global::UnityEngine.CullingGroup Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.CullingGroup);
         private static global::Lua.LuaTable s_Metatable;
@@ -326,11 +326,11 @@ namespace Luny.UnityEngine
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
 
-        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             _value = global::Lua.LuaValue.Nil; return false;
         }
-        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             switch (_key)
             {
@@ -349,11 +349,11 @@ namespace Luny.UnityEngine
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }
-        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
         {
             return false;
         }
-        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
         {
             switch (_key)
             {

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaComputeShader : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.ComputeShader>
+    public sealed class LuaComputeShader : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.ComputeShader>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.ComputeShader instance) => new LuaComputeShader(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.ComputeShader)instance);

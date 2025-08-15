@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.SceneManagement
 {
-    public sealed class LuaSceneManager : global::Luny.ILuaObject<global::UnityEngine.SceneManagement.SceneManager>
+    public class LuaSceneManager : global::Luny.ILuaObject<global::UnityEngine.SceneManagement.SceneManager>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.SceneManagement.SceneManager instance) => new LuaSceneManager(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.SceneManagement.SceneManager)instance);
@@ -17,9 +17,9 @@ namespace Luny.UnityEngine.SceneManagement
             new global::Luny.LuaList<global::UnityEngine.SceneManagement.SceneManager>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.SceneManagement.SceneManager>(instances);
-        private LuaSceneManager(global::UnityEngine.SceneManagement.SceneManager instance) => m_Instance = instance;
+        protected LuaSceneManager(global::UnityEngine.SceneManagement.SceneManager instance) => m_Instance = instance;
         public static implicit operator global::Lua.LuaValue(LuaSceneManager value) => new(value);
-        private global::UnityEngine.SceneManagement.SceneManager m_Instance;
+        protected global::UnityEngine.SceneManagement.SceneManager m_Instance;
         public global::UnityEngine.SceneManagement.SceneManager Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.SceneManagement.SceneManager);
         private static global::Lua.LuaTable s_Metatable;
@@ -68,22 +68,22 @@ namespace Luny.UnityEngine.SceneManagement
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
 
-        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             _value = global::Lua.LuaValue.Nil; return false;
         }
-        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             switch (_key)
             {
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }
-        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
         {
             return false;
         }
-        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
         {
             switch (_key)
             {

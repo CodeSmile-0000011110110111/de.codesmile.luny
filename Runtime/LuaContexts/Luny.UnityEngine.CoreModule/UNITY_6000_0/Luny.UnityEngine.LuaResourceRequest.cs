@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaResourceRequest : LuaAsyncOperation, global::Luny.ILuaObject<global::UnityEngine.ResourceRequest>
+    public class LuaResourceRequest : global::Luny.UnityEngine.LuaAsyncOperation, global::Luny.ILuaObject<global::UnityEngine.ResourceRequest>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.ResourceRequest instance) => new LuaResourceRequest(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.ResourceRequest)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.ResourceRequest>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.ResourceRequest>(instances);
-        private LuaResourceRequest(global::UnityEngine.ResourceRequest instance) : base(instance) {}
+        protected LuaResourceRequest(global::UnityEngine.ResourceRequest instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaResourceRequest value) => new(value);
         public new global::UnityEngine.ResourceRequest Instance => (global::UnityEngine.ResourceRequest)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.ResourceRequest);

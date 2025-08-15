@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Events
 {
-    public sealed class LuaUnityEvent : LuaUnityEventBase, global::Luny.ILuaObject<global::UnityEngine.Events.UnityEvent>
+    public class LuaUnityEvent : global::Luny.UnityEngine.Events.LuaUnityEventBase, global::Luny.ILuaObject<global::UnityEngine.Events.UnityEvent>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Events.UnityEvent instance) => new LuaUnityEvent(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Events.UnityEvent)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine.Events
             new global::Luny.LuaList<global::UnityEngine.Events.UnityEvent>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.Events.UnityEvent>(instances);
-        private LuaUnityEvent(global::UnityEngine.Events.UnityEvent instance) : base(instance) {}
+        protected LuaUnityEvent(global::UnityEngine.Events.UnityEvent instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaUnityEvent value) => new(value);
         public new global::UnityEngine.Events.UnityEvent Instance => (global::UnityEngine.Events.UnityEvent)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Events.UnityEvent);

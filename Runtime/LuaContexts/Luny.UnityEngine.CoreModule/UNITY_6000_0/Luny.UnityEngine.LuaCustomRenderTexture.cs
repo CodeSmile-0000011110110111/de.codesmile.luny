@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaCustomRenderTexture : LuaRenderTexture, global::Luny.ILuaObject<global::UnityEngine.CustomRenderTexture>
+    public sealed class LuaCustomRenderTexture : global::Luny.UnityEngine.LuaRenderTexture, global::Luny.ILuaObject<global::UnityEngine.CustomRenderTexture>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.CustomRenderTexture instance) => new LuaCustomRenderTexture(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.CustomRenderTexture)instance);

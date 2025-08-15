@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.U2D
 {
-    public sealed class LuaSpriteAtlas : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.U2D.SpriteAtlas>
+    public class LuaSpriteAtlas : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.U2D.SpriteAtlas>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.U2D.SpriteAtlas instance) => new LuaSpriteAtlas(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.U2D.SpriteAtlas)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine.U2D
             new global::Luny.LuaList<global::UnityEngine.U2D.SpriteAtlas>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.U2D.SpriteAtlas>(instances);
-        private LuaSpriteAtlas(global::UnityEngine.U2D.SpriteAtlas instance) : base(instance) {}
+        protected LuaSpriteAtlas(global::UnityEngine.U2D.SpriteAtlas instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaSpriteAtlas value) => new(value);
         public new global::UnityEngine.U2D.SpriteAtlas Instance => (global::UnityEngine.U2D.SpriteAtlas)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.U2D.SpriteAtlas);

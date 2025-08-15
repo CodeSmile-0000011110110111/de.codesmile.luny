@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Rendering
 {
-    public sealed class LuaRenderPipelineGlobalSettings : LuaScriptableObject, global::Luny.ILuaObject<global::UnityEngine.Rendering.RenderPipelineGlobalSettings>
+    public class LuaRenderPipelineGlobalSettings : global::Luny.UnityEngine.LuaScriptableObject, global::Luny.ILuaObject<global::UnityEngine.Rendering.RenderPipelineGlobalSettings>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Rendering.RenderPipelineGlobalSettings instance) => new LuaRenderPipelineGlobalSettings(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Rendering.RenderPipelineGlobalSettings)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine.Rendering
             new global::Luny.LuaList<global::UnityEngine.Rendering.RenderPipelineGlobalSettings>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.Rendering.RenderPipelineGlobalSettings>(instances);
-        private LuaRenderPipelineGlobalSettings(global::UnityEngine.Rendering.RenderPipelineGlobalSettings instance) : base(instance) {}
+        protected LuaRenderPipelineGlobalSettings(global::UnityEngine.Rendering.RenderPipelineGlobalSettings instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaRenderPipelineGlobalSettings value) => new(value);
         public new global::UnityEngine.Rendering.RenderPipelineGlobalSettings Instance => (global::UnityEngine.Rendering.RenderPipelineGlobalSettings)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Rendering.RenderPipelineGlobalSettings);

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Rendering
 {
-    public sealed class LuaBatchRendererGroup : global::Luny.ILuaObject<global::UnityEngine.Rendering.BatchRendererGroup>
+    public class LuaBatchRendererGroup : global::Luny.ILuaObject<global::UnityEngine.Rendering.BatchRendererGroup>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Rendering.BatchRendererGroup instance) => new LuaBatchRendererGroup(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Rendering.BatchRendererGroup)instance);
@@ -17,9 +17,9 @@ namespace Luny.UnityEngine.Rendering
             new global::Luny.LuaList<global::UnityEngine.Rendering.BatchRendererGroup>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.Rendering.BatchRendererGroup>(instances);
-        private LuaBatchRendererGroup(global::UnityEngine.Rendering.BatchRendererGroup instance) => m_Instance = instance;
+        protected LuaBatchRendererGroup(global::UnityEngine.Rendering.BatchRendererGroup instance) => m_Instance = instance;
         public static implicit operator global::Lua.LuaValue(LuaBatchRendererGroup value) => new(value);
-        private global::UnityEngine.Rendering.BatchRendererGroup m_Instance;
+        protected global::UnityEngine.Rendering.BatchRendererGroup m_Instance;
         public global::UnityEngine.Rendering.BatchRendererGroup Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Rendering.BatchRendererGroup);
         private static global::Lua.LuaTable s_Metatable;
@@ -384,11 +384,11 @@ namespace Luny.UnityEngine.Rendering
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
 
-        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             _value = global::Lua.LuaValue.Nil; return false;
         }
-        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        public virtual global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
             switch (_key)
             {
@@ -410,11 +410,11 @@ namespace Luny.UnityEngine.Rendering
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }
-        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
         {
             return false;
         }
-        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        public virtual global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
         {
             switch (_key)
             {

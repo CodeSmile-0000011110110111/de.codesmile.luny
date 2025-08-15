@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaSpriteRenderer : LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.SpriteRenderer>
+    public sealed class LuaSpriteRenderer : global::Luny.UnityEngine.LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.SpriteRenderer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.SpriteRenderer instance) => new LuaSpriteRenderer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.SpriteRenderer)instance);

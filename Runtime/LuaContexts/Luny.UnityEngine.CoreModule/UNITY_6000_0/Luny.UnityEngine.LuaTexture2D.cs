@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaTexture2D : LuaTexture, global::Luny.ILuaObject<global::UnityEngine.Texture2D>
+    public sealed class LuaTexture2D : global::Luny.UnityEngine.LuaTexture, global::Luny.ILuaObject<global::UnityEngine.Texture2D>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Texture2D instance) => new LuaTexture2D(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Texture2D)instance);

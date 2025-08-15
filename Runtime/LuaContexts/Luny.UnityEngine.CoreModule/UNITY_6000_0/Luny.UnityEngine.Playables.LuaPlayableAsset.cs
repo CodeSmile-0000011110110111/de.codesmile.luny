@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Playables
 {
-    public sealed class LuaPlayableAsset : LuaScriptableObject, global::Luny.ILuaObject<global::UnityEngine.Playables.PlayableAsset>
+    public class LuaPlayableAsset : global::Luny.UnityEngine.LuaScriptableObject, global::Luny.ILuaObject<global::UnityEngine.Playables.PlayableAsset>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Playables.PlayableAsset instance) => new LuaPlayableAsset(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Playables.PlayableAsset)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine.Playables
             new global::Luny.LuaList<global::UnityEngine.Playables.PlayableAsset>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.Playables.PlayableAsset>(instances);
-        private LuaPlayableAsset(global::UnityEngine.Playables.PlayableAsset instance) : base(instance) {}
+        protected LuaPlayableAsset(global::UnityEngine.Playables.PlayableAsset instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaPlayableAsset value) => new(value);
         public new global::UnityEngine.Playables.PlayableAsset Instance => (global::UnityEngine.Playables.PlayableAsset)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Playables.PlayableAsset);

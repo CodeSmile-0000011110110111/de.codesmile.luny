@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaMeshRenderer : LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.MeshRenderer>
+    public class LuaMeshRenderer : global::Luny.UnityEngine.LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.MeshRenderer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.MeshRenderer instance) => new LuaMeshRenderer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.MeshRenderer)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.MeshRenderer>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.MeshRenderer>(instances);
-        private LuaMeshRenderer(global::UnityEngine.MeshRenderer instance) : base(instance) {}
+        protected LuaMeshRenderer(global::UnityEngine.MeshRenderer instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaMeshRenderer value) => new(value);
         public new global::UnityEngine.MeshRenderer Instance => (global::UnityEngine.MeshRenderer)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.MeshRenderer);

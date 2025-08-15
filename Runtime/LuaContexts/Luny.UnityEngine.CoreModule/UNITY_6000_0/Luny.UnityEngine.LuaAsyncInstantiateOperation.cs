@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaAsyncInstantiateOperation : LuaAsyncOperation, global::Luny.ILuaObject<global::UnityEngine.AsyncInstantiateOperation>
+    public class LuaAsyncInstantiateOperation : global::Luny.UnityEngine.LuaAsyncOperation, global::Luny.ILuaObject<global::UnityEngine.AsyncInstantiateOperation>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.AsyncInstantiateOperation instance) => new LuaAsyncInstantiateOperation(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.AsyncInstantiateOperation)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.AsyncInstantiateOperation>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.AsyncInstantiateOperation>(instances);
-        private LuaAsyncInstantiateOperation(global::UnityEngine.AsyncInstantiateOperation instance) : base(instance) {}
+        protected LuaAsyncInstantiateOperation(global::UnityEngine.AsyncInstantiateOperation instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaAsyncInstantiateOperation value) => new(value);
         public new global::UnityEngine.AsyncInstantiateOperation Instance => (global::UnityEngine.AsyncInstantiateOperation)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.AsyncInstantiateOperation);

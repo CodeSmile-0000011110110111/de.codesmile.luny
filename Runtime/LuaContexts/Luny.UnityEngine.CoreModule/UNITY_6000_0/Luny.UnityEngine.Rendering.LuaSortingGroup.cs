@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine.Rendering
 {
-    public sealed class LuaSortingGroup : LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Rendering.SortingGroup>
+    public sealed class LuaSortingGroup : global::Luny.UnityEngine.LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Rendering.SortingGroup>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Rendering.SortingGroup instance) => new LuaSortingGroup(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Rendering.SortingGroup)instance);

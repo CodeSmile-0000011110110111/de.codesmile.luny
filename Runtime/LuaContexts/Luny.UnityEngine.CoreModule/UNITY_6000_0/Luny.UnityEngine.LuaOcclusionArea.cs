@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaOcclusionArea : LuaComponent, global::Luny.ILuaObject<global::UnityEngine.OcclusionArea>
+    public sealed class LuaOcclusionArea : global::Luny.UnityEngine.LuaComponent, global::Luny.ILuaObject<global::UnityEngine.OcclusionArea>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.OcclusionArea instance) => new LuaOcclusionArea(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.OcclusionArea)instance);

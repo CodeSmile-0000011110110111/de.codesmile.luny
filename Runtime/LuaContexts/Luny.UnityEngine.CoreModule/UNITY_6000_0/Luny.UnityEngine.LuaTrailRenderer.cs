@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaTrailRenderer : LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.TrailRenderer>
+    public sealed class LuaTrailRenderer : global::Luny.UnityEngine.LuaRenderer, global::Luny.ILuaObject<global::UnityEngine.TrailRenderer>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.TrailRenderer instance) => new LuaTrailRenderer(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.TrailRenderer)instance);

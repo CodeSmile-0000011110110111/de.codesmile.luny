@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaRectTransform : LuaTransform, global::Luny.ILuaObject<global::UnityEngine.RectTransform>
+    public sealed class LuaRectTransform : global::Luny.UnityEngine.LuaTransform, global::Luny.ILuaObject<global::UnityEngine.RectTransform>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.RectTransform instance) => new LuaRectTransform(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.RectTransform)instance);

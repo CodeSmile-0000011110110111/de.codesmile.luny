@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaTextAsset : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.TextAsset>
+    public class LuaTextAsset : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.TextAsset>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.TextAsset instance) => new LuaTextAsset(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.TextAsset)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.TextAsset>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.TextAsset>(instances);
-        private LuaTextAsset(global::UnityEngine.TextAsset instance) : base(instance) {}
+        protected LuaTextAsset(global::UnityEngine.TextAsset instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaTextAsset value) => new(value);
         public new global::UnityEngine.TextAsset Instance => (global::UnityEngine.TextAsset)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.TextAsset);

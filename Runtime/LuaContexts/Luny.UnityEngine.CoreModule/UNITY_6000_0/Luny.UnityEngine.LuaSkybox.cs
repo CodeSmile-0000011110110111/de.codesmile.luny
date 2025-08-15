@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaSkybox : LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Skybox>
+    public sealed class LuaSkybox : global::Luny.UnityEngine.LuaBehaviour, global::Luny.ILuaObject<global::UnityEngine.Skybox>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Skybox instance) => new LuaSkybox(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Skybox)instance);

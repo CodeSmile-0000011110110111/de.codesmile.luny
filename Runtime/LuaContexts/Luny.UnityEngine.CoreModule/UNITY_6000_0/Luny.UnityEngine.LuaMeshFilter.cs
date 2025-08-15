@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaMeshFilter : LuaComponent, global::Luny.ILuaObject<global::UnityEngine.MeshFilter>
+    public sealed class LuaMeshFilter : global::Luny.UnityEngine.LuaComponent, global::Luny.ILuaObject<global::UnityEngine.MeshFilter>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.MeshFilter instance) => new LuaMeshFilter(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.MeshFilter)instance);

@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaWaitForSecondsRealtime : LuaCustomYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForSecondsRealtime>
+    public class LuaWaitForSecondsRealtime : global::Luny.UnityEngine.LuaCustomYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.WaitForSecondsRealtime>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.WaitForSecondsRealtime instance) => new LuaWaitForSecondsRealtime(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.WaitForSecondsRealtime)instance);
@@ -17,7 +17,7 @@ namespace Luny.UnityEngine
             new global::Luny.LuaList<global::UnityEngine.WaitForSecondsRealtime>(instances);
         public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
             new global::Luny.LuaList<global::UnityEngine.WaitForSecondsRealtime>(instances);
-        private LuaWaitForSecondsRealtime(global::UnityEngine.WaitForSecondsRealtime instance) : base(instance) {}
+        protected LuaWaitForSecondsRealtime(global::UnityEngine.WaitForSecondsRealtime instance) : base(instance) {}
         public static implicit operator global::Lua.LuaValue(LuaWaitForSecondsRealtime value) => new(value);
         public new global::UnityEngine.WaitForSecondsRealtime Instance => (global::UnityEngine.WaitForSecondsRealtime)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.WaitForSecondsRealtime);

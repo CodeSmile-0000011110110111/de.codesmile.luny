@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public class LuaAsyncOperation : LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.AsyncOperation>
+    public class LuaAsyncOperation : global::Luny.UnityEngine.LuaYieldInstruction, global::Luny.ILuaObject<global::UnityEngine.AsyncOperation>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.AsyncOperation instance) => new LuaAsyncOperation(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.AsyncOperation)instance);

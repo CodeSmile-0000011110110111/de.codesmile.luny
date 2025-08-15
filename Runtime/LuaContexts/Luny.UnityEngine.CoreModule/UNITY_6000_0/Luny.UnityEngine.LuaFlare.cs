@@ -9,7 +9,7 @@ using Luny;
 
 namespace Luny.UnityEngine
 {
-    public sealed class LuaFlare : LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Flare>
+    public sealed class LuaFlare : global::Luny.UnityEngine.LuaUnityObject, global::Luny.ILuaObject<global::UnityEngine.Flare>
     {
         public new static global::Lua.LuaValue Bind(global::UnityEngine.Flare instance) => new LuaFlare(instance);
         public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEngine.Flare)instance);
