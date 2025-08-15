@@ -91,6 +91,8 @@ MonoBehaviour:
   - UnityEditor.AndroidBlitType
   - UnityEditor.AndroidBuildSystem
   - UnityEditor.AndroidBuildType
+  - UnityEditor.AndroidCreateSymbols
+  - UnityEditor.AndroidDeviceFilterData
   - UnityEditor.AndroidETC2FallbackOverride
   - UnityEditor.AndroidGamepadSupportLevel
   - UnityEditor.AndroidPreferredInstallLocation
@@ -600,9 +602,7 @@ MonoBehaviour:
   - UnityEditor.Build.BuildPipelineContext
   - UnityEditor.Build.BuildPlayerContext
   - UnityEditor.Build.BuildPlayerProcessor
-  - UnityEditor.Build.DefaultLaunchReport
   - UnityEditor.Build.Il2CppCodeGeneration
-  - UnityEditor.Build.LaunchResult
   - UnityEditor.Build.NamedBuildTarget
   - UnityEditor.Build.OSArchitecture
   - UnityEditor.Build.OverrideTextureCompression
@@ -891,12 +891,13 @@ MonoBehaviour:
   m_MemberBlacklist: []
   m_ContentRootFolderGuid: 
   m_ModuleLoader:
-    rid: -2
+    rid: 3323316026148126721
   m_GenerateOnlyThisType: 
   m_GenerateOnlyThisMethod: 
-  m_ModuleLoaderVersion: 
+  m_ModuleLoaderVersion: 6000.0.35f1
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3323316026148126721
+      type: {class: ModuleLoader, ns: Luny.UnityEditor.CoreModule.Internal, asm: Luny.UnityEditor.CoreModule}
+      data: 
