@@ -25,10 +25,19 @@ namespace Luny.UnityEditor.Media
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -144,10 +153,20 @@ namespace Luny.UnityEditor.Media
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaMediaEncoder_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -160,15 +179,15 @@ namespace Luny.UnityEditor.Media
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::System.String);
             if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
             {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEditor.Media.LuaAudioTrackAttributes);
                 if (_arg1.TryRead<global::Luny.UnityEditor.Media.LuaAudioTrackAttributes>(out var _p1_UnityEditor_Media_AudioTrackAttributes))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var filePath = _p0_System_String;
                         var audioAttrs = _p1_UnityEditor_Media_AudioTrackAttributes.Value;
@@ -182,7 +201,7 @@ namespace Luny.UnityEditor.Media
                 _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEditor.Media.LuaVideoTrackAttributes);
                 if (_arg1.TryRead<global::Luny.UnityEditor.Media.LuaVideoTrackAttributes>(out var _p1_UnityEditor_Media_VideoTrackAttributes))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var filePath = _p0_System_String;
                         var videoAttrs = _p1_UnityEditor_Media_VideoTrackAttributes.Value;
@@ -192,11 +211,11 @@ namespace Luny.UnityEditor.Media
                         var _retCount = _context.Return(_lret0);
                         return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                     }
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEditor.Media.LuaAudioTrackAttributes);
                     if (_arg2.TryRead<global::Luny.UnityEditor.Media.LuaAudioTrackAttributes>(out var _p2_UnityEditor_Media_AudioTrackAttributes))
                     {
-                        if (_argCount == 3)
+                        if (_argCount == 4)
                         {
                             var filePath = _p0_System_String;
                             var videoAttrs = _p1_UnityEditor_Media_VideoTrackAttributes.Value;
@@ -211,7 +230,7 @@ namespace Luny.UnityEditor.Media
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEditor.Media.AudioTrackAttributes[]);
                     if (_arg2.TryReadArray<global::UnityEditor.Media.AudioTrackAttributes>(out var _p2_UnityEditor_Media_AudioTrackAttributesArray))
                     {
-                        if (_argCount == 3)
+                        if (_argCount == 4)
                         {
                             var filePath = _p0_System_String;
                             var videoAttrs = _p1_UnityEditor_Media_VideoTrackAttributes.Value;
@@ -227,7 +246,7 @@ namespace Luny.UnityEditor.Media
                 _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEditor.Media.LuaVideoTrackEncoderAttributes);
                 if (_arg1.TryRead<global::Luny.UnityEditor.Media.LuaVideoTrackEncoderAttributes>(out var _p1_UnityEditor_Media_VideoTrackEncoderAttributes))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var filePath = _p0_System_String;
                         var videoAttrs = _p1_UnityEditor_Media_VideoTrackEncoderAttributes.Value;
@@ -237,11 +256,11 @@ namespace Luny.UnityEditor.Media
                         var _retCount = _context.Return(_lret0);
                         return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                     }
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEditor.Media.LuaAudioTrackAttributes);
                     if (_arg2.TryRead<global::Luny.UnityEditor.Media.LuaAudioTrackAttributes>(out var _p2_UnityEditor_Media_AudioTrackAttributes))
                     {
-                        if (_argCount == 3)
+                        if (_argCount == 4)
                         {
                             var filePath = _p0_System_String;
                             var videoAttrs = _p1_UnityEditor_Media_VideoTrackEncoderAttributes.Value;
@@ -256,7 +275,7 @@ namespace Luny.UnityEditor.Media
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEditor.Media.AudioTrackAttributes[]);
                     if (_arg2.TryReadArray<global::UnityEditor.Media.AudioTrackAttributes>(out var _p2_UnityEditor_Media_AudioTrackAttributesArray))
                     {
-                        if (_argCount == 3)
+                        if (_argCount == 4)
                         {
                             var filePath = _p0_System_String;
                             var videoAttrs = _p1_UnityEditor_Media_VideoTrackEncoderAttributes.Value;
@@ -272,7 +291,7 @@ namespace Luny.UnityEditor.Media
                 _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.Media.AudioTrackAttributes[]);
                 if (_arg1.TryReadArray<global::UnityEditor.Media.AudioTrackAttributes>(out var _p1_UnityEditor_Media_AudioTrackAttributesArray))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var filePath = _p0_System_String;
                         var audioAttrs = _p1_UnityEditor_Media_AudioTrackAttributesArray;
@@ -318,7 +337,6 @@ namespace Luny.UnityEditor.Media
         {
             switch (_key)
             {
-                case "new": _value = _LuaMediaEncoder_new; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }

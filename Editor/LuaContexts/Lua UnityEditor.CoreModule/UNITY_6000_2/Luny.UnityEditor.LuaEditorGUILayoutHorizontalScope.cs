@@ -25,10 +25,19 @@ namespace Luny.UnityEditor
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -92,10 +101,20 @@ namespace Luny.UnityEditor
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUILayoutHorizontalScope_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -108,11 +127,11 @@ namespace Luny.UnityEditor
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
             if (_arg0.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p0_UnityEngine_GUILayoutOptionArray))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var options = _p0_UnityEngine_GUILayoutOptionArray;
                     var _ret0 = new global::UnityEditor.EditorGUILayout.HorizontalScope(options);
@@ -125,11 +144,11 @@ namespace Luny.UnityEditor
             _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.GUIStyle);
             if (_arg0.TryRead<global::UnityEngine.GUIStyle>(out var _p0_UnityEngine_GUIStyle))
             {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                 if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var style = _p0_UnityEngine_GUIStyle;
                         var options = _p1_UnityEngine_GUILayoutOptionArray;
@@ -175,7 +194,6 @@ namespace Luny.UnityEditor
         {
             switch (_key)
             {
-                case "new": _value = _LuaEditorGUILayoutHorizontalScope_new; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }

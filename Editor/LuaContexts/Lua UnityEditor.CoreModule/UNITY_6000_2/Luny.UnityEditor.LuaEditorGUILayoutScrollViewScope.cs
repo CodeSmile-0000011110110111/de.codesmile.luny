@@ -25,10 +25,19 @@ namespace Luny.UnityEditor
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -94,10 +103,20 @@ namespace Luny.UnityEditor
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUILayoutScrollViewScope_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -110,15 +129,15 @@ namespace Luny.UnityEditor
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Vector2);
             if (_arg0.TryRead<global::UnityEngine.Vector2>(out var _p0_UnityEngine_Vector2))
             {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                 if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
                 {
-                    if (_argCount == 2)
+                    if (_argCount == 3)
                     {
                         var scrollPosition = _p0_UnityEngine_Vector2;
                         var options = _p1_UnityEngine_GUILayoutOptionArray;
@@ -132,11 +151,11 @@ namespace Luny.UnityEditor
                 _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIStyle);
                 if (_arg1.TryRead<global::UnityEngine.GUIStyle>(out var _p1_UnityEngine_GUIStyle))
                 {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                     if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
                     {
-                        if (_argCount == 3)
+                        if (_argCount == 4)
                         {
                             var scrollPosition = _p0_UnityEngine_Vector2;
                             var style = _p1_UnityEngine_GUIStyle;
@@ -151,11 +170,11 @@ namespace Luny.UnityEditor
                     _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUIStyle);
                     if (_arg2.TryRead<global::UnityEngine.GUIStyle>(out var _p2_UnityEngine_GUIStyle))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                         if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
                         {
-                            if (_argCount == 4)
+                            if (_argCount == 5)
                             {
                                 var scrollPosition = _p0_UnityEngine_Vector2;
                                 var horizontalScrollbar = _p1_UnityEngine_GUIStyle;
@@ -173,15 +192,15 @@ namespace Luny.UnityEditor
                 _lastArgPos = 1; _expectedType = typeof(global::System.Boolean);
                 if (_arg1.TryRead<global::System.Boolean>(out var _p1_System_Boolean))
                 {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::System.Boolean);
                     if (_arg2.TryRead<global::System.Boolean>(out var _p2_System_Boolean))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                         if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
                         {
-                            if (_argCount == 4)
+                            if (_argCount == 5)
                             {
                                 var scrollPosition = _p0_UnityEngine_Vector2;
                                 var alwaysShowHorizontal = _p1_System_Boolean;
@@ -197,19 +216,19 @@ namespace Luny.UnityEditor
                         _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUIStyle);
                         if (_arg3.TryRead<global::UnityEngine.GUIStyle>(out var _p3_UnityEngine_GUIStyle))
                         {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUIStyle);
                             if (_arg4.TryRead<global::UnityEngine.GUIStyle>(out var _p4_UnityEngine_GUIStyle))
                             {
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::UnityEngine.GUIStyle);
                                 if (_arg5.TryRead<global::UnityEngine.GUIStyle>(out var _p5_UnityEngine_GUIStyle))
                                 {
-                                    var _arg6 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
+                                    var _arg6 = _lastArg = _argCount > 7 ? _context.GetArgument(7) : global::Lua.LuaValue.Nil;
                                     _lastArgPos = 6; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
                                     if (_arg6.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p6_UnityEngine_GUILayoutOptionArray))
                                     {
-                                        if (_argCount == 7)
+                                        if (_argCount == 8)
                                         {
                                             var scrollPosition = _p0_UnityEngine_Vector2;
                                             var alwaysShowHorizontal = _p1_System_Boolean;
@@ -265,7 +284,6 @@ namespace Luny.UnityEditor
         {
             switch (_key)
             {
-                case "new": _value = _LuaEditorGUILayoutScrollViewScope_new; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }

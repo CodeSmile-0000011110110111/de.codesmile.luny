@@ -9,7 +9,7 @@ namespace Luny.UnityEditor.CoreModule.Internal
     [global::System.Serializable]
     internal sealed class ModuleLoader : global::Luny.LunyLuaModule.Loader
     {
-        public override global::System.String Version => "6000.2.0b13";
+        public override global::System.String Version => "6000.2.0f1";
         public override global::System.String[] GetNamespaceNames() => new global::System.String[]
         {
             "System",

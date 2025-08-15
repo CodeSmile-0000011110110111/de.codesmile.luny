@@ -25,10 +25,19 @@ namespace Luny.UnityEditor.Profiling
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -98,10 +107,20 @@ namespace Luny.UnityEditor.Profiling
         private static global::Lua.LuaTable s_Metatable;
         public global::Lua.LuaTable Metatable
         {
-            get => s_Metatable ??= global::Luny.LuaMetatable.Create(__index, __newindex);
+            get => s_Metatable ??= CreateMetatable();
             set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
         }
         global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaProfilerTimeSampleSelection_new;
+            return metatable;
+        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -114,11 +133,11 @@ namespace Luny.UnityEditor.Profiling
             global::System.Int32 _lastArgPos = default;
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
             _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEditor.Profiling.LuaProfilerTimeSampleSelection);
             if (_arg0.TryRead<global::Luny.UnityEditor.Profiling.LuaProfilerTimeSampleSelection>(out var _p0_UnityEditor_Profiling_ProfilerTimeSampleSelection))
             {
-                if (_argCount == 1)
+                if (_argCount == 2)
                 {
                     var selection = _p0_UnityEditor_Profiling_ProfilerTimeSampleSelection.Instance;
                     var _ret0 = new global::UnityEditor.Profiling.ProfilerTimeSampleSelection(selection);
@@ -131,23 +150,23 @@ namespace Luny.UnityEditor.Profiling
             _lastArgPos = 0; _expectedType = typeof(global::System.Int64);
             if (_arg0.TryRead<global::System.Int64>(out var _p0_System_Int64))
             {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
+                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::System.String);
                 if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
                 {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
+                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
                     _lastArgPos = 2; _expectedType = typeof(global::System.String);
                     if (_arg2.TryRead<global::System.String>(out var _p2_System_String))
                     {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
+                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
                         _lastArgPos = 3; _expectedType = typeof(global::System.UInt64);
                         if (_arg3.TryRead<global::System.UInt64>(out var _p3_System_UInt64))
                         {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
+                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
                             _lastArgPos = 4; _expectedType = typeof(global::System.Int32);
                             if (_arg4.TryRead<global::System.Int32>(out var _p4_System_Int32))
                             {
-                                if (_argCount == 5)
+                                if (_argCount == 6)
                                 {
                                     var frameIndex = _p0_System_Int64;
                                     var threadGroupName = _p1_System_String;
@@ -160,11 +179,11 @@ namespace Luny.UnityEditor.Profiling
                                     var _retCount = _context.Return(_lret0);
                                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                                 }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
+                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
                                 _lastArgPos = 5; _expectedType = typeof(global::System.String);
                                 var _p5_System_String = _arg5.ReadValue<global::System.String>(default);
                                 {
-                                    if (_argCount == 6)
+                                    if (_argCount == 7)
                                     {
                                         var frameIndex = _p0_System_Int64;
                                         var threadGroupName = _p1_System_String;
@@ -218,7 +237,6 @@ namespace Luny.UnityEditor.Profiling
         {
             switch (_key)
             {
-                case "new": _value = _LuaProfilerTimeSampleSelection_new; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }
