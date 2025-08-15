@@ -51,7 +51,7 @@ namespace Luny
 					Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
 				}
 
-				EditorApplication.delayCall += () => SaveAsset();
+				SaveAsset();
 			}
 
 			return m_ModuleLoader;
@@ -59,8 +59,15 @@ namespace Luny
 
 		internal void SaveAsset()
 		{
-			EditorUtility.SetDirty(this);
-			AssetDatabase.SaveAssetIfDirty(this);
+			try
+			{
+				EditorUtility.SetDirty(this);
+				AssetDatabase.SaveAssetIfDirty(this);
+			}
+			catch (MissingReferenceException e)
+			{
+				Debug.LogWarning($"{nameof(LunyLuaModule)} 'missing ref' ignored, probably caused by switching editor versions: {e}");
+			}
 		}
 
 		private T TryInstantiateType<T>(String folderPath, String typeName) where T : class
