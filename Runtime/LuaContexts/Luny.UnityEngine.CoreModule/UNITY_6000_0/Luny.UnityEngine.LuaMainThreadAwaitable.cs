@@ -23,22 +23,6 @@ namespace Luny.UnityEngine
         public global::UnityEngine.MainThreadAwaitable Value { get => m_Value; set => m_Value = value; }
         public ref global::UnityEngine.MainThreadAwaitable ValueRef => ref m_Value;
         public global::System.Type BindType => typeof(global::UnityEngine.MainThreadAwaitable);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Value.ToString();
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -76,27 +60,6 @@ namespace Luny.UnityEngine
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetResult"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaMainThreadAwaitable_OnCompleted = new global::Lua.LuaFunction("OnCompleted", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaMainThreadAwaitable>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.Action);
-            if (_arg0.TryRead<global::System.Action>(out var _p0_System_Action))
-            {
-                if (_argCount == 2)
-                {
-                    var continuation = _p0_System_Action;
-                    _this.m_Value.OnCompleted(continuation);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"OnCompleted"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
         {
             var _this = _context.GetArgument<LuaMainThreadAwaitable>(0);
@@ -120,6 +83,22 @@ namespace Luny.UnityEngine
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -131,7 +110,6 @@ namespace Luny.UnityEngine
             {
                 case "GetAwaiter": _value = _LuaMainThreadAwaitable_GetAwaiter; return true;
                 case "GetResult": _value = _LuaMainThreadAwaitable_GetResult; return true;
-                case "OnCompleted": _value = _LuaMainThreadAwaitable_OnCompleted; return true;
                 case "IsCompleted": _value = new global::Lua.LuaValue(m_Value.IsCompleted); return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
@@ -154,22 +132,6 @@ namespace Luny.UnityEngine
         private LuaMainThreadAwaitableType() {}
         public static implicit operator global::Lua.LuaValue(LuaMainThreadAwaitableType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEngine.MainThreadAwaitable);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -199,6 +161,22 @@ namespace Luny.UnityEngine
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

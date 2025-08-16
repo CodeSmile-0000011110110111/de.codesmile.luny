@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.HandleUtility m_Instance;
         public global::UnityEditor.HandleUtility Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.HandleUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaHandleUtilityType() {}
         public static implicit operator global::Lua.LuaValue(LuaHandleUtilityType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.HandleUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaHandleUtility_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -1127,27 +1110,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RaySnap"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaHandleUtility_RegisterRenderPickingCallback = new global::Lua.LuaFunction("RegisterRenderPickingCallback", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.HandleUtility.RenderPickingCallback);
-            if (_arg0.TryRead<global::UnityEditor.HandleUtility.RenderPickingCallback>(out var _p0_UnityEditor_HandleUtility_RenderPickingCallback))
-            {
-                if (_argCount == 1)
-                {
-                    var renderPickingCallback = _p0_UnityEditor_HandleUtility_RenderPickingCallback;
-                    var _ret0 = global::UnityEditor.HandleUtility.RegisterRenderPickingCallback(renderPickingCallback);
-                    var _lret0 = new global::Lua.LuaValue(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RegisterRenderPickingCallback"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaHandleUtility_Repaint = new global::Lua.LuaFunction("Repaint", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -1161,27 +1123,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"Repaint"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaHandleUtility_UnregisterRenderPickingCallback = new global::Lua.LuaFunction("UnregisterRenderPickingCallback", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.HandleUtility.RenderPickingCallback);
-            if (_arg0.TryRead<global::UnityEditor.HandleUtility.RenderPickingCallback>(out var _p0_UnityEditor_HandleUtility_RenderPickingCallback))
-            {
-                if (_argCount == 1)
-                {
-                    var renderPickingCallback = _p0_UnityEditor_HandleUtility_RenderPickingCallback;
-                    var _ret0 = global::UnityEditor.HandleUtility.UnregisterRenderPickingCallback(renderPickingCallback);
-                    var _lret0 = new global::Lua.LuaValue(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"UnregisterRenderPickingCallback"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaHandleUtility_WorldPointToSizedRect = new global::Lua.LuaFunction("WorldPointToSizedRect", (_context, _) =>
         {
@@ -1299,6 +1240,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaHandleUtility_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -1340,9 +1298,7 @@ namespace LunyEditor.UnityEditor
                 case "ProjectPointLine": _value = _LuaHandleUtility_ProjectPointLine; return true;
                 case "PushCamera": _value = _LuaHandleUtility_PushCamera; return true;
                 case "RaySnap": _value = _LuaHandleUtility_RaySnap; return true;
-                case "RegisterRenderPickingCallback": _value = _LuaHandleUtility_RegisterRenderPickingCallback; return true;
                 case "Repaint": _value = _LuaHandleUtility_Repaint; return true;
-                case "UnregisterRenderPickingCallback": _value = _LuaHandleUtility_UnregisterRenderPickingCallback; return true;
                 case "WorldPointToSizedRect": _value = _LuaHandleUtility_WorldPointToSizedRect; return true;
                 case "WorldToGUIPoint": _value = _LuaHandleUtility_WorldToGUIPoint; return true;
                 case "WorldToGUIPointWithDepth": _value = _LuaHandleUtility_WorldToGUIPointWithDepth; return true;

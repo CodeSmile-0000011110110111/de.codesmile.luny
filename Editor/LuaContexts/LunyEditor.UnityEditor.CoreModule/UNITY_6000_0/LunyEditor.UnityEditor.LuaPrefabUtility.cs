@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.PrefabUtility m_Instance;
         public global::UnityEditor.PrefabUtility Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.PrefabUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaPrefabUtilityType() {}
         public static implicit operator global::Lua.LuaValue(LuaPrefabUtilityType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.PrefabUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaPrefabUtility_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -315,38 +298,6 @@ namespace LunyEditor.UnityEditor
                 }
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ApplyPrefabInstances"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaPrefabUtility_ApplyPropertyOverride = new global::Lua.LuaFunction("ApplyPropertyOverride", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::System.String);
-                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEditor.InteractionMode);
-                    if (_arg2.TryRead<global::UnityEditor.InteractionMode>(out var _p2_UnityEditor_InteractionMode))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var instanceProperty = _p0_UnityEditor_SerializedProperty.Instance;
-                            var assetPath = _p1_System_String;
-                            var action = _p2_UnityEditor_InteractionMode;
-                            global::UnityEditor.PrefabUtility.ApplyPropertyOverride(instanceProperty, assetPath, action);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ApplyPropertyOverride"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaPrefabUtility_ApplyRemovedComponent = new global::Lua.LuaFunction("ApplyRemovedComponent", (_context, _) =>
         {
@@ -1454,32 +1405,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RevertPrefabInstance"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaPrefabUtility_RevertPropertyOverride = new global::Lua.LuaFunction("RevertPropertyOverride", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.InteractionMode);
-                if (_arg1.TryRead<global::UnityEditor.InteractionMode>(out var _p1_UnityEditor_InteractionMode))
-                {
-                    if (_argCount == 2)
-                    {
-                        var instanceProperty = _p0_UnityEditor_SerializedProperty.Instance;
-                        var action = _p1_UnityEditor_InteractionMode;
-                        global::UnityEditor.PrefabUtility.RevertPropertyOverride(instanceProperty, action);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RevertPropertyOverride"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaPrefabUtility_RevertRemovedComponent = new global::Lua.LuaFunction("RevertRemovedComponent", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -1789,6 +1714,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaPrefabUtility_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -1804,7 +1746,6 @@ namespace LunyEditor.UnityEditor
                 case "ApplyObjectOverride": _value = _LuaPrefabUtility_ApplyObjectOverride; return true;
                 case "ApplyPrefabInstance": _value = _LuaPrefabUtility_ApplyPrefabInstance; return true;
                 case "ApplyPrefabInstances": _value = _LuaPrefabUtility_ApplyPrefabInstances; return true;
-                case "ApplyPropertyOverride": _value = _LuaPrefabUtility_ApplyPropertyOverride; return true;
                 case "ApplyRemovedComponent": _value = _LuaPrefabUtility_ApplyRemovedComponent; return true;
                 case "ApplyRemovedGameObject": _value = _LuaPrefabUtility_ApplyRemovedGameObject; return true;
                 case "ConvertToPrefabInstance": _value = _LuaPrefabUtility_ConvertToPrefabInstance; return true;
@@ -1848,7 +1789,6 @@ namespace LunyEditor.UnityEditor
                 case "RevertAddedGameObject": _value = _LuaPrefabUtility_RevertAddedGameObject; return true;
                 case "RevertObjectOverride": _value = _LuaPrefabUtility_RevertObjectOverride; return true;
                 case "RevertPrefabInstance": _value = _LuaPrefabUtility_RevertPrefabInstance; return true;
-                case "RevertPropertyOverride": _value = _LuaPrefabUtility_RevertPropertyOverride; return true;
                 case "RevertRemovedComponent": _value = _LuaPrefabUtility_RevertRemovedComponent; return true;
                 case "RevertRemovedGameObject": _value = _LuaPrefabUtility_RevertRemovedGameObject; return true;
                 case "SaveAsPrefabAsset": _value = _LuaPrefabUtility_SaveAsPrefabAsset; return true;

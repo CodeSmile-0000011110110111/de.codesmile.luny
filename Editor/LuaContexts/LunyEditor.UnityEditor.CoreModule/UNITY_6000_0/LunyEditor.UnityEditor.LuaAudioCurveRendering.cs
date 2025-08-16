@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         protected global::UnityEditor.AudioCurveRendering m_Instance;
         public global::UnityEditor.AudioCurveRendering Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.AudioCurveRendering);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaAudioCurveRenderingType() {}
         public static implicit operator global::Lua.LuaValue(LuaAudioCurveRenderingType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.AudioCurveRendering);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaAudioCurveRendering_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -157,38 +140,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"BeginCurveFrame"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawCurve = new global::Lua.LuaFunction("DrawCurve", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-            if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.AudioCurveRendering.AudioCurveEvaluator);
-                if (_arg1.TryRead<global::UnityEditor.AudioCurveRendering.AudioCurveEvaluator>(out var _p1_UnityEditor_AudioCurveRendering_AudioCurveEvaluator))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                    if (_arg2.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p2_UnityEngine_Color))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var r = _p0_UnityEngine_Rect.Value;
-                            var eval = _p1_UnityEditor_AudioCurveRendering_AudioCurveEvaluator;
-                            var curveColor = _p2_UnityEngine_Color.Value;
-                            global::UnityEditor.AudioCurveRendering.DrawCurve(r, eval, curveColor);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawCurve"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawCurveBackground = new global::Lua.LuaFunction("DrawCurveBackground", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -229,50 +180,6 @@ namespace LunyEditor.UnityEditor
                 }
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawCurveFrame"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawFilledCurve = new global::Lua.LuaFunction("DrawFilledCurve", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-            if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.AudioCurveRendering.AudioCurveAndColorEvaluator);
-                if (_arg1.TryRead<global::UnityEditor.AudioCurveRendering.AudioCurveAndColorEvaluator>(out var _p1_UnityEditor_AudioCurveRendering_AudioCurveAndColorEvaluator))
-                {
-                    if (_argCount == 2)
-                    {
-                        var r = _p0_UnityEngine_Rect.Value;
-                        var eval = _p1_UnityEditor_AudioCurveRendering_AudioCurveAndColorEvaluator;
-                        global::UnityEditor.AudioCurveRendering.DrawFilledCurve(r, eval);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.AudioCurveRendering.AudioCurveEvaluator);
-                if (_arg1.TryRead<global::UnityEditor.AudioCurveRendering.AudioCurveEvaluator>(out var _p1_UnityEditor_AudioCurveRendering_AudioCurveEvaluator))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                    if (_arg2.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p2_UnityEngine_Color))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var r = _p0_UnityEngine_Rect.Value;
-                            var eval = _p1_UnityEditor_AudioCurveRendering_AudioCurveEvaluator;
-                            var curveColor = _p2_UnityEngine_Color.Value;
-                            global::UnityEditor.AudioCurveRendering.DrawFilledCurve(r, eval, curveColor);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawFilledCurve"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawGradientRect = new global::Lua.LuaFunction("DrawGradientRect", (_context, _) =>
         {
@@ -318,58 +225,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawGradientRect"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawMinMaxFilledCurve = new global::Lua.LuaFunction("DrawMinMaxFilledCurve", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-            if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.AudioCurveRendering.AudioMinMaxCurveAndColorEvaluator);
-                if (_arg1.TryRead<global::UnityEditor.AudioCurveRendering.AudioMinMaxCurveAndColorEvaluator>(out var _p1_UnityEditor_AudioCurveRendering_AudioMinMaxCurveAndColorEvaluator))
-                {
-                    if (_argCount == 2)
-                    {
-                        var r = _p0_UnityEngine_Rect.Value;
-                        var eval = _p1_UnityEditor_AudioCurveRendering_AudioMinMaxCurveAndColorEvaluator;
-                        global::UnityEditor.AudioCurveRendering.DrawMinMaxFilledCurve(r, eval);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawMinMaxFilledCurve"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_DrawSymmetricFilledCurve = new global::Lua.LuaFunction("DrawSymmetricFilledCurve", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-            if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.AudioCurveRendering.AudioCurveAndColorEvaluator);
-                if (_arg1.TryRead<global::UnityEditor.AudioCurveRendering.AudioCurveAndColorEvaluator>(out var _p1_UnityEditor_AudioCurveRendering_AudioCurveAndColorEvaluator))
-                {
-                    if (_argCount == 2)
-                    {
-                        var r = _p0_UnityEngine_Rect.Value;
-                        var eval = _p1_UnityEditor_AudioCurveRendering_AudioCurveAndColorEvaluator;
-                        global::UnityEditor.AudioCurveRendering.DrawSymmetricFilledCurve(r, eval);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawSymmetricFilledCurve"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaAudioCurveRendering_EndCurveFrame = new global::Lua.LuaFunction("EndCurveFrame", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -407,6 +262,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaAudioCurveRendering_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -417,13 +289,9 @@ namespace LunyEditor.UnityEditor
             switch (_key)
             {
                 case "BeginCurveFrame": _value = _LuaAudioCurveRendering_BeginCurveFrame; return true;
-                case "DrawCurve": _value = _LuaAudioCurveRendering_DrawCurve; return true;
                 case "DrawCurveBackground": _value = _LuaAudioCurveRendering_DrawCurveBackground; return true;
                 case "DrawCurveFrame": _value = _LuaAudioCurveRendering_DrawCurveFrame; return true;
-                case "DrawFilledCurve": _value = _LuaAudioCurveRendering_DrawFilledCurve; return true;
                 case "DrawGradientRect": _value = _LuaAudioCurveRendering_DrawGradientRect; return true;
-                case "DrawMinMaxFilledCurve": _value = _LuaAudioCurveRendering_DrawMinMaxFilledCurve; return true;
-                case "DrawSymmetricFilledCurve": _value = _LuaAudioCurveRendering_DrawSymmetricFilledCurve; return true;
                 case "EndCurveFrame": _value = _LuaAudioCurveRendering_EndCurveFrame; return true;
                 case "kAudioOrange": _value = global::Luny.UnityEngine.LuaColor.Bind(global::UnityEditor.AudioCurveRendering.kAudioOrange); return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;

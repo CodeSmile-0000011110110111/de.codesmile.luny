@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.EditorGUILayout m_Instance;
         public global::UnityEditor.EditorGUILayout Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.EditorGUILayout);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaEditorGUILayoutType() {}
         public static implicit operator global::Lua.LuaValue(LuaEditorGUILayoutType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.EditorGUILayout);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUILayout_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -832,55 +815,6 @@ namespace LunyEditor.UnityEditor
                     }
                 }
             }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                if (_arg1.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p1_UnityEngine_Color))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-                    if (_arg2.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p2_UnityEngine_Rect))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var color = _p1_UnityEngine_Color.Value;
-                                var ranges = _p2_UnityEngine_Rect.Value;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                global::UnityEditor.EditorGUILayout.CurveField(property, color, ranges, options);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUIContent);
-                        if (_arg3.TryRead<global::UnityEngine.GUIContent>(out var _p3_UnityEngine_GUIContent))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var color = _p1_UnityEngine_Color.Value;
-                                    var ranges = _p2_UnityEngine_Rect.Value;
-                                    var label = _p3_UnityEngine_GUIContent;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.CurveField(property, color, ranges, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"CurveField"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaEditorGUILayout_DelayedDoubleField = new global::Lua.LuaFunction("DelayedDoubleField", (_context, _) =>
@@ -1061,41 +995,6 @@ namespace LunyEditor.UnityEditor
                     }
                 }
             }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
-                {
-                    if (_argCount == 2)
-                    {
-                        var property = _p0_UnityEditor_SerializedProperty.Instance;
-                        var options = _p1_UnityEngine_GUILayoutOptionArray;
-                        global::UnityEditor.EditorGUILayout.DelayedFloatField(property, options);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var label = _p1_UnityEngine_GUIContent;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.DelayedFloatField(property, label, options);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::System.String);
             if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
             {
@@ -1225,41 +1124,6 @@ namespace LunyEditor.UnityEditor
                             var _ret0 = global::UnityEditor.EditorGUILayout.DelayedIntField(value, style, options);
                             var _lret0 = new global::Lua.LuaValue(_ret0);
                             var _retCount = _context.Return(_lret0);
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
-                {
-                    if (_argCount == 2)
-                    {
-                        var property = _p0_UnityEditor_SerializedProperty.Instance;
-                        var options = _p1_UnityEngine_GUILayoutOptionArray;
-                        global::UnityEditor.EditorGUILayout.DelayedIntField(property, options);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var label = _p1_UnityEngine_GUIContent;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.DelayedIntField(property, label, options);
-                            var _retCount = _context.Return();
                             return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                         }
                     }
@@ -1433,41 +1297,6 @@ namespace LunyEditor.UnityEditor
                             var _ret0 = global::UnityEditor.EditorGUILayout.DelayedTextField(text, style, options);
                             var _lret0 = new global::Lua.LuaValue(_ret0);
                             var _retCount = _context.Return(_lret0);
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
-                {
-                    if (_argCount == 2)
-                    {
-                        var property = _p0_UnityEditor_SerializedProperty.Instance;
-                        var options = _p1_UnityEngine_GUILayoutOptionArray;
-                        global::UnityEditor.EditorGUILayout.DelayedTextField(property, options);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var label = _p1_UnityEngine_GUIContent;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.DelayedTextField(property, label, options);
-                            var _retCount = _context.Return();
                             return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                         }
                     }
@@ -3021,55 +2850,6 @@ namespace LunyEditor.UnityEditor
                     }
                 }
             }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContentArray))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::System.Int32[]);
-                    if (_arg2.TryReadArray<global::System.Int32>(out var _p2_System_Int32Array))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var displayedOptions = _p1_UnityEngine_GUIContentArray;
-                                var optionValues = _p2_System_Int32Array;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                global::UnityEditor.EditorGUILayout.IntPopup(property, displayedOptions, optionValues, options);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUIContent);
-                        if (_arg3.TryRead<global::UnityEngine.GUIContent>(out var _p3_UnityEngine_GUIContent))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var displayedOptions = _p1_UnityEngine_GUIContentArray;
-                                    var optionValues = _p2_System_Int32Array;
-                                    var label = _p3_UnityEngine_GUIContent;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.IntPopup(property, displayedOptions, optionValues, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::System.String);
             if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
             {
@@ -3220,75 +3000,6 @@ namespace LunyEditor.UnityEditor
                                 var _lret0 = new global::Lua.LuaValue(_ret0);
                                 var _retCount = _context.Return(_lret0);
                                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                    }
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::System.Int32);
-                if (_arg1.TryRead<global::System.Int32>(out var _p1_System_Int32))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::System.Int32);
-                    if (_arg2.TryRead<global::System.Int32>(out var _p2_System_Int32))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var leftValue = _p1_System_Int32;
-                                var rightValue = _p2_System_Int32;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                global::UnityEditor.EditorGUILayout.IntSlider(property, leftValue, rightValue, options);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::System.String);
-                        if (_arg3.TryRead<global::System.String>(out var _p3_System_String))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var leftValue = _p1_System_Int32;
-                                    var rightValue = _p2_System_Int32;
-                                    var label = _p3_System_String;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.IntSlider(property, leftValue, rightValue, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUIContent);
-                        if (_arg3.TryRead<global::UnityEngine.GUIContent>(out var _p3_UnityEngine_GUIContent))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var leftValue = _p1_System_Int32;
-                                    var rightValue = _p2_System_Int32;
-                                    var label = _p3_UnityEngine_GUIContent;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.IntSlider(property, leftValue, rightValue, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
                             }
                         }
                     }
@@ -4065,78 +3776,6 @@ namespace LunyEditor.UnityEditor
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
             var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
-                {
-                    if (_argCount == 2)
-                    {
-                        var property = _p0_UnityEditor_SerializedProperty.Instance;
-                        var options = _p1_UnityEngine_GUILayoutOptionArray;
-                        global::UnityEditor.EditorGUILayout.ObjectField(property, options);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var label = _p1_UnityEngine_GUIContent;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.ObjectField(property, label, options);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::Luny.ILuaBindType);
-                if (_arg1.TryRead<global::Luny.ILuaBindType>(out var _p1_System_Type))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var objType = _p1_System_Type.BindType;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.ObjectField(property, objType, options);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUIContent);
-                    if (_arg2.TryRead<global::UnityEngine.GUIContent>(out var _p2_UnityEngine_GUIContent))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var objType = _p1_System_Type.BindType;
-                                var label = _p2_UnityEngine_GUIContent;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                global::UnityEditor.EditorGUILayout.ObjectField(property, objType, label, options);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                    }
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaUnityObject);
             if (_arg0.TryRead<global::Luny.UnityEngine.LuaUnityObject>(out var _p0_UnityEngine_Object))
             {
@@ -4737,91 +4376,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"PrefixLabel"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaEditorGUILayout_PropertyField = new global::Lua.LuaFunction("PropertyField", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                if (_arg1.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p1_UnityEngine_GUILayoutOptionArray))
-                {
-                    if (_argCount == 2)
-                    {
-                        var property = _p0_UnityEditor_SerializedProperty.Instance;
-                        var options = _p1_UnityEngine_GUILayoutOptionArray;
-                        var _ret0 = global::UnityEditor.EditorGUILayout.PropertyField(property, options);
-                        var _lret0 = new global::Lua.LuaValue(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::System.Boolean);
-                if (_arg1.TryRead<global::System.Boolean>(out var _p1_System_Boolean))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var includeChildren = _p1_System_Boolean;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            var _ret0 = global::UnityEditor.EditorGUILayout.PropertyField(property, includeChildren, options);
-                            var _lret0 = new global::Lua.LuaValue(_ret0);
-                            var _retCount = _context.Return(_lret0);
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var property = _p0_UnityEditor_SerializedProperty.Instance;
-                            var label = _p1_UnityEngine_GUIContent;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            var _ret0 = global::UnityEditor.EditorGUILayout.PropertyField(property, label, options);
-                            var _lret0 = new global::Lua.LuaValue(_ret0);
-                            var _retCount = _context.Return(_lret0);
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                    _lastArgPos = 2; _expectedType = typeof(global::System.Boolean);
-                    if (_arg2.TryRead<global::System.Boolean>(out var _p2_System_Boolean))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var label = _p1_UnityEngine_GUIContent;
-                                var includeChildren = _p2_System_Boolean;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                var _ret0 = global::UnityEditor.EditorGUILayout.PropertyField(property, label, includeChildren, options);
-                                var _lret0 = new global::Lua.LuaValue(_ret0);
-                                var _retCount = _context.Return(_lret0);
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"PropertyField"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaEditorGUILayout_RectField = new global::Lua.LuaFunction("RectField", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -5144,24 +4698,6 @@ namespace LunyEditor.UnityEditor
                         }
                     }
                 }
-                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                if (_arg1.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p1_UnityEditor_SerializedProperty))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                    if (_arg2.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p2_UnityEngine_GUILayoutOptionArray))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var label = _p0_UnityEngine_GUIContent;
-                            var property = _p1_UnityEditor_SerializedProperty.Instance;
-                            var options = _p2_UnityEngine_GUILayoutOptionArray;
-                            global::UnityEditor.EditorGUILayout.RenderingLayerMaskField(label, property, options);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RenderingLayerMaskField"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
@@ -5255,75 +4791,6 @@ namespace LunyEditor.UnityEditor
                                 var _lret0 = new global::Lua.LuaValue(_ret0);
                                 var _retCount = _context.Return(_lret0);
                                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                    }
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::System.Single);
-                if (_arg1.TryRead<global::System.Single>(out var _p1_System_Single))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::System.Single);
-                    if (_arg2.TryRead<global::System.Single>(out var _p2_System_Single))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                        if (_arg3.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p3_UnityEngine_GUILayoutOptionArray))
-                        {
-                            if (_argCount == 4)
-                            {
-                                var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                var leftValue = _p1_System_Single;
-                                var rightValue = _p2_System_Single;
-                                var options = _p3_UnityEngine_GUILayoutOptionArray;
-                                global::UnityEditor.EditorGUILayout.Slider(property, leftValue, rightValue, options);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::System.String);
-                        if (_arg3.TryRead<global::System.String>(out var _p3_System_String))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var leftValue = _p1_System_Single;
-                                    var rightValue = _p2_System_Single;
-                                    var label = _p3_System_String;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.Slider(property, leftValue, rightValue, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                            }
-                        }
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEngine.GUIContent);
-                        if (_arg3.TryRead<global::UnityEngine.GUIContent>(out var _p3_UnityEngine_GUIContent))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEngine.GUILayoutOption[]);
-                            if (_arg4.TryReadArray<global::UnityEngine.GUILayoutOption>(out var _p4_UnityEngine_GUILayoutOptionArray))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var property = _p0_UnityEditor_SerializedProperty.Instance;
-                                    var leftValue = _p1_System_Single;
-                                    var rightValue = _p2_System_Single;
-                                    var label = _p3_UnityEngine_GUIContent;
-                                    var options = _p4_UnityEngine_GUILayoutOptionArray;
-                                    global::UnityEditor.EditorGUILayout.Slider(property, leftValue, rightValue, label, options);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
                             }
                         }
                     }
@@ -6311,6 +5778,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUILayout_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -6366,7 +5850,6 @@ namespace LunyEditor.UnityEditor
                 case "PasswordField": _value = _LuaEditorGUILayout_PasswordField; return true;
                 case "Popup": _value = _LuaEditorGUILayout_Popup; return true;
                 case "PrefixLabel": _value = _LuaEditorGUILayout_PrefixLabel; return true;
-                case "PropertyField": _value = _LuaEditorGUILayout_PropertyField; return true;
                 case "RectField": _value = _LuaEditorGUILayout_RectField; return true;
                 case "RectIntField": _value = _LuaEditorGUILayout_RectIntField; return true;
                 case "RenderingLayerMaskField": _value = _LuaEditorGUILayout_RenderingLayerMaskField; return true;

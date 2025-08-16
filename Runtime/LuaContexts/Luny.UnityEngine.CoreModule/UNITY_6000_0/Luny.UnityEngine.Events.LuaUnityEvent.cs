@@ -21,49 +21,12 @@ namespace Luny.UnityEngine.Events
         public static implicit operator global::Lua.LuaValue(LuaUnityEvent value) => new(value);
         public new global::UnityEngine.Events.UnityEvent Instance => (global::UnityEngine.Events.UnityEvent)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEngine.Events.UnityEvent);
-        private static global::Lua.LuaTable s_Metatable;
-        public new global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticFields() => s_Metatable = null;
 #endif
 
-        private static readonly global::Lua.LuaFunction _LuaUnityEvent_AddListener = new global::Lua.LuaFunction("AddListener", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaUnityEvent>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Events.UnityAction);
-            if (_arg0.TryRead<global::UnityEngine.Events.UnityAction>(out var _p0_UnityEngine_Events_UnityAction))
-            {
-                if (_argCount == 2)
-                {
-                    var call = _p0_UnityEngine_Events_UnityAction;
-                    _this.Instance.AddListener(call);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AddListener"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaUnityEvent_Invoke = new global::Lua.LuaFunction("Invoke", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -78,27 +41,6 @@ namespace Luny.UnityEngine.Events
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"Invoke"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaUnityEvent_RemoveListener = new global::Lua.LuaFunction("RemoveListener", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaUnityEvent>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEngine.Events.UnityAction);
-            if (_arg0.TryRead<global::UnityEngine.Events.UnityAction>(out var _p0_UnityEngine_Events_UnityAction))
-            {
-                if (_argCount == 2)
-                {
-                    var call = _p0_UnityEngine_Events_UnityAction;
-                    _this.Instance.RemoveListener(call);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RemoveListener"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
         {
@@ -123,6 +65,22 @@ namespace Luny.UnityEngine.Events
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public new global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public override global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -132,9 +90,7 @@ namespace Luny.UnityEngine.Events
         {
             switch (_key)
             {
-                case "AddListener": _value = _LuaUnityEvent_AddListener; return true;
                 case "Invoke": _value = _LuaUnityEvent_Invoke; return true;
-                case "RemoveListener": _value = _LuaUnityEvent_RemoveListener; return true;
                 default: return base.TryGetLuaValue(_key, out _value, _factory);
             }
         }
@@ -156,23 +112,6 @@ namespace Luny.UnityEngine.Events
         private LuaUnityEventType() {}
         public static implicit operator global::Lua.LuaValue(LuaUnityEventType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEngine.Events.UnityEvent);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaUnityEvent_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -218,6 +157,23 @@ namespace Luny.UnityEngine.Events
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaUnityEvent_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

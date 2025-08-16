@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         protected global::UnityEditor.DragAndDrop m_Instance;
         public global::UnityEditor.DragAndDrop Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.DragAndDrop);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaDragAndDropType() {}
         public static implicit operator global::Lua.LuaValue(LuaDragAndDropType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.DragAndDrop);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaDragAndDrop_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -150,59 +133,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AcceptDrag"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaDragAndDrop_AddDropHandler = new global::Lua.LuaFunction("AddDropHandler", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.ProjectBrowserDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.ProjectBrowserDropHandler>(out var _p0_UnityEditor_DragAndDrop_ProjectBrowserDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_ProjectBrowserDropHandler;
-                    global::UnityEditor.DragAndDrop.AddDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.SceneDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.SceneDropHandler>(out var _p0_UnityEditor_DragAndDrop_SceneDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_SceneDropHandler;
-                    global::UnityEditor.DragAndDrop.AddDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.HierarchyDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.HierarchyDropHandler>(out var _p0_UnityEditor_DragAndDrop_HierarchyDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_HierarchyDropHandler;
-                    global::UnityEditor.DragAndDrop.AddDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.InspectorDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.InspectorDropHandler>(out var _p0_UnityEditor_DragAndDrop_InspectorDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_InspectorDropHandler;
-                    global::UnityEditor.DragAndDrop.AddDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"AddDropHandler"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaDragAndDrop_GetGenericData = new global::Lua.LuaFunction("GetGenericData", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -225,33 +155,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetGenericData"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaDragAndDrop_HasHandler = new global::Lua.LuaFunction("HasHandler", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
-            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::System.Delegate);
-                if (_arg1.TryRead<global::System.Delegate>(out var _p1_System_Delegate))
-                {
-                    if (_argCount == 2)
-                    {
-                        var dropDstId = _p0_System_Int32;
-                        var handler = _p1_System_Delegate;
-                        var _ret0 = global::UnityEditor.DragAndDrop.HasHandler(dropDstId, handler);
-                        var _lret0 = new global::Lua.LuaValue(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"HasHandler"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaDragAndDrop_PrepareStartDrag = new global::Lua.LuaFunction("PrepareStartDrag", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -265,59 +168,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"PrepareStartDrag"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaDragAndDrop_RemoveDropHandler = new global::Lua.LuaFunction("RemoveDropHandler", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.ProjectBrowserDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.ProjectBrowserDropHandler>(out var _p0_UnityEditor_DragAndDrop_ProjectBrowserDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_ProjectBrowserDropHandler;
-                    global::UnityEditor.DragAndDrop.RemoveDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.SceneDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.SceneDropHandler>(out var _p0_UnityEditor_DragAndDrop_SceneDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_SceneDropHandler;
-                    global::UnityEditor.DragAndDrop.RemoveDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.HierarchyDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.HierarchyDropHandler>(out var _p0_UnityEditor_DragAndDrop_HierarchyDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_HierarchyDropHandler;
-                    global::UnityEditor.DragAndDrop.RemoveDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.DragAndDrop.InspectorDropHandler);
-            if (_arg0.TryRead<global::UnityEditor.DragAndDrop.InspectorDropHandler>(out var _p0_UnityEditor_DragAndDrop_InspectorDropHandler))
-            {
-                if (_argCount == 1)
-                {
-                    var handler = _p0_UnityEditor_DragAndDrop_InspectorDropHandler;
-                    global::UnityEditor.DragAndDrop.RemoveDropHandler(handler);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RemoveDropHandler"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaDragAndDrop_SetGenericData = new global::Lua.LuaFunction("SetGenericData", (_context, _) =>
         {
@@ -388,6 +238,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaDragAndDrop_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -398,11 +265,8 @@ namespace LunyEditor.UnityEditor
             switch (_key)
             {
                 case "AcceptDrag": _value = _LuaDragAndDrop_AcceptDrag; return true;
-                case "AddDropHandler": _value = _LuaDragAndDrop_AddDropHandler; return true;
                 case "GetGenericData": _value = _LuaDragAndDrop_GetGenericData; return true;
-                case "HasHandler": _value = _LuaDragAndDrop_HasHandler; return true;
                 case "PrepareStartDrag": _value = _LuaDragAndDrop_PrepareStartDrag; return true;
-                case "RemoveDropHandler": _value = _LuaDragAndDrop_RemoveDropHandler; return true;
                 case "SetGenericData": _value = _LuaDragAndDrop_SetGenericData; return true;
                 case "StartDrag": _value = _LuaDragAndDrop_StartDrag; return true;
                 case "activeControlID": _value = new global::Lua.LuaValue(global::UnityEditor.DragAndDrop.activeControlID); return true;

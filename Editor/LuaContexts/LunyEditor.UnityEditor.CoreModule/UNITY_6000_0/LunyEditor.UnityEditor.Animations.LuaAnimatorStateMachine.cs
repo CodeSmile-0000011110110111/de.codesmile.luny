@@ -21,22 +21,6 @@ namespace LunyEditor.UnityEditor.Animations
         public static implicit operator global::Lua.LuaValue(LuaAnimatorStateMachine value) => new(value);
         public new global::UnityEditor.Animations.AnimatorStateMachine Instance => (global::UnityEditor.Animations.AnimatorStateMachine)m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.Animations.AnimatorStateMachine);
-        private static global::Lua.LuaTable s_Metatable;
-        public new global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -292,20 +276,6 @@ namespace LunyEditor.UnityEditor.Animations
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                 }
                 var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.Animations.LuaAnimatorStateMachine);
-                if (_arg1.TryRead<global::LunyEditor.UnityEditor.Animations.LuaAnimatorStateMachine>(out var _p1_UnityEditor_Animations_AnimatorStateMachine))
-                {
-                    if (_argCount == 3)
-                    {
-                        var sourceStateMachine = _p0_UnityEditor_Animations_AnimatorStateMachine.Instance;
-                        var destinationStateMachine = _p1_UnityEditor_Animations_AnimatorStateMachine.Instance;
-                        var _ret0 = _this.Instance.AddStateMachineTransition(sourceStateMachine, destinationStateMachine);
-                        var _factory = _context.GetObjectFactory();
-                        var _lret0 = _factory.Bind(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
                 _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.Animations.LuaAnimatorState);
                 if (_arg1.TryRead<global::LunyEditor.UnityEditor.Animations.LuaAnimatorState>(out var _p1_UnityEditor_Animations_AnimatorState))
                 {
@@ -314,6 +284,20 @@ namespace LunyEditor.UnityEditor.Animations
                         var sourceStateMachine = _p0_UnityEditor_Animations_AnimatorStateMachine.Instance;
                         var destinationState = _p1_UnityEditor_Animations_AnimatorState.Instance;
                         var _ret0 = _this.Instance.AddStateMachineTransition(sourceStateMachine, destinationState);
+                        var _factory = _context.GetObjectFactory();
+                        var _lret0 = _factory.Bind(_ret0);
+                        var _retCount = _context.Return(_lret0);
+                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                    }
+                }
+                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.Animations.LuaAnimatorStateMachine);
+                if (_arg1.TryRead<global::LunyEditor.UnityEditor.Animations.LuaAnimatorStateMachine>(out var _p1_UnityEditor_Animations_AnimatorStateMachine))
+                {
+                    if (_argCount == 3)
+                    {
+                        var sourceStateMachine = _p0_UnityEditor_Animations_AnimatorStateMachine.Instance;
+                        var destinationStateMachine = _p1_UnityEditor_Animations_AnimatorStateMachine.Instance;
+                        var _ret0 = _this.Instance.AddStateMachineTransition(sourceStateMachine, destinationStateMachine);
                         var _factory = _context.GetObjectFactory();
                         var _lret0 = _factory.Bind(_ret0);
                         var _retCount = _context.Return(_lret0);
@@ -554,6 +538,22 @@ namespace LunyEditor.UnityEditor.Animations
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public new global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public override global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -620,23 +620,6 @@ namespace LunyEditor.UnityEditor.Animations
         private LuaAnimatorStateMachineType() {}
         public static implicit operator global::Lua.LuaValue(LuaAnimatorStateMachineType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.Animations.AnimatorStateMachine);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaAnimatorStateMachine_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -682,6 +665,23 @@ namespace LunyEditor.UnityEditor.Animations
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaAnimatorStateMachine_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.LightEditor.Settings m_Instance;
         public global::UnityEditor.LightEditor.Settings Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.LightEditor.Settings);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -148,39 +132,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawCookie"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaLightEditorSettings_DrawCookieProperty = new global::Lua.LuaFunction("DrawCookieProperty", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaLightEditorSettings>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEngine.LightType);
-                    if (_arg2.TryRead<global::UnityEngine.LightType>(out var _p2_UnityEngine_LightType))
-                    {
-                        if (_argCount == 4)
-                        {
-                            var cookieProperty = _p0_UnityEditor_SerializedProperty.Instance;
-                            var content = _p1_UnityEngine_GUIContent;
-                            var cookieLightType = _p2_UnityEngine_LightType;
-                            _this.Instance.DrawCookieProperty(cookieProperty, content, cookieLightType);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawCookieProperty"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaLightEditorSettings_DrawCookieSize = new global::Lua.LuaFunction("DrawCookieSize", (_context, _) =>
         {
@@ -460,6 +411,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -476,7 +443,6 @@ namespace LunyEditor.UnityEditor
                 case "DrawBounceIntensity": _value = _LuaLightEditorSettings_DrawBounceIntensity; return true;
                 case "DrawColor": _value = _LuaLightEditorSettings_DrawColor; return true;
                 case "DrawCookie": _value = _LuaLightEditorSettings_DrawCookie; return true;
-                case "DrawCookieProperty": _value = _LuaLightEditorSettings_DrawCookieProperty; return true;
                 case "DrawCookieSize": _value = _LuaLightEditorSettings_DrawCookieSize; return true;
                 case "DrawCullingMask": _value = _LuaLightEditorSettings_DrawCullingMask; return true;
                 case "DrawFlare": _value = _LuaLightEditorSettings_DrawFlare; return true;
@@ -552,51 +518,12 @@ namespace LunyEditor.UnityEditor
         private LuaLightEditorSettingsType() {}
         public static implicit operator global::Lua.LuaValue(LuaLightEditorSettingsType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.LightEditor.Settings);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaLightEditorSettings_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticFields() => s_Metatable = null;
 #endif
 
-        private static readonly global::Lua.LuaFunction _LuaLightEditorSettings_new = new global::Lua.LuaFunction(".ctor", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedObject);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedObject>(out var _p0_UnityEditor_SerializedObject))
-            {
-                if (_argCount == 2)
-                {
-                    var so = _p0_UnityEditor_SerializedObject.Instance;
-                    var _ret0 = new global::UnityEditor.LightEditor.Settings(so);
-                    var _factory = _context.GetObjectFactory();
-                    var _lret0 = _factory.Bind(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{".ctor"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
         {
             var _this = _context.GetArgument<LuaLightEditorSettingsType>(0);
@@ -620,6 +547,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

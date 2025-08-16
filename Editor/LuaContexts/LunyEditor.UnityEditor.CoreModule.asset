@@ -893,3 +893,4 @@ MonoBehaviour:
   m_MemberBlacklist: []
   m_GenerateOnlyThisType: //UnityEditor.Selection
   m_GenerateOnlyThisMember: //SetActiveObjectWithContext
+  m_IsEditorModule: 1

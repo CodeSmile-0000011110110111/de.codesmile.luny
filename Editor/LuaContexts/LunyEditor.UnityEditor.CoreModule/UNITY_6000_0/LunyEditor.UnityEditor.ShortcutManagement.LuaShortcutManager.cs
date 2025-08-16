@@ -15,22 +15,6 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
         private LuaShortcutManagerType() {}
         public static implicit operator global::Lua.LuaValue(LuaShortcutManagerType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.ShortcutManagement.ShortcutManager);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -44,17 +28,6 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
             var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.String);
-            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
-            {
-                if (_argCount == 1)
-                {
-                    var tag = _p0_System_String;
-                    global::UnityEditor.ShortcutManagement.ShortcutManager.RegisterTag(tag);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::System.Enum);
             if (_arg0.TryRead<global::System.Enum>(out var _p0_System_Enum))
             {
@@ -62,6 +35,17 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
                 {
                     var e = _p0_System_Enum;
                     global::UnityEditor.ShortcutManagement.ShortcutManager.RegisterTag(e);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var tag = _p0_System_String;
+                    global::UnityEditor.ShortcutManagement.ShortcutManager.RegisterTag(tag);
                     var _retCount = _context.Return();
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                 }
@@ -75,17 +59,6 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
             var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.String);
-            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
-            {
-                if (_argCount == 1)
-                {
-                    var tag = _p0_System_String;
-                    global::UnityEditor.ShortcutManagement.ShortcutManager.UnregisterTag(tag);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::System.Enum);
             if (_arg0.TryRead<global::System.Enum>(out var _p0_System_Enum))
             {
@@ -93,6 +66,17 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
                 {
                     var e = _p0_System_Enum;
                     global::UnityEditor.ShortcutManagement.ShortcutManager.UnregisterTag(e);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var tag = _p0_System_String;
+                    global::UnityEditor.ShortcutManagement.ShortcutManager.UnregisterTag(tag);
                     var _retCount = _context.Return();
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                 }
@@ -122,6 +106,22 @@ namespace LunyEditor.UnityEditor.ShortcutManagement
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

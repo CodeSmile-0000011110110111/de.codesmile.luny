@@ -15,22 +15,6 @@ namespace LunyEditor.UnityEditor.EditorTools
         private LuaToolManagerType() {}
         public static implicit operator global::Lua.LuaValue(LuaToolManagerType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.EditorTools.ToolManager);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -148,17 +132,6 @@ namespace LunyEditor.UnityEditor.EditorTools
             global::System.Type _expectedType = default;
             var _argCount = _context.ArgumentCount;
             var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.ILuaBindType);
-            if (_arg0.TryRead<global::Luny.ILuaBindType>(out var _p0_System_Type))
-            {
-                if (_argCount == 1)
-                {
-                    var type = _p0_System_Type.BindType;
-                    global::UnityEditor.EditorTools.ToolManager.SetActiveTool(type);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
             _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.EditorTools.LuaEditorTool);
             if (_arg0.TryRead<global::LunyEditor.UnityEditor.EditorTools.LuaEditorTool>(out var _p0_UnityEditor_EditorTools_EditorTool))
             {
@@ -166,6 +139,17 @@ namespace LunyEditor.UnityEditor.EditorTools
                 {
                     var tool = _p0_UnityEditor_EditorTools_EditorTool.Instance;
                     global::UnityEditor.EditorTools.ToolManager.SetActiveTool(tool);
+                    var _retCount = _context.Return();
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            _lastArgPos = 0; _expectedType = typeof(global::Luny.ILuaBindType);
+            if (_arg0.TryRead<global::Luny.ILuaBindType>(out var _p0_System_Type))
+            {
+                if (_argCount == 1)
+                {
+                    var type = _p0_System_Type.BindType;
+                    global::UnityEditor.EditorTools.ToolManager.SetActiveTool(type);
                     var _retCount = _context.Return();
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
                 }
@@ -195,6 +179,22 @@ namespace LunyEditor.UnityEditor.EditorTools
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

@@ -104,7 +104,7 @@ namespace Luny
 			return default;
 		}
 
-		public void DestroyModuleLoader()
+		public void InvalidateModuleLoader()
 		{
 			m_ModuleLoaderInfo?.Reset();
 			if (IsEditorModule == false)

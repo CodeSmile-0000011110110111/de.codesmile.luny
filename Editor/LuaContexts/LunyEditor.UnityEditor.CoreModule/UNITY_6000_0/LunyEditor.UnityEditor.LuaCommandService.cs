@@ -15,22 +15,6 @@ namespace LunyEditor.UnityEditor
         private LuaCommandServiceType() {}
         public static implicit operator global::Lua.LuaValue(LuaCommandServiceType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.CommandService);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -132,79 +116,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetCommandLabel"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaCommandService_RegisterCommand = new global::Lua.LuaFunction("RegisterCommand", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.String);
-            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEditor.CommandHandler);
-                if (_arg1.TryRead<global::UnityEditor.CommandHandler>(out var _p1_UnityEditor_CommandHandler))
-                {
-                    if (_argCount == 2)
-                    {
-                        var id = _p0_System_String;
-                        var handler = _p1_UnityEditor_CommandHandler;
-                        global::UnityEditor.CommandService.RegisterCommand(id, handler);
-                        var _retCount = _context.Return();
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEditor.CommandHint);
-                    var _p2_UnityEditor_CommandHint = _arg2.ReadValue<global::UnityEditor.CommandHint>(global::UnityEditor.CommandHint.@Any);
-                    {
-                        if (_argCount == 3)
-                        {
-                            var id = _p0_System_String;
-                            var handler = _p1_UnityEditor_CommandHandler;
-                            var hint = _p2_UnityEditor_CommandHint;
-                            global::UnityEditor.CommandService.RegisterCommand(id, handler, hint);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                    }
-                }
-                _lastArgPos = 1; _expectedType = typeof(global::System.String);
-                if (_arg1.TryRead<global::System.String>(out var _p1_System_String))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::UnityEditor.CommandHandler);
-                    if (_arg2.TryRead<global::UnityEditor.CommandHandler>(out var _p2_UnityEditor_CommandHandler))
-                    {
-                        if (_argCount == 3)
-                        {
-                            var id = _p0_System_String;
-                            var label = _p1_System_String;
-                            var handler = _p2_UnityEditor_CommandHandler;
-                            global::UnityEditor.CommandService.RegisterCommand(id, label, handler);
-                            var _retCount = _context.Return();
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::UnityEditor.CommandHint);
-                        var _p3_UnityEditor_CommandHint = _arg3.ReadValue<global::UnityEditor.CommandHint>(global::UnityEditor.CommandHint.@Any);
-                        {
-                            if (_argCount == 4)
-                            {
-                                var id = _p0_System_String;
-                                var label = _p1_System_String;
-                                var handler = _p2_UnityEditor_CommandHandler;
-                                var hint = _p3_UnityEditor_CommandHint;
-                                global::UnityEditor.CommandService.RegisterCommand(id, label, handler, hint);
-                                var _retCount = _context.Return();
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"RegisterCommand"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaCommandService_UnregisterCommand = new global::Lua.LuaFunction("UnregisterCommand", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -249,6 +160,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -261,7 +188,6 @@ namespace LunyEditor.UnityEditor
                 case "Execute": _value = _LuaCommandService_Execute; return true;
                 case "Exists": _value = _LuaCommandService_Exists; return true;
                 case "GetCommandLabel": _value = _LuaCommandService_GetCommandLabel; return true;
-                case "RegisterCommand": _value = _LuaCommandService_RegisterCommand; return true;
                 case "UnregisterCommand": _value = _LuaCommandService_UnregisterCommand; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }

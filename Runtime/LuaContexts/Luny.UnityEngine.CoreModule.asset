@@ -710,3 +710,4 @@ MonoBehaviour:
     - GetEditorName
   m_GenerateOnlyThisType: //UnityEngine.GameObject
   m_GenerateOnlyThisMember: 
+  m_IsEditorModule: 0

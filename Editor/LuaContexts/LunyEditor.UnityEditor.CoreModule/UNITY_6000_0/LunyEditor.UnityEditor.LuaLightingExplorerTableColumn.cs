@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.LightingExplorerTableColumn m_Instance;
         public global::UnityEditor.LightingExplorerTableColumn Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.LightingExplorerTableColumn);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,168 +97,12 @@ namespace LunyEditor.UnityEditor
         private LuaLightingExplorerTableColumnType() {}
         public static implicit operator global::Lua.LuaValue(LuaLightingExplorerTableColumnType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.LightingExplorerTableColumn);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaLightingExplorerTableColumn_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticFields() => s_Metatable = null;
 #endif
 
-        private static readonly global::Lua.LuaFunction _LuaLightingExplorerTableColumn_new = new global::Lua.LuaFunction(".ctor", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.LightingExplorerTableColumn.DataType);
-            if (_arg0.TryRead<global::UnityEditor.LightingExplorerTableColumn.DataType>(out var _p0_UnityEditor_LightingExplorerTableColumn_DataType))
-            {
-                var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::UnityEngine.GUIContent);
-                if (_arg1.TryRead<global::UnityEngine.GUIContent>(out var _p1_UnityEngine_GUIContent))
-                {
-                    if (_argCount == 3)
-                    {
-                        var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                        var headerContent = _p1_UnityEngine_GUIContent;
-                        var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent);
-                        var _factory = _context.GetObjectFactory();
-                        var _lret0 = _factory.Bind(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                    var _arg2 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::System.String);
-                    var _p2_System_String = _arg2.ReadValue<global::System.String>(default);
-                    {
-                        if (_argCount == 4)
-                        {
-                            var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                            var headerContent = _p1_UnityEngine_GUIContent;
-                            var propertyName = _p2_System_String;
-                            var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName);
-                            var _factory = _context.GetObjectFactory();
-                            var _lret0 = _factory.Bind(_ret0);
-                            var _retCount = _context.Return(_lret0);
-                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                        }
-                        var _arg3 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::System.Int32);
-                        var _p3_System_Int32 = _arg3.ReadValue<global::System.Int32>((global::System.Int32)(100));
-                        {
-                            if (_argCount == 5)
-                            {
-                                var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                                var headerContent = _p1_UnityEngine_GUIContent;
-                                var propertyName = _p2_System_String;
-                                var width = _p3_System_Int32;
-                                var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName, width);
-                                var _factory = _context.GetObjectFactory();
-                                var _lret0 = _factory.Bind(_ret0);
-                                var _retCount = _context.Return(_lret0);
-                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                            }
-                            var _arg4 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::UnityEditor.LightingExplorerTableColumn.OnGUIDelegate);
-                            var _p4_UnityEditor_LightingExplorerTableColumn_OnGUIDelegate = _arg4.ReadValue<global::UnityEditor.LightingExplorerTableColumn.OnGUIDelegate>(default);
-                            {
-                                if (_argCount == 6)
-                                {
-                                    var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                                    var headerContent = _p1_UnityEngine_GUIContent;
-                                    var propertyName = _p2_System_String;
-                                    var width = _p3_System_Int32;
-                                    var onGUIDelegate = _p4_UnityEditor_LightingExplorerTableColumn_OnGUIDelegate;
-                                    var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName, width, onGUIDelegate);
-                                    var _factory = _context.GetObjectFactory();
-                                    var _lret0 = _factory.Bind(_ret0);
-                                    var _retCount = _context.Return(_lret0);
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                                var _arg5 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
-                                _lastArgPos = 5; _expectedType = typeof(global::UnityEditor.LightingExplorerTableColumn.ComparePropertiesDelegate);
-                                var _p5_UnityEditor_LightingExplorerTableColumn_ComparePropertiesDelegate = _arg5.ReadValue<global::UnityEditor.LightingExplorerTableColumn.ComparePropertiesDelegate>(default);
-                                {
-                                    if (_argCount == 7)
-                                    {
-                                        var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                                        var headerContent = _p1_UnityEngine_GUIContent;
-                                        var propertyName = _p2_System_String;
-                                        var width = _p3_System_Int32;
-                                        var onGUIDelegate = _p4_UnityEditor_LightingExplorerTableColumn_OnGUIDelegate;
-                                        var compareDelegate = _p5_UnityEditor_LightingExplorerTableColumn_ComparePropertiesDelegate;
-                                        var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName, width, onGUIDelegate, compareDelegate);
-                                        var _factory = _context.GetObjectFactory();
-                                        var _lret0 = _factory.Bind(_ret0);
-                                        var _retCount = _context.Return(_lret0);
-                                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                    }
-                                    var _arg6 = _lastArg = _argCount > 7 ? _context.GetArgument(7) : global::Lua.LuaValue.Nil;
-                                    _lastArgPos = 6; _expectedType = typeof(global::UnityEditor.LightingExplorerTableColumn.CopyPropertiesDelegate);
-                                    var _p6_UnityEditor_LightingExplorerTableColumn_CopyPropertiesDelegate = _arg6.ReadValue<global::UnityEditor.LightingExplorerTableColumn.CopyPropertiesDelegate>(default);
-                                    {
-                                        if (_argCount == 8)
-                                        {
-                                            var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                                            var headerContent = _p1_UnityEngine_GUIContent;
-                                            var propertyName = _p2_System_String;
-                                            var width = _p3_System_Int32;
-                                            var onGUIDelegate = _p4_UnityEditor_LightingExplorerTableColumn_OnGUIDelegate;
-                                            var compareDelegate = _p5_UnityEditor_LightingExplorerTableColumn_ComparePropertiesDelegate;
-                                            var copyDelegate = _p6_UnityEditor_LightingExplorerTableColumn_CopyPropertiesDelegate;
-                                            var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName, width, onGUIDelegate, compareDelegate, copyDelegate);
-                                            var _factory = _context.GetObjectFactory();
-                                            var _lret0 = _factory.Bind(_ret0);
-                                            var _retCount = _context.Return(_lret0);
-                                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                        }
-                                        var _arg7 = _lastArg = _argCount > 8 ? _context.GetArgument(8) : global::Lua.LuaValue.Nil;
-                                        _lastArgPos = 7; _expectedType = typeof(global::System.Int32[]);
-                                        var _p7_System_Int32Array = _arg7.ReadValue<global::System.Int32[]>(default);
-                                        {
-                                            if (_argCount == 9)
-                                            {
-                                                var type = _p0_UnityEditor_LightingExplorerTableColumn_DataType;
-                                                var headerContent = _p1_UnityEngine_GUIContent;
-                                                var propertyName = _p2_System_String;
-                                                var width = _p3_System_Int32;
-                                                var onGUIDelegate = _p4_UnityEditor_LightingExplorerTableColumn_OnGUIDelegate;
-                                                var compareDelegate = _p5_UnityEditor_LightingExplorerTableColumn_ComparePropertiesDelegate;
-                                                var copyDelegate = _p6_UnityEditor_LightingExplorerTableColumn_CopyPropertiesDelegate;
-                                                var dependencyIndices = _p7_System_Int32Array;
-                                                var _ret0 = new global::UnityEditor.LightingExplorerTableColumn(type, headerContent, propertyName, width, onGUIDelegate, compareDelegate, copyDelegate, dependencyIndices);
-                                                var _factory = _context.GetObjectFactory();
-                                                var _lret0 = _factory.Bind(_ret0);
-                                                var _retCount = _context.Return(_lret0);
-                                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{".ctor"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
         {
             var _this = _context.GetArgument<LuaLightingExplorerTableColumnType>(0);
@@ -282,6 +126,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {

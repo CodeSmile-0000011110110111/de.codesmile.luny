@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         private global::UnityEditor.EditorGUIUtility m_Instance;
         public global::UnityEditor.EditorGUIUtility Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.EditorGUIUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -67,6 +51,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -97,23 +97,6 @@ namespace LunyEditor.UnityEditor
         private LuaEditorGUIUtilityType() {}
         public static implicit operator global::Lua.LuaValue(LuaEditorGUIUtilityType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.EditorGUIUtility);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 5);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUIUtility_new;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -224,108 +207,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawColorSwatch"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaEditorGUIUtility_DrawCurveSwatch = new global::Lua.LuaFunction("DrawCurveSwatch", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-            if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEngine.LuaAnimationCurve);
-                if (_arg1.TryRead<global::Luny.UnityEngine.LuaAnimationCurve>(out var _p1_UnityEngine_AnimationCurve))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                    if (_arg2.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p2_UnityEditor_SerializedProperty))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                        if (_arg3.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p3_UnityEngine_Color))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                            if (_arg4.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p4_UnityEngine_Color))
-                            {
-                                if (_argCount == 5)
-                                {
-                                    var position = _p0_UnityEngine_Rect.Value;
-                                    var curve = _p1_UnityEngine_AnimationCurve.Instance;
-                                    var property = _p2_UnityEditor_SerializedProperty.Instance;
-                                    var color = _p3_UnityEngine_Color.Value;
-                                    var bgColor = _p4_UnityEngine_Color.Value;
-                                    global::UnityEditor.EditorGUIUtility.DrawCurveSwatch(position, curve, property, color, bgColor);
-                                    var _retCount = _context.Return();
-                                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                }
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
-                                _lastArgPos = 5; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-                                if (_arg5.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p5_UnityEngine_Rect))
-                                {
-                                    if (_argCount == 6)
-                                    {
-                                        var position = _p0_UnityEngine_Rect.Value;
-                                        var curve = _p1_UnityEngine_AnimationCurve.Instance;
-                                        var property = _p2_UnityEditor_SerializedProperty.Instance;
-                                        var color = _p3_UnityEngine_Color.Value;
-                                        var bgColor = _p4_UnityEngine_Color.Value;
-                                        var curveRanges = _p5_UnityEngine_Rect.Value;
-                                        global::UnityEditor.EditorGUIUtility.DrawCurveSwatch(position, curve, property, color, bgColor, curveRanges);
-                                        var _retCount = _context.Return();
-                                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                    }
-                                }
-                                _lastArgPos = 5; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                                if (_arg5.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p5_UnityEngine_Color))
-                                {
-                                    var _arg6 = _lastArg = _argCount > 6 ? _context.GetArgument(6) : global::Lua.LuaValue.Nil;
-                                    _lastArgPos = 6; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                                    if (_arg6.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p6_UnityEngine_Color))
-                                    {
-                                        if (_argCount == 7)
-                                        {
-                                            var position = _p0_UnityEngine_Rect.Value;
-                                            var curve = _p1_UnityEngine_AnimationCurve.Instance;
-                                            var property = _p2_UnityEditor_SerializedProperty.Instance;
-                                            var color = _p3_UnityEngine_Color.Value;
-                                            var bgColor = _p4_UnityEngine_Color.Value;
-                                            var topFillColor = _p5_UnityEngine_Color.Value;
-                                            var bottomFillColor = _p6_UnityEngine_Color.Value;
-                                            global::UnityEditor.EditorGUIUtility.DrawCurveSwatch(position, curve, property, color, bgColor, topFillColor, bottomFillColor);
-                                            var _retCount = _context.Return();
-                                            return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                        }
-                                        var _arg7 = _lastArg = _argCount > 7 ? _context.GetArgument(7) : global::Lua.LuaValue.Nil;
-                                        _lastArgPos = 7; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-                                        if (_arg7.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p7_UnityEngine_Rect))
-                                        {
-                                            if (_argCount == 8)
-                                            {
-                                                var position = _p0_UnityEngine_Rect.Value;
-                                                var curve = _p1_UnityEngine_AnimationCurve.Instance;
-                                                var property = _p2_UnityEditor_SerializedProperty.Instance;
-                                                var color = _p3_UnityEngine_Color.Value;
-                                                var bgColor = _p4_UnityEngine_Color.Value;
-                                                var topFillColor = _p5_UnityEngine_Color.Value;
-                                                var bottomFillColor = _p6_UnityEngine_Color.Value;
-                                                var curveRanges = _p7_UnityEngine_Rect.Value;
-                                                global::UnityEditor.EditorGUIUtility.DrawCurveSwatch(position, curve, property, color, bgColor, topFillColor, bottomFillColor, curveRanges);
-                                                var _retCount = _context.Return();
-                                                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DrawCurveSwatch"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaEditorGUIUtility_DrawRegionSwatch = new global::Lua.LuaFunction("DrawRegionSwatch", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -337,42 +218,6 @@ namespace LunyEditor.UnityEditor
             if (_arg0.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p0_UnityEngine_Rect))
             {
                 var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                if (_arg1.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p1_UnityEditor_SerializedProperty))
-                {
-                    var _arg2 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
-                    _lastArgPos = 2; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                    if (_arg2.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p2_UnityEditor_SerializedProperty))
-                    {
-                        var _arg3 = _lastArg = _argCount > 3 ? _context.GetArgument(3) : global::Lua.LuaValue.Nil;
-                        _lastArgPos = 3; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                        if (_arg3.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p3_UnityEngine_Color))
-                        {
-                            var _arg4 = _lastArg = _argCount > 4 ? _context.GetArgument(4) : global::Lua.LuaValue.Nil;
-                            _lastArgPos = 4; _expectedType = typeof(global::Luny.UnityEngine.LuaColor);
-                            if (_arg4.TryRead<global::Luny.UnityEngine.LuaColor>(out var _p4_UnityEngine_Color))
-                            {
-                                var _arg5 = _lastArg = _argCount > 5 ? _context.GetArgument(5) : global::Lua.LuaValue.Nil;
-                                _lastArgPos = 5; _expectedType = typeof(global::Luny.UnityEngine.LuaRect);
-                                if (_arg5.TryRead<global::Luny.UnityEngine.LuaRect>(out var _p5_UnityEngine_Rect))
-                                {
-                                    if (_argCount == 6)
-                                    {
-                                        var position = _p0_UnityEngine_Rect.Value;
-                                        var property = _p1_UnityEditor_SerializedProperty.Instance;
-                                        var property2 = _p2_UnityEditor_SerializedProperty.Instance;
-                                        var color = _p3_UnityEngine_Color.Value;
-                                        var bgColor = _p4_UnityEngine_Color.Value;
-                                        var curveRanges = _p5_UnityEngine_Rect.Value;
-                                        global::UnityEditor.EditorGUIUtility.DrawRegionSwatch(position, property, property2, color, bgColor, curveRanges);
-                                        var _retCount = _context.Return();
-                                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 _lastArgPos = 1; _expectedType = typeof(global::Luny.UnityEngine.LuaAnimationCurve);
                 if (_arg1.TryRead<global::Luny.UnityEngine.LuaAnimationCurve>(out var _p1_UnityEngine_AnimationCurve))
                 {
@@ -1267,6 +1112,23 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 5);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.Call] = _LuaEditorGUIUtility_new;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -1279,7 +1141,6 @@ namespace LunyEditor.UnityEditor
                 case "AddCursorRect": _value = _LuaEditorGUIUtility_AddCursorRect; return true;
                 case "CommandEvent": _value = _LuaEditorGUIUtility_CommandEvent; return true;
                 case "DrawColorSwatch": _value = _LuaEditorGUIUtility_DrawColorSwatch; return true;
-                case "DrawCurveSwatch": _value = _LuaEditorGUIUtility_DrawCurveSwatch; return true;
                 case "DrawRegionSwatch": _value = _LuaEditorGUIUtility_DrawRegionSwatch; return true;
                 case "FindTexture": _value = _LuaEditorGUIUtility_FindTexture; return true;
                 case "GetBuiltinSkin": _value = _LuaEditorGUIUtility_GetBuiltinSkin; return true;

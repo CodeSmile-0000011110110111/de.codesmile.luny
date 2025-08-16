@@ -15,22 +15,6 @@ namespace LunyEditor.UnityEditor
         private LuaLightmappingType() {}
         public static implicit operator global::Lua.LuaValue(LuaLightmappingType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.Lightmapping);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -170,22 +154,6 @@ namespace LunyEditor.UnityEditor
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ClearLightingDataAsset"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
-        private static readonly global::Lua.LuaFunction _LuaLightmapping_GetAdditionalBakeDelegate = new global::Lua.LuaFunction("GetAdditionalBakeDelegate", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            if (_argCount == 0)
-            {
-                var _ret0 = global::UnityEditor.Lightmapping.GetAdditionalBakeDelegate();
-                var _factory = _context.GetObjectFactory();
-                var _lret0 = _factory.Bind(_ret0);
-                var _retCount = _context.Return(_lret0);
-                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAdditionalBakeDelegate"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction _LuaLightmapping_GetLightingSettingsForScene = new global::Lua.LuaFunction("GetLightingSettingsForScene", (_context, _) =>
         {
             global::Lua.LuaValue _lastArg = default;
@@ -221,26 +189,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ResetAdditionalBakeDelegate"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaLightmapping_SetAdditionalBakeDelegate = new global::Lua.LuaFunction("SetAdditionalBakeDelegate", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Lightmapping.AdditionalBakeDelegate);
-            if (_arg0.TryRead<global::UnityEditor.Lightmapping.AdditionalBakeDelegate>(out var _p0_UnityEditor_Lightmapping_AdditionalBakeDelegate))
-            {
-                if (_argCount == 1)
-                {
-                    var del = _p0_UnityEditor_Lightmapping_AdditionalBakeDelegate;
-                    global::UnityEditor.Lightmapping.SetAdditionalBakeDelegate(del);
-                    var _retCount = _context.Return();
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"SetAdditionalBakeDelegate"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaLightmapping_SetLightingSettingsForScene = new global::Lua.LuaFunction("SetLightingSettingsForScene", (_context, _) =>
         {
@@ -317,6 +265,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -334,10 +298,8 @@ namespace LunyEditor.UnityEditor
                 case "Clear": _value = _LuaLightmapping_Clear; return true;
                 case "ClearDiskCache": _value = _LuaLightmapping_ClearDiskCache; return true;
                 case "ClearLightingDataAsset": _value = _LuaLightmapping_ClearLightingDataAsset; return true;
-                case "GetAdditionalBakeDelegate": _value = _LuaLightmapping_GetAdditionalBakeDelegate; return true;
                 case "GetLightingSettingsForScene": _value = _LuaLightmapping_GetLightingSettingsForScene; return true;
                 case "ResetAdditionalBakeDelegate": _value = _LuaLightmapping_ResetAdditionalBakeDelegate; return true;
-                case "SetAdditionalBakeDelegate": _value = _LuaLightmapping_SetAdditionalBakeDelegate; return true;
                 case "SetLightingSettingsForScene": _value = _LuaLightmapping_SetLightingSettingsForScene; return true;
                 case "SetLightingSettingsForScenes": _value = _LuaLightmapping_SetLightingSettingsForScenes; return true;
                 case "bakedGI": _value = new global::Lua.LuaValue(global::UnityEditor.Lightmapping.bakedGI); return true;

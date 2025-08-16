@@ -22,22 +22,6 @@ namespace LunyEditor.UnityEditor
         protected global::UnityEditor.SerializedProperty m_Instance;
         public global::UnityEditor.SerializedProperty Instance => m_Instance;
         public new global::System.Type BindType => typeof(global::UnityEditor.SerializedProperty);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -58,23 +42,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"ClearArray"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_Copy = new global::Lua.LuaFunction("Copy", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaSerializedProperty>(0);
-            if (_argCount == 1)
-            {
-                var _ret0 = _this.Instance.Copy();
-                var _factory = _context.GetObjectFactory();
-                var _lret0 = _factory.Bind(_ret0);
-                var _retCount = _context.Return(_lret0);
-                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"Copy"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaSerializedProperty_CountInProperty = new global::Lua.LuaFunction("CountInProperty", (_context, _) =>
         {
@@ -175,106 +142,6 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
             }
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DuplicateCommand"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_FindPropertyRelative = new global::Lua.LuaFunction("FindPropertyRelative", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaSerializedProperty>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.String);
-            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
-            {
-                if (_argCount == 2)
-                {
-                    var relativePropertyPath = _p0_System_String;
-                    var _ret0 = _this.Instance.FindPropertyRelative(relativePropertyPath);
-                    var _factory = _context.GetObjectFactory();
-                    var _lret0 = _factory.Bind(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"FindPropertyRelative"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_GetArrayElementAtIndex = new global::Lua.LuaFunction("GetArrayElementAtIndex", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaSerializedProperty>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
-            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
-            {
-                if (_argCount == 2)
-                {
-                    var index = _p0_System_Int32;
-                    var _ret0 = _this.Instance.GetArrayElementAtIndex(index);
-                    var _factory = _context.GetObjectFactory();
-                    var _lret0 = _factory.Bind(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetArrayElementAtIndex"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_GetEndProperty = new global::Lua.LuaFunction("GetEndProperty", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaSerializedProperty>(0);
-            if (_argCount == 1)
-            {
-                var _ret0 = _this.Instance.GetEndProperty();
-                var _factory = _context.GetObjectFactory();
-                var _lret0 = _factory.Bind(_ret0);
-                var _retCount = _context.Return(_lret0);
-                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-            }
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.Boolean);
-            if (_arg0.TryRead<global::System.Boolean>(out var _p0_System_Boolean))
-            {
-                if (_argCount == 2)
-                {
-                    var includeInvisible = _p0_System_Boolean;
-                    var _ret0 = _this.Instance.GetEndProperty(includeInvisible);
-                    var _factory = _context.GetObjectFactory();
-                    var _lret0 = _factory.Bind(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetEndProperty"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_GetFixedBufferElementAtIndex = new global::Lua.LuaFunction("GetFixedBufferElementAtIndex", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _this = _context.GetArgument<LuaSerializedProperty>(0);
-            var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::System.Int32);
-            if (_arg0.TryRead<global::System.Int32>(out var _p0_System_Int32))
-            {
-                if (_argCount == 2)
-                {
-                    var index = _p0_System_Int32;
-                    var _ret0 = _this.Instance.GetFixedBufferElementAtIndex(index);
-                    var _factory = _context.GetObjectFactory();
-                    var _lret0 = _factory.Bind(_ret0);
-                    var _retCount = _context.Return(_lret0);
-                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetFixedBufferElementAtIndex"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
         });
         private static readonly global::Lua.LuaFunction _LuaSerializedProperty_InsertArrayElementAtIndex = new global::Lua.LuaFunction("InsertArrayElementAtIndex", (_context, _) =>
         {
@@ -407,6 +274,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public virtual global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -417,17 +300,12 @@ namespace LunyEditor.UnityEditor
             switch (_key)
             {
                 case "ClearArray": _value = _LuaSerializedProperty_ClearArray; return true;
-                case "Copy": _value = _LuaSerializedProperty_Copy; return true;
                 case "CountInProperty": _value = _LuaSerializedProperty_CountInProperty; return true;
                 case "CountRemaining": _value = _LuaSerializedProperty_CountRemaining; return true;
                 case "DeleteArrayElementAtIndex": _value = _LuaSerializedProperty_DeleteArrayElementAtIndex; return true;
                 case "DeleteCommand": _value = _LuaSerializedProperty_DeleteCommand; return true;
                 case "Dispose": _value = _LuaSerializedProperty_Dispose; return true;
                 case "DuplicateCommand": _value = _LuaSerializedProperty_DuplicateCommand; return true;
-                case "FindPropertyRelative": _value = _LuaSerializedProperty_FindPropertyRelative; return true;
-                case "GetArrayElementAtIndex": _value = _LuaSerializedProperty_GetArrayElementAtIndex; return true;
-                case "GetEndProperty": _value = _LuaSerializedProperty_GetEndProperty; return true;
-                case "GetFixedBufferElementAtIndex": _value = _LuaSerializedProperty_GetFixedBufferElementAtIndex; return true;
                 case "InsertArrayElementAtIndex": _value = _LuaSerializedProperty_InsertArrayElementAtIndex; return true;
                 case "MoveArrayElement": _value = _LuaSerializedProperty_MoveArrayElement; return true;
                 case "Next": _value = _LuaSerializedProperty_Next; return true;
@@ -546,82 +424,12 @@ namespace LunyEditor.UnityEditor
         private LuaSerializedPropertyType() {}
         public static implicit operator global::Lua.LuaValue(LuaSerializedPropertyType value) => new(value);
         public global::System.Type BindType => typeof(global::UnityEditor.SerializedProperty);
-        private static global::Lua.LuaTable s_Metatable;
-        public global::Lua.LuaTable Metatable
-        {
-            get => s_Metatable ??= CreateMetatable();
-            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
-        }
-        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
-        private static global::Lua.LuaTable CreateMetatable()
-        {
-            var metatable = new global::Lua.LuaTable(0, 4);
-            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
-            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
-            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
-            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
-            return metatable;
-        }
         public override global::System.String ToString() => BindType.FullName;
 #if UNITY_EDITOR
         [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticFields() => s_Metatable = null;
 #endif
 
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_DataEquals = new global::Lua.LuaFunction("DataEquals", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                if (_arg1.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p1_UnityEditor_SerializedProperty))
-                {
-                    if (_argCount == 2)
-                    {
-                        var x = _p0_UnityEditor_SerializedProperty.Instance;
-                        var y = _p1_UnityEditor_SerializedProperty.Instance;
-                        var _ret0 = global::UnityEditor.SerializedProperty.DataEquals(x, y);
-                        var _lret0 = new global::Lua.LuaValue(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"DataEquals"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
-        private static readonly global::Lua.LuaFunction _LuaSerializedProperty_EqualContents = new global::Lua.LuaFunction("EqualContents", (_context, _) =>
-        {
-            global::Lua.LuaValue _lastArg = default;
-            global::System.Int32 _lastArgPos = default;
-            global::System.Type _expectedType = default;
-            var _argCount = _context.ArgumentCount;
-            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p0_UnityEditor_SerializedProperty))
-            {
-                var _arg1 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-                _lastArgPos = 1; _expectedType = typeof(global::LunyEditor.UnityEditor.LuaSerializedProperty);
-                if (_arg1.TryRead<global::LunyEditor.UnityEditor.LuaSerializedProperty>(out var _p1_UnityEditor_SerializedProperty))
-                {
-                    if (_argCount == 2)
-                    {
-                        var x = _p0_UnityEditor_SerializedProperty.Instance;
-                        var y = _p1_UnityEditor_SerializedProperty.Instance;
-                        var _ret0 = global::UnityEditor.SerializedProperty.EqualContents(x, y);
-                        var _lret0 = new global::Lua.LuaValue(_ret0);
-                        var _retCount = _context.Return(_lret0);
-                        return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
-                    }
-                }
-            }
-            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"EqualContents"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
-        });
         private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
         {
             var _this = _context.GetArgument<LuaSerializedPropertyType>(0);
@@ -645,6 +453,22 @@ namespace LunyEditor.UnityEditor
                 return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
             throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
         });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
 
         public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
         {
@@ -654,8 +478,6 @@ namespace LunyEditor.UnityEditor
         {
             switch (_key)
             {
-                case "DataEquals": _value = _LuaSerializedProperty_DataEquals; return true;
-                case "EqualContents": _value = _LuaSerializedProperty_EqualContents; return true;
                 default: _value = global::Lua.LuaValue.Nil; return false;
             }
         }
