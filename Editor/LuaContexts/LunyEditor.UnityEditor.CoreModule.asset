@@ -891,14 +891,5 @@ MonoBehaviour:
   - UnityEditor.HierarchyProperty
   - UnityEditor.Handles
   m_MemberBlacklist: []
-  m_ModuleLoader:
-    rid: 3323316026579353758
   m_GenerateOnlyThisType: //UnityEditor.Selection
   m_GenerateOnlyThisMember: //SetActiveObjectWithContext
-  m_ModuleLoaderVersion: 6000.0.35f1
-  references:
-    version: 2
-    RefIds:
-    - rid: 3323316026579353758
-      type: {class: ModuleLoader, ns: LunyEditor.UnityEditor.CoreModule.Internal, asm: LunyEditor.UnityEditor.CoreModule}
-      data: 

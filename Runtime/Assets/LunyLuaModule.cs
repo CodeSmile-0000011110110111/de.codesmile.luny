@@ -33,6 +33,16 @@ namespace Luny
 		public String[] BlacklistedMemberNames;
 	}
 
+	[Serializable]
+	internal sealed class LuaModuleLoaderInfo
+	{
+		public String AssemblyName;
+		public String LoaderVersion;
+		public Int32 LoaderHash;
+		[SerializeReference] public LunyLuaModule.Loader Loader;
+		public override String ToString() => $"LuaModuleLoader for {AssemblyName}: {Loader} ({LoaderHash}, version: {LoaderVersion})";
+	}
+
 	[CreateAssetMenu(fileName = "New LuaModule", menuName = "Luny/Lua Module", order = 101)]
 	[Icon("Packages/de.codesmile.luny/Editor/Resources/LunyLuaModuleIcon.png")]
 	public sealed partial class LunyLuaModule : ScriptableObject
@@ -45,8 +55,8 @@ namespace Luny
 		[SerializeField] internal String[] m_TypeBlacklist = Array.Empty<String>();
 		[SerializeField] internal GenMemberFilter[] m_MemberBlacklist = Array.Empty<GenMemberFilter>();
 
-		// serialized for runtime, but hidden in Inspector because these are automated
-		[SerializeReference] [HideInInspector] private Loader m_ModuleLoader;
+		// serialized for runtime in RuntimeAssetRegistry
+		private LuaModuleLoaderInfo m_ModuleLoaderInfo;
 
 		internal String AssemblyName => m_AssemblyName;
 		internal String[] NamespaceWhitelist => m_NamespaceWhitelist;
@@ -55,12 +65,24 @@ namespace Luny
 		internal String[] TypeBlacklist => m_TypeBlacklist;
 		internal GenMemberFilter[] MemberBlacklist => m_MemberBlacklist;
 
-		internal Loader ModuleLoader => m_ModuleLoader ??= TryInstantiateModuleLoader();
+		internal Loader ModuleLoader
+		{
+			get
+			{
+				if (m_ModuleLoaderInfo == null)
+					m_ModuleLoaderInfo = LunyRuntimeAssetRegistry.Singleton.GetRuntimeModuleLoader(AssemblyName);
 
-		internal Loader TryInstantiateModuleLoader()
+				if (m_ModuleLoaderInfo?.Loader == null)
+					TryInstantiateModuleLoader();
+
+				return m_ModuleLoaderInfo?.Loader;
+			}
+		}
+
+		internal void TryInstantiateModuleLoader()
 		{
 #if UNITY_EDITOR
-			return TryInstantiateModuleLoaderEditorOnly();
+			TryInstantiateModuleLoaderEditorOnly();
 #else
 			throw new NullReferenceException($"{name}: missing module loader");
 #endif

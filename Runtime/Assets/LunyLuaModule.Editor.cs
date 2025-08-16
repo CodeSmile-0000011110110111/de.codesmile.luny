@@ -21,7 +21,6 @@ namespace Luny
 		[SerializeField] internal String m_GenerateOnlyThisType;
 		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
 		[SerializeField] internal String m_GenerateOnlyThisMember;
-		[SerializeField] [ReadOnlyField] private String m_ModuleLoaderVersion;
 
 		internal String ModuleLoaderNamespace => $"{BindingsAssemblyName}.Internal";
 		internal String ModuleLoaderTypeFullName => $"{ModuleLoaderNamespace}.{ModuleLoaderClassName}";
@@ -37,15 +36,7 @@ namespace Luny
 			}
 		}
 
-		private void Awake()
-		{
-			Debug.Log($"{name}: Awake");
-			SerializationUtility.ClearAllManagedReferencesWithMissingTypes(this);
-			ClearGeneratedTypeReferences();
-			TryInstantiateModuleLoaderEditorOnly();
-		}
-
-		private void OnEnable() => Debug.Log($"{name}: OnEnable");
+		private void Awake() => TryInstantiateModuleLoaderEditorOnly();
 
 		internal String GetContentRootFolderPath() => Path.ChangeExtension(AssetDatabase.GetAssetPath(this), null);
 
@@ -53,33 +44,34 @@ namespace Luny
 
 		internal Boolean ContentVersionFolderExists() => Directory.Exists(GetContentVersionFolderPath());
 
-		internal Loader TryInstantiateModuleLoaderEditorOnly()
+		internal void TryInstantiateModuleLoaderEditorOnly()
 		{
-			var prevLoader = m_ModuleLoader;
-			var needsSaving = false;
+			m_ModuleLoaderInfo = null;
 
 			if (ContentVersionFolderExists())
 			{
 				var folderPath = GetContentVersionFolderPath();
 				var newInstance = TryInstantiateType<Loader>(folderPath, ModuleLoaderTypeFullName);
-				if (newInstance != null && (m_ModuleLoader == null || newInstance.Version != m_ModuleLoader.Version))
+				if (newInstance != null)
 				{
-					m_ModuleLoader = newInstance;
-					needsSaving = true;
+					m_ModuleLoaderInfo = new LuaModuleLoaderInfo
+					{
+						AssemblyName = AssemblyName,
+						LoaderVersion = newInstance.Version,
+						LoaderHash = newInstance.GetHashCode(),
+						Loader = newInstance,
+					};
+
+					if (IsEditorModule == false)
+					{
+						var assetRegistry = LunyRuntimeAssetRegistry.Singleton;
+						assetRegistry.SetRuntimeModuleLoader(m_ModuleLoaderInfo);
+						assetRegistry.Save();
+					}
+
+					Debug.Log($"{name}: Instantiated {m_ModuleLoaderInfo}");
 				}
 			}
-
-			var prevVersion = m_ModuleLoaderVersion;
-			m_ModuleLoaderVersion = m_ModuleLoader != null ? m_ModuleLoader.Version : "";
-
-			// delayed to avoid "Import Error Code:(4)" warning spam
-			if (needsSaving)
-				EditorApplication.delayCall += () => SaveAsset();
-
-			if (m_ModuleLoader != null && (m_ModuleLoader != prevLoader || m_ModuleLoaderVersion != prevVersion))
-				Debug.Log($"{name}: Instantiated {m_ModuleLoader}, version {m_ModuleLoaderVersion}, hash: {m_ModuleLoader.GetHashCode()}");
-
-			return m_ModuleLoader;
 		}
 
 		internal void SaveAsset()
@@ -111,12 +103,6 @@ namespace Luny
 			}
 
 			return default;
-		}
-
-		internal void ClearGeneratedTypeReferences()
-		{
-			m_ModuleLoader = null;
-			m_ModuleLoaderVersion = null;
 		}
 	}
 }

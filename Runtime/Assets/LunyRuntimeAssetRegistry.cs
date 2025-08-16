@@ -3,6 +3,7 @@
 
 using Luny.Core;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace Luny
 		LunyLuaAsset GetModdingLuaAsset(String assetPath);
 	}
 
+
 	/// <summary>
 	/// Maintains a list of project-wide LuaAsset (*.lua) assets in support of 'load bundled script by name/path'.
 	/// </summary>
@@ -28,6 +30,7 @@ namespace Luny
 		[Header("Fully automated registry (read-only)")]
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_RuntimeContext;
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
+		[SerializeField] [ReadOnlyField] private List<LuaModuleLoaderInfo> m_RuntimeModuleLoaders = new();
 
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeAutoRunLuaAssets = new();
 		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
@@ -68,6 +71,32 @@ namespace Luny
 		{
 			s_Singleton = null;
 			s_SingletonAssigned = false;
+		}
+
+		internal LuaModuleLoaderInfo GetRuntimeModuleLoader(string moduleAssemblyName)
+		{
+			foreach (var moduleLoader in m_RuntimeModuleLoaders)
+			{
+				if (moduleLoader.AssemblyName == moduleAssemblyName && moduleLoader.Loader != null)
+					return moduleLoader;
+			}
+			return null;
+		}
+
+		internal void SetRuntimeModuleLoader(LuaModuleLoaderInfo luaModuleLoaderInfo)
+		{
+			// try replace existing first
+			for (var i = 0; i < m_RuntimeModuleLoaders.Count; i++)
+			{
+				if (m_RuntimeModuleLoaders[i].AssemblyName == luaModuleLoaderInfo.AssemblyName)
+				{
+					m_RuntimeModuleLoaders[i] = luaModuleLoaderInfo;
+					return;
+				}
+			}
+
+			// otherwise add it
+			m_RuntimeModuleLoaders.Add(luaModuleLoaderInfo);
 		}
 
 		public LunyLuaAsset GetRuntimeLuaAsset(String assetPath)

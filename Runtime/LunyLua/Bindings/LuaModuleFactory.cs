@@ -37,8 +37,6 @@ namespace Luny
 			var marker = new ProfilerMarker(ProfilerCategory.Scripts, moduleLoader.GetType().Name);
 			marker.Begin();
 
-			Debug.Log($"LoadModule: {module.name} with loader {moduleLoader}, version {moduleLoader.Version}, hash: {moduleLoader.GetHashCode()}");
-
 			var namespaceNames = moduleLoader.GetNamespaceNames();
 			var namespaceParts = moduleLoader.GetNamespaceParts();
 			LoadModuleNamespaces(luaNamespaces, namespaceNames, namespaceParts);
