@@ -138,7 +138,6 @@ namespace LunyEditor.UnityEditor.CoreModule.Internal
             typeof(global::UnityEditor.AndroidBlitType),
             typeof(global::UnityEditor.AndroidBuildSystem),
             typeof(global::UnityEditor.AndroidBuildType),
-            typeof(global::UnityEditor.AndroidCreateSymbols),
             typeof(global::UnityEditor.AndroidETC2FallbackOverride),
             typeof(global::UnityEditor.AndroidGamepadSupportLevel),
             typeof(global::UnityEditor.AndroidPreferredInstallLocation),

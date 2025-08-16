@@ -93,7 +93,6 @@ MonoBehaviour:
   - UnityEditor.AndroidBlitType
   - UnityEditor.AndroidBuildSystem
   - UnityEditor.AndroidBuildType
-  - UnityEditor.AndroidCreateSymbols
   - UnityEditor.AndroidDeviceFilterData
   - UnityEditor.AndroidETC2FallbackOverride
   - UnityEditor.AndroidGamepadSupportLevel
@@ -888,8 +887,9 @@ MonoBehaviour:
   - UnityEngine.LightTransport.PostProcessing.RadeonRaysProbePostProcessor
   - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
   m_TypeBlacklist:
-  - UnityEditor.HierarchyProperty
+  - UnityEditor.AndroidCreateSymbols
   - UnityEditor.Handles
+  - UnityEditor.HierarchyProperty
   m_MemberBlacklist: []
   m_GenerateOnlyThisType: //UnityEditor.Selection
   m_GenerateOnlyThisMember: //SetActiveObjectWithContext
