@@ -14,7 +14,6 @@ namespace LunyEditor.Core
 {
 	public static class EditorAssetUtil
 	{
-		private static CompilationAssembly[] s_Assemblies;
 		private static readonly Int32 s_DllStringLength = ".dll".Length;
 
 		public static Boolean IsFolder(String assetPath) => AssetDatabase.IsValidFolder(assetPath);
@@ -53,7 +52,7 @@ namespace LunyEditor.Core
 				// strip ".dll" from name
 				assemblyName = assemblyName.Substring(0, assemblyName.Length - s_DllStringLength);
 
-				foreach (var assembly in s_Assemblies)
+				foreach (var assembly in CompilationPipeline.GetAssemblies())
 				{
 					if ((assembly.flags & AssemblyFlags.EditorAssembly) != 0 && assemblyName.Equals(assembly.name))
 						return true;
@@ -92,8 +91,5 @@ namespace LunyEditor.Core
 
 		public static String GetFullPathFromAssetPath(String assetPath) =>
 			Path.GetFullPath($"{Application.dataPath}/../{assetPath}").ToForwardSlashes();
-
-		[InitializeOnLoadMethod]
-		private static void OnLoad() => s_Assemblies = CompilationPipeline.GetAssemblies();
 	}
 }
