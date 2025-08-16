@@ -21,22 +21,21 @@ namespace Luny
 		[SerializeField] internal String m_GenerateOnlyThisType;
 		[Tooltip("If OnlyThisType is set will only generate bindings for this method (including overloads).")]
 		[SerializeField] internal String m_GenerateOnlyThisMember;
+		[SerializeField] internal Boolean m_IsEditorModule;
 
 		internal String ModuleLoaderNamespace => $"{BindingsAssemblyName}.Internal";
 		internal String ModuleLoaderTypeFullName => $"{ModuleLoaderNamespace}.{ModuleLoaderClassName}";
 		internal String BindingsAssemblyName => $"Luny{(IsEditorModule ? "Editor" : "")}.{m_AssemblyName}";
 		internal String ScriptingDefineSymbol => BindingsAssemblyName.Replace('.', '_').ToUpper();
+		internal Boolean IsEditorModule => m_IsEditorModule;
 
-		internal Boolean IsEditorModule
+		private void Awake()
 		{
-			get
-			{
-				var modulePath = AssetDatabase.GetAssetPath(this);
-				return EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath);
-			}
-		}
+			var modulePath = AssetDatabase.GetAssetPath(this);
+			m_IsEditorModule = EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath);
 
-		private void Awake() => TryInstantiateModuleLoaderEditorOnly();
+			TryInstantiateModuleLoaderEditorOnly();
+		}
 
 		internal String GetContentRootFolderPath() => Path.ChangeExtension(AssetDatabase.GetAssetPath(this), null);
 
@@ -103,6 +102,13 @@ namespace Luny
 			}
 
 			return default;
+		}
+
+		public void DestroyModuleLoader()
+		{
+			m_ModuleLoaderInfo?.Reset();
+			if (IsEditorModule == false)
+				LunyRuntimeAssetRegistry.Singleton.Save();
 		}
 	}
 }

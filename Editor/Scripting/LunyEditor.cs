@@ -69,7 +69,8 @@ namespace LunyEditor
 		// OnEnable runs after every domain reload (including project load)
 		private void OnEnable()
 		{
-			Debug.Log($"{nameof(LunyEditor)}: OnEnable");
+			//Debug.Log("LunyEditor: OnEnable");
+
 			m_IsReloadingDomain = false;
 			var registry = LunyEditorAssetRegistry.Singleton;
 			registry.OnEditorContextChanged += OnEditorContextChanged;
