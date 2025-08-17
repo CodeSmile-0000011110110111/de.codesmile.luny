@@ -1,15 +1,121 @@
 [![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# Lua in Unity - Editor and Runtime Scripting
+# Unity Realtime Scripting
 
-Use Lua in Unity for everything. Just like C#, except there's no delays.
+#### Program anything in Lua - Editor and Runtime scripting for all platforms
 
-Luny reloads scripts on save, instantly. Glance at the changes in editor or build while your code editor remains in focus!
+## Are you iterating or still compiling?
 
-*Are you iterating or still compiling?*
+Luny hot reloads a script the moment it changed on disk. You remain focused in the code editor, merely glancing at the immediate effect of your changes in the Editor or build window.
 
-# Simple Example
-A Unity Editor utility script that automatically opens new Scene assets. 
+Simple runtime script example for context:
+```
+local context = ...
+
+context.Awake = function()
+    -- create an instance from a Inspector assigned prefab
+    context.go = Object.Instantiate(context.InspectorPrefab)
+end
+
+context.Update = function()
+    -- make it move slowly to the right
+    local pos = context.go.transform.position
+    pos = pos + Vector3(0.02, 0, 0)
+    context.go.transform.position = pos
+end
+```
+
+For hot reload you only need to consider some housekeeping. Like not instantiating 'go' anew every time. Instantiate only when it does not exist, or destroy it when the script 'unloads':
+```
+context.OnScriptUnload = function()
+    Object.Destroy(context.go)
+end
+```
+## Luny 0.5 Features
+
+- Full Unity API available with more to come ...
+- Instant script reload: no compiling, no domain reload.
+- Bind custom objects with value get/set either automatic via reflection or by writing binding methods.
+- Inspector editing of 'context' values
+- Sandboxing prevents runtime scripts from accessing potentially destructive APIs.
+- Lua function calls are fully async-awaitable
+- Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
+- Compatible with all Editor and Runtime platforms.
+- Compatible with _Auto-Refresh_ and _Enter PlayMode_ options.
+- Supported and maintained, built with passion and dedication
+
+Visit [LunyScript.com](https://lunyscript.com) for more info.
+
+### Limitations
+
+Version 0.5 (alpha) has some ways to go. I will focus on solidifying Editor scripting first, then turn to Runtime scripting which is functional but lacks critical features.
+
+Major areas of work:
+
+- Documentation
+- More editor functionality
+- Essential 'System' namespace types (eg File/Path, String, Collections)
+- Essential runtime features (eg execute scripts when instantiating, coroutines, ..)
+- Improve Lua interoperation with C#/Inspector and custom object binding
+- Improve bindings generator (generic T, ref/out, tuples, operators, more collections)
+- Expose more Unity assemblies/packages, eg Input, Cinemachine, Physics, etc
+
+Please don't hesitate to send requests and to report any issues!
+
+## Requirements: Unity 6000.0.35f1 or newer
+
+Since Luny is a new project and I'm just a crazy solo developer, I do not wish to spend time on supporting already out-of-support Unity versions.
+
+I promise to maintain support for 6.0 LTS until at least October 2027: the end of life of Unity 6.0 LTS for Enterprise/Industry customers.
+
+## MIT License
+
+[![License: MIT](https://cdn.prod.website-files.com/5e0f1144930a8bc8aace526c/65dd9eb5aaca434fac4f1c34_License-MIT-blue.svg)](/LICENSE)
+.. as I wish to keep it free and open!
+
+If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I continue to pour my worklife-balance into improving Luny!
+
+## Installing Luny
+
+In the Unity Editor:
+
+* Open **Window => Package Management => Package Manager**
+* Click top-left [**&#10133;**] button and choose **Install package from git URL...**
+* Enter: `https://github.com/CodeSmile-0000011110110111/de.codesmile.luny.git`
+
+## A word from the author
+
+![Steffen aka CodeSmile](~Media/steffen.jpg)
+
+Luny was a crazy amount of work (~9 months) to create just the infrastructure for Unity to support Lua as a natural alternative to C#. I wish to keep working on Luny since it's downright awesome to iterate without delays, to stay in the flow while coding. To that end, I want you to .. 
+
+.. use Luny first of all! Provide feedback, make requests, report issues: [all right here](https://github.com/CodeSmile-0000011110110111/de.codesmile.luny/issues) or via social channels: [Website](https://lunyscript.com/), [Discussions](https://discussions.unity.com/t/i-maed-my-first-luny-script/1597492/), [Discord](https://discord.gg/EkwNb4rB7W), [X](https://x.com/sitterheim), [Email](mailto:steffen@steffenitterheim.de) <sup>(for personal inquiries)</sup>. And [join my Patreon](www.patreon.com/c/CodeSmile) to stay in the loop.
+
+Let me know what your use-cases are, and how Luny helps, or could be helpful if only it did that specific thing.
+
+Then just follow the most important Luny Club rules: 
+
+1. DO talk about Luny!
+2. DO talk about Luny!
+
+Spreading the word is most helpful! :)
+
+# Getting Started with Luny
+
+For this walkthrough I encourage you to have your editor window sized so that you can at least see the Unity Editor's 'Console' window somewhere on the side. 
+
+Type often, save often, watch the changes happen in the Console by 'printing' a lot of things. Use the same approach as you explore other uses later. To "log" strings use:
+```
+local hello = "World!"
+
+print(hello)    -- Debug.Log
+log(hello)      -- same as 'print'
+warn(hello)     -- Debug.LogWarning
+error(hello)    -- Debug.LogError
+```
+
+## Example Editor Script
+How about: A Unity Editor utility script that automatically opens new Scene assets?
 
 Exactly the kind of script we often wish for but rarely write because of the friction imposed upon us. Particularly when we need to figure many things out one by one:
 
@@ -18,7 +124,7 @@ Exactly the kind of script we often wish for but rarely write because of the fri
 - Are these static events I can subscribe to or do I have to subclass?
 - Could these parameters be null or empty?
 - What exactly are these `string[]` parameters anyway?
-- If they are paths, are these absolute or relative? 
+- If they are paths, are these absolute or relative?
 - What's the file extension for scenes?
 - How to open a scene, but in the editor?
 
@@ -34,44 +140,6 @@ context.OnPostprocessAllAssets = function(imported)
     end
 end
 ```
-
-Of course that's just Editor Luny. Stay tuned for more Runtime Luny! :)
-
-# Requirements
-### Unity 6000.0.35f1 or newer
-
-Since Luny is a new project and I'm just a crazy solo developer, I do not wish to spend time on backporting it to already out-of-support Unity versions.
-
-I will maintain support for 6.0 LTS for at least October 2027: end of life of Unity 6.0 LTS (Enterprise/Industry).
-
-# License
-
-[![License: MIT](https://cdn.prod.website-files.com/5e0f1144930a8bc8aace526c/65dd9eb5aaca434fac4f1c34_License-MIT-blue.svg)](/LICENSE)
-.. as I wish to keep it free and open! 
-
-If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I wish to pour years of my worklife-balance into improving Luny!
-
-And I'm just getting started tuning Unity. :)
-
-# Installation
-
-* Open **Window => Package Management => Package Manager** in Unity Editor
-* Click top-left [**&#10133;**] button and choose: **Install package from git URL...**
-* Enter: `https://github.com/CodeSmile-0000011110110111/de.codesmile.luny.git`
-
-# Getting Started with Luny
-
-For this walkthrough I encourage you to have your editor window sized so that you can at least see the Unity Editor's 'Console' window somewhere on the side. Type often, save often, watch the changes happen in the Console by 'printing' a lot of things:
-
-```
-local hello = "World!"
-print(hello)    -- Debug.Log
-log(hello)      -- short for 'print'
-warn(hello)     -- Debug.LogWarning
-error(hello)    -- Debug.LogError
-```
-
-Use the same approach as you explore other uses later. Let me know what your use-cases are, and how Luny helps, or could be helpful if it did that specific thing.
 
 ## Your First Editor Script
 
@@ -188,41 +256,6 @@ Some example use-cases for embedded functionality right in the game and config d
 What you can't do: mining bitcoins on user's devices. Generally speaking.
 
 Most IDEs and text editors support syntax highlighting, error checking, and auto-completion suggestions for Lua, either built-in or via a plugin. Check your editor's plugin manager.
-
-# Luny Features
-
-- Full Unity API available with more to come ...
-- Instant script reload: no compiling, no domain reload. 
-- Bind custom objects with value get/set either automatic via reflection or by writing binding methods.
-- Inspector editing of 'context' values
-- Sandboxing prevents runtime scripts from accessing potentially destructive APIs.
-- Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
-- Lua function calls are async-awaitable
-- Compatible with all Editor and Runtime platforms.
-- Compatible with _Auto-Refresh_ and _Enter PlayMode_ options.
-- Supported and maintained, built with passion and dedication
-
-Visit [LunyScript.com](https://lunyscript.com) for more info.
-
-# Limitations
-
-Version 0.5 (alpha) has some ways to go. I will focus on solidifying Editor scripting and then turn to Runtime scripting.
-
-Major areas of work:
-
-- Documentation
-- Exposing more editor functionality
-- Exposing essential 'System' namespace features (eg File/Path, String, Collections)
-- Implementing essential runtime features (eg script execution when instantiating prefabs)
-- Improving 'Lua <=> C# <=> Editor UI' interoperation and custom object binding
-- Improving bindings generator to support generics (within reason), ref/out parameters, tuples
-- Supporting more and more additional Unity assemblies, eg Input, Cinemachine, Physics, etc
-
-Currently, Luny supports most types and methods of the `UnityEngine.CoreModule` and `UnityEditor.CoreModule` assemblies.
-
-Since the binding code is generated, I can quickly open up more assemblies. The plan is definitely to support the most common APIs right out of the box.
-
-Please don't hesitate to send requests and to report any issues!
 
 # Manual
 
