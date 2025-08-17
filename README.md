@@ -86,7 +86,7 @@ In the Unity Editor:
 ## A word from the author
 
 <p>
-Luny was a crazy amount of work (~9 months) to create just the infrastructure for Unity to support Lua as a natural alternative to C#. I wish to keep working on Luny since it's downright awesome to iterate without delays, to stay in the flow while coding. To that end, I want you to .. <img src="~Media/steffen.jpg" width="150" />
+<img src="~Media/steffen.jpg" width="150" align="right" /> Luny was a crazy amount of work (~9 months) to create just the infrastructure for Unity to support Lua as a natural alternative to C#. I wish to keep working on Luny since it's downright awesome to iterate without delays, to stay in the flow while coding. To that end, I want you to ..
 </p>
 
 .. use Luny first of all! Provide feedback, make requests, report issues: [all right here](https://github.com/CodeSmile-0000011110110111/de.codesmile.luny/issues) or via social channels: [Website](https://lunyscript.com/), [Discussions](https://discussions.unity.com/t/i-maed-my-first-luny-script/1597492/), [Discord](https://discord.gg/EkwNb4rB7W), [X](https://x.com/sitterheim), [Email](mailto:steffen@steffenitterheim.de) <sup>(for personal inquiries)</sup>. And [join my Patreon](www.patreon.com/c/CodeSmile) to stay in the loop.
