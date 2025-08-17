@@ -85,12 +85,7 @@ In the Unity Editor:
 
 ## A word from the author
 
-<picture>
-  <source
-    srcset="~Media/steffen.jpg"
-    sizes="(max-width: 600px) 200px, 600px"
-    type="image/jpeg" />
-</picture>
+<picture><source srcset="~Media/steffen.jpg" sizes="(max-width: 100px) 100px" type="image/jpeg"/></picture>
 
 ![Steffen aka CodeSmile](~Media/steffen.jpg)
 
