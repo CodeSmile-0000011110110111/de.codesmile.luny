@@ -85,9 +85,7 @@ In the Unity Editor:
 
 ## A word from the author
 
-<picture><source srcset="~Media/steffen.jpg" sizes="(max-width: 100px) 100px" type="image/jpeg"/></picture>
-
-![Steffen aka CodeSmile](~Media/steffen.jpg)
+<img src="~Media/steffen.jpg" width="100" />
 
 Luny was a crazy amount of work (~9 months) to create just the infrastructure for Unity to support Lua as a natural alternative to C#. I wish to keep working on Luny since it's downright awesome to iterate without delays, to stay in the flow while coding. To that end, I want you to .. 
 
