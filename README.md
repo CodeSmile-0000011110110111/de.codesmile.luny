@@ -2,13 +2,13 @@
 
 # Unity Realtime Scripting
 
-#### Program anything in Lua - Editor and Runtime scripting for all platforms
+### Program Unity in Lua - Editor and Runtime
 
 ## Are you iterating or still compiling?
 
 Luny hot reloads a script the moment it changed on disk. You remain focused in the code editor, merely glancing at the immediate effect of your changes in the Editor or build window.
 
-Simple runtime script example for context:
+Simple runtime script example:
 ```
 local context = ...
 
@@ -20,12 +20,12 @@ end
 context.Update = function()
     -- make it move slowly to the right
     local pos = context.go.transform.position
-    pos = pos + Vector3(0.02, 0, 0)
+    pos = pos + Vector3(0.1, 0, 0)
     context.go.transform.position = pos
 end
 ```
 
-For hot reload you only need to consider some housekeeping. Like not instantiating 'go' anew every time. Instantiate only when it does not exist, or destroy it when the script 'unloads':
+You only need to consider some housekeeping for hot reload. Like not instantiating 'go' anew every time. Or destroy it when the script 'unloads':
 ```
 context.OnScriptUnload = function()
     Object.Destroy(context.go)
@@ -33,15 +33,15 @@ end
 ```
 ## Luny 0.5 Features
 
-- Full Unity API available with more to come ...
-- Instant script reload: no compiling, no domain reload.
-- Bind custom objects with value get/set either automatic via reflection or by writing binding methods.
-- Inspector editing of 'context' values
-- Sandboxing prevents runtime scripts from accessing potentially destructive APIs.
-- Lua function calls are fully async-awaitable
+- UnityEditor and UnityEngine "Core Modules" available, more to come ...
+- Instant script reload: no compiling, no domain reload
+- Bind custom objects to Lua
+- Inspector editing of script 'context' values
+- Sandboxing prevents use of potentially malicious calls
+- Lua functions are fully async-awaitable
 - Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
-- Compatible with all Editor and Runtime platforms.
-- Compatible with _Auto-Refresh_ and _Enter PlayMode_ options.
+- Compatible with all Editor and Runtime platforms
+- Compatible with _Auto-Refresh_ and _Enter PlayMode_ options
 - Supported and maintained, built with passion and dedication
 
 Visit [LunyScript.com](https://lunyscript.com) for more info.
@@ -54,11 +54,11 @@ Major areas of work:
 
 - Documentation
 - More editor functionality
-- Essential 'System' namespace types (eg File/Path, String, Collections)
 - Essential runtime features (eg execute scripts when instantiating, coroutines, ..)
-- Improve Lua interoperation with C#/Inspector and custom object binding
-- Improve bindings generator (generic T, ref/out, tuples, operators, more collections)
+- Essential 'System' namespace types (eg File/Path, String, Collections)
 - Expose more Unity assemblies/packages, eg Input, Cinemachine, Physics, etc
+- Improve bindings generator (generic T, ref/out, tuples, operators, more collections)
+- Improve Lua interoperation with C#/Inspector and custom object binding
 
 Please don't hesitate to send requests and to report any issues!
 
@@ -66,14 +66,12 @@ Please don't hesitate to send requests and to report any issues!
 
 Since Luny is a new project and I'm just a crazy solo developer, I do not wish to spend time on supporting already out-of-support Unity versions.
 
-I promise to maintain support for 6.0 LTS until at least October 2027: the end of life of Unity 6.0 LTS for Enterprise/Industry customers.
-
 ## MIT License
 
 [![License: MIT](https://cdn.prod.website-files.com/5e0f1144930a8bc8aace526c/65dd9eb5aaca434fac4f1c34_License-MIT-blue.svg)](/LICENSE)
 .. as I wish to keep it free and open!
 
-If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I continue to pour my worklife-balance into improving Luny!
+If you share the same sentiment, please [subscribe to my Patreon](https://www.patreon.com/CodeSmile) as I continue to pour my worklife-balance into Luny!
 
 ## Installing Luny
 
@@ -130,7 +128,7 @@ Exactly the kind of script we often wish for but rarely write because of the fri
 
 So that's several minutes wasted on just compiling the C# code multiple times in quick succession. You got actual work to do, remember?
 
-Here's the crazy **Luny** solution, I'll explain it in detail below "after the break":
+Here's the crazy **Luny** solution, I'll explain it in detail next:
 ```
 local context = ...
 
