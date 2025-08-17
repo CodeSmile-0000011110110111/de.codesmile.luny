@@ -265,8 +265,8 @@ I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8
 
 # Community-Sponsored Project
 
-I aim to create something unique and special that satisfies game developers' dirty desires. I think I found it! :)
+For years I intended to create something unique and special that satisfies game developers' dirty desires. I think I finally found it! :)
 
 If you agree, [join my Patreon](https://www.patreon.com/CodeSmile) to stay informed. Please consider supporting the project with a subscription!
 
-I am confident that Luny can be fully community sponsored by 2028. It would only take 10 new subscribers at $10 per month on average over the next 3 years to make that happen. I really wish to keep the project free for all.
+I am confident that Luny can become a fully community sponsored project. It would only take a couple new subscribers at $10 per month on average over the next three years to make that happen. I really wish to keep the project free for all!
