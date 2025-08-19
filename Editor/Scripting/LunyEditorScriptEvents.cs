@@ -21,6 +21,7 @@ namespace LunyEditor
 		EditorUpdate,
 	}
 
+
 	/*
 	public enum EditorEvent
 	{
