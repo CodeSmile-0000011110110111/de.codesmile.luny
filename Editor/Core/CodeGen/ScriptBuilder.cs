@@ -17,7 +17,7 @@ namespace LunyEditor.Core
 	///     OpenBlock and CloseBlock add lines with curly brackets and increment/decrement indentation.
 	///     You can also use the original StringBuilder methods without indentation through this wrapper.
 	/// </summary>
-	public sealed class CSharpScriptBuilder
+	public sealed class ScriptBuilder
 	{
 		private static String[] s_Keywords;
 
@@ -63,7 +63,7 @@ namespace LunyEditor.Core
 		/// <summary>
 		///     Create a new StringBuilder with indentation support.
 		/// </summary>
-		public CSharpScriptBuilder(String value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
+		public ScriptBuilder(String value = null, Char indentChar = ' ', Int32 indentCharRepeat = 4)
 		{
 			InitSymbolsLookupTable();
 			m_StringBuilder = new StringBuilder(value);
