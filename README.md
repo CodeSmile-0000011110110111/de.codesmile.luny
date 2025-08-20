@@ -1,12 +1,10 @@
 [![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# Unity Realtime Scripting
+# Program Unity in Lua
 
-### Program Unity in Lua - Editor and Runtime
+Both Editor and Runtime. All Unity APIs available (eventually).
 
-## Are you iterating or still compiling?
-
-Luny hot reloads a script the moment it changed on disk. You remain focused in the code editor, merely glancing at the immediate effect of your changes in the Editor or build window.
+> You expect hot reload to work every time? Go Luny! :)
 
 Simple runtime script example:
 ```
