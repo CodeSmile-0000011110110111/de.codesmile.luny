@@ -241,6 +241,7 @@ local myTable = {
 ```
 
 A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike structured text files (I won't name names) it's actually executable code **and** it can have comments **and** won't whine about your 'unexpected' trailing commas. 
+Above code contains an example. Did you notice?
 
 Some example use-cases for embedded functionality right in the game and config data:
 
@@ -258,6 +259,8 @@ Most IDEs and text editors support syntax highlighting, error checking, and auto
 Work in progress ...
 
 For now it's all [in this Google Document](https://docs.google.com/document/d/1hHC7lTNleZO1LdInfF2t4gKYvXcB3-7nUFL5vbHpQVI/edit?usp=sharing).
+
+Will be superceded by [Luny-Docs pages](https://codesmile-0000011110110111.github.io/de.codesmile.luny-docs/). Work in progress.
 
 I also [maintain a DevLog](https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/edit?usp=sharing) for the curious, but more importantly for myself.
 
