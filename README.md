@@ -240,7 +240,7 @@ local myTable = {
 }
 ```
 
-A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike structured text files (I won't name names) it's actually executable code **and** it can have comments **and** won't whine about your 'unexpected' trailing commas. 
+A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike certain structured text formats it's actually dynamic data (executable code) **and** is liberal in the use of trailing commas **and** it supports comments. 
 Above code contains an example. Did you notice?
 
 Some example use-cases for embedded functionality right in the game and config data:

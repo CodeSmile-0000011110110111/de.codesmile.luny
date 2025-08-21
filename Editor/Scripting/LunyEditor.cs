@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using FileUtil = Luny.Core.FileUtil;
+using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace LunyEditor
 {
 	public interface ILunyEditor
 	{
 		ILunyLua Lua { get; }
+		String LunyVersion { get; }
 	}
 
 	[FilePath("ProjectSettings/LunyEditorState.asset", FilePathAttribute.Location.ProjectFolder)]
@@ -27,7 +29,7 @@ namespace LunyEditor
 		// TODO: script state that survives domain reload but not project close
 		//private LuaTable m_SessionData;
 
-		private bool m_IsReloadingDomain;
+		private Boolean m_IsReloadingDomain;
 
 		private LunyLua m_Lua;
 
@@ -41,6 +43,7 @@ namespace LunyEditor
 				return m_Lua != null ? m_Lua : m_Lua = CreateLuaState();
 			}
 		}
+		public String LunyVersion => PackageInfo.FindForPackageName("de.codesmile.luny").version;
 		public static ILunyEditor Singleton => instance; // for consistency
 
 		[InitializeOnLoadMethod] private static LunyEditor OnLoad() => instance; // auto-create the singleton by accessing the instance property
