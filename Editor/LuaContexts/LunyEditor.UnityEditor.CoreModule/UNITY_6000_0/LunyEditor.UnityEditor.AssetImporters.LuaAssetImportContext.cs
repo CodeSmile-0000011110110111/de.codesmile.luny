@@ -77,12 +77,12 @@ namespace LunyEditor.UnityEditor.AssetImporters
             var _argCount = _context.ArgumentCount;
             var _this = _context.GetArgument<LuaAssetImportContext>(0);
             var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.Experimental.LuaArtifactKey);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.Experimental.LuaArtifactKey>(out var _p0_UnityEditor_Experimental_ArtifactKey))
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Experimental.ArtifactKey);
+            if (_arg0.TryRead<global::UnityEditor.Experimental.ArtifactKey>(out var _p0_UnityEditor_Experimental_ArtifactKey))
             {
                 if (_argCount == 2)
                 {
-                    var key = _p0_UnityEditor_Experimental_ArtifactKey.Value;
+                    var key = _p0_UnityEditor_Experimental_ArtifactKey;
                     _this.Instance.DependsOnArtifact(key);
                     var _retCount = _context.Return();
                     return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
@@ -173,8 +173,8 @@ namespace LunyEditor.UnityEditor.AssetImporters
             var _argCount = _context.ArgumentCount;
             var _this = _context.GetArgument<LuaAssetImportContext>(0);
             var _arg0 = _lastArg = _argCount > 1 ? _context.GetArgument(1) : global::Lua.LuaValue.Nil;
-            _lastArgPos = 0; _expectedType = typeof(global::LunyEditor.UnityEditor.Experimental.LuaArtifactKey);
-            if (_arg0.TryRead<global::LunyEditor.UnityEditor.Experimental.LuaArtifactKey>(out var _p0_UnityEditor_Experimental_ArtifactKey))
+            _lastArgPos = 0; _expectedType = typeof(global::UnityEditor.Experimental.ArtifactKey);
+            if (_arg0.TryRead<global::UnityEditor.Experimental.ArtifactKey>(out var _p0_UnityEditor_Experimental_ArtifactKey))
             {
                 var _arg1 = _lastArg = _argCount > 2 ? _context.GetArgument(2) : global::Lua.LuaValue.Nil;
                 _lastArgPos = 1; _expectedType = typeof(global::System.String);
@@ -182,7 +182,7 @@ namespace LunyEditor.UnityEditor.AssetImporters
                 {
                     if (_argCount == 3)
                     {
-                        var key = _p0_UnityEditor_Experimental_ArtifactKey.Value;
+                        var key = _p0_UnityEditor_Experimental_ArtifactKey;
                         var fileName = _p1_System_String;
                         var _ret0 = _this.Instance.GetArtifactFilePath(key, fileName);
                         var _lret0 = new global::Lua.LuaValue(_ret0);

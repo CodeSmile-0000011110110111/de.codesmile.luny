@@ -37,9 +37,6 @@ MonoBehaviour:
   - UnityEditor.CrashReporting
   - UnityEditor.EditorTools
   - UnityEditor.Events
-  - UnityEditor.Experimental
-  - UnityEditor.Experimental.Licensing
-  - UnityEditor.Experimental.Rendering
   - UnityEditor.Hardware
   - UnityEditor.Inspector.GraphicsSettingsInspectors
   - UnityEditor.Macros
@@ -66,17 +63,15 @@ MonoBehaviour:
   - UnityEditor.U2D
   - UnityEditor.UnityLinker
   - UnityEditor.VisualStudioIntegration
-  - UnityEngine.LightTransport
-  - UnityEngine.LightTransport.PostProcessing
   m_NamespaceBlacklist:
   - UnityEditorInternal
-  - UnityEditor.UIElements
-  - UnityEditor.VersionControl
-  - UnityEditor.HierarchyProperty
+  - UnityEditor.Experimental
   - UnityEditor.IMGUI
-  - UnityEditor.Handles
   - UnityEditor.Presets
   - UnityEditor.SpeedTree
+  - UnityEditor.UIElements
+  - UnityEditor.VersionControl
+  - UnityEngine
   m_TypeWhitelist:
   - Unity.CodeEditor.CodeEditor
   - Unity.CodeEditor.CodeEditor+Installation
@@ -519,7 +514,6 @@ MonoBehaviour:
   - UnityEditor.UndoPropertyModification
   - UnityEditor.UndoRedoInfo
   - UnityEditor.UnityStats
-  - UnityEditor.Unsupported
   - UnityEditor.UnwrapParam
   - UnityEditor.Unwrapping
   - UnityEditor.UpdatePrefabInstancesEventArgs
@@ -682,27 +676,6 @@ MonoBehaviour:
   - UnityEditor.EditorTools.GameObjectToolContext
   - UnityEditor.EditorTools.ToolManager
   - UnityEditor.Events.UnityEventTools
-  - UnityEditor.Experimental.ArtifactID
-  - UnityEditor.Experimental.ArtifactKey
-  - UnityEditor.Experimental.AssetDatabaseExperimental
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+CacheServerCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+Counter
-  - UnityEditor.Experimental.AssetDatabaseExperimental+AssetDatabaseCounters+ImportCounters
-  - UnityEditor.Experimental.AssetDatabaseExperimental+OnDemandMode
-  - UnityEditor.Experimental.AssetMoveInfo
-  - UnityEditor.Experimental.AssetsModifiedProcessor
-  - UnityEditor.Experimental.EditorResources
-  - UnityEditor.Experimental.Lightmapping
-  - UnityEditor.Experimental.OnDemandProgress
-  - UnityEditor.Experimental.OnDemandState
-  - UnityEditor.Experimental.Licensing.EntitlementGroupInfo
-  - UnityEditor.Experimental.Licensing.EntitlementInfo
-  - UnityEditor.Experimental.Licensing.EntitlementStatus
-  - UnityEditor.Experimental.Licensing.LicensingUtility
-  - UnityEditor.Experimental.Rendering.SceneStateHash
-  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystem
-  - UnityEditor.Experimental.Rendering.ScriptableBakedReflectionSystemSettings
   - UnityEditor.Hardware.DevDevice
   - UnityEditor.Hardware.DevDeviceFeatures
   - UnityEditor.Hardware.DevDeviceList
@@ -872,24 +845,11 @@ MonoBehaviour:
   - UnityEditor.U2D.SpriteEditorExtension
   - UnityEditor.UnityLinker.UnityLinkerBuildPipelineData
   - UnityEditor.VisualStudioIntegration.SolutionGuidGenerator
-  - UnityEngine.LightTransport.BakeProgressState
-  - UnityEngine.LightTransport.BufferID
-  - UnityEngine.LightTransport.EventID
-  - UnityEngine.LightTransport.InputExtraction
-  - UnityEngine.LightTransport.InputExtraction+BakeInput
-  - UnityEngine.LightTransport.IntegrationContext
-  - UnityEngine.LightTransport.IProbeIntegrator+Result
-  - UnityEngine.LightTransport.IProbeIntegrator+ResultType
-  - UnityEngine.LightTransport.RadeonRaysContext
-  - UnityEngine.LightTransport.RadeonRaysProbeIntegrator
-  - UnityEngine.LightTransport.RadeonRaysWorld
-  - UnityEngine.LightTransport.ReferenceContext
-  - UnityEngine.LightTransport.PostProcessing.RadeonRaysProbePostProcessor
-  - UnityEngine.LightTransport.PostProcessing.ReferenceProbePostProcessor
   m_TypeBlacklist:
   - UnityEditor.AndroidCreateSymbols
   - UnityEditor.Handles
   - UnityEditor.HierarchyProperty
+  - UnityEditor.Unsupported
   m_MemberBlacklist: []
   m_GenerateOnlyThisType: //UnityEditor.Selection
   m_GenerateOnlyThisMember: //SetActiveObjectWithContext

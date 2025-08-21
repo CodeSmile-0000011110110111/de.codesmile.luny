@@ -273,6 +273,8 @@ namespace LunyEditor.Core
 
 			return m_Indentations[IndentLevel];
 		}
+
+		public void Clear() => m_StringBuilder.Clear();
 	}
 
 	public enum Keyword
