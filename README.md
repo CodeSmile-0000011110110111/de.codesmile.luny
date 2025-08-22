@@ -229,7 +229,7 @@ If you ever find need for structuring things, use a table. The table is Lua's so
 
 ```
 local myTable = {
-    tableInsideTheTable = { "This", "Is, "A", "List", "Of", "Strings", "!", },
+    tableInsideTheTable = { "This", "Is", "A", "List", "Of", "Strings", "!", },
     TheNumberWeShallCallPI = 3.1415,
     doesAnyOfThisMakeSense = false,
     aDeeperTable =
@@ -240,7 +240,7 @@ local myTable = {
 }
 ```
 
-A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike certain structured text formats it's actually dynamic data (executable code) **and** is liberal in the use of trailing commas **and** it supports comments. 
+A table is highly suitable for hierarchical structures, including storing game and configuration data. But unlike certain structured text formats it's actually executable **and** it supports comments **and** doesn't mind trailing commas. 
 Above code contains an example. Did you notice?
 
 Some example use-cases for embedded functionality right in the game and config data:
