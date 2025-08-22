@@ -16,10 +16,10 @@ namespace Luny
 	public abstract class LunyLuaScript
 	{
 		public const String InstanceKey = "this";
-		public const String ScriptNameKey = "ScriptName";
-		public const String ScriptPathKey = "ScriptPath";
+		public const String ScriptNameKey = "Name";
+		public const String ScriptPathKey = "Path";
 		public const String EditorTypeKey = "EditorType";
-		public const String RuntimeTypeKey = "RuntimeType";
+		public const String BindTypeKey = "BindType";
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
 		private readonly LunyScriptEventHandlerCollection m_EventHandlers = new();
@@ -143,7 +143,7 @@ namespace Luny
 			foreach (var eventHandler in m_EventHandlers)
 				eventHandler.RebindCallbackFunctions(m_ScriptContext);
 
-			TrySendEvent<LunyScriptLoadEvent>(luaState, (Int32)LunyScriptLoadEvent.OnScriptLoad);
+			TryGetOrCreateEventHandler<LunyScriptLoadEvent>()?.TrySend(luaState, (Int32)LunyScriptLoadEvent.OnScriptLoad);
 		}
 
 		private void AssertNotSet(String key) =>
@@ -152,11 +152,11 @@ namespace Luny
 		protected void SetDefaultContextValues(String name, String path)
 		{
 			m_ScriptName = name;
-			AssertNotSet(RuntimeTypeKey);
+			AssertNotSet(BindTypeKey);
 			AssertNotSet(ScriptNameKey);
 			AssertNotSet(ScriptPathKey);
 
-			ScriptContext[RuntimeTypeKey] = GetType().Name;
+			ScriptContext[BindTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
 			ScriptContext[ScriptPathKey] = path;
 		}
@@ -168,7 +168,7 @@ namespace Luny
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal LunyScriptEventHandler<T> GetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? TryCreateEventHandler<T>();
+		internal LunyScriptEventHandler<T> TryGetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? TryCreateEventHandler<T>();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal LunyScriptEventHandler<T> TryGetEventHandler<T>() where T : Enum => m_EventHandlers.TryGet<T>();
@@ -185,7 +185,7 @@ namespace Luny
 
 		public async ValueTask ReloadScript(LuaState luaState)
 		{
-			GetOrCreateEventHandler<LunyScriptLoadEvent>().TrySend(luaState, (Int32)LunyScriptLoadEvent.OnScriptUnload);
+			TryGetOrCreateEventHandler<LunyScriptLoadEvent>()?.TrySend(luaState, (Int32)LunyScriptLoadEvent.OnScriptUnload);
 
 			ClearAllFunctionsInContextTable();
 			await DoScriptAsync(luaState);

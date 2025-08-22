@@ -37,15 +37,21 @@ namespace Luny
 		private Boolean m_DestroyDidCallOnDisable;
 		private Boolean m_DestroyDidCallOnDestroy;
 
-		private LunyScriptEventHandler<MonoBehaviourPhysics2DEvent> Physics2DEvents => m_Physics2DEventsEnabled && m_Physics2DEvents != null
-			? m_Physics2DEvents
-			: m_Physics2DEvents = m_LuaScript.GetOrCreateEventHandler<MonoBehaviourPhysics2DEvent>();
-		private LunyScriptEventHandler<MonoBehaviourPhysicsEvent> Physics3DEvents => m_Physics3DEventsEnabled && m_Physics3DEvents != null
-			? m_Physics3DEvents
-			: m_Physics3DEvents = m_LuaScript.GetOrCreateEventHandler<MonoBehaviourPhysicsEvent>();
-		private LunyScriptEventHandler<MonoBehaviourRenderEvent> RenderEvents => m_RenderEventsEnabled && m_RenderEvents != null
-			? m_RenderEvents
-			: m_RenderEvents = m_LuaScript.GetOrCreateEventHandler<MonoBehaviourRenderEvent>();
+		private LunyScriptEventHandler<MonoBehaviourPhysics2DEvent> Physics2DEvents => m_Physics2DEventsEnabled == false
+			? null
+			: m_Physics2DEvents != null
+				? m_Physics2DEvents
+				: m_Physics2DEvents = m_LuaScript.TryGetOrCreateEventHandler<MonoBehaviourPhysics2DEvent>();
+		private LunyScriptEventHandler<MonoBehaviourPhysicsEvent> Physics3DEvents => m_Physics3DEventsEnabled == false
+			? null
+			: m_Physics3DEvents != null
+				? m_Physics3DEvents
+				: m_Physics3DEvents = m_LuaScript.TryGetOrCreateEventHandler<MonoBehaviourPhysicsEvent>();
+		private LunyScriptEventHandler<MonoBehaviourRenderEvent> RenderEvents => m_RenderEventsEnabled == false
+			? null
+			: m_RenderEvents != null
+				? m_RenderEvents
+				: m_RenderEvents = m_LuaScript.TryGetOrCreateEventHandler<MonoBehaviourRenderEvent>();
 
 		private void Awake()
 		{
@@ -55,7 +61,7 @@ namespace Luny
 			var initRefs = coordinator.RunnerInitOnlyReferences;
 			m_Lua = initRefs.Lua;
 			m_LuaScript = initRefs.LuaScript;
-			m_LifecycleEvents = m_LuaScript.GetOrCreateEventHandler<MonoBehaviourLifecycleEvent>();
+			m_LifecycleEvents = m_LuaScript.TryGetOrCreateEventHandler<MonoBehaviourLifecycleEvent>();
 			m_Physics2DEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Physics2D) != 0;
 			m_Physics3DEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Physics3D) != 0;
 			m_RenderEventsEnabled = (initRefs.LunyScript.ForwardedEventTypes & LuaScriptEvents.Rendering) != 0;
@@ -221,9 +227,8 @@ namespace Luny
 		}
 
 		// Transform events
-		private void OnBeforeTransformParentChanged() =>
-			m_LuaScript.TrySendEvent<MonoBehaviourTransformEvent>(m_Lua.State,
-				(Int32)MonoBehaviourTransformEvent.OnBeforeTransformParentChanged);
+		private void OnBeforeTransformParentChanged() => m_LuaScript.TrySendEvent<MonoBehaviourTransformEvent>(m_Lua.State,
+			(Int32)MonoBehaviourTransformEvent.OnBeforeTransformParentChanged);
 
 		private void OnTransformChildrenChanged() =>
 			m_LuaScript.TrySendEvent<MonoBehaviourTransformEvent>(m_Lua.State, (Int32)MonoBehaviourTransformEvent.OnTransformChildrenChanged);

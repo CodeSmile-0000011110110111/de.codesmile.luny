@@ -8,25 +8,25 @@ Both Editor and Runtime. All Unity APIs available (eventually).
 
 Simple runtime script example:
 ```
-local context = ...
+local script = ...
 
-context.Awake = function()
+script.Awake = function()
     -- create an instance from a Inspector assigned prefab
-    context.go = Object.Instantiate(context.InspectorPrefab)
+    script.go = Object.Instantiate(script.InspectorPrefab)
 end
 
-context.Update = function()
+script.Update = function()
     -- make it move slowly to the right
-    local pos = context.go.transform.position
+    local pos = script.go.transform.position
     pos = pos + Vector3(0.1, 0, 0)
-    context.go.transform.position = pos
+    script.go.transform.position = pos
 end
 ```
 
 You only need to consider some housekeeping for hot reload. Like not instantiating 'go' anew every time. Or destroy it when the script 'unloads':
 ```
-context.OnScriptUnload = function()
-    Object.Destroy(context.go)
+script.OnScriptUnload = function()
+    Object.Destroy(script.go)
 end
 ```
 ## Luny 0.5 Features
@@ -34,7 +34,7 @@ end
 - UnityEditor and UnityEngine "Core Modules" available, more to come ...
 - Instant script reload: no compiling, no domain reload
 - Bind custom objects to Lua
-- Inspector editing of script 'context' values
+- Inspector editing of script context table values
 - Sandboxing prevents use of potentially malicious calls
 - Lua functions are fully async-awaitable
 - Uses [LuaCSharp](https://github.com/nuskey8/Lua-CSharp), a high performance C# implementation of Lua
@@ -128,9 +128,9 @@ So that's several minutes wasted on just compiling the C# code multiple times in
 
 Here's the crazy **Luny** solution, I'll explain it in detail next:
 ```
-local context = ...
+local script = ...
 
-context.OnPostprocessAllAssets = function(imported)
+script.OnPostprocessAllAssets = function(imported)
     if #imported == 1 and imported[1]:EndsWith(".unity") then
         EditorSceneManager.OpenScene(imported[1]);
     end
@@ -145,19 +145,19 @@ Create a new Editor Lua script in a `/Editor` folder:
 
 Capture the script's context table in a local variable, where `...` is Lua's _varargs_ operator:
 ```
-local context = ...
+local script = ...
 ```
 
-Implement event functions in the context table, using the same name as the C# callback:
+Implement event functions in the script table, using the same name as the C# callback:
 ```
-context.OnPostprocessAllAssets = function(imported, deleted, moved, movedFrom)
+script.OnPostprocessAllAssets = function(imported, deleted, moved, movedFrom)
     print("Asset Postprocessing, imported count: " .. #imported)
 end
 ```
 
 You can omit unused, trailing arguments for clarity and brevity:
 ```
-context.OnPostprocessAllAssets = function(imported)
+script.OnPostprocessAllAssets = function(imported)
 end
 ```
 
@@ -187,11 +187,11 @@ local input = Vector3.new(10, 20, 30)
 local velocity = input.normalized * Time.deltaTime
 ```
 
-Saving reloads the script without having to change window focus. Anything in the context survives reload:
+Saving reloads the script without having to change window focus. Anything in the script context table survives reload:
 ```
-local context = ...
-context.Reloads = context.Reloads and context.Reloads + 1 or 1
-print("Reloaded script " .. context.Reloads .. " times")
+local script = ...
+script.Reloads = script.Reloads and script.Reloads + 1 or 1
+print("Reloaded script " .. script.Reloads .. " times")
 ```
 
 The `..` operator concatenates strings. You may be more curious about the `and or` pattern though. It's what we call a ternary expression:
@@ -204,24 +204,24 @@ The ternary expression is used because all variables default to the value `nil`.
 
 You can also write this logic more traditionally:
 ```
-if not context.Reloads then 
-    context.Reloads = 0
+if not script.Reloads then 
+    script.Reloads = 0
 end
 
-context.Reloads = context.Reloads + 1 
+script.Reloads = script.Reloads + 1 
 ```
 
 If you're very accustomed to C languages, you may prefer to use the equality operator. Its inequality counterpart is the `~=` operator, which - I promise - you'll get used to:
 ```
-if context.Reloads == nil then
-    context.Reloads = 0
+if script.Reloads == nil then
+    script.Reloads = 0
 end
 ```
 A `nil` value evaluates to false in a boolean condition.
 
 Like in C#, some of us prefer longer over more lines. At least for very short, simple statements it can be a useful formatting alternative:
 ```
-if context.Reloads == nil then context.Reloads = 0 end
+if script.Reloads == nil then script.Reloads = 0 end
 ```
 I could show you how you can make multiple statements on the same line, but I do not wish to endorse this style. 
 
