@@ -7,7 +7,6 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
-using CompilationAssembly = UnityEditor.Compilation.Assembly;
 using Object = UnityEngine.Object;
 
 namespace LunyEditor.Core
@@ -52,10 +51,14 @@ namespace LunyEditor.Core
 				// strip ".dll" from name
 				assemblyName = assemblyName.Substring(0, assemblyName.Length - s_DllStringLength);
 
-				foreach (var assembly in CompilationPipeline.GetAssemblies())
+				var assemblies = CompilationPipeline.GetAssemblies();
+				if (assemblies != null)
 				{
-					if ((assembly.flags & AssemblyFlags.EditorAssembly) != 0 && assemblyName.Equals(assembly.name))
-						return true;
+					foreach (var assembly in assemblies)
+					{
+						if (assembly != null && (assembly.flags & AssemblyFlags.EditorAssembly) != 0 && assemblyName.Equals(assembly.name))
+							return true;
+					}
 				}
 			}
 
