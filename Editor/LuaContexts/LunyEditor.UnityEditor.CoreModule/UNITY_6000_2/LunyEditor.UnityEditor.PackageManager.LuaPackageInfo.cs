@@ -1,0 +1,304 @@
+
+// --------------------------------------------------------------
+// GENERATED FILE ----> DO NOT EDIT <---- CHANGES WILL BE LOST !!
+// --------------------------------------------------------------
+
+#if UNITY_6000_2_OR_NEWER && !(UNITY_6000_3_OR_NEWER)
+#pragma warning disable 0109, 0162, 0168, 0219
+using Luny;
+
+namespace LunyEditor.UnityEditor.PackageManager
+{
+    public sealed class LuaPackageInfo : global::Luny.ILuaObject<global::UnityEditor.PackageManager.PackageInfo>
+    {
+        public new static global::Lua.LuaValue Bind(global::UnityEditor.PackageManager.PackageInfo instance) => new LuaPackageInfo(instance);
+        public new static global::Lua.LuaValue Bind(global::System.Object instance) => Bind((global::UnityEditor.PackageManager.PackageInfo)instance);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::UnityEditor.PackageManager.PackageInfo> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.PackageManager.PackageInfo>(instances);
+        public new static global::Lua.LuaValue Bind(global::System.Collections.Generic.IList<global::System.Object> instances) =>
+            new global::Luny.LuaList<global::UnityEditor.PackageManager.PackageInfo>(instances);
+        private LuaPackageInfo(global::UnityEditor.PackageManager.PackageInfo instance) => m_Instance = instance;
+        public static implicit operator global::Lua.LuaValue(LuaPackageInfo value) => new(value);
+        private global::UnityEditor.PackageManager.PackageInfo m_Instance;
+        public global::UnityEditor.PackageManager.PackageInfo Instance => m_Instance;
+        public new global::System.Type BindType => typeof(global::UnityEditor.PackageManager.PackageInfo);
+        public override global::System.String ToString() => m_Instance != null ? Instance.ToString() : "{GetType().Name}(null)";
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaPackageInfo>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaPackageInfo>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                case "assetPath": _value = new global::Lua.LuaValue(Instance.assetPath); return true;
+                case "author": _value = _factory.Bind(Instance.author); return true;
+                case "category": _value = new global::Lua.LuaValue(Instance.category); return true;
+                case "changelogUrl": _value = new global::Lua.LuaValue(Instance.changelogUrl); return true;
+                case "dependencies": _value = _factory.Bind(Instance.dependencies); return true;
+                case "deprecationMessage": _value = new global::Lua.LuaValue(Instance.deprecationMessage); return true;
+                case "description": _value = new global::Lua.LuaValue(Instance.description); return true;
+                case "displayName": _value = new global::Lua.LuaValue(Instance.displayName); return true;
+                case "documentationUrl": _value = new global::Lua.LuaValue(Instance.documentationUrl); return true;
+                case "errors": _value = _factory.Bind(Instance.errors); return true;
+                case "git": _value = _factory.Bind(Instance.git); return true;
+                case "isDeprecated": _value = new global::Lua.LuaValue(Instance.isDeprecated); return true;
+                case "isDirectDependency": _value = new global::Lua.LuaValue(Instance.isDirectDependency); return true;
+                case "keywords": _value = _factory.Bind(Instance.keywords); return true;
+                case "licensesUrl": _value = new global::Lua.LuaValue(Instance.licensesUrl); return true;
+                case "name": _value = new global::Lua.LuaValue(Instance.name); return true;
+                case "packageId": _value = new global::Lua.LuaValue(Instance.packageId); return true;
+                case "registry": _value = _factory.Bind(Instance.registry); return true;
+                case "repository": _value = _factory.Bind(Instance.repository); return true;
+                case "resolvedDependencies": _value = _factory.Bind(Instance.resolvedDependencies); return true;
+                case "resolvedPath": _value = new global::Lua.LuaValue(Instance.resolvedPath); return true;
+                case "source": _value = new global::Lua.LuaValue((global::System.Int64)Instance.source); return true;
+                case "type": _value = new global::Lua.LuaValue(Instance.type); return true;
+                case "version": _value = new global::Lua.LuaValue(Instance.version); return true;
+                case "versions": _value = _factory.Bind(Instance.versions); return true;
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+    public sealed class LuaPackageInfoType : global::Luny.ILuaStatic
+    {
+        public static global::Lua.LuaValue Bind() => new LuaPackageInfoType();
+        private LuaPackageInfoType() {}
+        public static implicit operator global::Lua.LuaValue(LuaPackageInfoType value) => new(value);
+        public global::System.Type BindType => typeof(global::UnityEditor.PackageManager.PackageInfo);
+        public override global::System.String ToString() => BindType.FullName;
+#if UNITY_EDITOR
+        [global::UnityEngine.RuntimeInitializeOnLoadMethod(global::UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticFields() => s_Metatable = null;
+#endif
+
+        private static readonly global::Lua.LuaFunction _LuaPackageInfo_FindForAssembly = new global::Lua.LuaFunction("FindForAssembly", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.Reflection.Assembly);
+            if (_arg0.TryRead<global::System.Reflection.Assembly>(out var _p0_System_Reflection_Assembly))
+            {
+                if (_argCount == 1)
+                {
+                    var assembly = _p0_System_Reflection_Assembly;
+                    var _ret0 = global::UnityEditor.PackageManager.PackageInfo.FindForAssembly(assembly);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"FindForAssembly"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaPackageInfo_FindForAssetPath = new global::Lua.LuaFunction("FindForAssetPath", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var assetPath = _p0_System_String;
+                    var _ret0 = global::UnityEditor.PackageManager.PackageInfo.FindForAssetPath(assetPath);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"FindForAssetPath"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaPackageInfo_FindForPackageName = new global::Lua.LuaFunction("FindForPackageName", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var name = _p0_System_String;
+                    var _ret0 = global::UnityEditor.PackageManager.PackageInfo.FindForPackageName(name);
+                    var _factory = _context.GetObjectFactory();
+                    var _lret0 = _factory.Bind(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"FindForPackageName"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaPackageInfo_GetAllRegisteredPackages = new global::Lua.LuaFunction("GetAllRegisteredPackages", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            if (_argCount == 0)
+            {
+                var _ret0 = global::UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages();
+                var _factory = _context.GetObjectFactory();
+                var _lret0 = _factory.Bind(_ret0);
+                var _retCount = _context.Return(_lret0);
+                return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"GetAllRegisteredPackages"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction _LuaPackageInfo_IsPackageRegistered = new global::Lua.LuaFunction("IsPackageRegistered", (_context, _) =>
+        {
+            global::Lua.LuaValue _lastArg = default;
+            global::System.Int32 _lastArgPos = default;
+            global::System.Type _expectedType = default;
+            var _argCount = _context.ArgumentCount;
+            var _arg0 = _lastArg = _argCount > 0 ? _context.GetArgument(0) : global::Lua.LuaValue.Nil;
+            _lastArgPos = 0; _expectedType = typeof(global::System.String);
+            if (_arg0.TryRead<global::System.String>(out var _p0_System_String))
+            {
+                if (_argCount == 1)
+                {
+                    var name = _p0_System_String;
+                    var _ret0 = global::UnityEditor.PackageManager.PackageInfo.IsPackageRegistered(name);
+                    var _lret0 = new global::Lua.LuaValue(_ret0);
+                    var _retCount = _context.Return(_lret0);
+                    return new global::System.Threading.Tasks.ValueTask<System.Int32>(_retCount);
+                }
+            }
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"{"IsPackageRegistered"}: invalid argument #{_lastArgPos}: {_lastArg} ({_lastArg.Type}), expected: {_expectedType.FullName}", 2);
+        });
+        private static readonly global::Lua.LuaFunction __index = new(global::Lua.Runtime.Metamethods.Index, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaPackageInfoType>(0);
+            var _key = _context.GetArgument(1);
+            var _factory = _context.GetObjectFactory();
+            global::Lua.LuaValue _value = global::Lua.LuaValue.Nil;
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TryGetLuaValue(_index, out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TryGetLuaValue(_key.Read<global::System.String>(), out _value, _factory))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to index nil value '{_key}' on '{_this}'", 2);
+        });
+        private static readonly global::Lua.LuaFunction __newindex = new(global::Lua.Runtime.Metamethods.NewIndex, (_context, _) =>
+        {
+            var _this = _context.GetArgument<LuaPackageInfoType>(0);
+            var _key = _context.GetArgument(1);
+            var _value = _context.GetArgument(2);
+            if (_key.Type == global::Lua.LuaValueType.Number && _key.TryRead<global::System.Int32>(out var _index) && _this.TrySetLuaValue(_index, _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            if (_key.Type == global::Lua.LuaValueType.String && _this.TrySetLuaValue(_key.Read<global::System.String>(), _value))
+                return new global::System.Threading.Tasks.ValueTask<global::System.Int32>(_context.Return(_value));
+            throw new global::Lua.LuaRuntimeException(_context.Thread, $"attempt to assign to unknown '{_key}' on '{_this}'", 2);
+        });
+        private static global::Lua.LuaTable CreateMetatable()
+        {
+            var metatable = new global::Lua.LuaTable(0, 4);
+            metatable[global::Lua.Runtime.Metamethods.Index] = __index;
+            metatable[global::Lua.Runtime.Metamethods.NewIndex] = __newindex;
+            metatable[global::Lua.Runtime.Metamethods.Concat] = global::Luny.LuaMetatable.ConcatMetamethod;
+            metatable[global::Lua.Runtime.Metamethods.ToString] = global::Luny.LuaMetatable.ToStringMetamethod;
+            return metatable;
+        }
+        private static global::Lua.LuaTable s_Metatable;
+        public global::Lua.LuaTable Metatable
+        {
+            get => s_Metatable ??= CreateMetatable();
+            set => throw new global::System.NotSupportedException("LuaObject metatables cannot be modified");
+        }
+        global::System.Span<global::Lua.LuaValue> global::Lua.ILuaUserData.UserValues => default;
+
+        public global::System.Boolean TryGetLuaValue(global::System.Int32 _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            _value = global::Lua.LuaValue.Nil; return false;
+        }
+        public global::System.Boolean TryGetLuaValue(global::System.String _key, out global::Lua.LuaValue _value, global::Luny.ILuaObjectFactory _factory)
+        {
+            switch (_key)
+            {
+                case "FindForAssembly": _value = _LuaPackageInfo_FindForAssembly; return true;
+                case "FindForAssetPath": _value = _LuaPackageInfo_FindForAssetPath; return true;
+                case "FindForPackageName": _value = _LuaPackageInfo_FindForPackageName; return true;
+                case "GetAllRegisteredPackages": _value = _LuaPackageInfo_GetAllRegisteredPackages; return true;
+                case "IsPackageRegistered": _value = _LuaPackageInfo_IsPackageRegistered; return true;
+                default: _value = global::Lua.LuaValue.Nil; return false;
+            }
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.Int32 _key, global::Lua.LuaValue _value)
+        {
+            return false;
+        }
+        public global::System.Boolean TrySetLuaValue(global::System.String _key, global::Lua.LuaValue _value)
+        {
+            switch (_key)
+            {
+                default: return false;
+            }
+        }
+    }
+}
+#pragma warning restore 0109, 0162, 0168, 0219
+#endif

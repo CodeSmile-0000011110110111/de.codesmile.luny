@@ -88,6 +88,7 @@ MonoBehaviour:
   - UnityEditor.AndroidBlitType
   - UnityEditor.AndroidBuildSystem
   - UnityEditor.AndroidBuildType
+  - UnityEditor.AndroidDeviceFilterData
   - UnityEditor.AndroidETC2FallbackOverride
   - UnityEditor.AndroidGamepadSupportLevel
   - UnityEditor.AndroidPreferredInstallLocation
@@ -596,9 +597,7 @@ MonoBehaviour:
   - UnityEditor.Build.BuildPipelineContext
   - UnityEditor.Build.BuildPlayerContext
   - UnityEditor.Build.BuildPlayerProcessor
-  - UnityEditor.Build.DefaultLaunchReport
   - UnityEditor.Build.Il2CppCodeGeneration
-  - UnityEditor.Build.LaunchResult
   - UnityEditor.Build.NamedBuildTarget
   - UnityEditor.Build.OSArchitecture
   - UnityEditor.Build.OverrideTextureCompression
