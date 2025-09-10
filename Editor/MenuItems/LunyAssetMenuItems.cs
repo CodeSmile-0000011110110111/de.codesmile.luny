@@ -27,9 +27,9 @@ namespace LunyEditor.MenuItems
 		private static readonly String s_EmptyLunyScript = "using Lua;\n" +
 		                                                   "using Luny;\n" +
 		                                                   "using UnityEngine;\n\n" +
-		                                                   "public sealed class $ClassName$ : LunyScript\n{\n" +
+		                                                   "public sealed class $ClassName$ : LunyRuntimeScript\n{\n" +
 		                                                   "\t// To get/set script variables when the script is first loaded:\n" +
-		                                                   "\tprotected override void OnBeforeFirstScriptLoad(LuaTable scriptContext)\n\t{\n\t}\n\n" +
+		                                                   "\tprotected override void OnBeforeInitialScriptLoad(LuaTable scriptContext)\n\t{\n\t}\n\n" +
 		                                                   "\t// To get/set script variables every time the script is loaded (incl. hot reload):\n" +
 		                                                   "\tprotected override void OnBeforeScriptLoad(LuaTable scriptContext) \n\t{\n\t}\n\n" +
 		                                                   "\t// To get/set script variables every time after the script was loaded (incl. hot reload):\n" +
@@ -92,7 +92,7 @@ namespace LunyEditor.MenuItems
 		[MenuItem("GameObject/Luny/Luny Script", false, priority = 11)]
 		private static void CreateLunyScriptGameObject(MenuCommand menuCommand)
 		{
-			var go = LunyScript.CreateLunyScriptObject();
+			var go = LunyRuntimeScript.CreateLunyScriptObject();
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
 			Selection.activeObject = go;

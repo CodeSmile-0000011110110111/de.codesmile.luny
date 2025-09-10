@@ -17,7 +17,7 @@ namespace Luny
 		ILunyRuntimeAssetRegistry AssetRegistry { get; }
 	}
 
-	internal interface ILunyRuntimeInternal
+	internal interface ILunyRuntimeInternal : ILunyRuntime
 	{
 		internal event Action OnDestroyLunyRuntime;
 	}

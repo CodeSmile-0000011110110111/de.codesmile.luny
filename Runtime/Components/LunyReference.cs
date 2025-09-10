@@ -1,6 +1,7 @@
 ﻿// Copyright (C) 2021-2025 Steffen Itterheim
 // Refer to included LICENSE file for terms and conditions.
 
+using Lua;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,19 +18,21 @@ namespace Luny
 	[DisallowMultipleComponent]
 	public sealed class LunyReference : MonoBehaviour
 	{
-		private LunyGameObject m_LunyGameObject;
-		private ILunyRuntimeInternal LunyInternal => (ILunyRuntimeInternal)LunyRuntime.Singleton;
+		private LuaValue m_LuaGameObject;
+		private ILunyRuntimeInternal LunyRuntime => (ILunyRuntimeInternal)Luny.LunyRuntime.Singleton;
 
 		/// <summary>
 		/// The LunyGameObject instance that wraps this GameObject for use with Luny scripts.
 		/// </summary>
-		public ILunyGameObject LunyGameObject => m_LunyGameObject ??= new LunyGameObject(LunyRuntime.Singleton.Lua, gameObject);
+		public LuaValue LuaGameObject => m_LuaGameObject.Type != LuaValueType.Nil
+			? m_LuaGameObject
+			: m_LuaGameObject = LunyRuntime!.Lua.ObjectFactory.Bind(gameObject);
 
 		private void Awake()
 		{
 			hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInInspector;
 
-			LunyInternal.OnDestroyLunyRuntime += OnDestroyLunyRuntime;
+			LunyRuntime.OnDestroyLunyRuntime += OnDestroyLunyRuntime;
 		}
 
 		private void OnDestroy()
@@ -37,8 +40,7 @@ namespace Luny
 			UnregisterLunyOnDestroyEvent();
 			InvokeAllRunnersOnBeforeDestroy();
 
-			m_LunyGameObject?.Dispose();
-			m_LunyGameObject = null;
+			m_LuaGameObject = LuaValue.Nil;
 		}
 
 		private void OnDestroyLunyRuntime()
@@ -49,8 +51,8 @@ namespace Luny
 
 		private void UnregisterLunyOnDestroyEvent()
 		{
-			if (LunyInternal != null)
-				LunyInternal.OnDestroyLunyRuntime -= OnDestroyLunyRuntime;
+			if (LunyRuntime != null)
+				LunyRuntime.OnDestroyLunyRuntime -= OnDestroyLunyRuntime;
 		}
 
 		private void InvokeAllRunnersOnBeforeDestroy()

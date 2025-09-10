@@ -32,7 +32,9 @@ namespace Luny
 		LuaValue Bind(IList<Object> instances);
 	}
 
-	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaUserData
+	internal interface ILuaObjectFactoryInternal : ILuaObjectFactory {}
+
+	public sealed class LuaObjectFactory : ILuaObjectFactory, ILuaObjectFactoryInternal, ILuaUserData
 	{
 		private readonly Dictionary<Type, LuaTypeInfo> m_LuaTypes = new();
 

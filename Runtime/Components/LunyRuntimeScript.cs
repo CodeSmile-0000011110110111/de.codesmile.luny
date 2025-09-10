@@ -28,7 +28,7 @@ namespace Luny
 		// Update? = 1 << 10,
 	}
 
-	public class LunyScript : MonoBehaviour
+	public class LunyRuntimeScript : MonoBehaviour
 	{
 		[Tooltip("The script asset to run.")]
 		[SerializeField] private LunyRuntimeLuaAsset m_LuaAsset;
@@ -51,7 +51,7 @@ namespace Luny
 		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
 		public ILunyLua Lua => m_Lua;
 
-		public static GameObject CreateLunyScriptObject() => new(nameof(LunyScript), typeof(LunyScript));
+		public static GameObject CreateLunyScriptObject() => new(nameof(LunyRuntimeScript), typeof(LunyRuntimeScript));
 
 		/// <summary>
 		/// Must call base.OnValidate() when overridden!
@@ -115,7 +115,7 @@ namespace Luny
 			m_LuaScript = CreateLuaScriptInstance();
 			gameObject.GetOrAddComponent<LunyRuntimeScriptCoordinator>();
 
-			OnBeforeFirstScriptLoad(m_LuaScript.ScriptContext);
+			OnBeforeInitialScriptLoad(m_LuaScript.ScriptContext);
 			await DoScriptAsync();
 		}
 
@@ -133,9 +133,9 @@ namespace Luny
 		{
 			LunyLuaScript luaScript;
 
-			Debug.Log($"Create script with context: {m_ScriptContext.Table.GetHashCode()}");
-			foreach (var context in m_ScriptContext.Table)
-				Debug.Log($"\t{context.Key} = {context.Value}");
+			// Debug.Log($"Create script with context: {m_ScriptContext.Table.GetHashCode()}");
+			// foreach (var context in m_ScriptContext.Table)
+			// 	Debug.Log($"\t{context.Key} = {context.Value}");
 
 			if (m_LuaAsset != null)
 				luaScript = new LunyLuaAssetScript(m_LuaAsset, m_ScriptContext.Table);
@@ -150,7 +150,7 @@ namespace Luny
 			}
 			else
 				throw new MissingReferenceException(
-					$"{nameof(LunyScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
+					$"{nameof(LunyRuntimeScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
 
 			m_Lua.AddScript(luaScript);
 			luaScript.OnScriptChanged -= OnScriptChanged;
@@ -158,10 +158,10 @@ namespace Luny
 			return luaScript;
 		}
 
-		private void OnScriptChanged(LunyLuaScript script)
+		private void OnScriptChanged(LunyLuaScript luaScript)
 		{
-			Debug.Assert(script == m_LuaScript);
-			Debug.Log($"Script changed: {script}");
+			Debug.Assert(luaScript == m_LuaScript);
+			Debug.Log($"Script changed: {luaScript}");
 			StartCoroutine(DeferredScriptReload());
 		}
 
@@ -184,6 +184,9 @@ namespace Luny
 				if (isReloading)
 					runner.OnWillReload();
 
+				var luaGameObject = LunyRef.LuaGameObject;
+				m_LuaScript.ScriptContext["gameObject"] = luaGameObject;
+
 				await m_LuaScript.ReloadScript(m_Lua.State);
 
 				if (isReloading == false)
@@ -201,7 +204,7 @@ namespace Luny
 		/// </summary>
 		/// <remarks>This runs during base.Awake(), after the LunyScript references have been assigned.</remarks>
 		/// <param name="scriptContext"></param>
-		protected virtual void OnBeforeFirstScriptLoad(LuaTable scriptContext) {}
+		protected virtual void OnBeforeInitialScriptLoad(LuaTable scriptContext) {}
 
 		/// <summary>
 		/// Override this to modify the script context table before the script gets (re-)loaded.
@@ -236,7 +239,7 @@ namespace Luny
 
 		private static class Helper
 		{
-			internal static void TryAssignMatchingScriptAsset(LunyScript instance)
+			internal static void TryAssignMatchingScriptAsset(LunyRuntimeScript instance)
 			{
 #if UNITY_EDITOR
 				// try to assign a Lua script of the same name in the same folder

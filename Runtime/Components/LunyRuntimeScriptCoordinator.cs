@@ -30,7 +30,7 @@ namespace Luny
 
 		private void OnDestroy() => m_Runners.Clear();
 
-		internal void AddScriptRunner(LunyScript lunyScript, LunyLuaScript luaScript)
+		internal void AddScriptRunner(LunyRuntimeScript lunyScript, LunyLuaScript luaScript)
 		{
 			var scriptIndex = lunyScript.GetComponentIndex();
 			Debug.Assert(!m_Runners.ContainsKey(scriptIndex), $"{gameObject}: LunyScript[{scriptIndex}] runner exists!");
@@ -46,10 +46,10 @@ namespace Luny
 			runner.SendAwakeAndOnEnable();
 		}
 
-		public Boolean TryGetScriptRunner(LunyScript lunyScript, out LunyRuntimeScriptRunner runner) =>
+		public Boolean TryGetScriptRunner(LunyRuntimeScript lunyScript, out LunyRuntimeScriptRunner runner) =>
 			m_Runners.TryGetValue(lunyScript.GetComponentIndex(), out runner);
 
-		internal Boolean DestroyScriptRunner(LunyScript lunyScript)
+		internal Boolean DestroyScriptRunner(LunyRuntimeScript lunyScript)
 		{
 			if (TryGetScriptRunner(lunyScript, out var runner) == false)
 				return false;
@@ -67,7 +67,7 @@ namespace Luny
 
 		internal struct InitReferences
 		{
-			public LunyScript LunyScript;
+			public LunyRuntimeScript LunyScript;
 			public LunyLuaScript LuaScript;
 			public ILunyLua Lua;
 			public Boolean IsValid;
