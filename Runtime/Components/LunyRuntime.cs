@@ -225,7 +225,7 @@ namespace Luny
 
 			if (luaAsset != null)
 			{
-				AssetUtil.IfEditorImportAsset(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
+				AssetUtil.IfEditor_ImportAsset(luaAsset); // pick up any changes to file if Auto-Refresh is disabled
 
 				content = luaAsset.Text;
 				return true;

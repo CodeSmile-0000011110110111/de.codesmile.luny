@@ -2,7 +2,7 @@
     "name": "LunyEditor.Core",
     "rootNamespace": "LunyEditor.Core",
     "references": [
-        "GUID:8b08bc580efd4d64b8b270f734077090"
+        "GUID:a62ef2889fa80e34f86d88bf29dfd8f6"
     ],
     "includePlatforms": [
         "Editor"

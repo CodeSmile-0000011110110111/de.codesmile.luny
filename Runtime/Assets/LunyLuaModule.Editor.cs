@@ -3,7 +3,6 @@
 
 #if UNITY_EDITOR
 using Luny.Core;
-using LunyEditor.Core;
 using System;
 using System.IO;
 using UnityEditor;
@@ -32,7 +31,7 @@ namespace Luny
 		private void Awake()
 		{
 			var modulePath = AssetDatabase.GetAssetPath(this);
-			m_IsEditorModule = EditorAssetUtil.IsEditorPath(modulePath) || EditorAssetUtil.IsEditorAssembly(modulePath);
+			m_IsEditorModule = AssetUtil.IsEditorPath(modulePath) || AssetUtil.IfEditor_IsEditorAssembly(modulePath);
 
 			TryInstantiateModuleLoaderEditorOnly();
 		}
@@ -90,7 +89,7 @@ namespace Luny
 		{
 			if (String.IsNullOrEmpty(typeName) == false)
 			{
-				var moduleAssembly = AssetUtil.IfEditorGetAssemblyForPath(folderPath);
+				var moduleAssembly = AssetUtil.IfEditor_GetAssemblyForPath(folderPath);
 				if (moduleAssembly != null)
 				{
 					var type = moduleAssembly.GetType(typeName);

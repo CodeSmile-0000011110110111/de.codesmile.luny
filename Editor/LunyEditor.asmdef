@@ -3,8 +3,8 @@
     "rootNamespace": "LunyEditor",
     "references": [
         "GUID:f2ddabe9e0aaa1c499a086b54a197337",
-        "GUID:8b08bc580efd4d64b8b270f734077090",
-        "GUID:4a75ceda0d3b49c7bdf28da9af26a8b1"
+        "GUID:a62ef2889fa80e34f86d88bf29dfd8f6",
+        "GUID:c68d563b77a10d64fb8cefc01d298f62"
     ],
     "includePlatforms": [
         "Editor"

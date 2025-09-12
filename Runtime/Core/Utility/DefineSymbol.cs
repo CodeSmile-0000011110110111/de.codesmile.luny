@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor.Core
+namespace Luny.Core
 {
 	public static class DefineSymbol
 	{
