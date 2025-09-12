@@ -11,7 +11,6 @@ namespace Luny
 	{
 		public LuaValue LuaGameObject { get; }
 		public LuaValue LuaTransform { get; }
-
 	}
 
 	/// <summary>

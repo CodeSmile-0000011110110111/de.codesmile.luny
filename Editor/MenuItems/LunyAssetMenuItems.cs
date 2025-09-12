@@ -79,6 +79,14 @@ namespace LunyEditor.MenuItems
 			ProjectWindowUtil.CreateAssetWithContent("New Auto-Run Lua Script.lua", s_EmptyLuaScript);
 		}
 
+		[MenuItem("Assets/Create/Luny/Editor Lua Script", true, priority = 7)]
+		private static bool CreateEditorAutoRunLuaScriptValidate()
+		{
+			var activeObject = Selection.activeObject;
+			var path = AssetDatabase.GetAssetPath(activeObject);
+			return EditorAssetUtil.IsEditorAssembly(path) || EditorAssetUtil.IsEditorPath(path);
+		}
+
 		[MenuItem("GameObject/Luny/Luny Runtime", false, priority = 10)]
 		private static void CreateLunyGameObject(MenuCommand menuCommand)
 		{

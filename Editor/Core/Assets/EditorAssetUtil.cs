@@ -15,28 +15,28 @@ namespace LunyEditor.Core
 	{
 		private static readonly Int32 s_DllStringLength = ".dll".Length;
 
-		public static Boolean IsFolder(String assetPath) => AssetDatabase.IsValidFolder(assetPath);
+		public static Boolean IsFolder(String assetPath) => assetPath != null && AssetDatabase.IsValidFolder(assetPath);
 
 		/// <summary>
 		/// Test if the path points to a Lua script (.lua extension).
 		/// </summary>
 		/// <param name="assetPath"></param>
 		/// <returns></returns>
-		public static Boolean IsLuaScript(String assetPath) => Path.GetExtension(assetPath) == ".lua";
+		public static Boolean IsLuaScript(String assetPath) => assetPath != null && Path.GetExtension(assetPath) == ".lua";
 
 		/// <summary>
 		/// Test if the path is in an "Editor" folder, or a child thereof.
 		/// </summary>
 		/// <param name="assetPath"></param>
 		/// <returns></returns>
-		public static Boolean IsEditorPath(String assetPath) => assetPath.ToLower().Contains("/editor/");
+		public static Boolean IsEditorPath(String assetPath) => assetPath != null && assetPath.ToLower().Contains("/editor/");
 
 		/// <summary>
 		/// Test if the path is in a "Modding" folder, or a child thereof.
 		/// </summary>
 		/// <param name="assetPath"></param>
 		/// <returns></returns>
-		public static Boolean IsModdingPath(String assetPath) => assetPath.ToLower().Contains("/modding/");
+		public static Boolean IsModdingPath(String assetPath) => assetPath != null && assetPath.ToLower().Contains("/modding/");
 
 		/// <summary>
 		/// Test if the current path is within an editor assembly definition. Does not check for "Editor" folders.
@@ -45,6 +45,9 @@ namespace LunyEditor.Core
 		/// <returns></returns>
 		public static Boolean IsEditorAssembly(String assetPath)
 		{
+			if (string.IsNullOrEmpty(assetPath))
+				return false;
+
 			var assemblyName = CompilationPipeline.GetAssemblyNameFromScriptPath(assetPath);
 			if (assemblyName != null && assemblyName.Length > s_DllStringLength)
 			{
