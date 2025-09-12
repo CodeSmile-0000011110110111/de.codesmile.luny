@@ -15,13 +15,13 @@ namespace LunyEditor.MenuItems
 	internal static class CreateLunyAssetsMenu
 	{
 		private static readonly String s_LuaScriptContext =
-			"-- assign script's context table to a local variable:\n" +
+			"-- assign script's context table to a local variable (... is Lua's varargs operator):\n" +
 			"local script = ...\n\n";
 
 		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
 		                                                  "-- Unity event messages call Lua functions of the same name in the 'script' table:\n" +
 		                                                  "script.OnEnable = function()\n" +
-		                                                  "	print(\"Hello, \" .. context.Name .. \".lua\")\n" +
+		                                                  "	print(\"Hello, \" .. script.Name .. \".lua\")\n" +
 		                                                  "end\n";
 
 		private static readonly String s_EmptyLunyScript = "using Lua;\n" +
