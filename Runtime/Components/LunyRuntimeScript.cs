@@ -46,9 +46,12 @@ namespace Luny
 		private LuaGameObjectReferences m_LuaGoRefs;
 		private LunyLuaScript m_LuaScript;
 		private Boolean m_IsLuaGoRefsAssigned;
+		private Boolean m_IsHotReloading;
+
 		public LuaScriptEvents ForwardedEventTypes => m_ForwardedEventTypes;
 
-		private LuaGameObjectReferences LuaGoRefs => m_IsLuaGoRefsAssigned ? m_LuaGoRefs : m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
+		private LuaGameObjectReferences LuaGoRefs =>
+			m_IsLuaGoRefsAssigned ? m_LuaGoRefs : m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
 		public ILunyLua Lua => m_Lua;
 
 		public static GameObject CreateLunyScriptObject() => new(nameof(LunyRuntimeScript), typeof(LunyRuntimeScript));
@@ -133,7 +136,7 @@ namespace Luny
 
 		private LuaGameObjectReferences GetOrAddLuaGameObjectReferencesComponent()
 		{
-			if (m_IsLuaGoRefsAssigned == false)
+			if (!m_IsLuaGoRefsAssigned)
 			{
 				m_IsLuaGoRefsAssigned = true;
 				m_LuaGoRefs = gameObject.GetOrAddComponent<LuaGameObjectReferences>();
@@ -161,8 +164,10 @@ namespace Luny
 				Debug.Assert(luaScript != null, nameof(luaScript) + $" failed to read: {m_LuaFilePath}");
 			}
 			else
+			{
 				throw new MissingReferenceException(
 					$"{nameof(LunyRuntimeScript)}: neither {nameof(m_LuaAsset)} nor {nameof(m_LuaFilePath)} is assigned");
+			}
 
 			m_Lua.AddScript(luaScript);
 			luaScript.OnScriptChanged -= OnScriptChanged;
@@ -182,10 +187,18 @@ namespace Luny
 			// don't interrupt the currently running frame
 			yield return new WaitForEndOfFrame();
 
-			m_LuaScript.TrySendEvent<LunyScriptLoadEvent>(m_Lua.State, (Int32)LunyScriptLoadEvent.OnScriptUnload);
+			// avoid hot reloading again in parallel just to be perfectly safe
+			if (m_IsHotReloading)
+				yield return new WaitUntil(() => !m_IsHotReloading);
+
+			m_IsHotReloading = true;
+			m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnDisable);
 
 			var task = DoScriptAsync().Preserve();
 			yield return new WaitUntil(() => task.IsCompleted);
+
+			m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnEnable);
+			m_IsHotReloading = false;
 		}
 
 		private async ValueTask DoScriptAsync()
@@ -200,7 +213,7 @@ namespace Luny
 
 				await m_LuaScript.ReloadScript(m_Lua.State);
 
-				if (isReloading == false)
+				if (!isReloading)
 					GetComponent<LunyRuntimeScriptCoordinator>().AddScriptRunner(this, m_LuaScript);
 			}
 			catch (Exception e)
