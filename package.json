@@ -2,7 +2,7 @@
   "name": "de.codesmile.luny",
   "displayName": "Luny",
   "description": "Program Unity in Lua - Editor and Runtime. Hot reloads every change.",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "unity": "6000.0",
   "unityRelease": "35f1",
   "author": {
