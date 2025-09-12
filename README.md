@@ -17,9 +17,9 @@ end
 
 script.Update = function()
     -- make it move slowly to the right
-    local pos = script.go.transform.position
+    local pos = script.transform.position
     pos = pos + Vector3(0.1, 0, 0)
-    script.go.transform.position = pos
+    script.transform.position = pos
 end
 ```
 
@@ -29,6 +29,12 @@ script.OnScriptUnload = function()
     Object.Destroy(script.go)
 end
 ```
+The events called during a hot reload are, in this order:
+- OnDisable
+- OnScriptUnload
+- OnScriptLoad
+- OnEnable
+
 ## Luny 0.5 Features
 
 - UnityEditor and UnityEngine "Core Modules" available, more to come ...
@@ -143,7 +149,7 @@ Create a new Editor Lua script in a `/Editor` folder:
 
 ![Create Editor Lua Script](~Media/create-editor-lua-script.png)
 
-Capture the script's context table in a local variable, where `...` is Lua's _varargs_ operator:
+Capture the script's context table in a local variable, where `...` is Lua's _varargs_ keyword similar to C# `params`:
 ```
 local script = ...
 ```
@@ -183,7 +189,7 @@ Both `UnityEditor` and `UnityEngine` APIs are at your disposal, these are merely
 EditorSceneManager.OpenScene("Main Scene.unity");
 
 -- some vector math:
-local input = Vector3.new(10, 20, 30)
+local input = Vector3(10, 20, 30)
 local velocity = input.normalized * Time.deltaTime
 ```
 
