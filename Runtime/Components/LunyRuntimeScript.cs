@@ -43,12 +43,12 @@ namespace Luny
 		[SerializeField] private SerializedLuaTable m_ScriptContext;
 
 		private ILunyLua m_Lua;
-		private LunyReference m_LunyRef;
+		private LuaGameObjectReferences m_LuaGoRefs;
 		private LunyLuaScript m_LuaScript;
-		private Boolean m_IsLunyRefAssigned;
+		private Boolean m_IsLuaGoRefsAssigned;
 		public LuaScriptEvents ForwardedEventTypes => m_ForwardedEventTypes;
 
-		private LunyReference LunyRef => m_IsLunyRefAssigned ? m_LunyRef : m_LunyRef = GetOrAddLunyReference();
+		private LuaGameObjectReferences LuaGoRefs => m_IsLuaGoRefsAssigned ? m_LuaGoRefs : m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
 		public ILunyLua Lua => m_Lua;
 
 		public static GameObject CreateLunyScriptObject() => new(nameof(LunyRuntimeScript), typeof(LunyRuntimeScript));
@@ -104,14 +104,22 @@ namespace Luny
 		/// <summary>
 		/// Must call base.OnDestroy() when overridden!
 		/// </summary>
-		protected virtual void OnDestroy() =>
+		protected virtual void OnDestroy()
+		{
 			// Lua may already be null when changing scenes / exiting playmode because LunyRuntime gets destroyed first
 			m_Lua?.RemoveScript(m_LuaScript);
+
+			m_IsLuaGoRefsAssigned = false;
+			m_LuaGoRefs = null;
+			m_LuaScript = null;
+			m_Lua = null;
+		}
 
 		private async void AssignReferencesAndLoadScript()
 		{
 			m_Lua = GetModdingOrRuntimeLuaInstance();
-			m_LunyRef = GetOrAddLunyReference();
+			m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
+
 			m_LuaScript = CreateLuaScriptInstance();
 			gameObject.GetOrAddComponent<LunyRuntimeScriptCoordinator>();
 
@@ -123,10 +131,14 @@ namespace Luny
 			? LunyRuntime.Singleton.ModdingLua
 			: LunyRuntime.Singleton.Lua;
 
-		private LunyReference GetOrAddLunyReference()
+		private LuaGameObjectReferences GetOrAddLuaGameObjectReferencesComponent()
 		{
-			m_IsLunyRefAssigned = true;
-			return gameObject.GetOrAddComponent<LunyReference>();
+			if (m_IsLuaGoRefsAssigned == false)
+			{
+				m_IsLuaGoRefsAssigned = true;
+				m_LuaGoRefs = gameObject.GetOrAddComponent<LuaGameObjectReferences>();
+			}
+			return m_LuaGoRefs;
 		}
 
 		private LunyLuaScript CreateLuaScriptInstance()
@@ -184,8 +196,7 @@ namespace Luny
 				if (isReloading)
 					runner.OnWillReload();
 
-				var luaGameObject = LunyRef.LuaGameObject;
-				m_LuaScript.ScriptContext["gameObject"] = luaGameObject;
+				m_LuaScript.SetRuntimeContextVariables(LuaGoRefs);
 
 				await m_LuaScript.ReloadScript(m_Lua.State);
 

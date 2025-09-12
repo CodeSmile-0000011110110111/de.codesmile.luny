@@ -7,6 +7,13 @@ using UnityEngine;
 
 namespace Luny
 {
+	public interface ILunyGameObjectReferences
+	{
+		public LuaValue LuaGameObject { get; }
+		public LuaValue LuaTransform { get; }
+
+	}
+
 	/// <summary>
 	///     Provides access to Luny and LunyGameObject references.
 	/// </summary>
@@ -16,9 +23,11 @@ namespace Luny
 	/// </remarks>
 	[AddComponentMenu("GameObject/")] // Do not list in "Add Component" menu
 	[DisallowMultipleComponent]
-	public sealed class LunyReference : MonoBehaviour
+	public sealed class LuaGameObjectReferences : MonoBehaviour, ILunyGameObjectReferences
 	{
 		private LuaValue m_LuaGameObject;
+		private LuaValue m_LuaTransform;
+
 		private ILunyRuntimeInternal LunyRuntime => (ILunyRuntimeInternal)Luny.LunyRuntime.Singleton;
 
 		/// <summary>
@@ -27,6 +36,10 @@ namespace Luny
 		public LuaValue LuaGameObject => m_LuaGameObject.Type != LuaValueType.Nil
 			? m_LuaGameObject
 			: m_LuaGameObject = LunyRuntime!.Lua.ObjectFactory.Bind(gameObject);
+
+		public LuaValue LuaTransform => m_LuaTransform.Type != LuaValueType.Nil
+			? m_LuaTransform
+			: m_LuaTransform = LunyRuntime!.Lua.ObjectFactory.Bind(gameObject.transform);
 
 		private void Awake()
 		{

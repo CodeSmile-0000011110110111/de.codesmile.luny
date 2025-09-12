@@ -15,11 +15,13 @@ namespace Luny
 {
 	public abstract class LunyLuaScript
 	{
-		public const String InstanceKey = "this";
-		public const String ScriptNameKey = "Name";
-		public const String ScriptPathKey = "Path";
-		public const String EditorTypeKey = "EditorType";
-		public const String BindTypeKey = "BindType";
+		public const String InstanceKey = "self";
+		public const String ScriptNameKey = "name";
+		public const String ScriptPathKey = "path";
+		public const String EditorTypeKey = "editorType";
+		public const String BindTypeKey = "bindType";
+		public const String GameObjectKey = "gameObject";
+		public const String TransformKey = "transform";
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
 		private readonly LunyScriptEventHandlerCollection m_EventHandlers = new();
@@ -159,6 +161,15 @@ namespace Luny
 			ScriptContext[BindTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
 			ScriptContext[ScriptPathKey] = path;
+
+			// FIXME: backward compatibility aliases
+			ScriptContext["Name"] = name;
+			ScriptContext["Path"] = path;
+		}
+		internal void SetRuntimeContextVariables(ILunyGameObjectReferences gameObjectReferences)
+		{
+			m_ScriptContext[GameObjectKey] = gameObjectReferences.LuaGameObject;
+			m_ScriptContext[TransformKey] = gameObjectReferences.LuaTransform;
 		}
 
 		internal void TrySendEvent<T>(LuaState luaState, Int32 enumValue, params LuaValue[] args) where T : Enum

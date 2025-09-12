@@ -15,12 +15,6 @@ using Object = System.Object;
 
 namespace Luny
 {
-	public interface ILuaObject<T> : ILuaBindType where T : class
-	{
-		T Instance { get; }
-		static LuaValue Bind([NotNull] T instance) => throw new NotImplementedException();
-	}
-
 	public sealed partial class LuaObject<T> : ILuaObject<T> where T : class
 	{
 		public T Instance { get; }
