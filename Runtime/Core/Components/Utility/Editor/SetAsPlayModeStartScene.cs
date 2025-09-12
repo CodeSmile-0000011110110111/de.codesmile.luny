@@ -24,7 +24,7 @@ namespace Luny.Core.Components
 	internal sealed class SetAsPlayModeStartScene : MonoBehaviour
 	{
 #if UNITY_EDITOR
-		private const String MenuItemPath = "Tools/CodeSmile/Use PlayMode StartScene Override";
+		private const String MenuItemPath = "Window/CodeSmile/Use PlayMode StartScene Override";
 
 		[MenuItem(MenuItemPath)]
 		public static void TogglePlayModeStartSceneIsActiveScene() => IsStartSceneOverridden = !IsStartSceneOverridden;
