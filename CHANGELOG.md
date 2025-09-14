@@ -8,6 +8,7 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 
 ### 0.5.4
 
+- fixed: LunyRuntimeScript Inspector: 'Script Context' dictionary values could not be added
 - fixed: Create Asset "Editor Lua Script" will be grayed out if the location isn't an 'Editor' folder or assembly
 - fixed: NullreferenceException and ArgumentException after first installation of Luny package (were harmless, but annoying)
 

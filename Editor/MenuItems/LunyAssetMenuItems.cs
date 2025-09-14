@@ -21,7 +21,7 @@ namespace LunyEditor.MenuItems
 		private static readonly String s_EmptyLuaScript = s_LuaScriptContext +
 		                                                  "-- Unity event messages call Lua functions of the same name in the 'script' table:\n" +
 		                                                  "script.OnEnable = function()\n" +
-		                                                  "	print(\"Hello, \" .. script.Name .. \".lua\")\n" +
+		                                                  "	print(\"Hello, \" .. script.name .. \".lua\")\n" +
 		                                                  "end\n";
 
 		private static readonly String s_EmptyLunyScript = "using Lua;\n" +

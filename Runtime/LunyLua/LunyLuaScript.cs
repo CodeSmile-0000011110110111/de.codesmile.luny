@@ -25,7 +25,7 @@ namespace Luny
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
 		private readonly LunyScriptEventHandlerCollection m_EventHandlers = new();
-		public Action<LunyLuaScript> OnScriptChanged;
+		public event Action<LunyLuaScript> OnScriptChanged;
 
 		private LuaTable m_ScriptContext = new(0,0);
 		private String m_ScriptName;

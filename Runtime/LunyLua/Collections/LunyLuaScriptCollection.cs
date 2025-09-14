@@ -14,7 +14,7 @@ namespace Luny
 		private readonly List<LunyLuaScript> m_Scripts = new();
 		private readonly Dictionary<String, LunyLuaScript> m_FullPathScripts = new();
 
-		public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
+		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
 		public Int32 Count => m_Scripts.Count;
 		public Boolean IsReadOnly => false;
 

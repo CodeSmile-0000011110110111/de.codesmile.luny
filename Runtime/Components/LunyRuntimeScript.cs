@@ -176,6 +176,7 @@ namespace Luny
 			m_Lua.AddScript(luaScript);
 			luaScript.OnScriptChanged -= OnScriptChanged;
 			luaScript.OnScriptChanged += OnScriptChanged;
+
 			return luaScript;
 		}
 

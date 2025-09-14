@@ -92,6 +92,8 @@ namespace Luny
 			LuaModuleFactory.LoadModules(this, luaContext, out m_Namespaces, out m_Enums);
 		}
 
+		public async ValueTask RunScript(LunyLuaScript script) => await script.DoScriptAsync(m_LuaState);
+
 		public async ValueTask AddAndRunScript(LunyLuaScript script)
 		{
 			if (script == null)
@@ -100,10 +102,6 @@ namespace Luny
 			AddScript(script);
 			await RunScript(script);
 		}
-
-		public void AddScript(LunyLuaScript script) => m_Scripts.Add(script);
-
-		public async ValueTask RunScript(LunyLuaScript script) => await script.DoScriptAsync(m_LuaState);
 
 		public async ValueTask AddAndRunScripts(IEnumerable<LunyLuaScript> scripts)
 		{
@@ -115,6 +113,11 @@ namespace Luny
 				if (script != null)
 					await AddAndRunScript(script);
 			}
+		}
+
+		public void AddScript(LunyLuaScript script)
+		{
+			m_Scripts.Add(script);
 		}
 
 		public void RemoveScript(LunyLuaScript script)
