@@ -115,7 +115,9 @@ namespace LunyEditor.Inspector
 				var keyField = keyValuePair.Q<PropertyField>("keyField");
 				var keyText = keyField.Q<TextElement>();
 				var dupeKey = keyValuePair.Q<VisualElement>("duplicateKey");
-
+				if (keyField == null || keyText == null || dupeKey == null)
+					return;
+				
 				var isDuplicate = duplicateKeys.Contains(keyText.text);
 				dupeKey.style.display = isDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
 			});
