@@ -11,6 +11,8 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 - fixed: LunyRuntimeScript Inspector: 'Script Context' dictionary values could not be added
 - fixed: Create Asset "Editor Lua Script" will be grayed out if the location isn't an 'Editor' folder or assembly
 - fixed: NullreferenceException and ArgumentException after first installation of Luny package (were harmless, but annoying)
+- fixed: only hot reloaded first instance of same script when script file was changed
+- fixed: hot reload of scripts on inactive object/component will occur when re-enabled 
 
 ### 0.5.3
 

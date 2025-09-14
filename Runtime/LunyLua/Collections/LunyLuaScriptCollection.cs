@@ -12,7 +12,7 @@ namespace Luny
 	public sealed class LunyLuaScriptCollection : IList<LunyLuaScript>
 	{
 		private readonly List<LunyLuaScript> m_Scripts = new();
-		private readonly Dictionary<String, LunyLuaScript> m_FullPathScripts = new();
+		private readonly Dictionary<String, List<int>> m_FullPathScriptIndexes = new();
 
 		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
 		public Int32 Count => m_Scripts.Count;
@@ -26,23 +26,69 @@ namespace Luny
 
 		public void Add(LunyLuaScript luaScript)
 		{
+			var scriptIndex = m_Scripts.Count;
 			var scriptPath = luaScript.FullPath;
-			if (m_FullPathScripts.ContainsKey(scriptPath))
-				Remove(luaScript);
+			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
+				indexes.Add(scriptIndex);
+			else
+				m_FullPathScriptIndexes.Add(scriptPath, new List<int> {scriptIndex});
 
-			m_FullPathScripts.Add(scriptPath, luaScript);
 			m_Scripts.Add(luaScript);
 		}
 
 		public Boolean Remove(LunyLuaScript luaScript)
 		{
-			m_FullPathScripts.Remove(luaScript.FullPath);
-			return m_Scripts.Remove(luaScript);
+			var scriptPath = luaScript.FullPath;
+			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
+			{
+				var scriptCount = m_Scripts.Count;
+				for (int i = 0; i < indexes.Count; i++)
+				{
+					var scriptIndex = indexes[i];
+					if (scriptIndex < scriptCount && m_Scripts[scriptIndex].Equals(luaScript))
+					{
+						m_Scripts.RemoveAt(scriptIndex);
+						indexes.RemoveAt(i);
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		public void RemoveAt(Int32 index)
+		{
+			var script = m_Scripts[index];
+			if (m_FullPathScriptIndexes.TryGetValue(script.FullPath, out var indexes))
+				indexes.Remove(index);
+
+			m_Scripts.RemoveAt(index);
+		}
+
+		public void RemoveScriptsForAsset(LunyLuaAsset luaAsset)
+		{
+			var scriptPath = luaAsset.FullPath;
+			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
+			{
+				var scriptCount = m_Scripts.Count;
+				for (int i = 0; i < indexes.Count; i++)
+				{
+					var scriptIndex = indexes[i];
+					if (scriptIndex < scriptCount)
+					{
+						Debug.Assert(scriptPath == m_Scripts[scriptIndex].FullPath);
+						m_Scripts.RemoveAt(scriptIndex);
+					}
+				}
+
+				m_FullPathScriptIndexes.Remove(scriptPath);
+			}
 		}
 
 		public void Clear()
 		{
-			m_FullPathScripts.Clear();
+			m_FullPathScriptIndexes.Clear();
 			m_Scripts.Clear();
 		}
 
@@ -53,29 +99,28 @@ namespace Luny
 
 		public void Insert(Int32 index, LunyLuaScript luaScript) => throw new NotImplementedException();
 
-		public void RemoveAt(Int32 index)
-		{
-			var script = m_Scripts[index];
-			m_Scripts.RemoveAt(index);
-			m_FullPathScripts.Remove(script.FullPath);
-		}
 
-		public void RemoveScriptForAsset(LunyLuaAsset luaAsset)
+		public Boolean TryGetScriptsForPath(String scriptPath, out IList<LunyLuaScript> scripts)
 		{
-			var assetFullPath = luaAsset.FullPath;
-			m_FullPathScripts.Remove(assetFullPath);
+			scripts = null;
 
-			for (var i = m_Scripts.Count - 1; i >= 0; i--)
+			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
 			{
-				var script = m_Scripts[i];
-				if (script.FullPath == assetFullPath)
+				var scriptCount = m_Scripts.Count;
+				for (int i = 0; i < indexes.Count; i++)
 				{
-					m_Scripts.RemoveAt(i);
-					break;
+					var scriptIndex = indexes[i];
+					if (scriptIndex < scriptCount)
+					{
+						if (scripts == null)
+							scripts = new List<LunyLuaScript>();
+
+						scripts.Add(m_Scripts[scriptIndex]);
+					}
 				}
 			}
-		}
 
-		public Boolean TryGetScriptForPath(String fullPath, out LunyLuaScript script) => m_FullPathScripts.TryGetValue(fullPath, out script);
+			return scripts != null;
+		}
 	}
 }

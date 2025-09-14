@@ -47,6 +47,7 @@ namespace Luny
 		private LunyLuaScript m_LuaScript;
 		private Boolean m_IsLuaGoRefsAssigned;
 		private Boolean m_IsHotReloading;
+		private Boolean m_ScriptChangedWhileInactive;
 
 		public LuaScriptEvents ForwardedEventTypes => m_ForwardedEventTypes;
 
@@ -99,6 +100,12 @@ namespace Luny
 			// for cases where LunyScript component was initially disabled
 			if (m_Lua == null)
 				AssignReferencesAndLoadScript();
+			else if (m_ScriptChangedWhileInactive && isActiveAndEnabled)
+			{
+				// in cases where a script was modified while the object or component was disabled
+				m_ScriptChangedWhileInactive = false;
+				StartCoroutine(DeferredScriptReload(true));
+			}
 
 			UpdateScriptRunnerEnabledState();
 		}
@@ -183,28 +190,37 @@ namespace Luny
 		private void OnScriptChanged(LunyLuaScript luaScript)
 		{
 			Debug.Assert(luaScript == m_LuaScript);
-			Debug.Log($"{name} script changed: {luaScript} (active: {isActiveAndEnabled})");
+			//Debug.Log($"{name} script changed: {luaScript} (active: {isActiveAndEnabled})");
 
 			if (isActiveAndEnabled)
 				StartCoroutine(DeferredScriptReload());
+			else
+				m_ScriptChangedWhileInactive = true;
 		}
 
-		private IEnumerator DeferredScriptReload()
+		private IEnumerator DeferredScriptReload(Boolean immediateReload = false)
 		{
-			// don't interrupt the currently running frame
-			yield return new WaitForEndOfFrame();
+			if (immediateReload == false)
+			{
+				// don't interrupt the currently running frame
+				yield return new WaitForEndOfFrame();
+			}
 
 			// avoid hot reloading again in parallel just to be perfectly safe
 			if (m_IsHotReloading)
 				yield return new WaitUntil(() => !m_IsHotReloading);
 
 			m_IsHotReloading = true;
-			m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnDisable);
+
+			if (immediateReload == false)
+				m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnDisable);
 
 			var task = DoScriptAsync().Preserve();
 			yield return new WaitUntil(() => task.IsCompleted);
 
-			m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnEnable);
+			if (immediateReload == false)
+				m_LuaScript.TrySendEvent<MonoBehaviourLifecycleEvent>(m_Lua.State, (Int32)MonoBehaviourLifecycleEvent.OnEnable);
+
 			m_IsHotReloading = false;
 		}
 

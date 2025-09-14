@@ -132,7 +132,7 @@ namespace LunyEditor
 			script.TrySendEvent<EditorScriptLifecycleEvent>(m_LuaState, (Int32)EditorScriptLifecycleEvent.OnEnable);
 		}
 
-		internal void RemoveScriptForAsset(LunyLuaAsset luaAsset) => m_Scripts.RemoveScriptForAsset(luaAsset);
+		internal void RemoveScriptForAsset(LunyLuaAsset luaAsset) => m_Scripts.RemoveScriptsForAsset(luaAsset);
 
 		private async void OnScriptChanged(LunyLuaScript script)
 		{

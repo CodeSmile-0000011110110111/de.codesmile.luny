@@ -174,7 +174,7 @@ namespace LunyEditor
 			var settings = LunyProjectSettings.Singleton;
 			if (settings.EditorAutoRunLuaAssets.Contains(luaAsset as LunyEditorLuaAsset))
 			{
-				Lua.RemoveScript(luaAsset);
+				Lua.RemoveAssetScripts(luaAsset);
 				UnregisterEditorScriptByAsset(luaAsset);
 			}
 		}
