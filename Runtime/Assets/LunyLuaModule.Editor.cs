@@ -33,7 +33,7 @@ namespace Luny
 			var modulePath = AssetDatabase.GetAssetPath(this);
 			m_IsEditorModule = AssetUtil.IsEditorPath(modulePath) || AssetUtil.IfEditor_IsEditorAssembly(modulePath);
 
-			TryInstantiateModuleLoaderEditorOnly();
+			EditorApplication.delayCall += () => TryInstantiateModuleLoaderEditorOnly();
 		}
 
 		internal String GetContentRootFolderPath() => Path.ChangeExtension(AssetDatabase.GetAssetPath(this), null);
@@ -60,15 +60,24 @@ namespace Luny
 						Loader = newInstance,
 					};
 
-					if (IsEditorModule == false)
-					{
-						var assetRegistry = LunyRuntimeAssetRegistry.Singleton;
-						assetRegistry.SetRuntimeModuleLoader(m_ModuleLoaderInfo);
-						assetRegistry.Save();
-					}
-
-					Debug.Log($"{name}: Instantiated {m_ModuleLoaderInfo}");
+					if (!IsEditorModule)
+						SetModuleLoaderAndSave();
 				}
+			}
+		}
+
+		private void SetModuleLoaderAndSave()
+		{
+			var assetRegistry = LunyRuntimeAssetRegistry.Singleton;
+			if (assetRegistry != null)
+			{
+				assetRegistry.SetRuntimeModuleLoader(m_ModuleLoaderInfo);
+				assetRegistry.Save();
+			}
+			else
+			{
+				// might happen on very first install of Luny, retry after a delay
+				EditorApplication.delayCall += () => SetModuleLoaderAndSave();
 			}
 		}
 
@@ -87,7 +96,7 @@ namespace Luny
 
 		private T TryInstantiateType<T>(String folderPath, String typeName) where T : class
 		{
-			if (String.IsNullOrEmpty(typeName) == false)
+			if (!String.IsNullOrEmpty(typeName))
 			{
 				var moduleAssembly = AssetUtil.IfEditor_GetAssemblyForPath(folderPath);
 				if (moduleAssembly != null)
@@ -106,7 +115,7 @@ namespace Luny
 		public void InvalidateModuleLoader()
 		{
 			m_ModuleLoaderInfo?.Reset();
-			if (IsEditorModule == false)
+			if (!IsEditorModule)
 				LunyRuntimeAssetRegistry.Singleton.Save();
 		}
 	}
