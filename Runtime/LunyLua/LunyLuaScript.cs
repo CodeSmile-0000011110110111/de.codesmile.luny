@@ -126,7 +126,7 @@ namespace Luny
 
 		public LunyLuaScript(LuaTable scriptContext = null) => m_ScriptContext = scriptContext ?? m_ScriptContext;
 
-		internal void Dispose() => m_ScriptContext = null;
+		internal void Dispose() => m_ScriptContext.Clear();
 
 		internal void SendScriptChangedEvent() => OnScriptChanged?.Invoke(this);
 
