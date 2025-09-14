@@ -19,44 +19,51 @@ namespace LunyEditor.Inspector
 		private VisualTreeAsset m_LuaValueTemplate;
 		private VisualTreeAsset m_LuaKeyValueTemplate;
 
-		private SerializedProperty m_Property;
+		//private SerializedProperty m_Property;
 		private SerializedProperty m_DictionaryValues;
+		private GroupBox m_ContainerGroup;
 		private ListView m_ArrayList;
 		private ListView m_DictionaryList;
 
 		private static VisualTreeAsset LoadLuaTableTemplate()
 		{
 			var path = $"{PathRoot}/{nameof(SerializedLuaTable)}.uxml";
-			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			Debug.Assert(template != null, $"Template not found: {path}");
+			return template;
 		}
 
 		private static VisualTreeAsset LoadLuaValueTemplate()
 		{
 			var path = $"{PathRoot}/{nameof(SerializedLuaValue)}.uxml";
-			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			Debug.Assert(template != null, $"Template not found: {path}");
+			return template;
 		}
 
 		private static VisualTreeAsset LoadLuaKeyValueTemplate()
 		{
 			var path = $"{PathRoot}/{nameof(SerializedLuaKeyValue)}.uxml";
-			return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+			Debug.Assert(template != null, $"Template not found: {path}");
+			return template;
 		}
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
-			m_Property = property;
+			//m_Property = property;
 			m_DictionaryValues = property.FindPropertyRelative("m_DictionaryValues");
 
 			var container = LoadLuaTableTemplate().CloneTree();
 			m_LuaValueTemplate = LoadLuaValueTemplate();
 			m_LuaKeyValueTemplate = LoadLuaKeyValueTemplate();
 
-			var group = container.Q<GroupBox>("group");
-			group.text = property.displayName;
+			m_ContainerGroup = container.Q<GroupBox>("group");
+			m_ContainerGroup.text = property.displayName;
 
-			// m_ArrayList = container.Q<ListView>("arrayList");
+			// m_ArrayList = m_ContainerGroup.Q<ListView>("arrayList");
 			// m_ArrayList.makeItem += MakeArrayItem;
-			m_DictionaryList = container.Q<ListView>("dictionaryList");
+			m_DictionaryList = m_ContainerGroup.Q<ListView>("dictionaryList");
 			m_DictionaryList.makeItem += MakeDictionaryItem;
 
 			return container;
@@ -78,14 +85,13 @@ namespace LunyEditor.Inspector
 			keyField.label = "";
 			keyField.RegisterValueChangeCallback(OnKeyValueChange);
 
-			// FIXME: delayed because query for "propertyField" would fail otherwise (not yet bound?), causes re-layout issue
-			// EditorApplication.delayCall += () =>
-			// {
-			// 	// remove the "value" label since we're using a key TextField instead
-			// 	var valueField = container.Q<PropertyField>("valueField");
-			// 	var valuePropertyField = valueField.Q<PropertyField>("propertyField");
-			// 	valuePropertyField.label = "";
-			// };
+			// remove the "value" label since we're using a key TextField instead
+			var valueField = m_ContainerGroup.Q<PropertyField>("valueField");
+			if (valueField != null)
+			{
+				var valuePropertyField = valueField.Q<PropertyField>("propertyField");
+				valuePropertyField.label = "";
+			}
 
 			return luaKeyValueElement;
 		}
@@ -107,10 +113,10 @@ namespace LunyEditor.Inspector
 			pairs.ForEach(keyValuePair =>
 			{
 				var keyField = keyValuePair.Q<PropertyField>("keyField");
-				var textElement = keyField.Q<TextElement>();
+				var keyText = keyField.Q<TextElement>();
 				var dupeKey = keyValuePair.Q<VisualElement>("duplicateKey");
 
-				var isDuplicate = duplicateKeys.Contains(textElement.text);
+				var isDuplicate = duplicateKeys.Contains(keyText.text);
 				dupeKey.style.display = isDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
 			});
 		}

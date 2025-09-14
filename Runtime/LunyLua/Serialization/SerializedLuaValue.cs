@@ -46,13 +46,13 @@ namespace Luny
 			}
 		}
 
-		public SerializedLuaValue(LuaValue luaValue)
+		public SerializedLuaValue(LuaValue value)
 		{
-			m_ValueType = luaValue.Type;
+			m_ValueType = value.Type;
 			m_BooleanValue = false;
 			m_NumberValue = 0.0;
 			m_StringValue = null;
-			Value = luaValue;
+			Value = value;
 		}
 
 		public override String ToString() => Value.ToString();

@@ -23,20 +23,20 @@ namespace Luny
 
 		public void OnAfterDeserialize() => m_Table = FromSerializedData();
 
-		private void ToSerializedData(LuaTable value)
+		private void ToSerializedData(LuaTable table)
 		{
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 			using (m_SerializeMarker.Auto())
 #endif
 			{
-				if (value == null)
+				if (table == null)
 				{
 					Array.Clear(m_ArrayValues, 0, m_ArrayValues.Length);
-					Array.Clear(m_DictionaryValues, 0, m_ArrayValues.Length);
+					Array.Clear(m_DictionaryValues, 0, m_DictionaryValues.Length);
 				}
 				else
 				{
-					var array = value.GetArraySpan();
+					var array = table.GetArraySpan();
 					var arrayCount = array.Length;
 					Array.Resize(ref m_ArrayValues, arrayCount);
 					for (var i = 0; i < arrayCount; i++)
@@ -50,15 +50,44 @@ namespace Luny
 						m_ArrayValues[i].Value = array[i];
 					}
 
-					var dictIndex = 0;
-					Array.Resize(ref m_DictionaryValues, value.HashMapCount);
+					// sort dictionary values by keys (find duplicates)
+					var duplicateKeys = new Dictionary<String, List<SerializedLuaKeyValue>>();
+					foreach (var dictValuePair in m_DictionaryValues)
+					{
+						var key = dictValuePair.Key;
+						if (duplicateKeys.ContainsKey(key))
+							duplicateKeys[key].Add(dictValuePair);
+						else
+							duplicateKeys.Add(key, new List<SerializedLuaKeyValue> { dictValuePair });
+					}
 
-					foreach (var pair in value)
+					var dictValue = new List<SerializedLuaKeyValue>(table.HashMapCount);
+					foreach (var pair in table)
 					{
 						var key = pair.Key;
-						if (key.Type != LuaValueType.Number)
-							m_DictionaryValues[dictIndex++] = new SerializedLuaKeyValue(key, pair.Value);
+						if (key.Type == LuaValueType.Number)
+							continue;
+
+						var value = pair.Value;
+						if (key.Type == LuaValueType.String &&
+						    duplicateKeys.TryGetValue(key.Read<String>(), out var duplicates) &&
+						    duplicates.Count > 1)
+						{
+							// re-add any duplicates or else Inspector UI will behave unexpectedly
+							var dupeCount = duplicates.Count;
+							for (var i = 0; i < dupeCount; i++)
+							{
+								var duplicateKeyValue = duplicates[i];
+								dictValue.Add(duplicateKeyValue);
+							}
+
+							continue;
+						}
+
+						dictValue.Add(new SerializedLuaKeyValue(key, value));
 					}
+
+					m_DictionaryValues = dictValue.ToArray();
 				}
 			}
 		}
@@ -85,24 +114,23 @@ namespace Luny
 						continue;
 
 					var valueType = pair.Value.Type;
-					if (valueType != LuaValueType.Boolean && valueType != LuaValueType.Number &&
-					    valueType != LuaValueType.String ||
+					if (valueType != LuaValueType.Boolean && valueType != LuaValueType.Number && valueType != LuaValueType.String ||
 					    keyType != LuaValueType.String)
 						keptValues.Add(pair.Key, pair.Value);
 				}
+
 				var keys = new HashSet<String>();
 #endif
 
 				// must clear, otherwise removing items through PropertyDrawer won't work
 				m_Table.Clear();
-				m_Table.GetArraySpan().Clear();
 
 				for (var i = 0; i < arrayCount; i++)
 				{
 					var luaValue = m_ArrayValues[i].Value;
 
 #if UNITY_EDITOR
-					// allow new items in PropertyDrawer
+					// allows adding new items in PropertyDrawer
 					if (luaValue.Type == LuaValueType.Nil)
 						luaValue = String.Empty;
 #endif
@@ -117,9 +145,20 @@ namespace Luny
 					var luaValue = item.Value.Value;
 
 #if UNITY_EDITOR
-					// when adding new items through PropertyDrawer it will have the same name as the previous item
-					if (keys.Contains(key))
-						key += "!";
+					//Debug.Log($"Deserialize: [{key}] = {luaValue} ({luaValue.Type})");
+
+					// allows adding the first item in PropertyDrawer
+					if (luaValue.Type == LuaValueType.Nil)
+					{
+						key = "new";
+						luaValue = String.Empty;
+					}
+
+					// when adding more items through PropertyDrawer (+) it uses the same key as the previous item
+					// but it must be a unique key
+					// if (keys.Contains(key))
+					// 	key += "1";
+
 					keys.Add(key);
 #endif
 

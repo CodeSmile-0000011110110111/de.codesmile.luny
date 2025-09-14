@@ -40,7 +40,7 @@ namespace Luny
 		         "Disabling event categories that you do not use could improve performance.")]
 		[SerializeField] private LuaScriptEvents m_ForwardedEventTypes = (LuaScriptEvents)(-1); // default to "Everything"
 
-		[SerializeField] private SerializedLuaTable m_ScriptContext;
+		[SerializeField] private SerializedLuaTable m_ScriptContext = new();
 
 		private ILunyLua m_Lua;
 		private LuaGameObjectReferences m_LuaGoRefs;
@@ -61,6 +61,10 @@ namespace Luny
 		/// </summary>
 		protected virtual void OnValidate()
 		{
+			// Debug.Log("--------- Serialized Script Context dump ---------");
+			// foreach (var pair in m_ScriptContext.Table)
+			// 	Debug.Log($"{pair.Key}: {pair.Value}");
+
 			m_ForwardedEventTypes |= LuaScriptEvents.Lifecycle;
 
 			// LuaAsset and FilePath are mutually exclusive
@@ -178,8 +182,10 @@ namespace Luny
 		private void OnScriptChanged(LunyLuaScript luaScript)
 		{
 			Debug.Assert(luaScript == m_LuaScript);
-			Debug.Log($"Script changed: {luaScript}");
-			StartCoroutine(DeferredScriptReload());
+			Debug.Log($"{name} script changed: {luaScript} (active: {isActiveAndEnabled})");
+
+			if (isActiveAndEnabled)
+				StartCoroutine(DeferredScriptReload());
 		}
 
 		private IEnumerator DeferredScriptReload()
