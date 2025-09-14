@@ -9,6 +9,7 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 ### 0.5.4
 
 - fixed: Create Asset "Editor Lua Script" will be grayed out if the location isn't an 'Editor' folder or assembly
+- fixed: NullreferenceException after first installation of Luny package (was harmless, but annoying)
 
 ### 0.5.3
 

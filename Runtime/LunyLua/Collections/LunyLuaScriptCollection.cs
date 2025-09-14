@@ -26,8 +26,12 @@ namespace Luny
 
 		public void Add(LunyLuaScript luaScript)
 		{
+			var scriptPath = luaScript.FullPath;
+			if (m_FullPathScripts.ContainsKey(scriptPath))
+				Remove(luaScript);
+
+			m_FullPathScripts.Add(scriptPath, luaScript);
 			m_Scripts.Add(luaScript);
-			m_FullPathScripts.Add(luaScript.FullPath, luaScript);
 		}
 
 		public Boolean Remove(LunyLuaScript luaScript)
@@ -38,8 +42,8 @@ namespace Luny
 
 		public void Clear()
 		{
-			m_Scripts.Clear();
 			m_FullPathScripts.Clear();
+			m_Scripts.Clear();
 		}
 
 		public Boolean Contains(LunyLuaScript luaScript) => m_Scripts.Contains(luaScript);
