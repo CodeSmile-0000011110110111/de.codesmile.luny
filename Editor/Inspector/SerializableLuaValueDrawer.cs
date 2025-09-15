@@ -12,7 +12,7 @@ using UnityEngine.UIElements;
 namespace LunyEditor.Inspector
 {
 	[CustomPropertyDrawer(typeof(SerializableLuaValue))]
-	public sealed class SerializedLuaValueDrawer : PropertyDrawer
+	public sealed class SerializableLuaValueDrawer : PropertyDrawer
 	{
 		private const String ValueTypePropertyName = "m_ValueType";
 		private const String BooleanValuePropertyName = "m_BooleanValue";

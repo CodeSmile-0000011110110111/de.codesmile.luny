@@ -12,7 +12,7 @@ using UnityEngine.UIElements;
 namespace LunyEditor.Inspector
 {
 	[CustomPropertyDrawer(typeof(SerializableLuaTable))]
-	public sealed class SerializedLuaTableDrawer : PropertyDrawer
+	public sealed class SerializableLuaTableDrawer : PropertyDrawer
 	{
 		private const String PathRoot = "Packages/de.codesmile.luny/Editor/Inspector";
 
