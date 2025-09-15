@@ -17,7 +17,6 @@ namespace Luny
 		LunyLuaAsset GetModdingLuaAsset(String assetPath);
 	}
 
-
 	/// <summary>
 	/// Maintains a list of project-wide LuaAsset (*.lua) assets in support of 'load bundled script by name/path'.
 	/// </summary>
@@ -73,7 +72,25 @@ namespace Luny
 			s_SingletonAssigned = false;
 		}
 
-		internal LuaModuleLoaderInfo GetRuntimeModuleLoader(string moduleAssemblyName)
+		public LunyLuaAsset GetRuntimeLuaAsset(String assetPath)
+		{
+			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetPath);
+			return index >= 0 ? m_RuntimeLuaAssets.Assets[index] : null;
+		}
+
+		public LunyLuaAsset GetModdingLuaAsset(String assetPath)
+		{
+			var index = m_ModdingLuaAssets.Paths.IndexOf(assetPath);
+			return index >= 0 ? m_ModdingLuaAssets.Assets[index] : null;
+		}
+
+		private void OnDestroy()
+		{
+			if (s_Singleton == this)
+				ResetSingletonFields();
+		}
+
+		internal LuaModuleLoaderInfo GetRuntimeModuleLoader(String moduleAssemblyName)
 		{
 			foreach (var moduleLoader in m_RuntimeModuleLoaders)
 			{
@@ -97,24 +114,6 @@ namespace Luny
 
 			// otherwise add it
 			m_RuntimeModuleLoaders.Add(luaModuleLoaderInfo);
-		}
-
-		public LunyLuaAsset GetRuntimeLuaAsset(String assetPath)
-		{
-			var index = m_RuntimeLuaAssets.Paths.IndexOf(assetPath);
-			return index >= 0 ? m_RuntimeLuaAssets.Assets[index] : null;
-		}
-
-		public LunyLuaAsset GetModdingLuaAsset(String assetPath)
-		{
-			var index = m_ModdingLuaAssets.Paths.IndexOf(assetPath);
-			return index >= 0 ? m_ModdingLuaAssets.Assets[index] : null;
-		}
-
-		private void OnDestroy()
-		{
-			if (s_Singleton == this)
-				ResetSingletonFields();
 		}
 
 		internal void Save()

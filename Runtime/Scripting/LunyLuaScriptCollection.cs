@@ -12,7 +12,7 @@ namespace Luny
 	public sealed class LunyLuaScriptCollection : IList<LunyLuaScript>
 	{
 		private readonly List<LunyLuaScript> m_Scripts = new();
-		private readonly Dictionary<String, List<int>> m_FullPathScriptIndexes = new();
+		private readonly Dictionary<String, List<Int32>> m_FullPathScriptIndexes = new();
 
 		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.AsReadOnly();
 		public Int32 Count => m_Scripts.Count;
@@ -31,7 +31,7 @@ namespace Luny
 			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
 				indexes.Add(scriptIndex);
 			else
-				m_FullPathScriptIndexes.Add(scriptPath, new List<int> {scriptIndex});
+				m_FullPathScriptIndexes.Add(scriptPath, new List<Int32> { scriptIndex });
 
 			m_Scripts.Add(luaScript);
 		}
@@ -42,7 +42,7 @@ namespace Luny
 			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
 			{
 				var scriptCount = m_Scripts.Count;
-				for (int i = 0; i < indexes.Count; i++)
+				for (var i = 0; i < indexes.Count; i++)
 				{
 					var scriptIndex = indexes[i];
 					if (scriptIndex < scriptCount && m_Scripts[scriptIndex].Equals(luaScript))
@@ -66,26 +66,6 @@ namespace Luny
 			m_Scripts.RemoveAt(index);
 		}
 
-		public void RemoveScriptsForAsset(LunyLuaAsset luaAsset)
-		{
-			var scriptPath = luaAsset.FullPath;
-			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
-			{
-				var scriptCount = m_Scripts.Count;
-				for (int i = 0; i < indexes.Count; i++)
-				{
-					var scriptIndex = indexes[i];
-					if (scriptIndex < scriptCount)
-					{
-						Debug.Assert(scriptPath == m_Scripts[scriptIndex].FullPath);
-						m_Scripts.RemoveAt(scriptIndex);
-					}
-				}
-
-				m_FullPathScriptIndexes.Remove(scriptPath);
-			}
-		}
-
 		public void Clear()
 		{
 			m_FullPathScriptIndexes.Clear();
@@ -99,6 +79,25 @@ namespace Luny
 
 		public void Insert(Int32 index, LunyLuaScript luaScript) => throw new NotImplementedException();
 
+		public void RemoveScriptsForAsset(LunyLuaAsset luaAsset)
+		{
+			var scriptPath = luaAsset.FullPath;
+			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
+			{
+				var scriptCount = m_Scripts.Count;
+				for (var i = 0; i < indexes.Count; i++)
+				{
+					var scriptIndex = indexes[i];
+					if (scriptIndex < scriptCount)
+					{
+						Debug.Assert(scriptPath == m_Scripts[scriptIndex].FullPath);
+						m_Scripts.RemoveAt(scriptIndex);
+					}
+				}
+
+				m_FullPathScriptIndexes.Remove(scriptPath);
+			}
+		}
 
 		public Boolean TryGetScriptsForPath(String scriptPath, out IList<LunyLuaScript> scripts)
 		{
@@ -107,7 +106,7 @@ namespace Luny
 			if (m_FullPathScriptIndexes.TryGetValue(scriptPath, out var indexes))
 			{
 				var scriptCount = m_Scripts.Count;
-				for (int i = 0; i < indexes.Count; i++)
+				for (var i = 0; i < indexes.Count; i++)
 				{
 					var scriptIndex = indexes[i];
 					if (scriptIndex < scriptCount)

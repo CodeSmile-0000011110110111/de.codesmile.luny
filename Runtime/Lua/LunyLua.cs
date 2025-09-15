@@ -116,10 +116,7 @@ namespace Luny
 			}
 		}
 
-		public void AddScript(LunyLuaScript script)
-		{
-			m_Scripts.Add(script);
-		}
+		public void AddScript(LunyLuaScript script) => m_Scripts.Add(script);
 
 		public void RemoveScript(LunyLuaScript script)
 		{

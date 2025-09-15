@@ -15,6 +15,7 @@ namespace Luny
 {
 	public abstract class LunyLuaScript
 	{
+		public event Action<LunyLuaScript> OnScriptChanged;
 		public const String InstanceKey = "self";
 		public const String ScriptNameKey = "name";
 		public const String ScriptPathKey = "path";
@@ -25,9 +26,8 @@ namespace Luny
 
 		public const String ScriptableSingletonEditorType = "ScriptableSingleton";
 		private readonly LunyScriptEventHandlerCollection m_EventHandlers = new();
-		public event Action<LunyLuaScript> OnScriptChanged;
 
-		private LuaTable m_ScriptContext = new(0,0);
+		private readonly LuaTable m_ScriptContext = new(0, 0);
 		private String m_ScriptName;
 
 		public String Name => m_ScriptName;
@@ -166,6 +166,7 @@ namespace Luny
 			ScriptContext["Name"] = name;
 			ScriptContext["Path"] = path;
 		}
+
 		internal void SetRuntimeContextVariables(ILunyGameObjectReferences gameObjectReferences)
 		{
 			m_ScriptContext[GameObjectKey] = gameObjectReferences.LuaGameObject;
@@ -179,7 +180,8 @@ namespace Luny
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal LunyScriptEventHandler<T> TryGetOrCreateEventHandler<T>() where T : Enum => TryGetEventHandler<T>() ?? TryCreateEventHandler<T>();
+		internal LunyScriptEventHandler<T> TryGetOrCreateEventHandler<T>() where T : Enum =>
+			TryGetEventHandler<T>() ?? TryCreateEventHandler<T>();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal LunyScriptEventHandler<T> TryGetEventHandler<T>() where T : Enum => m_EventHandlers.TryGet<T>();

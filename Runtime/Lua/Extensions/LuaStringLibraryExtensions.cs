@@ -26,7 +26,7 @@ namespace Luny
 			var result = str.EndsWith(suffix);
 			return new ValueTask<Int32>(context.Return(result));
 		});
-		[Preserve] private  static readonly LuaFunction _contains = new("Contains", (context, token) =>
+		[Preserve] private static readonly LuaFunction _contains = new("Contains", (context, token) =>
 		{
 			var str = context.GetArgument<String>(0);
 			var suffix = context.GetArgument<String>(1);

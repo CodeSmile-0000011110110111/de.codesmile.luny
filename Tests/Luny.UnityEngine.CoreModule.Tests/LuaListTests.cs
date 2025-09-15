@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyTests.UnityEngineCoreModule
+namespace LunyTests
 {
 	public sealed class LuaListTests : LuaModuleTestsBase
 	{

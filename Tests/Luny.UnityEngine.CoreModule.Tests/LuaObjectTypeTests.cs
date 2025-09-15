@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using Task = System.Threading.Tasks.Task;
 
-namespace LunyTests.UnityEngineCoreModule
+namespace LunyTests
 {
 	public sealed class LuaObjectTypeTests : LuaModuleTestsBase
 	{

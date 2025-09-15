@@ -45,7 +45,7 @@ namespace LunyEditor.Core
 		/// <returns></returns>
 		public static Boolean IsEditorAssembly(String assetPath)
 		{
-			if (string.IsNullOrEmpty(assetPath))
+			if (String.IsNullOrEmpty(assetPath))
 				return false;
 
 			var assemblyName = CompilationPipeline.GetAssemblyNameFromScriptPath(assetPath);

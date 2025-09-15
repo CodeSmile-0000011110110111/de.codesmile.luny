@@ -80,7 +80,7 @@ namespace LunyEditor.MenuItems
 		}
 
 		[MenuItem("Assets/Create/Luny/Editor Lua Script", true, priority = 7)]
-		private static bool CreateEditorAutoRunLuaScriptValidate()
+		private static Boolean CreateEditorAutoRunLuaScriptValidate()
 		{
 			var activeObject = Selection.activeObject;
 			var path = AssetDatabase.GetAssetPath(activeObject);

@@ -16,10 +16,10 @@ namespace LunyEditor.Scripting
 	{
 		private readonly LunyLuaScriptCollection m_Scripts = new();
 
-		internal static LunyEditorScriptableSingletonScripts Singleton => instance; // for consistency
-
 		// It's safe to cache the state since this script is created and destroyed by LunyEditor
-		LuaState m_LuaState;
+		private LuaState m_LuaState;
+
+		internal static LunyEditorScriptableSingletonScripts Singleton => instance; // for consistency
 
 		// Awake runs every time the singleton is instantiated
 		private void Awake()
@@ -59,6 +59,7 @@ namespace LunyEditor.Scripting
 			Debug.Log($"{nameof(LunyEditorScriptableSingletonScripts)}: OnDestroy");
 			m_LuaState = null;
 		}
+
 		private void OnValidate()
 		{
 			foreach (var script in m_Scripts)

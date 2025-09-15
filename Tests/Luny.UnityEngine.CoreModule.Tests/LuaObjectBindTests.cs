@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace LunyTests.UnityEngineCoreModule
+namespace LunyTests
 {
 	public sealed class LuaObjectBindTests : LuaModuleTestsBase
 	{

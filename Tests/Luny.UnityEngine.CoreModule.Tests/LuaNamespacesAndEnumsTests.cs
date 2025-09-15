@@ -10,7 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace LunyTests.UnityEngineCoreModule
+namespace LunyTests
 {
 	public sealed class LuaNamespacesAndEnumsTests : LuaModuleTestsBase
 	{
@@ -57,6 +57,5 @@ namespace LunyTests.UnityEngineCoreModule
 
 			Assert.That(retvals[0].Read<BuiltinShaderMode>(), Is.EqualTo(GraphicsSettings.GetShaderMode(BuiltinShaderType.DeferredShading)));
 		}
-
 	}
 }

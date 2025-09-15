@@ -41,6 +41,7 @@ namespace Luny
 		public Int32 LoaderHash;
 		[SerializeReference] public LunyLuaModule.Loader Loader;
 		public override String ToString() => $"LuaModuleLoader for {AssemblyName}: {Loader} ({LoaderHash}, version: {LoaderVersion})";
+
 		public void Reset()
 		{
 			LoaderVersion = null;

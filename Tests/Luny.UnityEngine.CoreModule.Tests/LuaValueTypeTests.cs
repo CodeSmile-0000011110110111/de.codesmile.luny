@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyTests.UnityEngineCoreModule
+namespace LunyTests
 {
 	public class LuaValueTypeTests : LuaModuleTestsBase
 	{

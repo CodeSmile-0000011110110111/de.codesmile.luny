@@ -21,7 +21,6 @@ namespace LunyEditor.Scripting
 		EditorUpdate,
 	}
 
-
 	/*
 	public enum EditorEvent
 	{
