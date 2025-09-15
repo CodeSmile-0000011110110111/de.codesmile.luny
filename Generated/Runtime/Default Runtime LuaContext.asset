@@ -10,14 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3523d6157fe469c4684ad3c0d6b19add, type: 3}
-  m_Name: Default Modding LuaContext
+  m_Name: Default Runtime LuaContext
   m_EditorClassIdentifier: 
   m_IsSandbox: 1
   m_ScriptSearchPaths:
   - '%PersistentDataPath%'
   - Assets/StreamingAssets
-  - Assets/Scripts/Luny/Modding
-  m_Libraries: 604111140
-  m_Modules: []
-  m_Path: Packages/de.codesmile.luny/Runtime/LuaContexts/Default Modding LuaContext.asset
-  m_IsModdingContext: 1
+  - Assets/Scripts/Luny/Runtime
+  - Assets
+  m_Libraries: 605161764
+  m_Modules:
+  - {fileID: 11400000, guid: 4a2918d1a4f0b3844832e71f9e3ee65f, type: 2}
+  m_Path: Packages/de.codesmile.luny/Generated/Runtime/Default Runtime LuaContext.asset
+  m_IsModdingContext: 0
