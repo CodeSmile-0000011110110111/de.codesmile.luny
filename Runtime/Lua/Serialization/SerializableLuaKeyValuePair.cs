@@ -9,18 +9,18 @@ using UnityEngine;
 namespace Luny
 {
 	[Serializable]
-	public struct SerializedLuaKeyValue
+	public struct SerializableLuaKeyValuePair
 	{
 		[SerializeField] private String m_Key;
-		[SerializeField] private SerializedLuaValue m_Value;
+		[SerializeField] private SerializableLuaValue m_Value;
 
 		public String Key => m_Key;
-		public SerializedLuaValue Value => m_Value;
+		public SerializableLuaValue Value => m_Value;
 
-		public SerializedLuaKeyValue(LuaValue key, LuaValue value)
+		public SerializableLuaKeyValuePair(LuaValue key, LuaValue value)
 		{
 			m_Key = key.ToString();
-			m_Value = new SerializedLuaValue(value);
+			m_Value = new SerializableLuaValue(value);
 		}
 	}
 }

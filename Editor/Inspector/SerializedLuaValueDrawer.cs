@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 namespace LunyEditor.Inspector
 {
-	[CustomPropertyDrawer(typeof(SerializedLuaValue))]
+	[CustomPropertyDrawer(typeof(SerializableLuaValue))]
 	public sealed class SerializedLuaValueDrawer : PropertyDrawer
 	{
 		private const String ValueTypePropertyName = "m_ValueType";
@@ -31,7 +31,7 @@ namespace LunyEditor.Inspector
 			var valueType = GetSerializedProperty(property, ValueTypePropertyName);
 
 			var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-				$"Packages/de.codesmile.luny/Editor/Inspector/{nameof(SerializedLuaValue)}.uxml");
+				$"Packages/de.codesmile.luny/Editor/Inspector/{nameof(SerializableLuaValue)}.uxml");
 			var container = uxml.CloneTree();
 
 			var propertyField = container.Q<PropertyField>("propertyField");

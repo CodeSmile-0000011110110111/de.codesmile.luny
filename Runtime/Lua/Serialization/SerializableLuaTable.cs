@@ -11,10 +11,10 @@ using UnityEngine;
 namespace Luny
 {
 	[Serializable]
-	public sealed class SerializedLuaTable : ISerializationCallbackReceiver
+	public sealed class SerializableLuaTable : ISerializationCallbackReceiver
 	{
-		[SerializeField] private SerializedLuaValue[] m_ArrayValues = Array.Empty<SerializedLuaValue>();
-		[SerializeField] private SerializedLuaKeyValue[] m_DictionaryValues = Array.Empty<SerializedLuaKeyValue>();
+		[SerializeField] private SerializableLuaValue[] m_ArrayValues = Array.Empty<SerializableLuaValue>();
+		[SerializeField] private SerializableLuaKeyValuePair[] m_DictionaryValues = Array.Empty<SerializableLuaKeyValuePair>();
 
 		private LuaTable m_Table;
 		public LuaTable Table => m_Table ?? (m_Table = new LuaTable(0, 0));
@@ -51,17 +51,17 @@ namespace Luny
 					}
 
 					// sort dictionary values by keys (find duplicates)
-					var duplicateKeys = new Dictionary<String, List<SerializedLuaKeyValue>>();
+					var duplicateKeys = new Dictionary<String, List<SerializableLuaKeyValuePair>>();
 					foreach (var dictValuePair in m_DictionaryValues)
 					{
 						var key = dictValuePair.Key;
 						if (duplicateKeys.ContainsKey(key))
 							duplicateKeys[key].Add(dictValuePair);
 						else
-							duplicateKeys.Add(key, new List<SerializedLuaKeyValue> { dictValuePair });
+							duplicateKeys.Add(key, new List<SerializableLuaKeyValuePair> { dictValuePair });
 					}
 
-					var dictValue = new List<SerializedLuaKeyValue>(table.HashMapCount);
+					var dictValue = new List<SerializableLuaKeyValuePair>(table.HashMapCount);
 					foreach (var pair in table)
 					{
 						var key = pair.Key;
@@ -84,7 +84,7 @@ namespace Luny
 							continue;
 						}
 
-						dictValue.Add(new SerializedLuaKeyValue(key, value));
+						dictValue.Add(new SerializableLuaKeyValuePair(key, value));
 					}
 
 					m_DictionaryValues = dictValue.ToArray();
@@ -176,8 +176,8 @@ namespace Luny
 		}
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-		private ProfilerMarker m_SerializeMarker = new($"{nameof(SerializedLuaTable)}.{nameof(ToSerializedData)}");
-		private ProfilerMarker m_DeserializeMarker = new($"{nameof(SerializedLuaTable)}.{nameof(FromSerializedData)}");
+		private ProfilerMarker m_SerializeMarker = new($"{nameof(SerializableLuaTable)}.{nameof(ToSerializedData)}");
+		private ProfilerMarker m_DeserializeMarker = new($"{nameof(SerializableLuaTable)}.{nameof(FromSerializedData)}");
 #endif
 	}
 }

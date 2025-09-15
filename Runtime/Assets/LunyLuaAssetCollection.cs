@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Luny
 {
 	[Serializable]
-	public sealed class LuaAssetCollection : IEnumerable<LunyLuaAsset>
+	public sealed class LunyLuaAssetCollection : IEnumerable<LunyLuaAsset>
 	{
 		public event Action<LunyLuaAsset> OnAdd;
 		public event Action<LunyLuaAsset> OnRemove;

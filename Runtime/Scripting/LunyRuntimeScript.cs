@@ -40,10 +40,10 @@ namespace Luny
 		         "Disabling event categories that you do not use could improve performance.")]
 		[SerializeField] private LuaScriptEvents m_ForwardedEventTypes = (LuaScriptEvents)(-1); // default to "Everything"
 
-		[SerializeField] private SerializedLuaTable m_ScriptContext = new();
+		[SerializeField] private SerializableLuaTable m_ScriptContext = new();
 
 		private ILunyLua m_Lua;
-		private LuaGameObjectReferences m_LuaGoRefs;
+		private LunyGameObjectReferences m_LunyGoRefs;
 		private LunyLuaScript m_LuaScript;
 		private Boolean m_IsLuaGoRefsAssigned;
 		private Boolean m_IsHotReloading;
@@ -51,8 +51,8 @@ namespace Luny
 
 		public LuaScriptEvents ForwardedEventTypes => m_ForwardedEventTypes;
 
-		private LuaGameObjectReferences LuaGoRefs =>
-			m_IsLuaGoRefsAssigned ? m_LuaGoRefs : m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
+		private LunyGameObjectReferences LunyGoRefs =>
+			m_IsLuaGoRefsAssigned ? m_LunyGoRefs : m_LunyGoRefs = GetOrAddLuaGameObjectReferencesComponent();
 		public ILunyLua Lua => m_Lua;
 
 		public static GameObject CreateLunyScriptObject() => new(nameof(LunyRuntimeScript), typeof(LunyRuntimeScript));
@@ -124,7 +124,7 @@ namespace Luny
 			m_Lua?.RemoveScript(m_LuaScript);
 
 			m_IsLuaGoRefsAssigned = false;
-			m_LuaGoRefs = null;
+			m_LunyGoRefs = null;
 			m_LuaScript = null;
 			m_Lua = null;
 		}
@@ -132,7 +132,7 @@ namespace Luny
 		private async void AssignReferencesAndLoadScript()
 		{
 			m_Lua = GetModdingOrRuntimeLuaInstance();
-			m_LuaGoRefs = GetOrAddLuaGameObjectReferencesComponent();
+			m_LunyGoRefs = GetOrAddLuaGameObjectReferencesComponent();
 
 			m_LuaScript = CreateLuaScriptInstance();
 			gameObject.GetOrAddComponent<LunyRuntimeScriptCoordinator>();
@@ -145,14 +145,14 @@ namespace Luny
 			? LunyRuntime.Singleton.ModdingLua
 			: LunyRuntime.Singleton.Lua;
 
-		private LuaGameObjectReferences GetOrAddLuaGameObjectReferencesComponent()
+		private LunyGameObjectReferences GetOrAddLuaGameObjectReferencesComponent()
 		{
 			if (!m_IsLuaGoRefsAssigned)
 			{
 				m_IsLuaGoRefsAssigned = true;
-				m_LuaGoRefs = gameObject.GetOrAddComponent<LuaGameObjectReferences>();
+				m_LunyGoRefs = gameObject.GetOrAddComponent<LunyGameObjectReferences>();
 			}
-			return m_LuaGoRefs;
+			return m_LunyGoRefs;
 		}
 
 		private LunyLuaScript CreateLuaScriptInstance()
@@ -232,7 +232,7 @@ namespace Luny
 				if (isReloading)
 					runner.OnWillReload();
 
-				m_LuaScript.SetRuntimeContextVariables(LuaGoRefs);
+				m_LuaScript.SetRuntimeContextVariables(LunyGoRefs);
 
 				await m_LuaScript.ReloadScript(m_Lua.State);
 

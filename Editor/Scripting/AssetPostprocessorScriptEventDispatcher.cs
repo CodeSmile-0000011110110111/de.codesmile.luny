@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Scripting
 {
-	public sealed class AssetPostprocessorScriptEventDispatcher : IDisposable
+	internal sealed class AssetPostprocessorScriptEventDispatcher : IDisposable
 	{
 		private LunyScriptEventHandler<AssetPostprocessorEvent> m_ScriptEventHandler;
 

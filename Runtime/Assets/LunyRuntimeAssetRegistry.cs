@@ -11,8 +11,8 @@ namespace Luny
 {
 	public interface ILunyRuntimeAssetRegistry
 	{
-		LuaAssetCollection RuntimeLuaAssets { get; }
-		LuaAssetCollection ModdingLuaAssets { get; }
+		LunyLuaAssetCollection RuntimeLuaAssets { get; }
+		LunyLuaAssetCollection ModdingLuaAssets { get; }
 		LunyLuaAsset GetRuntimeLuaAsset(String assetPath);
 		LunyLuaAsset GetModdingLuaAsset(String assetPath);
 	}
@@ -32,26 +32,26 @@ namespace Luny
 		[SerializeField] [ReadOnlyField] private LunyLuaContext m_ModdingContext;
 		[SerializeField] [ReadOnlyField] private List<LuaModuleLoaderInfo> m_RuntimeModuleLoaders = new();
 
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeAutoRunLuaAssets = new();
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_RuntimeLuaAssets = new();
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingAutoRunLuaAssets = new();
-		[SerializeField] [ReadOnlyField] private LuaAssetCollection m_ModdingLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LunyLuaAssetCollection m_RuntimeAutoRunLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LunyLuaAssetCollection m_RuntimeLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LunyLuaAssetCollection m_ModdingAutoRunLuaAssets = new();
+		[SerializeField] [ReadOnlyField] private LunyLuaAssetCollection m_ModdingLuaAssets = new();
 
 		public LunyLuaContext RuntimeContext { get => m_RuntimeContext; set => m_RuntimeContext = value; }
 		public LunyLuaContext ModdingContext { get => m_ModdingContext; set => m_ModdingContext = value; }
 
-		public LuaAssetCollection RuntimeAutoRunLuaAssets
+		public LunyLuaAssetCollection RuntimeAutoRunLuaAssets
 		{
 			get => m_RuntimeAutoRunLuaAssets;
 			internal set => m_RuntimeAutoRunLuaAssets = value;
 		}
-		public LuaAssetCollection ModdingAutoRunLuaAssets
+		public LunyLuaAssetCollection ModdingAutoRunLuaAssets
 		{
 			get => m_ModdingAutoRunLuaAssets;
 			internal set => m_ModdingAutoRunLuaAssets = value;
 		}
-		public LuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
-		public LuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;
+		public LunyLuaAssetCollection RuntimeLuaAssets => m_RuntimeLuaAssets;
+		public LunyLuaAssetCollection ModdingLuaAssets => m_ModdingLuaAssets;
 
 		public static LunyRuntimeAssetRegistry Singleton
 		{

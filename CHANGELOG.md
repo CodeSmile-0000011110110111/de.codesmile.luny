@@ -9,6 +9,7 @@ https://docs.google.com/document/d/1jADnS6rsSx28-uWu8C4ubvCQD08zRO8sNLwtv8uASNU/
 ### 0.5.5
 
 - fixed: possible NullreferenceException in Script Context Table Inspector (harmless)
+- changed: moved all generated code and related Lua Context/Module assets to "Generated" folder in the package
 
 ### 0.5.4
 

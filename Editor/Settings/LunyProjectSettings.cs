@@ -87,9 +87,9 @@ namespace LunyEditor.Settings
 			Save(true);
 		}
 
-		private LuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAsset> runtimeAutoRunScripts)
+		private LunyLuaAssetCollection CreateAssetCollection(IEnumerable<LunyLuaAsset> runtimeAutoRunScripts)
 		{
-			var assets = new LuaAssetCollection();
+			var assets = new LunyLuaAssetCollection();
 			foreach (var luaAsset in runtimeAutoRunScripts)
 			{
 				if (luaAsset != null)

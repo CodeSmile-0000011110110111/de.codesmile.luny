@@ -140,7 +140,7 @@ namespace LunyEditor.Assets
 			}
 		}
 
-		private static void FindAndRegisterAllLuaAssets(LuaAssetCollection luaAssets, Type assetType)
+		private static void FindAndRegisterAllLuaAssets(LunyLuaAssetCollection luaAssets, Type assetType)
 		{
 			luaAssets.RemoveNullReferences();
 
@@ -278,10 +278,10 @@ namespace LunyEditor.Assets
 				return AssetMoveResult.DidNotMove;
 			}
 
-			private static LuaAssetCollection GetAutoRunLuaAssets(Boolean isModdingLua, LunyRuntimeAssetRegistry registry) =>
+			private static LunyLuaAssetCollection GetAutoRunLuaAssets(Boolean isModdingLua, LunyRuntimeAssetRegistry registry) =>
 				isModdingLua ? registry.ModdingAutoRunLuaAssets : registry.RuntimeAutoRunLuaAssets;
 
-			private static LuaAssetCollection GetLuaAssets(Boolean isModdingLua, LunyRuntimeAssetRegistry registry) =>
+			private static LunyLuaAssetCollection GetLuaAssets(Boolean isModdingLua, LunyRuntimeAssetRegistry registry) =>
 				isModdingLua ? registry.ModdingLuaAssets : registry.RuntimeLuaAssets;
 		}
 	}

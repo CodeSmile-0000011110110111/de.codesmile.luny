@@ -12,7 +12,7 @@ using Object = System.Object;
 
 namespace Luny
 {
-	internal static class LuaFunctions
+	internal static class LunyLuaFunctions
 	{
 		[Preserve] internal static readonly LuaFunction LuaNameOf = new("nameof", (context, _) =>
 		{

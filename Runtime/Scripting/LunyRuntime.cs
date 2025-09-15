@@ -178,7 +178,7 @@ namespace Luny
 		// 	LunyLogger.LogInfo(sb.ToString());
 	}
 
-	internal class RuntimeFileSystem : ILunyFileSystemHook
+	internal class RuntimeFileSystem : ILuaFileSystemHook
 	{
 		private readonly LuaSearchPaths m_SearchPaths;
 		private readonly Boolean m_IsSandbox;

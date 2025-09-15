@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 namespace LunyEditor.Inspector
 {
-	[CustomPropertyDrawer(typeof(SerializedLuaTable))]
+	[CustomPropertyDrawer(typeof(SerializableLuaTable))]
 	public sealed class SerializedLuaTableDrawer : PropertyDrawer
 	{
 		private const String PathRoot = "Packages/de.codesmile.luny/Editor/Inspector";
@@ -27,7 +27,7 @@ namespace LunyEditor.Inspector
 
 		private static VisualTreeAsset LoadLuaTableTemplate()
 		{
-			var path = $"{PathRoot}/{nameof(SerializedLuaTable)}.uxml";
+			var path = $"{PathRoot}/{nameof(SerializableLuaTable)}.uxml";
 			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
 			Debug.Assert(template != null, $"Template not found: {path}");
 			return template;
@@ -35,7 +35,7 @@ namespace LunyEditor.Inspector
 
 		private static VisualTreeAsset LoadLuaValueTemplate()
 		{
-			var path = $"{PathRoot}/{nameof(SerializedLuaValue)}.uxml";
+			var path = $"{PathRoot}/{nameof(SerializableLuaValue)}.uxml";
 			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
 			Debug.Assert(template != null, $"Template not found: {path}");
 			return template;
@@ -43,7 +43,7 @@ namespace LunyEditor.Inspector
 
 		private static VisualTreeAsset LoadLuaKeyValueTemplate()
 		{
-			var path = $"{PathRoot}/{nameof(SerializedLuaKeyValue)}.uxml";
+			var path = $"{PathRoot}/{nameof(SerializableLuaKeyValuePair)}.uxml";
 			var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
 			Debug.Assert(template != null, $"Template not found: {path}");
 			return template;
@@ -103,7 +103,7 @@ namespace LunyEditor.Inspector
 			var duplicateKeys = new HashSet<String>();
 			foreach (SerializedProperty item in m_DictionaryValues)
 			{
-				var value = (SerializedLuaKeyValue)item.boxedValue;
+				var value = (SerializableLuaKeyValuePair)item.boxedValue;
 				if (uniqueKeys.Add(value.Key) == false)
 					duplicateKeys.Add(value.Key);
 			}

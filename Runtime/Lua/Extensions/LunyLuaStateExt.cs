@@ -71,12 +71,12 @@ namespace Luny
 			env["warn"] = LuaLogger.LuaLogWarn;
 			env["error"] = LuaLogger.LuaLogError;
 
-			env[LuaFunctions.LuaNameOf.Name] = LuaFunctions.LuaNameOf; // return System.Type.FullName for LuaValue
+			env[LunyLuaFunctions.LuaNameOf.Name] = LunyLuaFunctions.LuaNameOf; // return System.Type.FullName for LuaValue
 
 			if ((libraryFlags & LuaLibraryFlags.Basic) != 0)
 			{
-				env[LuaFunctions.LunyDoFile.Name] = LuaFunctions.LunyDoFile;
-				env[LuaFunctions.LunyLoadFile.Name] = LuaFunctions.LunyLoadFile;
+				env[LunyLuaFunctions.LunyDoFile.Name] = LunyLuaFunctions.LunyDoFile;
+				env[LunyLuaFunctions.LunyLoadFile.Name] = LunyLuaFunctions.LunyLoadFile;
 
 				if (isSandbox)
 					env.SetNil("load"); // disallow compiling and executing arbitrary strings
@@ -86,7 +86,7 @@ namespace Luny
 		internal static void EnableNamespaceLookup(this LuaState luaState)
 		{
 			var envMetatable = new LuaTable(0, 1);
-			envMetatable[Metamethods.Index] = LuaFunctions.LunyEnvironmentIndex;
+			envMetatable[Metamethods.Index] = LunyLuaFunctions.LunyEnvironmentIndex;
 			luaState.Environment.Metatable = envMetatable;
 		}
 	}

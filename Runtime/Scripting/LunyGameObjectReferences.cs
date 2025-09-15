@@ -22,7 +22,7 @@ namespace Luny
 	/// </remarks>
 	[AddComponentMenu("GameObject/")] // Do not list in "Add Component" menu
 	[DisallowMultipleComponent]
-	public sealed class LuaGameObjectReferences : MonoBehaviour, ILunyGameObjectReferences
+	public sealed class LunyGameObjectReferences : MonoBehaviour, ILunyGameObjectReferences
 	{
 		private LuaValue m_LuaGameObject;
 		private LuaValue m_LuaTransform;

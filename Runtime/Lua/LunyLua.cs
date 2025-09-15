@@ -72,7 +72,7 @@ namespace Luny
 
 		//public IReadOnlyCollection<LunyLuaScript> Scripts => m_Scripts.Scripts;
 
-		private static LuaPlatform CreateLunyPlatform(LunyLuaContext luaContext, ILunyFileSystemHook fileSystemHook)
+		private static LuaPlatform CreateLunyPlatform(LunyLuaContext luaContext, ILuaFileSystemHook fileSystemHook)
 		{
 			var fileSystem = new LuaUnityFileSystem(luaContext, fileSystemHook);
 			var osEnv = new LuaUnityEnvironment(luaContext);
@@ -81,7 +81,7 @@ namespace Luny
 			return lunyPlatform;
 		}
 
-		public LunyLua(LunyLuaContext luaContext, ILunyFileSystemHook fileSystemHook)
+		public LunyLua(LunyLuaContext luaContext, ILuaFileSystemHook fileSystemHook)
 		{
 			m_FileWatcher = new LuaFileWatcher(luaContext);
 			m_LuaState = LuaState.Create(CreateLunyPlatform(luaContext, fileSystemHook));

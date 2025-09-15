@@ -14,7 +14,7 @@ namespace LunyEditor
 	/// Handles opening of href links that point to a file outside the /Assets directory because Unity
 	/// does not do so by default.
 	/// </summary>
-	internal static class RootedLuaPathHyperLinkHandler
+	internal static class LuaLogPathHyperlinkHandler
 	{
 		[InitializeOnLoadMethod] private static void OnLoad() => EditorGUI.hyperLinkClicked += OnHyperLinkClicked;
 

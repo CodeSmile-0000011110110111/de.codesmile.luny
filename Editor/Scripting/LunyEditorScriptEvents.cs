@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Scripting
 {
 	public enum EditorScriptLifecycleEvent
 	{

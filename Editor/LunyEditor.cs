@@ -3,6 +3,7 @@
 
 using Luny;
 using LunyEditor.Assets;
+using LunyEditor.Scripting;
 using LunyEditor.Settings;
 using System;
 using System.IO;
@@ -179,7 +180,7 @@ namespace LunyEditor
 			}
 		}
 
-		private sealed class FileSystem : ILunyFileSystemHook
+		private sealed class FileSystem : ILuaFileSystemHook
 		{
 			private readonly LuaSearchPaths m_SearchPaths;
 			private readonly Boolean m_IsSandbox;

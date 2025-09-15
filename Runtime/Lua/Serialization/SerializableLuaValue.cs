@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Luny
 {
 	[Serializable]
-	public struct SerializedLuaValue
+	public struct SerializableLuaValue
 	{
 		[SerializeField] private LuaValueType m_ValueType;
 		[SerializeField] private Boolean m_BooleanValue;
@@ -46,7 +46,7 @@ namespace Luny
 			}
 		}
 
-		public SerializedLuaValue(LuaValue value)
+		public SerializableLuaValue(LuaValue value)
 		{
 			m_ValueType = value.Type;
 			m_BooleanValue = false;

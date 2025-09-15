@@ -7,7 +7,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace LunyEditor
+namespace LunyEditor.Scripting
 {
 	// TODO: refactor to generic LunyEditorScripts collection (based on ScriptableSingleton) that supports multiple types of editor scripts
 
