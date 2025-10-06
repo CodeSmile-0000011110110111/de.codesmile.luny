@@ -160,11 +160,9 @@ namespace Luny
 
 			ScriptContext[BindTypeKey] = GetType().Name;
 			ScriptContext[ScriptNameKey] = name;
+			ScriptContext["Name"] = name;	// FIXME: backward compatibility aliases
 			ScriptContext[ScriptPathKey] = path;
-
-			// FIXME: backward compatibility aliases
-			ScriptContext["Name"] = name;
-			ScriptContext["Path"] = path;
+			ScriptContext["Path"] = path;	// FIXME: backward compatibility aliases
 		}
 
 		internal void SetRuntimeContextVariables(ILunyGameObjectReferences gameObjectReferences)
