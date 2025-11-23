@@ -1,10 +1,14 @@
+---
+
+# Pivot => LunyScript is now a cross-engine project (Unity, Godot, ..)
+=> [Learn More about LunyScript](https://lunyscript.com)
+
+---
+
 [![Luny Logo](~Media/LunyLogo.png)](https://lunyscript.com)
 
-# UPDATE: Manual is moving here:
+# Manual is here:
 https://codesmile-0000011110110111.github.io/de.codesmile.luny-docs/
-
-Most of this readme is integrated and updated there.
-
 
 # Program Unity in Lua
 
