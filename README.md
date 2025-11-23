@@ -1,7 +1,7 @@
 ---
 
 # Pivot => LunyScript is now a cross-engine project (Unity, Godot, ..)
-=> [Learn More about LunyScript](https://lunyscript.com)
+## => [Learn More about LunyScript](https://lunyscript.com)
 
 ---
 
